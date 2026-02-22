@@ -20,8 +20,8 @@ export const ProfilePage: React.FC = () => {
                         />
                     </div>
                     <div className="mb-2 md:mb-4">
-                        <h1 className="text-2xl md:text-3xl font-extrabold drop-shadow-md">Alex Johnson</h1>
-                        <p className="font-medium text-sm text-gray-400">alex.johnson@example.com</p>
+                        <h1 className="text-2xl md:text-3xl font-extrabold drop-shadow-md">Aditya Ekhande</h1>
+                        <p className="font-medium text-sm text-gray-400">aadityaekhande@gmail.com</p>
                     </div>
                 </div>
             </div>
