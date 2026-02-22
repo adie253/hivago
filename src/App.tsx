@@ -8,6 +8,7 @@ import { RestaurantsPage } from './presentation/pages/RestaurantsPage';
 import { SignInPage } from './presentation/pages/SignInPage';
 import { RegisterPage } from './presentation/pages/RegisterPage';
 import { Footer } from './presentation/components/Footer';
+import { ScrollToTop } from './presentation/components/ScrollToTop';
 import { CartProvider } from './presentation/context/CartContext';
 import { FavoritesProvider } from './presentation/context/FavoritesContext';
 
@@ -16,6 +17,7 @@ function App() {
     <FavoritesProvider>
       <CartProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
             <Navbar />
             <div className="flex-1">
