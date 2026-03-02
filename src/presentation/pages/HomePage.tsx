@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { HeroSection } from '../components/HeroSection';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryCarousel } from '../components/CategoryCarousel';
-import { FilterChips } from '../components/FilterChips';
+// import { FilterChips } from '../components/FilterChips';
 import { RestaurantGrid } from '../components/RestaurantGrid';
 import { PopularMeals } from '../components/PopularMeals';
 import { PromoBanners } from '../components/PromoBanners';
