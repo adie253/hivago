@@ -7,6 +7,7 @@ import searchIcon from "../../assets/icons/search_icon.png";
 import profileIcon from "../../assets/icons/profile_icon.png";
 // import cartIcon from "../../assets/icons/cart_icon.png";
 import ordersIcon from "../../assets/icons/orders_icon.png";
+import navLogo from "../../assets/nav_logo.svg";
 
 export const Navbar: React.FC = () => {
     const { cartItems } = useCart();
@@ -19,13 +20,12 @@ export const Navbar: React.FC = () => {
     }, [location.pathname]);
 
     return (
-        <>
-            <nav className="flex items-center justify-between px-4 md:px-30 py-4 bg-white border-b border-gray-100 font-sans z-50 relative sticky top-0">
+        <header className="sticky top-0 z-50 bg-white shadow-sm">
+            <nav className="flex items-center justify-between px-4 md:px-30 py-4 border-b border-gray-200 font-sans relative border-b-2">
                 {/* Logo and Mobile Menu */}
                 <div className="flex items-center gap-3 md:gap-4">
                     <Link to="/" className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg md:text-xl">
-                        <img src="../src/assets/nav_logo.svg" alt="Logo" className="w-8 h-8" />
-
+                        <img src={navLogo} alt="Logo" className="w-8 h-8" />
                     </Link>
                     <Link to="/" className="text-xl md:text-2xl font-bold text-brand-primary hidden sm:block">Hivago</Link>
                 </div>
@@ -72,6 +72,18 @@ export const Navbar: React.FC = () => {
                     </button>
                 </div>
             </nav>
+
+            {/* Mobile Location Bar - Design from Image */}
+            <div className="sm:hidden flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white">
+                <MapPin className="text-brand-primary w-5 h-5 flex-shrink-0" />
+                <div className="flex flex-col">
+                    <span className="text-[10px] text-gray-500 font-medium tracking-wide">Your Location</span>
+                    <div className="flex items-center gap-1">
+                        <span className="text-sm font-bold text-gray-900">Vikroli, Mumbai</span>
+                        <ChevronDown className="w-3 h-3 text-gray-600" />
+                    </div>
+                </div>
+            </div>
 
             {/* Mobile Menu Overlay */}
             <div
@@ -135,6 +147,6 @@ export const Navbar: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </header>
     );
 };

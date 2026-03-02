@@ -25,7 +25,7 @@ export const HeroSection: React.FC = () => {
             </div>
 
             {/* ---------------- SECTION 2: Main Text Content ---------------- */}
-            <div className="z-10 w-full lg:w-1/3 flex flex-col items-center">
+            <div className="z-10 w-full lg:w-1/3 flex flex-col items-center font-poppins">
                 <h1 className="text-white font-extrabold text-5xl md:text-6xl lg:text-[3rem] leading-[1.1] mb-2  drop-shadow-md">
                     Delicious Food, <br className="hidden md:block" />
                     <span className="font-light">Delivered Fast</span>
