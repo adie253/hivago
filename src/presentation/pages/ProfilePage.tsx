@@ -148,6 +148,7 @@ export const ProfilePage: React.FC = () => {
                                             <p className="text-xs text-gray-400 mt-1">Oct 20, 2023 • 8:15 PM</p>
                                         </div>
                                     </div>
+
                                     <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-2 sm:mt-0">
                                         <span className="font-black text-gray-900 text-lg">₹599</span>
                                         <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md mt-1">Delivered</span>

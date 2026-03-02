@@ -58,7 +58,7 @@ export const PopularMeals: React.FC = () => {
                     <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Popular this week</h2>
                     <p className="text-gray-500 text-sm mt-1 font-medium">Top meals ordered in your area</p>
                 </div>
-                <button className="text-[#FF4732] font-bold text-sm flex items-center hover:underline">
+                <button className="text-brand-primary font-bold text-sm flex items-center hover:underline">
                     View All <span className="ml-1">&gt;</span>
                 </button>
             </div>
@@ -82,14 +82,14 @@ export const PopularMeals: React.FC = () => {
                         {/* Content */}
                         <div className="px-1 flex-1 flex flex-col justify-between">
                             <div>
-                                <p className="text-xs font-bold text-[#FF4732] uppercase tracking-wider mb-1">{meal.restaurant}</p>
+                                <p className="text-xs font-bold text-brand-primary uppercase tracking-wider mb-1">{meal.restaurant}</p>
                                 <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight mb-2 line-clamp-1">{meal.name}</h3>
                                 <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-md">{meal.calories}</span>
                             </div>
 
                             <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-3">
                                 <span className="text-lg font-black text-gray-900">{meal.price}</span>
-                                <button className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-[#FF4732] transition-colors shadow-sm">
+                                <button className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-brand-primary transition-colors shadow-sm">
                                     <Plus className="w-5 h-5" />
                                 </button>
                             </div>
