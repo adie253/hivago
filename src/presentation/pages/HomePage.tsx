@@ -15,18 +15,18 @@ export const HomePage: React.FC = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-white font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-white font-sans">
             <HeroSection />
 
             <div className="max-w-7xl mx-auto bg-white rounded-t-3xl  relative z-30 shadow-sm border-t border-gray-100 pt-2 pb-20">
                 <SearchBar />
                 <CategoryCarousel />
-                <FilterChips />
+                {/* <FilterChips /> */}
 
                 {/* Restaurants Grid Section */}
-                <div className="px-4 md:px-12 py-8 md:py-10">
+                <div className="px-4 md:px-12 py-1 md:py-10">
                     <div className="flex justify-between items-end mb-6">
-                        <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Restaurants nearby</h2>
+                        <h2 className="text-2xl font-inter font-bold text-gray-900 tracking-tight">Popular Restaurants</h2>
                         <button onClick={() => navigate('/restaurants')} className="text-[#FF4732] font-bold text-sm flex items-center hover:underline">
                             View All <span className="ml-1">&gt;</span>
                         </button>

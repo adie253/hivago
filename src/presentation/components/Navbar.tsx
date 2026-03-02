@@ -74,7 +74,7 @@ export const Navbar: React.FC = () => {
             </nav>
 
             {/* Mobile Location Bar - Design from Image */}
-            <div className="sm:hidden flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white">
+            <div className="sm:hidden flex items-center gap-3 px-4 py-[9px] border-b border-gray-200 bg-white">
                 <MapPin className="text-brand-primary w-5 h-5 flex-shrink-0" />
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-500 font-medium tracking-wide">Your Location</span>
@@ -94,56 +94,66 @@ export const Navbar: React.FC = () => {
                     className={`fixed top-0 right-0 bottom-0 w-[280px] bg-white shadow-2xl transition-transform duration-300 ease-in-out transform ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="p-6 flex flex-col h-full overflow-y-auto">
+                    <div className='flex items-center justify-between w-full h-30 bg-[#F36259] '>
+                        <div className="flex flex-col gap-2 p-6">
+                            {/* <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                                <img src={navLogo} alt="Logo" className="w-7 h-7" />
+                            </div> */}
+                            <span className="text-l font-bold text-white">Menu</span>
+                            <p className='text-white font-light text-xs'>Welcome to Hivago</p>
+                        </div>
                         <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gray-400 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                                    <img src="..src/assets/nav_logo.svg" alt="Logo" className="w-7 h-7" />
-                                </div>
-                                <span className="text-2xl font-bold text-brand-primary">Hivago</span>
-                            </div>
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-2 mr-5 text-white hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
+                    </div>
+                    <div className="p-3 flex flex-col h-full overflow-y-auto">
 
                         {/* Mobile Location Details */}
-                        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl mb-8 border border-gray-100">
+                        {/* <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl mb-8 border border-gray-100">
                             <MapPin className="text-brand-primary w-5 h-5 mt-0.5" />
                             <div>
                                 <p className="text-xs text-gray-500 font-medium mb-1">Delivering to</p>
                                 <p className="text-sm font-bold text-gray-900">Koramangala, Bangalore</p>
                             </div>
-                        </div>
+                        </div> */}
 
-                        <div className="flex flex-col gap-2 flex-1">
-                            <Link to="/" className={`flex items-center gap-4 p-4 rounded-xl font-bold transition-colors ${location.pathname === '/' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                        <div className="flex flex-col gap-2 flex-1 font-inter font-weight-500 text-sm">
+                            <Link to="/" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={homeIcon} alt="home icon" className='w-5 h-5 p-0' />
                                 Home
                             </Link>
-                            <Link to="/restaurants" className={`flex items-center gap-4 p-4 rounded-xl font-bold transition-colors ${location.pathname === '/restaurants' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                            <Link to="/restaurants" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/restaurants' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={searchIcon} alt="search icon" className='w-5 h-5 p-0' />
                                 Search Restaurants
                             </Link>
-                            <Link to="/profile" className={`flex items-center gap-4 p-4 rounded-xl font-bold transition-colors ${location.pathname === '/profile' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                            <Link to="/profile" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/profile' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={ordersIcon} alt="orders icon" className='w-5 h-5 p-0' />
                                 My Orders
                             </Link>
-                            <Link to="/profile" className={`flex items-center gap-4 p-4 rounded-xl font-bold transition-colors ${location.pathname === '/profile' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                            <Link to="/profile" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/profile' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={profileIcon} alt="profile icon" className='w-5 h-5 p-0' />
                                 Profile <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full ml-auto">New</span>
                             </Link>
+                            {/* <div className="mt-8 pt-6 border-t border-gray-100">
+                                <Link to="/signin" className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
+                                    <User className="w-4 h-4" />
+                                    Sign In / Register
+                                </Link>
+                            </div> */}
+                        <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
+                            <p className='text-xs'>
+                                <span className='text-gray-700'>Need help? </span>
+                                <br />
+                                <span className='text-gray-500'>call : 1800-123-4567</span>
+                            </p>
                         </div>
-
-                        <div className="mt-8 pt-6 border-t border-gray-100">
-                            <Link to="/signin" className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
-                                <User className="w-4 h-4" />
-                                Sign In / Register
-                            </Link>
                         </div>
+                                
                     </div>
                 </div>
             </div>

@@ -30,7 +30,7 @@ export const CategoryCarousel: React.FC = () => {
     };
 
     return (
-        <div className="w-full flex items-center justify-start md:justify-center gap-2 md:gap-4 py-6 md:py-8 px-4 md:px-12 relative font-sans overflow-hidden">
+        <div className="w-full flex items-center justify-start md:justify-center gap-2 md:gap-4 py-2 md:py-8 px-4 md:px-12 relative font-sans overflow-hidden">
 
             {/* Left Chevron - Hidden on Mobile */}
             <button
@@ -51,7 +51,7 @@ export const CategoryCarousel: React.FC = () => {
                         <div
                             key={index}
                             onClick={() => setActiveCategory(cat.name)}
-                            className={`flex flex-col items-center justify-center gap-1 md:gap-2 p-3 md:p-4 min-w-[80px] md:min-w-[100px] h-24 md:h-28 rounded-2xl mt-1 cursor-pointer transition-all snap-start flex-shrink-0 ${isActive
+                            className={`flex flex-col items-center justify-center gap-1 md:gap-2 p-3 md:p-4 min-w-[68px] min-h-[68px] md:min-w-[100px] md:min-h-[100px] rounded-2xl mt-1 cursor-pointer transition-all snap-start flex-shrink-0 ${isActive
                                     ? 'border-2 border-emerald-500 bg-emerald-50 shadow-md transform -translate-y-1'
                                     : 'bg-gray-50 border border-transparent hover:bg-gray-100'
                                 }`}
