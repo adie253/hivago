@@ -5,7 +5,6 @@ import { useCart } from '../context/CartContext';
 import homeIcon from "../../assets/icons/home_icon.png";
 import searchIcon from "../../assets/icons/search_icon.png";
 import profileIcon from "../../assets/icons/profile_icon.png";
-// import cartIcon from "../../assets/icons/cart_icon.png";
 import ordersIcon from "../../assets/icons/orders_icon.png";
 import navLogo from "../../assets/nav_logo.svg";
 
