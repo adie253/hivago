@@ -33,8 +33,9 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <RestaurantGrid
-                        restaurants={mockRestaurants.slice(0, 4)}
+                        restaurants={mockRestaurants.slice(0, 8)}
                         onRestaurantClick={(id) => navigate(`/restaurant/${id}`)}
+                        scrollable={true}
                     />
                 </div>
 

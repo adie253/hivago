@@ -27,10 +27,10 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
     return (
         <div
             onClick={onClick}
-            className="bg-white rounded-[24px] overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group flex flex-col h-full"
+            className="bg-white shadow-sm rounded-[24px] overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group flex flex-col h-full"
         >
             {/* Image Container */}
-            <div className="relative w-full h-48 sm:h-56 bg-gray-200 overflow-hidden">
+            <div className="relative w-full h-[160px] sm:h-36 bg-gray-200 overflow-hidden">
                 <img
                     src={restaurant.imageUrl}
                     alt={restaurant.name}
@@ -80,7 +80,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                     {restaurant.cuisines.join(', ')}
                 </p>
 
-                <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 space-x-2">
+                <div className="mt-auto border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 space-x-2">
                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <Clock className="w-4 h-4 text-gray-400" />
                         <span className="font-medium">{restaurant.deliveryTime}</span>
