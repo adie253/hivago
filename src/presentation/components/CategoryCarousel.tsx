@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useFilters } from '../context/FilterContext';
 
 const categoriesData = [
     { name: 'All', icon: '🍽️' },
@@ -16,7 +17,7 @@ const categoriesData = [
 ];
 
 export const CategoryCarousel: React.FC = () => {
-    const [activeCategory, setActiveCategory] = useState('All');
+    const { activeCategory, setActiveCategory } = useFilters();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: 'left' | 'right') => {
@@ -52,8 +53,8 @@ export const CategoryCarousel: React.FC = () => {
                             key={index}
                             onClick={() => setActiveCategory(cat.name)}
                             className={`flex flex-col items-center justify-center gap-1 md:gap-2 p-3 md:p-4 min-w-[68px] min-h-[68px] md:min-w-[100px] md:min-h-[100px] rounded-2xl mt-1 cursor-pointer transition-all snap-start flex-shrink-0 ${isActive
-                                    ? 'border-2 border-emerald-500 bg-emerald-50 shadow-md transform -translate-y-1'
-                                    : 'bg-gray-50 border border-transparent hover:bg-gray-100'
+                                ? 'border-2 border-emerald-500 bg-emerald-50 shadow-md transform -translate-y-1'
+                                : 'bg-gray-50 border border-transparent hover:bg-gray-100'
                                 }`}
                         >
                             <span className="text-2xl md:text-3xl">{cat.icon}</span>

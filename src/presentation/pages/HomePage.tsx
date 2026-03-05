@@ -11,7 +11,7 @@ import { RecommendedRestaurants } from '../components/RecommendedRestaurants';
 import { OfferBanners } from '../components/OfferBanners';
 import { PromoBanners } from '../components/PromoBanners';
 import { DeliveryFeatures } from '../components/DeliveryFeatures';
-import { TrustBadges } from '../components/TrustBadges';
+
 import { mockRestaurants } from '../../data/api/MockRestaurants';
 
 export const HomePage: React.FC = () => {
@@ -55,8 +55,6 @@ export const HomePage: React.FC = () => {
             {/* Delivery Features Section - Full Width Dark Background */}
             <DeliveryFeatures />
 
-            {/* Trust Badges - Only on Home Page */}
-            <TrustBadges />
         </div>
     );
 };

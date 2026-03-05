@@ -11,29 +11,32 @@ import { Footer } from './presentation/components/Footer';
 import { ScrollToTop } from './presentation/components/ScrollToTop';
 import { CartProvider } from './presentation/context/CartContext';
 import { FavoritesProvider } from './presentation/context/FavoritesContext';
+import { FilterProvider } from './presentation/context/FilterContext';
 
 function App() {
   return (
     <FavoritesProvider>
       <CartProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
-            <Navbar />
-            <div className="flex-1">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/restaurants" element={<RestaurantsPage />} />
-                <Route path="/restaurant/:id" element={<RestaurantMenuPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/signin" element={<SignInPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </Routes>
+        <FilterProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
+              <Navbar />
+              <div className="flex-1">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/restaurants" element={<RestaurantsPage />} />
+                  <Route path="/restaurant/:id" element={<RestaurantMenuPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/signin" element={<SignInPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                </Routes>
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        </BrowserRouter>
+          </BrowserRouter>
+        </FilterProvider>
       </CartProvider>
     </FavoritesProvider>
   );

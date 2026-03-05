@@ -37,7 +37,7 @@ const mockDiscountedDishes: DiscountedDish[] = [
         deliveryTime: '20-25 min',
         distance: '0.8 km',
         priceForTwo: '₹400 for two',
-        imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?auto=format&fit=crop&q=80&w=400'
+        imageUrl: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400'
     },
     {
         id: 'dd3',

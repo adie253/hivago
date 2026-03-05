@@ -4,10 +4,11 @@ import { RestaurantGrid } from '../components/RestaurantGrid';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryCarousel } from '../components/CategoryCarousel';
 import { FilterChips } from '../components/FilterChips';
-import { mockRestaurants } from '../../data/api/MockRestaurants';
+import { useFilters } from '../context/FilterContext';
 
 export const RestaurantsPage: React.FC = () => {
     const navigate = useNavigate();
+    const { filteredRestaurants } = useFilters();
 
     return (
         <div className="min-h-screen bg-white font-sans">
@@ -31,12 +32,12 @@ export const RestaurantsPage: React.FC = () => {
                     <div className="flex justify-between items-end mb-8">
                         <div>
                             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">All Restaurants</h2>
-                            <p className="text-gray-500 font-medium text-sm mt-1">Showing {mockRestaurants.length} results</p>
+                            <p className="text-gray-500 font-medium text-sm mt-1">Showing {filteredRestaurants.length} results</p>
                         </div>
                     </div>
 
                     <RestaurantGrid
-                        restaurants={mockRestaurants}
+                        restaurants={filteredRestaurants}
                         onRestaurantClick={(id) => navigate(`/restaurant/${id}`)}
                     />
                 </div>

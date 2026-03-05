@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { useFilters } from '../context/FilterContext';
 
 interface FilterModalProps {
     isOpen: boolean;
@@ -7,11 +8,19 @@ interface FilterModalProps {
 }
 
 export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
-    const [selectedSort, setSelectedSort] = useState<string>('Low to high');
+    const {
+        sortBy, setSortBy,
+        isVegOnly, setIsVegOnly,
+        minRating, setMinRating
+    } = useFilters();
+
+    const [tempSort, setTempSort] = useState(sortBy);
+    const [tempVeg, setTempVeg] = useState(isVegOnly);
+    const [tempRating, setTempRating] = useState(minRating);
+
+    // Keep other UI-only states
     const [selectedDelivery, setSelectedDelivery] = useState<string>('10 Minutes Delivery');
-    const [selectedDiet, setSelectedDiet] = useState<string>('Veg');
     const [selectedQuickFilters, setSelectedQuickFilters] = useState<string[]>(['High Protein', 'Low Calorie']);
-    const [selectedRating, setSelectedRating] = useState<string>('4.5+');
     const [_priceRange, _setPriceRange] = useState<number[]>([400, 3200]);
 
     if (!isOpen) return null;
@@ -23,12 +32,19 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
     };
 
     const handleReset = () => {
-        setSelectedSort('Low to high');
+        setTempSort('Relevance');
+        setTempVeg(false);
+        setTempRating(0);
         setSelectedDelivery('10 Minutes Delivery');
-        setSelectedDiet('Veg');
         setSelectedQuickFilters([]);
-        setSelectedRating('4.5+');
         _setPriceRange([400, 3200]);
+    };
+
+    const handleApply = () => {
+        setSortBy(tempSort);
+        setIsVegOnly(tempVeg);
+        setMinRating(tempRating);
+        onClose();
     };
 
     return (
@@ -52,11 +68,11 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                     <section>
                         <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">Sort</h3>
                         <div className="flex gap-2.5">
-                            {['Low to high', 'High to low'].map(option => (
+                            {['Relevance', 'Low to high', 'High to low', 'Rating'].map(option => (
                                 <button
                                     key={option}
-                                    onClick={() => setSelectedSort(option)}
-                                    className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${selectedSort === option
+                                    onClick={() => setTempSort(option)}
+                                    className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempSort === option
                                         ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
@@ -90,18 +106,24 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                     <section>
                         <h3 className="text-sm font-bold text-gray-900 mb-3">Veg/Non-Veg</h3>
                         <div className="flex gap-2.5">
-                            {['Veg', 'Non-Veg'].map(option => (
-                                <button
-                                    key={option}
-                                    onClick={() => setSelectedDiet(option)}
-                                    className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${selectedDiet === option
-                                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'
-                                        : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    {option}
-                                </button>
-                            ))}
+                            <button
+                                onClick={() => setTempVeg(true)}
+                                className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempVeg
+                                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'
+                                    : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Veg Only
+                            </button>
+                            <button
+                                onClick={() => setTempVeg(false)}
+                                className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${!tempVeg
+                                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'
+                                    : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Both
+                            </button>
                         </div>
                     </section>
 
@@ -128,16 +150,16 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                     <section>
                         <h3 className="text-sm font-bold text-gray-900 mb-3">Ratings</h3>
                         <div className="flex gap-2.5">
-                            {['3.5+', '4.0+', '4.5+'].map(option => (
+                            {[0, 3.5, 4.0, 4.5].map(val => (
                                 <button
-                                    key={option}
-                                    onClick={() => setSelectedRating(option)}
-                                    className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${selectedRating === option
+                                    key={val}
+                                    onClick={() => setTempRating(val)}
+                                    className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempRating === val
                                         ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
-                                    {option}
+                                    {val === 0 ? 'All' : `${val}+`}
                                 </button>
                             ))}
                         </div>
@@ -177,7 +199,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                         Reset
                     </button>
                     <button
-                        onClick={onClose}
+                        onClick={handleApply}
                         className="flex-[2] bg-[#FF4732] hover:bg-red-600 text-white py-3.5 rounded-2xl font-bold text-base shadow-xl shadow-red-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
                     >
                         Apply

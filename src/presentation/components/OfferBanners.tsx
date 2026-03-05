@@ -1,4 +1,7 @@
 import React from 'react';
+import banner1 from '../../assets/offer_cards/girl.svg';
+import banner2 from '../../assets/offer_cards/burger.png';
+import banner3 from '../../assets/offer_cards/burger2.png';
 
 export const OfferBanners: React.FC = () => {
     return (
@@ -15,7 +18,7 @@ export const OfferBanners: React.FC = () => {
                         </button>
                     </div>
                     <img
-                        src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&q=80&w=400"
+                        src={banner2}
                         alt="Burger explosion"
                         className="absolute right-0 top-0 bottom-0 h-full w-1/2 object-contain drop-shadow-2xl translate-x-4 rotate-6"
                     />
@@ -25,7 +28,7 @@ export const OfferBanners: React.FC = () => {
                 <div className="flex-shrink-0 snap-start w-[280px] md:w-[360px] bg-[#6366F1] rounded-[32px] p-6 flex items-center justify-end relative overflow-hidden h-48 md:h-56">
                     <div className="absolute left-0 bottom-0 top-0 w-1/2 flex items-end">
                         <img
-                            src="https://img.freepik.com/free-photo/hungry-young-brunette-with-glasses-posing-against-yellow-wall_273609-20639.jpg?semt=ais_hybrid&w=740&q=80"
+                            src={banner1}
                             alt="Girl eating pizza"
                             className="w-full h-full object-cover rounded-l-[32px]"
                         />
@@ -50,7 +53,7 @@ export const OfferBanners: React.FC = () => {
                     </div>
                     <div className="absolute right-0 h-full w-1/2 flex items-center justify-center translate-x-2">
                         <img
-                            src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400"
+                            src={banner3}
                             alt="Cheeseburger"
                             className="w-[120%] h-auto object-contain drop-shadow-[0_20px_20px_rgba(255,255,255,0.1)]"
                         />

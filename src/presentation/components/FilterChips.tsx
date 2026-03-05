@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { FilterModal } from './FilterModal';
+import { useFilters } from '../context/FilterContext';
 
 const filters = [
     { name: 'Pickup', active: false },
@@ -15,6 +16,13 @@ const filters = [
 
 export const FilterChips: React.FC = () => {
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+    const { isVegOnly, minRating, sortBy } = useFilters();
+
+    const activeFiltersCount = [
+        isVegOnly,
+        minRating > 0,
+        sortBy !== 'Relevance'
+    ].filter(Boolean).length;
 
     return (
         <>
@@ -23,9 +31,14 @@ export const FilterChips: React.FC = () => {
                 {/* Filter Icon button */}
                 <button
                     onClick={() => setIsFilterModalOpen(true)}
-                    className="bg-[#FF4732] text-white p-2.5 md:p-3 rounded-xl shadow hover:bg-orange-700 transition-colors flex-shrink-0"
+                    className="bg-[#FF4732] text-white p-2.5 md:p-3 rounded-xl shadow hover:bg-orange-700 transition-colors flex-shrink-0 relative"
                 >
                     <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
+                    {activeFiltersCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-white text-[#FF4732] text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#FF4732] shadow-sm">
+                            {activeFiltersCount}
+                        </span>
+                    )}
                 </button>
 
                 {/* Sort By Dropdown */}
