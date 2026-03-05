@@ -1,0 +1,63 @@
+import React from 'react';
+
+export const OfferBanners: React.FC = () => {
+    return (
+        <div className="px-4 md:px-12 py-8 overflow-hidden">
+            <div className="flex overflow-x-auto pb-6 gap-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1">
+
+                {/* Yellow Gradient Card - Burger Explosion */}
+                <div className="flex-shrink-0 snap-start w-[280px] md:w-[360px] bg-gradient-to-br from-[#FFD600] to-[#E67E22] rounded-[32px] p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
+                    <div className="z-10 w-3/5">
+                        <p className="text-[10px] md:text-xs font-bold text-gray-900/80 mb-0.5">Get special discount</p>
+                        <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 leading-tight">upto 60%</h3>
+                        <button className="bg-[#0D1B1E] text-xs font-bold py-2.5 px-6 rounded-xl hover:bg-gray-800 transition-colors shadow-lg text-white">
+                            Order now
+                        </button>
+                    </div>
+                    <img
+                        src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&q=80&w=400"
+                        alt="Burger explosion"
+                        className="absolute right-0 top-0 bottom-0 h-full w-1/2 object-contain drop-shadow-2xl translate-x-4 rotate-6"
+                    />
+                </div>
+
+                {/* Purple Card - Girl Eating Pizza */}
+                <div className="flex-shrink-0 snap-start w-[280px] md:w-[360px] bg-[#6366F1] rounded-[32px] p-6 flex items-center justify-end relative overflow-hidden h-48 md:h-56">
+                    <div className="absolute left-0 bottom-0 top-0 w-1/2 flex items-end">
+                        <img
+                            src="https://img.freepik.com/free-photo/hungry-young-brunette-with-glasses-posing-against-yellow-wall_273609-20639.jpg?semt=ais_hybrid&w=740&q=80"
+                            alt="Girl eating pizza"
+                            className="w-full h-full object-cover rounded-l-[32px]"
+                        />
+                    </div>
+                    <div className="z-10 w-1/2 text-center flex flex-col items-center">
+                        <p className="text-[10px] md:text-xs font-bold text-white/80 mb-0.5">Get special deal</p>
+                        <h3 className="text-xl md:text-2xl font-black text-white mb-4 leading-tight">for February</h3>
+                        <button className="bg-white text-[#6366F1] text-xs font-bold py-2.5 px-6 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
+                            Order now!
+                        </button>
+                    </div>
+                </div>
+
+                {/* Black Card - Green Accents Burger */}
+                <div className="flex-shrink-0 snap-start w-[260px] md:w-[340px] bg-[#000000] rounded-[32px] p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
+                    <div className="z-10 w-1/2">
+                        <p className="text-[10px] md:text-xs font-bold text-emerald-500 mb-0.5">Get special discount</p>
+                        <h3 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">upto 60%</h3>
+                        <button className="bg-[#00C853] text-white text-xs font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-600 transition-colors shadow-lg">
+                            Order now
+                        </button>
+                    </div>
+                    <div className="absolute right-0 h-full w-1/2 flex items-center justify-center translate-x-2">
+                        <img
+                            src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400"
+                            alt="Cheeseburger"
+                            className="w-[120%] h-auto object-contain drop-shadow-[0_20px_20px_rgba(255,255,255,0.1)]"
+                        />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+};

@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { HeroSection } from '../components/HeroSection';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryCarousel } from '../components/CategoryCarousel';
-// import { FilterChips } from '../components/FilterChips';
+import { FilterChips } from '../components/FilterChips';
 import { RestaurantGrid } from '../components/RestaurantGrid';
-import { PopularMeals } from '../components/PopularMeals';
+import { RestaurantsNearby } from '../components/RestaurantsNearby';
+import { DishesDiscount } from '../components/DishesDiscount';
+import { RecommendedRestaurants } from '../components/RecommendedRestaurants';
+import { OfferBanners } from '../components/OfferBanners';
 import { PromoBanners } from '../components/PromoBanners';
 import { DeliveryFeatures } from '../components/DeliveryFeatures';
 import { TrustBadges } from '../components/TrustBadges';
@@ -21,7 +24,6 @@ export const HomePage: React.FC = () => {
             <div className="max-w-7xl mx-auto bg-white rounded-t-3xl  relative z-30 shadow-sm border-t border-gray-100 pt-2 pb-20">
                 <SearchBar />
                 <CategoryCarousel />
-                {/* <FilterChips /> */}
 
                 {/* Restaurants Grid Section */}
                 <div className="px-4 md:px-12 py-1 md:py-10">
@@ -42,8 +44,12 @@ export const HomePage: React.FC = () => {
                 {/* Promo Banners Section */}
                 <PromoBanners />
 
+                <FilterChips />
                 {/* Popular This Week Section */}
-                <PopularMeals />
+                <RestaurantsNearby />
+                <DishesDiscount />
+                <RecommendedRestaurants />
+                <OfferBanners />
             </div>
 
             {/* Delivery Features Section - Full Width Dark Background */}

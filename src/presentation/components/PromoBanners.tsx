@@ -2,11 +2,11 @@ import React from 'react';
 
 export const PromoBanners: React.FC = () => {
     return (
-        <div className="px-4 md:px-12 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="px-4 md:px-12 py-8 overflow-hidden">
+            <div className="flex overflow-x-auto pb-6 gap-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1">
 
                 {/* 10% Off Card */}
-                <div className="bg-[#EEF7F2] rounded-3xl p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
+                <div className="flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#EEF7F2] rounded-3xl p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
                     <div className="z-10 w-3/5">
                         <h3 className="text-xl md:text-2xl font-extrabold text-[#113C40] mb-2 leading-tight">10% off food</h3>
                         <p className="text-[10px] md:text-xs text-[#113C40] mb-4 opacity-70">
@@ -25,7 +25,7 @@ export const PromoBanners: React.FC = () => {
                 </div>
 
                 {/* Special Deal Card (Girl eating pizza) */}
-                <div className="bg-[#7854F8] rounded-3xl p-6 flex flex-col items-end justify-center relative overflow-hidden h-48 md:h-56 text-right">
+                <div className="flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#7854F8] rounded-3xl p-6 flex flex-col items-end justify-center relative overflow-hidden h-48 md:h-56 text-right">
                     {/* Girl Image */}
                     <div className="absolute left-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
                         <img
@@ -45,7 +45,7 @@ export const PromoBanners: React.FC = () => {
                 </div>
 
                 {/* 20% Off Card */}
-                <div className="bg-[#FFF5ED] rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden h-48 md:h-56">
+                <div className="flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#FFF5ED] rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden h-48 md:h-56">
                     <div className="z-10 w-full sm:w-4/5">
                         <h3 className="text-xl md:text-2xl font-extrabold text-[#113C40] mb-2 leading-tight">20% off food</h3>
                         <p className="text-[10px] md:text-xs text-[#113C40] mb-4 opacity-70">
