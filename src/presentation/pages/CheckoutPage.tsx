@@ -1,16 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, PhoneOff, DoorClosed, Shield, BellOff } from 'lucide-react';
+import { ArrowLeft, Mic, PhoneOff, DoorClosed, Shield, BellOff, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import DIContainer from '../../di/container';
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal } = useCart();
+    const { cartItems, addToCart, removeFromCart, cartTotal, clearCart } = useCart();
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [isOrdered, setIsOrdered] = useState(false);
 
     const deliveryFee = cartTotal > 0 ? 40 : 0;
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0; // 5% GST
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
+
+    const handlePlaceOrder = async () => {
+        if (cartItems.length === 0) return;
+
+        setIsPlacingOrder(true);
+        try {
+            const createOrderUseCase = DIContainer.getCreateOrderUseCase();
+            await createOrderUseCase.execute({
+                customerId: 'USER-001', // Mock user ID
+                items: cartItems.map(i => i.name),
+                totalAmount: grandTotal,
+                status: 'pending'
+            });
+
+            setIsOrdered(true);
+            setTimeout(() => {
+                clearCart();
+                navigate('/profile');
+            }, 2000);
+        } catch (error) {
+            console.error('Failed to place order:', error);
+            alert('Something went wrong. Please try again.');
+        } finally {
+            setIsPlacingOrder(false);
+        }
+    };
+
+    if (isOrdered) {
+        return (
+            <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans gap-4 p-6 text-center">
+                <div className="bg-emerald-100 p-6 rounded-full">
+                    <CheckCircle className="w-16 h-16 text-emerald-600" />
+                </div>
+                <h1 className="text-3xl font-black text-gray-900">Order Placed!</h1>
+                <p className="text-gray-500 max-w-xs">Your food will be delivered in 30-45 mins. Redirection you to your order history...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans pb-32">
@@ -131,12 +172,19 @@ export const CheckoutPage: React.FC = () => {
             {cartItems.length > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-20">
                     <div className="max-w-2xl mx-auto">
-                        <button className="w-full bg-[#FF4732] text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-colors flex justify-between items-center px-6 active:scale-[0.98]">
+                        <button
+                            onClick={handlePlaceOrder}
+                            disabled={isPlacingOrder}
+                            className="w-full bg-[#FF4732] text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-colors flex justify-between items-center px-6 active:scale-[0.98] disabled:opacity-50"
+                        >
                             <div className="flex flex-col items-start bg-black bg-opacity-10 px-3 py-1 rounded-lg">
                                 <span className="text-[10px] font-semibold text-red-100 uppercase tracking-wider">Total</span>
                                 <span className="text-sm font-extrabold">₹{grandTotal}</span>
                             </div>
-                            <span className="flex items-center gap-2">Proceed to Checkout <ArrowLeft className="w-5 h-5 rotate-180" /></span>
+                            <span className="flex items-center gap-2">
+                                {isPlacingOrder ? 'Processing...' : 'Proceed to Checkout'}
+                                <ArrowLeft className="w-5 h-5 rotate-180" />
+                            </span>
                         </button>
                     </div>
                 </div>

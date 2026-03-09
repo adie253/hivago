@@ -9,6 +9,7 @@ import { SignInPage } from './presentation/pages/SignInPage';
 import { RegisterPage } from './presentation/pages/RegisterPage';
 import { Footer } from './presentation/components/Footer';
 import { ScrollToTop } from './presentation/components/ScrollToTop';
+import { FloatingCart } from './presentation/components/FloatingCart';
 import { CartProvider } from './presentation/context/CartContext';
 import { FavoritesProvider } from './presentation/context/FavoritesContext';
 import { FilterProvider } from './presentation/context/FilterContext';
@@ -33,6 +34,7 @@ function App() {
                   <Route path="/register" element={<RegisterPage />} />
                 </Routes>
               </div>
+              <FloatingCart />
               <Footer />
             </div>
           </BrowserRouter>

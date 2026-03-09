@@ -1,11 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, CreditCard, Clock, Settings, ChevronRight, LogOut, Heart } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { RestaurantCard } from '../components/RestaurantCard';
+import { Order } from '../../core/entities/Order';
+import DIContainer from '../../di/container';
 
 export const ProfilePage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'orders' | 'favorites' | 'settings'>('orders');
     const { favorites } = useFavorites();
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+
+    useEffect(() => {
+        if (activeTab === 'orders') {
+            const fetchOrders = async () => {
+                setIsLoadingOrders(true);
+                try {
+                    const useCase = DIContainer.getOrdersUseCase();
+                    const data = await useCase.execute();
+                    setOrders(data);
+                } catch (err) {
+                    console.error('Failed to fetch orders:', err);
+                } finally {
+                    setIsLoadingOrders(false);
+                }
+            };
+            fetchOrders();
+        }
+    }, [activeTab]);
 
     return (
         <div className="w-full bg-[#F8F9FA] min-h-screen pb-20 lg:px-30">
@@ -118,42 +140,37 @@ export const ProfilePage: React.FC = () => {
                             <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Recent Orders</h2>
 
                             <div className="flex flex-col gap-4">
-                                {/* Order List Item 1 */}
-                                <div className="border border-gray-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-gray-200 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                                            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=150" alt="Burger" className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900 text-lg">Burger King</h3>
-                                            <p className="text-sm tracking-wide text-gray-500 font-medium">Truffle Mushroom Burger, Fries</p>
-                                            <p className="text-xs text-gray-400 mt-1">Oct 24, 2023 • 7:30 PM</p>
-                                        </div>
+                                {isLoadingOrders ? (
+                                    <div className="flex justify-center py-10">
+                                        <div className="w-8 h-8 border-4 border-[#FF4732] border-t-transparent rounded-full animate-spin"></div>
                                     </div>
-                                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-2 sm:mt-0">
-                                        <span className="font-black text-gray-900 text-lg">₹349</span>
-                                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md mt-1">Delivered</span>
-                                    </div>
-                                </div>
-
-                                {/* Order List Item 2 */}
-                                <div className="border border-gray-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-gray-200 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                                            <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&q=80&w=150" alt="Pizza" className="w-full h-full object-cover" />
+                                ) : orders.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-10 font-medium">No orders found.</p>
+                                ) : (
+                                    orders.map((order) => (
+                                        <div key={order.id} className="border border-gray-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-gray-200 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-orange-50 flex items-center justify-center">
+                                                    <span className="text-2xl">🍕</span>
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 text-lg">Order #{order.id}</h3>
+                                                    <p className="text-sm tracking-wide text-gray-500 font-medium">{order.items.join(', ')}</p>
+                                                    <p className="text-xs text-gray-400 mt-1">Oct 24, 2023 • 7:30 PM</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-2 sm:mt-0">
+                                                <span className="font-black text-gray-900 text-lg">₹{order.totalAmount}</span>
+                                                <span className={`text-xs font-bold px-2 py-1 rounded-md mt-1 capitalize ${order.status === 'delivered' ? 'text-emerald-600 bg-emerald-50' :
+                                                    order.status === 'cancelled' ? 'text-red-600 bg-red-50' :
+                                                        'text-blue-600 bg-blue-50'
+                                                    }`}>
+                                                    {order.status}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900 text-lg">Pizza Hut</h3>
-                                            <p className="text-sm tracking-wide text-gray-500 font-medium">Spicy Pepperoni Pizza (Large)</p>
-                                            <p className="text-xs text-gray-400 mt-1">Oct 20, 2023 • 8:15 PM</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-2 sm:mt-0">
-                                        <span className="font-black text-gray-900 text-lg">₹599</span>
-                                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md mt-1">Delivered</span>
-                                    </div>
-                                </div>
+                                    ))
+                                )}
                             </div>
 
                             <button className="w-full mt-6 py-3 rounded-xl border-2 border-gray-100 text-gray-700 font-bold hover:bg-gray-50 transition-colors">

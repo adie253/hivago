@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import restaurantsData from '../../data/restaurants.json';
+import DIContainer from '../../di/container';
 
 export interface FoodItem {
     id: string;
@@ -7,6 +8,8 @@ export interface FoodItem {
     type: 'Veg' | 'Non-Veg';
     price: number;
     category: string;
+    description?: string;
+    imageUrl?: string;
 }
 
 export interface Restaurant {
@@ -38,18 +41,47 @@ interface FilterContextType {
     setSortBy: (sort: string) => void;
     filteredRestaurants: Restaurant[];
     allRestaurants: Restaurant[];
+    isLoading: boolean;
+    error: string | null;
+    refreshData: () => void;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
 
 export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const allRestaurants: Restaurant[] = restaurantsData.restaurants as Restaurant[];
+    const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
     const [isVegOnly, setIsVegOnly] = useState(false);
     const [minRating, setMinRating] = useState(0);
     const [sortBy, setSortBy] = useState('Relevance');
-    const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>(allRestaurants);
+    const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const loadData = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const getRestaurantsUseCase = DIContainer.getGetRestaurantsUseCase();
+            const data = await getRestaurantsUseCase.execute();
+            setAllRestaurants(data);
+            setFilteredRestaurants(data);
+        } catch (err) {
+            setError('Failed to load restaurants. Please try again later.');
+            console.error(err);
+            // Fallback to local data if API fails to show something
+            const fallbackData = (restaurantsData.restaurants as Restaurant[]);
+            setAllRestaurants(fallbackData);
+            setFilteredRestaurants(fallbackData);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
 
     useEffect(() => {
         let results = [...allRestaurants];
@@ -112,7 +144,10 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             sortBy,
             setSortBy,
             filteredRestaurants,
-            allRestaurants
+            allRestaurants,
+            isLoading,
+            error,
+            refreshData: loadData
         }}>
             {children}
         </FilterContext.Provider>

@@ -1,8 +1,14 @@
 import React from 'react';
 import { Star, Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
-import { mockRestaurants } from '../../data/api/MockRestaurants';
+import { useFilters } from '../context/FilterContext';
+import { useNavigate } from 'react-router-dom';
 
 export const RestaurantsNearby: React.FC = () => {
+    const { allRestaurants, isLoading } = useFilters();
+    const navigate = useNavigate();
+
+    if (isLoading) return null; // Or show skeleton
+
     return (
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
             <div className="flex justify-between items-center mb-8">
@@ -16,9 +22,10 @@ export const RestaurantsNearby: React.FC = () => {
 
             {/* Horizontal Scroll Container */}
             <div className="flex overflow-x-auto gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {mockRestaurants.map((restaurant) => (
+                {allRestaurants.slice(0, 6).map((restaurant) => (
                     <div
                         key={restaurant.id}
+                        onClick={() => navigate(`/restaurant/${restaurant.id}`)}
                         className="flex flex-col min-w-[280px] md:min-w-[320px] bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                     >
                         {/* Image Container - Light Gray Background */}

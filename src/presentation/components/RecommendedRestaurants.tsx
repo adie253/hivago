@@ -1,21 +1,27 @@
 import React from 'react';
 import { Star, Clock, MapPin, Heart, Zap } from 'lucide-react';
-import { mockRestaurants } from '../../data/api/MockRestaurants';
 import { useFavorites } from '../context/FavoritesContext';
+import { useFilters } from '../context/FilterContext';
+import { useNavigate } from 'react-router-dom';
 
 export const RecommendedRestaurants: React.FC = () => {
     const { toggleFavorite, isFavorite } = useFavorites();
+    const { allRestaurants, isLoading } = useFilters();
+    const navigate = useNavigate();
+
+    if (isLoading) return null;
 
     return (
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
             <h2 className="text-3xl font-inter font-bold     text-gray-900 tracking-tight mb-8">Recommended</h2>
 
             <div className="flex overflow-x-auto gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {mockRestaurants.map((restaurant) => {
+                {allRestaurants.slice(2, 8).map((restaurant) => {
                     const isFav = isFavorite(restaurant.id);
                     return (
                         <div
                             key={restaurant.id}
+                            onClick={() => navigate(`/restaurant/${restaurant.id}`)}
                             className="flex flex-col min-w-[280px] md:min-w-[340px] bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                         >
                             {/* Image Container */}

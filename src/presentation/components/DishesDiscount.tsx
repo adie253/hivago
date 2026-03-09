@@ -1,10 +1,12 @@
 import React from 'react';
 import { Clock, MapPin, Tag, ChevronRight, Percent } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface DiscountedDish {
     id: string;
     name: string;
     restaurant: string;
+    restaurantId: string;
     originalPrice: number;
     discountedPrice: number;
     discount: string;
@@ -18,7 +20,8 @@ const mockDiscountedDishes: DiscountedDish[] = [
     {
         id: 'dd1',
         name: 'Power Bowl',
-        restaurant: 'Green Garden',
+        restaurant: 'Cafe Good Luck',
+        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556665',
         originalPrice: 300,
         discountedPrice: 150,
         discount: '50% off',
@@ -30,7 +33,8 @@ const mockDiscountedDishes: DiscountedDish[] = [
     {
         id: 'dd2',
         name: 'Margherita Pizza',
-        restaurant: 'Pizza Paradise',
+        restaurant: 'Pizza Hut',
+        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556661',
         originalPrice: 500,
         discountedPrice: 400,
         discount: '20% off',
@@ -42,19 +46,21 @@ const mockDiscountedDishes: DiscountedDish[] = [
     {
         id: 'dd3',
         name: 'Avocado Toast',
-        restaurant: 'Health Haven',
+        restaurant: 'Vohuman Cafe',
+        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556662',
         originalPrice: 250,
         discountedPrice: 125,
         discount: '50% off',
         deliveryTime: '15-20 min',
         distance: '1.2 km',
         priceForTwo: '₹250 for two',
-        imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&q=80&w=400'
+        imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400'
     },
     {
         id: 'dd4',
         name: 'Grilled Chicken',
-        restaurant: 'Protein Plus',
+        restaurant: 'Blue Nile',
+        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556663',
         originalPrice: 450,
         discountedPrice: 225,
         discount: '50% off',
@@ -66,6 +72,8 @@ const mockDiscountedDishes: DiscountedDish[] = [
 ];
 
 export const DishesDiscount: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
             <div className="flex justify-between items-center mb-8">
@@ -84,6 +92,7 @@ export const DishesDiscount: React.FC = () => {
                 {mockDiscountedDishes.map((dish) => (
                     <div
                         key={dish.id}
+                        onClick={() => navigate(`/restaurant/${dish.restaurantId}`)}
                         className="flex flex-col min-w-[220px] md:min-w-[260px] bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                     >
                         {/* Image Container */}

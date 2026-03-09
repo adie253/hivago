@@ -11,11 +11,11 @@ import { RecommendedRestaurants } from '../components/RecommendedRestaurants';
 import { OfferBanners } from '../components/OfferBanners';
 import { PromoBanners } from '../components/PromoBanners';
 import { DeliveryFeatures } from '../components/DeliveryFeatures';
-
-import { mockRestaurants } from '../../data/api/MockRestaurants';
+import { useFilters } from '../context/FilterContext';
 
 export const HomePage: React.FC = () => {
     const navigate = useNavigate();
+    const { allRestaurants, isLoading } = useFilters();
 
     return (
         <div className="min-h-screen bg-white font-sans">
@@ -34,11 +34,19 @@ export const HomePage: React.FC = () => {
                         </button>
                     </div>
 
-                    <RestaurantGrid
-                        restaurants={mockRestaurants.slice(0, 8)}
-                        onRestaurantClick={(id) => navigate(`/restaurant/${id}`)}
-                        scrollable={true}
-                    />
+                    {isLoading ? (
+                        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="min-w-[280px] h-64 bg-gray-100 animate-pulse rounded-[24px]"></div>
+                            ))}
+                        </div>
+                    ) : (
+                        <RestaurantGrid
+                            restaurants={allRestaurants.slice(0, 8)}
+                            onRestaurantClick={(id) => navigate(`/restaurant/${id}`)}
+                            scrollable={true}
+                        />
+                    )}
                 </div>
 
                 {/* Promo Banners Section */}

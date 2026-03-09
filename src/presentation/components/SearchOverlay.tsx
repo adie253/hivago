@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Search, Mic, ArrowLeft, X, RotateCcw } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
+import DIContainer from '../../di/container';
 
 interface SearchOverlayProps {
     isOpen: boolean;
@@ -34,42 +35,51 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
         }
 
         setIsSearching(true);
-        const timer = setTimeout(() => {
-            const query = searchQuery.toLowerCase();
-            const searchResults: any[] = [];
+        const timer = setTimeout(async () => {
+            try {
+                const query = searchQuery.toLowerCase();
+                const searchResults: any[] = [];
 
-            allRestaurants.forEach(restaurant => {
-                // Match Restaurant
-                if (restaurant.name.toLowerCase().includes(query) ||
-                    restaurant.cuisines.some(c => c.toLowerCase().includes(query))) {
-                    searchResults.push({
-                        id: restaurant.id,
-                        name: restaurant.name,
-                        type: 'Restaurant',
-                        rating: restaurant.rating,
-                        time: restaurant.deliveryTime,
-                        image: restaurant.imageUrl
-                    });
-                }
-
-                // Match Menu Items
-                restaurant.menu.forEach(item => {
-                    if (item.name.toLowerCase().includes(query)) {
+                // 1. Search in Restaurants from local state (Fast)
+                allRestaurants.forEach(restaurant => {
+                    if (restaurant.name.toLowerCase().includes(query) ||
+                        restaurant.cuisines.some(c => c.toLowerCase().includes(query))) {
                         searchResults.push({
-                            id: restaurant.id, // Redirect to restaurant
-                            name: item.name,
-                            type: 'Dish',
-                            restaurantName: restaurant.name,
-                            image: restaurant.imageUrl, // Or item image if available
-                            price: item.price
+                            id: restaurant.id,
+                            name: restaurant.name,
+                            type: 'Restaurant',
+                            rating: restaurant.rating,
+                            time: restaurant.deliveryTime,
+                            image: restaurant.imageUrl
                         });
                     }
                 });
-            });
 
-            setResults(searchResults.slice(0, 10)); // Limit to 10 results
-            setIsSearching(false);
-        }, 300);
+                // 2. Search in Dishes via API
+                const searchDishesUseCase = DIContainer.getSearchDishesUseCase();
+                const apiDishes = await searchDishesUseCase.execute(query);
+
+                apiDishes.forEach(item => {
+                    // Try to find the restaurant this dish belongs to if possible
+                    const restaurant = allRestaurants.find(r => r.menu.some(m => m.id === item.id));
+
+                    searchResults.push({
+                        id: restaurant?.id || item.id, // Redirect to restaurant
+                        name: item.name,
+                        type: 'Dish',
+                        restaurantName: restaurant?.name || 'Restaurant', // API doesn't return restaurant name
+                        image: restaurant?.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400",
+                        price: item.price
+                    });
+                });
+
+                setResults(searchResults.slice(0, 15));
+            } catch (error) {
+                console.error('Search failed:', error);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [searchQuery, allRestaurants]);

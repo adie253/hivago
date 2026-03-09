@@ -18,6 +18,11 @@ export const Navbar: React.FC = () => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
+    // Hide navbar on restaurant page
+    if (location.pathname.startsWith('/restaurant/')) {
+        return null;
+    }
+
     return (
         <header className="sticky top-0 z-50 bg-white shadow-sm">
             <nav className="flex items-center justify-between px-4 md:px-30 py-4 border-b border-gray-200 font-sans relative border-b-2">
@@ -144,15 +149,15 @@ export const Navbar: React.FC = () => {
                                     Sign In / Register
                                 </Link>
                             </div> */}
-                        <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
-                            <p className='text-xs'>
-                                <span className='text-gray-700'>Need help? </span>
-                                <br />
-                                <span className='text-gray-500'>call : 1800-123-4567</span>
-                            </p>
+                            <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
+                                <p className='text-xs'>
+                                    <span className='text-gray-700'>Need help? </span>
+                                    <br />
+                                    <span className='text-gray-500'>call : 1800-123-4567</span>
+                                </p>
+                            </div>
                         </div>
-                        </div>
-                                
+
                     </div>
                 </div>
             </div>
