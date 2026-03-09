@@ -1,5 +1,5 @@
 import React from 'react';
-import { Smartphone, Bike, Clock } from 'lucide-react';
+// import { Smartphone, Bike, Clock } from 'lucide-react';
 import deliveryBoy from '../../assets/delivery_section/delivery_boy.svg';
 import d1 from '../../assets/delivery_section/d1.svg';
 import d2 from '../../assets/delivery_section/d2.svg';
