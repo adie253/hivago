@@ -4,6 +4,8 @@ import { ArrowLeft, Clock, Star, Search, Mic, Heart, Bike, User } from 'lucide-r
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
 import { useFilters, Restaurant } from '../context/FilterContext';
 import DIContainer from '../../di/container';
+import deliveryBoy from '../../assets/delivery_pickup/delivery.svg';
+import pickupBoy from '../../assets/delivery_pickup/pickup.svg';
 
 export const RestaurantMenuPage: React.FC = () => {
     const { id } = useParams();
@@ -131,25 +133,25 @@ export const RestaurantMenuPage: React.FC = () => {
                     </div>
 
                     {/* Delivery Status Card - Switchable */}
-                    <div className="mt-3 bg-[#FF4732] rounded-[20px] p-1.5 flex items-center justify-between shadow-lg relative overflow-hidden">
-                        <div className="flex items-center gap-1 z-10">
+                    <div className="mt-3 p-2 bg-[#CE181B]   rounded-[20px] flex items-center justify-between shadow-lg relative overflow-hidden">
+                        <div className="flex items-center p-2 gap-1 z-10 bg-white rounded-full">
                             {/* Delivery Button - Smaller */}
                             <button
                                 onClick={() => setDeliveryMode('delivery')}
-                                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${deliveryMode === 'delivery' ? 'bg-white shadow-md' : 'bg-transparent'}`}
+                                className={`p-2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${deliveryMode === 'delivery' ? 'bg-white shadow-md border border-[#CE181B]' : 'bg-transparent'}`}
                             >
-                                <Bike className={`w-6 h-6 transition-colors ${deliveryMode === 'delivery' ? 'text-[#FF4732]' : 'text-white text-opacity-50'}`} />
+                                <img src={deliveryBoy} alt="" />
                             </button>
 
                             {/* Vertical Divider */}
-                            <div className="w-[1px] h-6 bg-white bg-opacity-20 mx-0.5" />
+                            <div className="w-[1px] h-6 bg-gray-400 bg-opacity-20 mx-0.5" />
 
                             {/* Pickup Button - Smaller */}
                             <button
                                 onClick={() => setDeliveryMode('pickup')}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${deliveryMode === 'pickup' ? 'bg-white shadow-md' : 'bg-transparent'}`}
+                                className={`p-2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${deliveryMode === 'pickup' ? 'bg-white shadow-md border border-[#CE181B]' : 'bg-transparent'}`}
                             >
-                                <User className={`w-5 h-5 transition-colors ${deliveryMode === 'pickup' ? 'text-[#FF4732]' : 'text-white text-opacity-50'}`} />
+                                <img src={pickupBoy} alt="" />
                             </button>
                         </div>
 

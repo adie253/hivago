@@ -22,9 +22,9 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
     };
 
     const recentSearches = [
-        'Atithi Pure Veg',
-        'Pizza Hut',
-        'Burger King'
+        'Biryani',
+        'Cafe Good Luck',
+        'Vohuman Cafe'
     ];
 
     useEffect(() => {

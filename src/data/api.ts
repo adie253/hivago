@@ -1,6 +1,6 @@
 import { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 
-const BASE_URL = 'https://rally-production-2004.up.railway.app/api';
+const BASE_URL = '/api';
 
 export interface ApiRestaurant {
     id: string;
@@ -10,6 +10,7 @@ export interface ApiRestaurant {
     latitude?: number;
     longitude?: number;
     pincode?: string;
+    img?: string;
 }
 
 export interface ApiMenuItem {
@@ -119,9 +120,9 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         deliveryTime: `${avgPrepTime}-${avgPrepTime + 10} min`,
         distance: "2.5 km", // Dummy distance
         costForTwo: "₹400", // Dummy cost
-        imageUrl: apiRes.name.toLowerCase().includes('good luck')
+        imageUrl: apiRes.img || (apiRes.name.toLowerCase().includes('good luck')
             ? "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800"
-            : (allItems.find(i => i.imageUrl)?.imageUrl || getFallbackImage(apiRes.name, categories[0])),
+            : (allItems.find(i => i.imageUrl)?.imageUrl || getFallbackImage(apiRes.name, categories[0]))),
         promoted: false,
         isVeg: allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true,
         categories: categories,
@@ -170,16 +171,28 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
     }
 };
 
+export interface ApiSearchItem {
+    itemId: string;
+    itemName: string;
+    description: string;
+    basePrice: number;
+    imageUrl?: string;
+    isVegetarian: boolean;
+    preparationTimeMinutes: number;
+    restaurantId: string;
+    restaurantName: string;
+}
+
 export const searchDishes = async (query: string): Promise<FoodItem[]> => {
     try {
         const response = await fetch(`${BASE_URL}/catalog/search?q=${encodeURIComponent(query)}`);
         if (!response.ok) {
             throw new Error(`Search failed: ${response.statusText}`);
         }
-        const apiItems: ApiMenuItem[] = await response.json();
+        const apiItems: ApiSearchItem[] = await response.json();
         return apiItems.map(item => ({
-            id: item.id,
-            name: item.name,
+            id: item.itemId,
+            name: item.itemName,
             type: item.isVegetarian ? 'Veg' : 'Non-Veg',
             price: item.basePrice,
             category: 'Search Result' // API search doesn't return category directly
