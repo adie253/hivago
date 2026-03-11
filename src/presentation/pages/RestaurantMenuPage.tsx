@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Star, Search, Mic, Heart, Bike, User } from 'lucide-react';
+import { ArrowLeft, Clock, Star, Search, Mic, Heart, } from 'lucide-react';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
 import { useFilters, Restaurant } from '../context/FilterContext';
 import DIContainer from '../../di/container';
