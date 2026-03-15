@@ -1,6 +1,6 @@
 import { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 
-const BASE_URL = 'https://rally-production-2004.up.railway.app/api';
+const BASE_URL = '/api';
 
 export interface ApiRestaurant {
     id: string;

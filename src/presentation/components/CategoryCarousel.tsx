@@ -53,12 +53,12 @@ export const CategoryCarousel: React.FC = () => {
                             key={index}
                             onClick={() => setActiveCategory(cat.name)}
                             className={`flex flex-col items-center justify-center gap-1 md:gap-2 p-3 md:p-4 min-w-[68px] min-h-[68px] md:min-w-[100px] md:min-h-[100px] rounded-2xl mt-1 cursor-pointer transition-all snap-start flex-shrink-0 ${isActive
-                                ? 'border-2 border-emerald-500 bg-emerald-50 shadow-md transform -translate-y-1'
+                                ? 'border-2 border-red-500 bg-red-50 shadow-md transform -translate-y-1'
                                 : 'bg-gray-50 border border-transparent hover:bg-gray-100'
                                 }`}
                         >
                             <span className="text-2xl md:text-3xl">{cat.icon}</span>
-                            <span className={`font-semibold text-xs md:text-sm ${isActive ? 'text-emerald-700' : 'text-gray-600'}`}>
+                            <span className={`font-semibold text-xs md:text-sm ${isActive ? 'text-red-700' : 'text-gray-600'}`}>
                                 {cat.name}
                             </span>
                         </div>

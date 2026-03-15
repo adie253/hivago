@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Star, Search, Mic, Heart, } from 'lucide-react';
+import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
 import { useFilters, Restaurant } from '../context/FilterContext';
 import DIContainer from '../../di/container';
@@ -16,6 +16,7 @@ export const RestaurantMenuPage: React.FC = () => {
     const [isLocalLoading, setIsLocalLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('All');
     const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
+
 
     useEffect(() => {
         const fetchRestaurant = async () => {
@@ -87,132 +88,294 @@ export const RestaurantMenuPage: React.FC = () => {
     }));
 
     return (
-        <div className="min-h-screen bg-white font-sans pb-20">
-            {/* Top Header - Image with Overlays - Slightly shorter for mobile */}
-            <div className="relative w-full h-72 md:h-80 overflow-hidden rounded-b-[32px] md:rounded-b-[40px] shadow-sm">
-                <img
-                    src={restaurant.imageUrl}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover"
-                />
-
-                {/* Back and Favorite Buttons - More compact */}
-                <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4 text-gray-800" />
-                    </button>
-                    <button className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors">
-                        <Heart className="w-4 h-4 text-gray-800" />
-                    </button>
+        <div className="min-h-screen bg-[#F8FAFC] md:bg-[#F4F6F8] font-sans pb-20">
+            {/* MOBILE VIEW (md:hidden) */}
+            <div className="block md:hidden">
+                {/* Hero Image Section */}
+                <div className="relative w-full h-64">
+                    <img 
+                        src={restaurant.imageUrl} 
+                        alt={restaurant.name} 
+                        className="w-full h-full object-cover" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                    
+                    {/* Floating Buttons */}
+                    <div className="absolute top-6 left-4 flex items-center gap-4 w-full pr-12 justify-between">
+                        <button 
+                            onClick={() => navigate(-1)}
+                            className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-gray-800" />
+                        </button>
+                        <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all">
+                            <span className="text-gray-400 text-xl">♡</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            {/* Restaurant Info Card - Floating - More compact text */}
-            <div className="max-w-[calc(100%-40px)] mx-auto relative z-20 mt-[-100px]">
-                <div className="bg-white rounded-[28px] p-5 shadow-xl border border-gray-100 flex flex-col gap-2">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h1 className="text-xl md:text-2xl font-black text-gray-900 leading-tight">
-                                {restaurant.name}
-                            </h1>
-                            <p className="text-gray-400 font-bold text-[10px] md:text-xs uppercase tracking-wider mt-0.5">
-                                Family Restaurant
-                            </p>
-                        </div>
-                    </div>
+                {/* Overlapping Info Card */}
+                <div className="px-5 -mt-12 relative z-10">
+                    <div className="bg-white rounded-[24px] p-6 shadow-xl border border-gray-50 text-center">
+                        <h1 className="text-2xl font-black text-gray-900 leading-tight">
+                            {restaurant.name}
+                        </h1>
+                        <p className="text-gray-400 font-bold text-xs mt-1 uppercase tracking-tight">
+                            Veg-Non Veg Family Restaurant
+                        </p>
 
-                    <div className="flex flex-col gap-1 mt-0.5">
-                        <div className="flex items-center gap-1.5 text-gray-400">
-                            <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-                            <span className="text-[11px] md:text-xs font-black text-gray-900">{restaurant.rating}</span>
-                            <span className="text-[9px] md:text-[10px] font-bold text-gray-300">200+ ratings</span>
-                        </div>
-                    </div>
-
-                    {/* Delivery Status Card - Switchable */}
-                    <div className="mt-3 p-2 bg-[#CE181B]   rounded-[20px] flex items-center justify-between shadow-lg relative overflow-hidden">
-                        <div className="flex items-center p-2 gap-1 z-10 bg-white rounded-full">
-                            {/* Delivery Button - Smaller */}
-                            <button
-                                onClick={() => setDeliveryMode('delivery')}
-                                className={`p-2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${deliveryMode === 'delivery' ? 'bg-white shadow-md border border-[#CE181B]' : 'bg-transparent'}`}
-                            >
-                                <img src={deliveryBoy} alt="" />
-                            </button>
-
-                            {/* Vertical Divider */}
-                            <div className="w-[1px] h-6 bg-gray-400 bg-opacity-20 mx-0.5" />
-
-                            {/* Pickup Button - Smaller */}
-                            <button
-                                onClick={() => setDeliveryMode('pickup')}
-                                className={`p-2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${deliveryMode === 'pickup' ? 'bg-white shadow-md border border-[#CE181B]' : 'bg-transparent'}`}
-                            >
-                                <img src={pickupBoy} alt="" />
-                            </button>
+                        <div className="flex items-center justify-center gap-2 text-gray-600 mt-4 px-2">
+                            <MapPin className="w-3.5 h-3.5 text-[#FF4732]" />
+                            <span className="text-[11px] font-bold line-clamp-1">Plot No.7, Arenja Chambers, Navi Mumbai</span>
                         </div>
 
-                        <div className="flex flex-col items-end text-white pr-2.5 transition-all duration-300">
-                            <span className="text-xs font-black uppercase tracking-widest leading-none">
-                                {deliveryMode === 'delivery' ? 'Delivery' : 'Pickup'}
-                            </span>
-                            <div className="flex items-center gap-1 mt-1">
-                                <Clock className="w-3 h-3" />
-                                <span className="text-[10px] font-black opacity-80 uppercase">
-                                    {deliveryMode === 'delivery' ? restaurant.deliveryTime : '15-20 min'}
-                                </span>
+                        <div className="flex items-center justify-center gap-3 mt-4 text-[11px] font-bold text-gray-500">
+                            <div className="flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5 text-[#FF4732]" />
+                                <span>{restaurant.deliveryTime}</span>
+                            </div>
+                            <span className="text-gray-300">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <span>2.5 km</span>
+                            </div>
+                            <span className="text-gray-300">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <img src={deliveryBoy} alt="free" className="w-3.5 h-3.5" />
+                                <span>Free</span>
+                            </div>
+                            <span className="text-gray-300">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <Star className="w-3.5 h-3.5 text-[#FF4732] fill-[#FF4732]" />
+                                <span>{restaurant.rating}</span>
+                                <span className="text-gray-400 font-medium">200+ ratings</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Delivery/Pickup Toggle (Mobile) */}
+                <div className="px-5 mt-6">
+                    <div className="bg-white rounded-full border border-gray-100 shadow-sm p-1.5 flex items-center justify-between w-full mx-auto max-w-[320px]">
+                        <div className="flex items-center gap-2">
+                            <div className="flex -space-x-1">
+                                <button 
+                                    onClick={() => setDeliveryMode('delivery')}
+                                    className={`w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                >
+                                    <div className={`p-2 rounded-full ${deliveryMode === 'delivery' ? 'border border-[#B02421]' : ''}`}>
+                                        <img src={deliveryBoy} alt="delivery" className="w-8 h-8" />
+                                    </div>
+                                </button>
+                                <button 
+                                    onClick={() => setDeliveryMode('pickup')}
+                                    className={`w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                >
+                                    <div className={`p-2 rounded-full ${deliveryMode === 'pickup' ? 'border border-[#B02421]' : ''}`}>
+                                        <img src={pickupBoy} alt="pickup" className="w-8 h-8" />
+                                    </div>
+                                </button>
+                            </div>
+                            <div className="pl-2">
+                                <p className="text-[#B02421] font-black text-lg leading-tight capitalize">{deliveryMode}</p>
+                                <p className="text-gray-500 text-xs font-bold">
+                                    {deliveryMode === 'delivery' ? '30 - 35 min' : '15 - 20 min'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Search Bar (Mobile) */}
+                <div className="px-5 mt-6">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-red-400" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search for restaurants or dishes"
+                            className="block w-full pl-12 pr-12 py-4 bg-white border border-gray-100 shadow-sm rounded-2xl text-[13px] font-bold text-gray-900 placeholder-gray-400 focus:ring-0 transition-all"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <Mic className="h-5 w-5 text-[#FF4732]" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Category Tabs (Mobile) */}
+                <div className="mt-8">
+                    <div className="flex items-center gap-8 px-5 overflow-x-auto no-scrollbar scroll-smooth">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveTab(cat)}
+                                className={`text-[14px] font-black whitespace-nowrap pb-3 transition-all relative ${activeTab === cat ? 'text-[#FF4732]' : 'text-gray-400 hober:text-gray-700'}`}
+                            >
+                                {cat}
+                                {activeTab === cat && (
+                                    <span className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#FF4732] rounded-t-full" />
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Menu Header & Grid (Mobile) */}
+                <div className="px-5 mt-8">
+                    <h2 className="text-xl font-black text-gray-900 mb-6">{activeTab}</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        {menuItems.map(item => (
+                            <MenuItemCard key={item.id} item={item} />
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            {/* Menu Sections Container */}
-            <div className="max-w-7xl mx-auto px-5 mt-8">
-                {/* Internal Menu Search - Slimmer */}
-                <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-[#FF4732]" />
+            {/* DESKTOP VIEW (md:block) */}
+            <div className="hidden md:block">
+                {/* Top Search & Back Bar */}
+                <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors flex-shrink-0"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+                    
+                    <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search for restaurants or dishes"
+                            className="block w-full pl-12 pr-12 py-3 bg-[#EEF2F6] border-none rounded-xl text-sm font-medium text-gray-900 placeholder-gray-500 focus:ring-0 transition-all"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <Mic className="h-5 w-5 text-[#FF4732]" />
+                        </div>
                     </div>
-                    <input
-                        type="text"
-                        placeholder="Search for dishes"
-                        className="block w-full pl-11 pr-10 py-3.5 bg-gray-50 border-none rounded-[16px] text-xs font-bold text-gray-900 placeholder-gray-400 shadow-sm focus:ring-1 focus:ring-[#FF4732] transition-all"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center border-l border-gray-100 my-3 pointer-events-none">
-                        <Mic className="h-4 w-4 text-[#FF4732] ml-3" />
+                </div>
+
+                {/* Restaurant Info Card (Desktop) */}
+                <div className="max-w-7xl mx-auto px-4 mt-2">
+                    <div className="bg-white rounded-[24px] p-8 shadow-sm border border-gray-100 flex gap-8 relative overflow-hidden">
+                        {/* Left Section: Info */}
+                        <div className="flex-1 flex flex-col justify-between">
+                            <div>
+                                <h1 className="text-3xl font-black text-gray-900 leading-tight mb-1">
+                                    {restaurant.name}
+                                </h1>
+                                <p className="text-gray-500 font-bold text-sm mb-2 uppercase tracking-tight">
+                                    Veg-Non Veg Family Restaurant
+                                </p>
+                                <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                                    <MapPin className="w-4 h-4 text-[#FF4732]" />
+                                    <span className="font-bold">Plot No.7, Arenja Chambers, Navi Mumbai</span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-8 mt-8">
+                                <div className="flex items-center gap-2">
+                                    <Star className="w-5 h-5 text-green-600 fill-green-600" />
+                                    <span className="text-base font-black text-gray-900">{restaurant.rating}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-500">
+                                    <Clock className="w-5 h-5" />
+                                    <span className="text-base font-bold">{restaurant.deliveryTime}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-500">
+                                    <MapPin className="w-5 h-5" />
+                                    <span className="text-base font-bold">2.5 km</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Middle Section: Delivery Status */}
+                        <div className="flex flex-col items-center justify-center border-x border-gray-100 px-8">
+                            <div className="bg-white rounded-full border border-gray-100 shadow-sm p-1.5 flex items-center gap-4">
+                                <div className="flex -space-x-2">
+                                    <button 
+                                        onClick={() => setDeliveryMode('delivery')}
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                    >
+                                        <img src={deliveryBoy} alt="delivery" className="w-7 h-7" />
+                                    </button>
+                                    <button 
+                                        onClick={() => setDeliveryMode('pickup')}
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                    >
+                                        <img src={pickupBoy} alt="pickup" className="w-7 h-7" />
+                                    </button>
+                                </div>
+                                <div className="pr-4">
+                                    <p className="text-[#B02421] font-black text-lg leading-none capitalize">{deliveryMode}</p>
+                                    <p className="text-gray-500 text-xs font-black mt-0.5">
+                                        {deliveryMode === 'delivery' ? '30 - 35 min' : '15 - 20 min'}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 mt-6">
+                                <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-100">
+                                    <div className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center shadow-sm">
+                                        <Clock className="w-2.5 h-2.5 text-white" />
+                                    </div>
+                                    <div className="flex flex-col leading-tight">
+                                        <span className="text-[10px] font-black uppercase tracking-wider">Fast Delivery</span>
+                                        <span className="text-[9px] font-bold opacity-80">30 mins</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-100">
+                                    <div className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center shadow-sm">
+                                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                    </div>
+                                    <div className="flex flex-col leading-tight">
+                                        <span className="text-[10px] font-black uppercase tracking-wider">Live Tracking</span>
+                                        <span className="text-[9px] font-bold opacity-80">Real Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Section: Image */}
+                        <div className="w-72 h-48 rounded-2xl overflow-hidden shadow-md">
+                            <img
+                                src={restaurant.imageUrl}
+                                alt={restaurant.name}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* Categories Tabs - Smaller text */}
-                <div className="mt-6 flex px-5 w-full justify-between items-center overflow-x-auto no-scrollbar pb-2">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveTab(cat)}
-                            className={`text-[12px] font-black whitespace-nowrap pb-1.5 transition-all relative ${activeTab === cat ? 'text-[#FF4732]' : 'text-gray-400'}`}
-                        >
-                            {cat}
-                            {activeTab === cat && (
-                                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF4732] rounded-full" />
-                            )}
-                        </button>
-                    ))}
-                </div>
+                {/* Menu Sections Container (Desktop) */}
+                <div className="max-w-7xl mx-auto px-4 mt-12">
+                    <div className="flex items-center gap-10 border-b border-gray-100">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveTab(cat)}
+                                className={`text-base font-black pb-5 transition-all relative ${activeTab === cat ? 'text-[#FF4732]' : 'text-gray-400 hober:text-gray-900 group'}`}
+                            >
+                                {cat}
+                                {activeTab === cat && (
+                                    <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-[#FF4732] rounded-t-full" />
+                                )}
+                                <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-gray-200 rounded-t-full scale-x-0 group-hover:scale-x-100 transition-transform origin-center" />
+                            </button>
+                        ))}
+                    </div>
 
-                {/* Section Header - Smaller */}
-                <div className="mt-6 mb-4">
-                    <h2 className="text-lg font-black text-gray-900">{activeTab}</h2>
-                </div>
+                    <div className="mt-12 mb-8">
+                        <h2 className="text-2xl font-black text-gray-900">{activeTab}</h2>
+                    </div>
 
-                {/* Menu Grid - 2 columns */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    {menuItems.map(item => (
-                        <MenuItemCard key={item.id} item={item} />
-                    ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {menuItems.map(item => (
+                            <MenuItemCard key={item.id} item={item} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

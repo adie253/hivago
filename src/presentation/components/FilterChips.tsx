@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
-import { SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { 
+    SlidersHorizontal, 
+    ChevronDown, 
+    Footprints, 
+    Flame, 
+    Star, 
+    Timer, 
+    Store, 
+    Sparkles, 
+    Percent 
+} from 'lucide-react';
 import { FilterModal } from './FilterModal';
 import { useFilters } from '../context/FilterContext';
 
 const filters = [
-    { name: 'Pickup', active: false },
-    { name: 'Popular', active: false },
-    { name: 'High Protein', active: false },
-    { name: 'Under 30 Mins', active: false },
-    { name: 'Cost for Two', active: false },
-    { name: 'Open Now', active: false },
-    { name: 'Newly Added', active: false },
-    { name: 'Pro', active: false },
+    { name: 'Pickup', icon: Footprints },
+    { name: 'Popular', icon: Flame },
+    { name: 'Rating 4.0+', icon: Star },
+    { name: 'Rating 4.5+', icon: Star },
+    { name: 'Under 30 Minutes', icon: Timer },
+    { name: 'Open Now', icon: Store },
+    { name: 'Newly Added', icon: Sparkles },
+    { name: '50% Off', icon: Percent },
 ];
 
 export const FilterChips: React.FC = () => {
@@ -52,8 +62,9 @@ export const FilterChips: React.FC = () => {
                     {filters.map((filter, idx) => (
                         <button
                             key={idx}
-                            className="border border-gray-300 text-gray-700 px-3 py-1.5 md:px-4 md:py-2 rounded-full font-medium text-xs md:text-sm hover:bg-gray-50 transition-colors whitespace-nowrap"
+                            className="border border-gray-200 text-gray-700 px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm hover:bg-gray-50 transition-all whitespace-nowrap flex items-center gap-2 shadow-sm bg-white"
                         >
+                            <filter.icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#FF4732]" />
                             {filter.name}
                         </button>
                     ))}

@@ -5,22 +5,22 @@ import burger from "../../assets/hero_section/burger_image.png";
 
 export const HeroSection: React.FC = () => {
     return (
-        <div className="bg-gradient-to-r from-[#EB5C4F] to-[#A41B0E] w-full shadow-sm min-h-[225px] lg:min-h-[250px] flex flex-col lg:flex-row items-center justify-between px-6 md:px-12 lg:px-25 py-12 lg:py-12 relative overflow-hidden font-sans gap-12 lg:gap-4">
+        <div className="bg-[#FFF7F7] w-full shadow-sm min-h-[225px] lg:min-h-[250px] flex flex-col lg:flex-row items-center justify-between px-6 md:px-12 lg:px-25 py-12 lg:py-12 relative overflow-hidden font-sans gap-12 lg:gap-4">
 
             {/* Background Blob decoration - scales responsibly */}
             {/* <div className="absolute right-0 top-0 h-1/2 lg:h-full w-full lg:w-1/2 bg-[#8B3423] opacity-80 rounded-b-[100px] lg:rounded-b-none lg:rounded-l-[150px] z-0 pointer-events-none"></div> */}
 
             {/* Extra floating white blob for the review card shadow effect */}
-            <div className="hidden lg:block absolute left-25 top-25 w-64 h-32 bg-white/20 rounded-3xl transform rotate-3 z-0 pointer-events-none"></div>
+            <div className="hidden lg:block absolute left-25 top-25 w-64 h-32 bg-black-400 rounded-3xl transform rotate-3 z-0 pointer-events-none"></div>
 
             {/* ---------------- SECTION 1: Ratings Card ---------------- */}
             <div className="z-10 hidden lg:flex w-full lg:w-1/4 justify-center lg:justify-start lg:-mt-10">
                 <div className="bg-white rounded-3xl p-4 md:p-6 shadow-xl w-56 md:w-64 transform lg:-rotate-3 hover:rotate-0 transition-transform duration-300 relative cursor-pointer group">
-                    <div className="flex gap-1 text-emerald-500 mb-1 md:mb-2">
+                    <div className="flex gap-1 text-[#B02421] mb-1 md:mb-2">
                         {[1, 2, 3, 4, 5].map((i) => (
                             <Star key={i} className="w-5 h-5 fill-current" />
                         ))}
-                        <span className="text-gray-400 font-bold ml-2 text-base">4.5</span>
+                        <span className="text-[#B02421] font-bold ml-2 text-base">4.5</span>
                     </div>
                     <p className="font-extrabold text-lg md:text-xl text-gray-800 group-hover:text-brand-primary transition-colors">5k Happy reviews</p>
                 </div>
@@ -30,11 +30,11 @@ export const HeroSection: React.FC = () => {
             <div className="z-10 w-full lg:w-3/4 flex flex-row items-center justify-between gap-4 lg:gap-8">
                 {/* ---------------- SECTION 2: Main Text Content ---------------- */}
                 <div className="w-[65%] lg:w-1/2 flex flex-col font-poppins">
-                    <h1 className="text-white text-left font-bold text-2xl md:text-6xl lg:text-[3rem] leading-[1.1] mb-2 drop-shadow-md">
+                    <h1 className="text-black text-left font-bold text-2xl md:text-6xl lg:text-[3rem] leading-[1.1] mb-2 drop-shadow-md">
                         Delicious Food, <br className="md:block" />
                         <span className="font-light">Delivered Fast</span>
                     </h1>
-                    <p className="text-red-100 mt-4 leading-3.5 max-w-[130px] text-[12px] md:text-lg md:max-w-[200px] md:leading-6 font-poppins font-weight-400">
+                    <p className="text-red-500 mt-4 leading-3.5 max-w-[130px] text-[12px] md:text-lg md:max-w-[200px] md:leading-6 font-poppins font-weight-400">
                         Order from the best local restaurants with easy on-demand delivery
                     </p>
                 </div>
