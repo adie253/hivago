@@ -1,6 +1,8 @@
 import { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.MODE === 'production' 
+    ? 'https://rally-production-2004.up.railway.app/api' 
+    : '/api';
 
 export interface ApiRestaurant {
     id: string;
