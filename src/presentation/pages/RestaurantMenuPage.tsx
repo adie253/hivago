@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
+import { ItemDetailOverlay } from '../components/ItemDetailOverlay';
 import { useFilters, Restaurant } from '../context/FilterContext';
 import DIContainer from '../../di/container';
 import deliveryBoy from '../../assets/delivery_pickup/delivery.svg';
@@ -16,8 +17,7 @@ export const RestaurantMenuPage: React.FC = () => {
     const [isLocalLoading, setIsLocalLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('All');
     const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
-
-
+    const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
     useEffect(() => {
         const fetchRestaurant = async () => {
             if (!id) return;
@@ -160,7 +160,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <div className="flex -space-x-1">
                                 <button 
                                     onClick={() => setDeliveryMode('delivery')}
-                                    className={`w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    className={`w-20 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
                                 >
                                     <div className={`p-2 rounded-full ${deliveryMode === 'delivery' ? 'border border-[#B02421]' : ''}`}>
                                         <img src={deliveryBoy} alt="delivery" className="w-8 h-8" />
@@ -225,7 +225,11 @@ export const RestaurantMenuPage: React.FC = () => {
                     <h2 className="text-xl font-black text-gray-900 mb-6">{activeTab}</h2>
                     <div className="grid grid-cols-2 gap-4">
                         {menuItems.map(item => (
-                            <MenuItemCard key={item.id} item={item} />
+                            <MenuItemCard 
+                                key={item.id} 
+                                item={item} 
+                                onClick={() => setSelectedItem(item)}
+                            />
                         ))}
                     </div>
                 </div>
@@ -297,15 +301,15 @@ export const RestaurantMenuPage: React.FC = () => {
                                 <div className="flex -space-x-2">
                                     <button 
                                         onClick={() => setDeliveryMode('delivery')}
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        className={`w-15 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
                                     >
-                                        <img src={deliveryBoy} alt="delivery" className="w-7 h-7" />
+                                        <img src={deliveryBoy} alt="delivery" className="w-[60%] h-[60%]" />
                                     </button>
                                     <button 
                                         onClick={() => setDeliveryMode('pickup')}
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        className={`w-15 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
                                     >
-                                        <img src={pickupBoy} alt="pickup" className="w-7 h-7" />
+                                        <img src={pickupBoy} alt="pickup" className="w-[60%] h-[60%]" />
                                     </button>
                                 </div>
                                 <div className="pr-4">
@@ -373,11 +377,21 @@ export const RestaurantMenuPage: React.FC = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {menuItems.map(item => (
-                            <MenuItemCard key={item.id} item={item} />
+                            <MenuItemCard 
+                                key={item.id} 
+                                item={item} 
+                                onClick={() => setSelectedItem(item)}
+                            />
                         ))}
                     </div>
                 </div>
             </div>
+
+            {/* Overlay Component */}
+            <ItemDetailOverlay 
+                item={selectedItem} 
+                onClose={() => setSelectedItem(null)} 
+            />
         </div>
     );
 };

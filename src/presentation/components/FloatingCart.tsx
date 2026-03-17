@@ -17,10 +17,10 @@ export const FloatingCart: React.FC = () => {
     const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
-        <div className="fixed bottom-6 left-0 right-0 z-[100] px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="sticky bottom-6 z-[100] px-4 pb-4 pointer-events-none w-full flex justify-center animate-in fade-in slide-in-from-bottom-4">
             <button
                 onClick={() => navigate('/checkout')}
-                className="max-w-md mx-auto w-full bg-gradient-to-r from-[#CE181B] to-[#CE1830] text-white flex items-center justify-between p-4 rounded-[24px] shadow-[0_20px_40px_rgba(255,71,50,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all group overflow-hidden relative"
+                className="max-w-md w-full bg-gradient-to-r from-[#CE181B] to-[#CE1830] text-white flex items-center justify-between p-4 rounded-[24px] shadow-[0_20px_40px_rgba(255,71,50,0.3)] hover:scale-[1.02] active:scale-[0.98] group overflow-hidden relative pointer-events-auto"
             >
                 {/* Shine effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-10 -translate-x-full group-hover:animate-[shine_1.5s_infinite]" />

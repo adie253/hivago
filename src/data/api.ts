@@ -1,7 +1,7 @@
 import { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 
-const BASE_URL = import.meta.env.MODE === 'production' 
-    ? 'https://rally-production-2004.up.railway.app/api' 
+const BASE_URL = import.meta.env.MODE === 'production'
+    ? 'https://rally-production-2004.up.railway.app/api'
     : '/api';
 
 export interface ApiRestaurant {
@@ -225,6 +225,37 @@ export const fetchRestaurantById = async (id: string): Promise<Restaurant | null
         return mapRestaurant(apiRes, menus);
     } catch (error) {
         console.error(`Error in fetchRestaurantById for ${id}:`, error);
+        return null;
+    }
+};
+
+export interface ApiItemOption {
+    id: string;
+    name: string;
+    price: number;
+}
+
+export interface ApiItem {
+    id: string;
+    name: string;
+    description: string;
+    basePrice: number;
+    imageUrl: string | null;
+    isAvailable: boolean;
+    isVegetarian: boolean;
+    preparationTimeMinutes: number;
+    options: ApiItemOption[];
+}
+
+export const fetchItemDetails = async (itemId: string): Promise<ApiItem | null> => {
+    try {
+        const response = await fetch(`${BASE_URL}/items/${itemId}`);
+        if (!response.ok) {
+             throw new Error(`Failed to fetch item details: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error in fetchItemDetails for ${itemId}:`, error);
         return null;
     }
 };

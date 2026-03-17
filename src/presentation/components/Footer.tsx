@@ -5,7 +5,7 @@ import scooty from '../../assets/footer/scooty.svg';
 
 export const Footer: React.FC = () => {
     return (
-        <footer className="w-full bg-[#B02421] py-12 md:py-20 px-6 md:px-12 lg:px-24 border-t border-white/10 text-white font-sans">
+        <footer id="main-footer" className="w-full bg-[#B02421] py-12 md:py-20 px-6 md:px-12 lg:px-24 border-t border-white/10 text-white font-sans">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 md:gap-8">
                 
                 {/* Logo Section - Order 1 on Mobile/Desktop */}

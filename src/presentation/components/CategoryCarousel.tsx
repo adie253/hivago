@@ -60,7 +60,7 @@ export const CategoryCarousel: React.FC = () => {
                             <span className="text-2xl md:text-3xl">{cat.icon}</span>
                             <span className={`font-semibold text-xs md:text-sm ${isActive ? 'text-red-700' : 'text-gray-600'}`}>
                                 {cat.name}
-                            </span>
+                            </span> 
                         </div>
                     );
                 })}

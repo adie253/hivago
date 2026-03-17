@@ -1,6 +1,8 @@
-import React from 'react';
-import { Plus, Minus, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Minus, Star, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { AddOnsOverlay } from './AddOnsOverlay';
+import { fetchItemDetails } from '../../data/api';
 
 export interface MenuItem {
     id: string;
@@ -14,33 +16,72 @@ export interface MenuItem {
 
 interface MenuItemCardProps {
     item: MenuItem;
+    onClick?: () => void;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
     const { cartItems, addToCart, removeFromCart } = useCart();
+    const [showCustomize, setShowCustomize] = useState(false);
+    const [isCheckingOptions, setIsCheckingOptions] = useState(false);
+    
     const cartItem = cartItems.find(i => i.id === item.id);
     const quantity = cartItem ? cartItem.quantity : 0;
 
-    const handleAdd = () => {
-        const numericPrice = typeof item.price === 'string'
-            ? parseInt(item.price.replace(/[^0-9]/g, ''), 10)
-            : item.price;
-        addToCart({
-            id: item.id,
-            name: item.name,
-            price: numericPrice,
-            isVeg: item.isVeg,
-        });
+    const getNumericPrice = () => typeof item.price === 'string' ? parseInt(item.price.replace(/[^0-9]/g, ''), 10) : item.price;
+
+    const handleInitialAdd = async (e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        
+        setIsCheckingOptions(true);
+        try {
+            const details = await fetchItemDetails(item.id);
+            if (details && details.options && details.options.length > 0) {
+                // Item has options, open the customize overlay
+                setShowCustomize(true);
+            } else {
+                // No options, immediately add to cart
+                addToCart({
+                    id: item.id,
+                    name: item.name,
+                    price: getNumericPrice(),
+                    isVeg: item.isVeg,
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch item details to check for options", error);
+            // Fallback: If API fails, try to show the overlay (it will retry fetching inside, or fail gracefully)
+            setShowCustomize(true);
+        } finally {
+            setIsCheckingOptions(false);
+        }
     };
 
-    const handleRemove = () => {
+    const handleConfirmAdd = (itemToAdd: MenuItem, finalPrice: number, instructions: string) => {
+        // Here we add "Customized" label as it came from the overlay
+        addToCart({
+            id: itemToAdd.id,
+            name: `${itemToAdd.name} (Customized)`,
+            price: finalPrice,
+            isVeg: itemToAdd.isVeg,
+        });
+        console.log("Instructions for", itemToAdd.name, ":", instructions);
+        setShowCustomize(false);
+    };
+
+    const handleRemove = (e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
         removeFromCart(item.id);
     };
 
     return (
-        <div className="bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col h-full border border-gray-100">
+        <div 
+            className={`bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col h-full border border-gray-100`}
+        >
             {/* Image Section */}
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div 
+                className={`relative aspect-[4/3] overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
+                onClick={onClick}
+            >
                 <img
                     src={item.imageUrl}
                     alt={item.name}
@@ -97,10 +138,11 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
                     <div className="flex items-center">
                         {quantity === 0 ? (
                             <button
-                                onClick={handleAdd}
-                                className="px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm"
+                                onClick={handleInitialAdd}
+                                disabled={isCheckingOptions}
+                                className="px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 min-w-[70px] justify-center"
                             >
-                                ADD
+                                {isCheckingOptions ? <Loader2 className="w-4 h-4 animate-spin" /> : "ADD"}
                             </button>
                         ) : (
                             <div className="flex items-center bg-red-50 rounded-lg overflow-hidden border border-[#FF4732]/20">
@@ -112,16 +154,25 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
                                 </button>
                                 <span className="w-6 text-center text-sm font-bold text-gray-900">{quantity}</span>
                                 <button
-                                    onClick={handleAdd}
-                                    className="w-8 h-8 flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"
+                                    onClick={handleInitialAdd}
+                                    disabled={isCheckingOptions}
+                                    className="w-8 h-8 flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
-                                    <Plus className="w-3.5 h-3.5" strokeWidth={3} />
+                                    {isCheckingOptions ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" strokeWidth={3} />}
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            {showCustomize && (
+                <AddOnsOverlay 
+                    originalItem={item} 
+                    onClose={() => setShowCustomize(false)} 
+                    onConfirmAdd={handleConfirmAdd} 
+                />
+            )}
         </div>
     );
 };

@@ -37,7 +37,7 @@ export const RestaurantsPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white font-sans">
+        <div className="min-h-screen bg-white font-sans overflow-x-hidden">
             <div className="bg-[#FF4732] w-full pt-8 pb-16 px-6 md:px-12 lg:px-24 shadow-sm relative">
                 <div className="max-w-7xl mx-auto flex flex-col items-center justify-center text-center">
                     <h1 className="text-white font-extrabold text-3xl md:text-5xl leading-tight mb-4 drop-shadow-md">
