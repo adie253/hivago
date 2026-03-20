@@ -108,7 +108,7 @@ export const RestaurantMenuPage: React.FC = () => {
                         >
                             <ArrowLeft className="w-5 h-5 text-gray-800" />
                         </button>
-                        <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all">
+                        <button className="w-10 h-10 bg-white -mr-8 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all">
                             <span className="text-gray-400 text-xl">♡</span>
                         </button>
                     </div>
@@ -116,15 +116,15 @@ export const RestaurantMenuPage: React.FC = () => {
 
                 {/* Overlapping Info Card */}
                 <div className="px-5 -mt-12 relative z-10">
-                    <div className="bg-white rounded-[24px] p-6 shadow-xl border border-gray-50 text-center">
-                        <h1 className="text-2xl font-black text-gray-900 leading-tight">
+                    <div className="bg-white rounded-[24px] p-6 shadow-xl border border-gray-50">
+                        <h1 className="text-2xl font-bold text-gray-900 leading-tight font-sans">
                             {restaurant.name}
                         </h1>
-                        <p className="text-gray-400 font-bold text-xs mt-1 uppercase tracking-tight">
+                        <p className="text-gray-400 font-bold text-xs mt-1 tracking-tight">
                             Veg-Non Veg Family Restaurant
                         </p>
 
-                        <div className="flex items-center justify-center gap-2 text-gray-600 mt-4 px-2">
+                        <div className="flex items-center gap-2 text-gray-600 mt-4">
                             <MapPin className="w-3.5 h-3.5 text-[#FF4732]" />
                             <span className="text-[11px] font-bold line-clamp-1">Plot No.7, Arenja Chambers, Navi Mumbai</span>
                         </div>
@@ -160,17 +160,17 @@ export const RestaurantMenuPage: React.FC = () => {
                             <div className="flex -space-x-1">
                                 <button 
                                     onClick={() => setDeliveryMode('delivery')}
-                                    className={`w-20 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
                                 >
-                                    <div className={`p-2 rounded-full ${deliveryMode === 'delivery' ? 'border border-[#B02421]' : ''}`}>
+                                    <div className={`p-4 px-6 rounded-full ${deliveryMode === 'delivery' ? 'border border-[#B02421]' : ''}`}>
                                         <img src={deliveryBoy} alt="delivery" className="w-8 h-8" />
                                     </div>
                                 </button>
                                 <button 
                                     onClick={() => setDeliveryMode('pickup')}
-                                    className={`w-20 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
                                 >
-                                    <div className={`p-2 rounded-full ${deliveryMode === 'pickup' ? 'border border-[#B02421]' : ''}`}>
+                                    <div className={`p-4 px-6 rounded-full ${deliveryMode === 'pickup' ? 'border border-[#B02421]' : ''}`}>
                                         <img src={pickupBoy} alt="pickup" className="w-8 h-8" />
                                     </div>
                                 </button>
@@ -298,16 +298,16 @@ export const RestaurantMenuPage: React.FC = () => {
                         {/* Middle Section: Delivery Status */}
                         <div className="flex flex-col items-center justify-center border-x border-gray-100 px-8">
                             <div className="bg-white rounded-full border border-gray-100 shadow-sm p-1.5 flex items-center gap-4">
-                                <div className="flex -space-x-2">
+                                <div className="flex">
                                     <button 
                                         onClick={() => setDeliveryMode('delivery')}
-                                        className={`w-15 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
                                     >
                                         <img src={deliveryBoy} alt="delivery" className="w-[60%] h-[60%]" />
                                     </button>
                                     <button 
                                         onClick={() => setDeliveryMode('pickup')}
-                                        className={`w-15 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
                                     >
                                         <img src={pickupBoy} alt="pickup" className="w-[60%] h-[60%]" />
                                     </button>

@@ -56,14 +56,26 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         }
     };
 
-    const handleConfirmAdd = (itemToAdd: MenuItem, finalPrice: number, instructions: string) => {
-        // Here we add "Customized" label as it came from the overlay
+    const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: {id: string, name: string, price: number}[]) => {
+        // Add the main item
         addToCart({
             id: itemToAdd.id,
             name: `${itemToAdd.name} (Customized)`,
-            price: finalPrice,
+            price: mainItemPrice,
             isVeg: itemToAdd.isVeg,
         });
+
+        // Add each addon as a separate item with isAddon flag
+        selectedAddons.forEach(addon => {
+            addToCart({
+                id: addon.id,
+                name: addon.name,
+                price: addon.price,
+                isVeg: true, // Assuming addons are mostly veg or inherit? Let's assume true for simplicity or if we had more metadata
+                isAddon: true
+            });
+        });
+
         console.log("Instructions for", itemToAdd.name, ":", instructions);
         setShowCustomize(false);
     };

@@ -4,4 +4,5 @@ export interface CartItem {
     price: number;
     isVeg: boolean;
     quantity: number;
+    isAddon?: boolean;
 }

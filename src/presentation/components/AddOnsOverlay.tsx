@@ -7,7 +7,7 @@ import { fetchItemDetails, ApiItem } from '../../data/api';
 interface AddOnsOverlayProps {
     originalItem: MenuItem | null;
     onClose: () => void;
-    onConfirmAdd: (item: MenuItem, total: number, instructions: string) => void;
+    onConfirmAdd: (item: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: {id: string, name: string, price: number}[]) => void;
 }
 
 export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onClose, onConfirmAdd }) => {
@@ -81,25 +81,35 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
             : originalItem.price;
     }, [originalItem]);
 
-    const totalPrice = useMemo(() => {
+    const mainItemPrice = useMemo(() => {
         let total = basePrice;
         
-        // Add selected options from API
+        // Add selected options from API (ingredients/mods)
         if (apiItem && apiItem.options) {
             apiItem.options.forEach(opt => {
                 const optPrice = typeof opt.additionalPrice === 'number' && !isNaN(opt.additionalPrice) ? opt.additionalPrice : 0;
                 if (selectedOptions.has(opt.id)) total += optPrice;
             });
         }
-
-        // Add FBT items
-        frequentlyBought.forEach(fb => {
-             const qty = fbtQuantities[fb.id] || 0;
-             total += fb.price * qty;
-        });
-
         return total;
-    }, [basePrice, selectedOptions, fbtQuantities, frequentlyBought, apiItem]);
+    }, [basePrice, selectedOptions, apiItem]);
+
+    const selectedAddonsList = useMemo(() => {
+        const list: {id: string, name: string, price: number}[] = [];
+        frequentlyBought.forEach(fb => {
+            const qty = fbtQuantities[fb.id] || 0;
+            if (qty > 0) {
+                for (let i = 0; i < qty; i++) {
+                    list.push({ id: `${fb.id}-${i}`, name: fb.name, price: fb.price });
+                }
+            }
+        });
+        return list;
+    }, [fbtQuantities, frequentlyBought]);
+
+    const totalPrice = useMemo(() => {
+        return mainItemPrice + selectedAddonsList.reduce((acc, curr) => acc + curr.price, 0);
+    }, [mainItemPrice, selectedAddonsList]);
 
 
     if (!originalItem) return null;
@@ -266,8 +276,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                      <button
                          onClick={() => onConfirmAdd({
                              ...originalItem,
-                             // We might want to attach selected options here for the cart, but sticking to existing interface for now
-                         }, totalPrice, specialInstructions)}
+                         }, mainItemPrice, specialInstructions, selectedAddonsList)}
                          className="w-full bg-[#D12E27] text-white rounded-2xl py-4 px-6 flex items-center justify-between shadow-lg hover:bg-[#B52721] active:scale-[0.98] transition-all group"
                          disabled={isLoading}
                      >
