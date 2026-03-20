@@ -101,7 +101,7 @@ export const RestaurantMenuPage: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
                     
                     {/* Floating Buttons */}
-                    <div className="absolute top-6 left-4 flex items-center gap-4 w-full pr-12 justify-between">
+                    <div className="absolute top-6 pl-4 flex items-center gap-4 w-full pr-12 justify-between">
                         <button 
                             onClick={() => navigate(-1)}
                             className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all"
@@ -168,7 +168,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 </button>
                                 <button 
                                     onClick={() => setDeliveryMode('pickup')}
-                                    className={`w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    className={`w-20 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
                                 >
                                     <div className={`p-2 rounded-full ${deliveryMode === 'pickup' ? 'border border-[#B02421]' : ''}`}>
                                         <img src={pickupBoy} alt="pickup" className="w-8 h-8" />

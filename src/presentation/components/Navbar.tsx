@@ -16,11 +16,16 @@ export const Navbar: React.FC = () => {
     const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
     const location = useLocation();
     const isRestaurantPage = location.pathname.startsWith('/restaurant/');
+    const isCheckoutPage = location.pathname === '/checkout';
 
     // Close menu when route changes
     React.useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
+
+    if (isCheckoutPage) {
+        return null;
+    }
 
     return (
         <header className={`sticky top-0 z-50 bg-white shadow-sm ${isRestaurantPage ? 'hidden md:block' : ''}`}>

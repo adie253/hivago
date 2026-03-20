@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Minus, Check, ShoppingBag, Loader2 } from 'lucide-react';
+import { X, Plus, Minus, Check, ShoppingBag, Loader2, ChevronRight } from 'lucide-react';
 import { MenuItem } from './MenuItemCard';
 import { fetchItemDetails, ApiItem } from '../../data/api';
 
@@ -24,12 +24,16 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
     const [fbtQuantities, setFbtQuantities] = useState<Record<string, number>>({ fb1: 1, fb2: 1 });
     const [specialInstructions, setSpecialInstructions] = useState('');
+    const [unavailabilityAction, setUnavailabilityAction] = useState('Remove it from my order');
+    const [isUnavailabilityMenuOpen, setIsUnavailabilityMenuOpen] = useState(false);
 
     useEffect(() => {
         const originalStyle = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('hide-floating-cart');
         return () => {
             document.body.style.overflow = originalStyle;
+            document.body.classList.remove('hide-floating-cart');
         };
     }, []);
 
@@ -83,7 +87,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         // Add selected options from API
         if (apiItem && apiItem.options) {
             apiItem.options.forEach(opt => {
-                const optPrice = typeof opt.price === 'number' && !isNaN(opt.price) ? opt.price : 0;
+                const optPrice = typeof opt.additionalPrice === 'number' && !isNaN(opt.additionalPrice) ? opt.additionalPrice : 0;
                 if (selectedOptions.has(opt.id)) total += optPrice;
             });
         }
@@ -101,7 +105,9 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     if (!originalItem) return null;
 
     return createPortal(
+        <>
         <div 
+
             className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose();
@@ -155,7 +161,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                     <div className="space-y-4">
                                         {apiItem.options.map((opt) => {
                                             const isSelected = selectedOptions.has(opt.id);
-                                            const optPrice = typeof opt.price === 'number' && !isNaN(opt.price) ? opt.price : 0;
+                                            const optPrice = typeof opt.additionalPrice === 'number' && !isNaN(opt.additionalPrice) ? opt.additionalPrice : 0;
                                             return (
                                                 <div key={opt.id} className="flex items-center justify-between group cursor-pointer" onClick={() => toggleOption(opt.id)}>
                                                     <div>
@@ -238,6 +244,18 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Unavailability Option */}
+                            <div className="mb-6">
+                                <h3 className="text-[13px] font-bold text-gray-800 mb-3 px-1">If this product is not available</h3>
+                                <button 
+                                    onClick={() => setIsUnavailabilityMenuOpen(true)}
+                                    className="w-full bg-white rounded-2xl py-3.5 px-4 flex items-center justify-between border border-gray-100 shadow-sm active:scale-[0.98] transition-all"
+                                >
+                                    <span className="text-[13px] font-medium text-gray-500">{unavailabilityAction}</span>
+                                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                                </button>
+                            </div>
                         </>
                     )}
 
@@ -264,7 +282,45 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                 </div>
 
             </div>
-        </div>,
+        </div>
+
+        {/* Unavailability Options Modal */}
+        {isUnavailabilityMenuOpen && (
+            <div 
+                className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" 
+                onClick={() => setIsUnavailabilityMenuOpen(false)}
+            >
+                <div 
+                    className="bg-white w-full max-w-[320px] rounded-[24px] p-6 shadow-2xl animate-in zoom-in-95 duration-200" 
+                    onClick={e => e.stopPropagation()}
+                >
+                    <div className="flex justify-between items-start mb-6">
+                        <h3 className="text-[15px] font-black text-gray-900 pr-5 leading-tight">If this product is not available</h3>
+                        <button 
+                            onClick={() => setIsUnavailabilityMenuOpen(false)} 
+                            className="text-gray-400 hover:text-gray-600 p-1 -mt-1 -mr-2"
+                        >
+                            <X className="w-4 h-4" strokeWidth={2.5} />
+                        </button>
+                    </div>
+                    <div className="flex flex-col items-start gap-4">
+                        {['Remove it from my order', 'Cancel the entire order.', 'Call Us'].map(option => (
+                            <button
+                                key={option}
+                                onClick={() => {
+                                    setUnavailabilityAction(option);
+                                    setIsUnavailabilityMenuOpen(false);
+                                }}
+                                className={`text-left text-[14px] transition-colors ${unavailabilityAction === option ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-gray-800'}`}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
+        </>,
         document.body
     );
 };

@@ -18,11 +18,14 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
     useEffect(() => {
         if (item) {
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('hide-floating-cart');
         } else {
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('hide-floating-cart');
         }
         return () => {
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('hide-floating-cart');
         };
     }, [item]);
 

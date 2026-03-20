@@ -28,3 +28,8 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* Hide floating cart when overlays are open */
+body.hide-floating-cart .floating-cart {
+  display: none !important;
+}

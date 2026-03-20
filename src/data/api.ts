@@ -232,7 +232,7 @@ export const fetchRestaurantById = async (id: string): Promise<Restaurant | null
 export interface ApiItemOption {
     id: string;
     name: string;
-    price: number;
+    additionalPrice: number;
 }
 
 export interface ApiItem {
