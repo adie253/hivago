@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
+import { syncCart, isTokenValid } from '../../data/api';
 
 interface CartContextType {
     cartItems: CartItem[];
-    addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+    restaurantId?: string;
+    restaurantName?: string;
+    addToCart: (item: Omit<CartItem, 'quantity'>, restaurantId?: string, restaurantName?: string) => void;
     removeFromCart: (itemId: string) => void;
     clearCart: () => void;
     cartTotal: number;
@@ -14,31 +17,67 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [restaurantId, setRestaurantId] = useState<string | undefined>(undefined);
+    const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        const items = DIContainer.getGetCartUseCase().execute();
-        setCartItems(items);
+        const cartData = DIContainer.getGetCartUseCase().execute();
+        setCartItems(cartData.items);
+        setRestaurantId(cartData.restaurantId);
+        setRestaurantName(cartData.restaurantName);
     }, []);
 
-    const addToCart = (item: Omit<CartItem, 'quantity'>) => {
-        const updatedCart = DIContainer.getAddToCartUseCase().execute(item);
-        setCartItems([...updatedCart]);
+    useEffect(() => {
+        const userId = localStorage.getItem('customer_id');
+        if (isTokenValid() && userId && cartItems.length > 0 && restaurantId) {
+            syncCart({
+                restaurantId,
+                restaurantName: restaurantName || 'Restaurant',
+                items: cartItems.map(item => ({
+                    menuItemId: item.id,
+                    name: item.name,
+                    unitPrice: item.price,
+                    quantity: item.quantity,
+                    options: "",
+                    specialInstructions: ""
+                }))
+            }).catch(e => console.error("Failed to sync cart:", e));
+        }
+    }, [cartItems, restaurantId, restaurantName]);
+
+    const addToCart = (item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
+        const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
+        setCartItems([...updatedCartData.items]);
+        setRestaurantId(updatedCartData.restaurantId);
+        setRestaurantName(updatedCartData.restaurantName);
     };
 
     const removeFromCart = (itemId: string) => {
-        const updatedCart = DIContainer.getRemoveFromCartUseCase().execute(itemId);
-        setCartItems([...updatedCart]);
+        const updatedCartData = DIContainer.getRemoveFromCartUseCase().execute(itemId);
+        setCartItems([...updatedCartData.items]);
+        setRestaurantId(updatedCartData.restaurantId);
+        setRestaurantName(updatedCartData.restaurantName);
     };
 
     const clearCart = () => {
         DIContainer.getClearCartUseCase().execute();
         setCartItems([]);
+        setRestaurantId(undefined);
+        setRestaurantName(undefined);
     };
 
     const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, cartTotal }}>
+        <CartContext.Provider value={{ 
+            cartItems, 
+            restaurantId, 
+            restaurantName, 
+            addToCart, 
+            removeFromCart, 
+            clearCart, 
+            cartTotal 
+        }}>
             {children}
         </CartContext.Provider>
     );

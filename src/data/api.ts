@@ -4,6 +4,133 @@ const BASE_URL = import.meta.env.MODE === 'production'
     ? 'https://rally-production-2004.up.railway.app/api'
     : '/api';
 
+export const sendOtp = async (phoneNumber: string): Promise<any> => {
+    try {
+        const response = await fetch(`${BASE_URL}/customers/otp/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber })
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to send OTP: ${response.statusText}`);
+        }
+        return await response.text().then(text => text ? JSON.parse(text) : {});
+    } catch (error) {
+        console.error('Error in sendOtp:', error);
+        throw error;
+    }
+};
+
+export const verifyOtp = async (phoneNumber: string, otp: string): Promise<any> => {
+    try {
+        const response = await fetch(`${BASE_URL}/customers/otp/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber, otp })
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to verify OTP: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in verifyOtp:', error);
+        throw error;
+    }
+};
+
+export const isTokenValid = (): boolean => {
+    const token = localStorage.getItem('customer_token');
+    const expiresAt = localStorage.getItem('customer_token_expires_at');
+    if (!token || !expiresAt) return false;
+    return new Date(expiresAt).getTime() > Date.now();
+};
+
+export const authFetch = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
+    const token = localStorage.getItem('customer_token');
+    const headers = new Headers(options.headers || {});
+    if (token && isTokenValid()) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+    return fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+};
+
+export const addAddress = async (addressData: any): Promise<any> => {
+    try {
+        const response = await authFetch('/customers/addresses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(addressData)
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to add address: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in addAddress:', error);
+        throw error;
+    }
+};
+
+export const getAddresses = async (): Promise<any[]> => {
+    try {
+        const response = await authFetch('/customers/addresses');
+        if (!response.ok) throw new Error(`Failed to get addresses: ${response.statusText}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Error in getAddresses:', error);
+        return [];
+    }
+};
+
+export const deleteAddress = async (id: string): Promise<boolean> => {
+    try {
+        const response = await authFetch(`/customers/addresses/${id}`, { method: 'DELETE' });
+        return response.ok;
+    } catch (error) {
+        console.error('Error in deleteAddress:', error);
+        return false;
+    }
+};
+
+export const getCustomerProfile = async (): Promise<any> => {
+    try {
+        const response = await authFetch('/customers/profile');
+        if (!response.ok) throw new Error(`Failed to fetch profile: ${response.statusText}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+    }
+};
+
+export interface SyncCartRequest {
+    restaurantId: string;
+    restaurantName: string;
+    items: {
+        menuItemId: string;
+        name: string;
+        unitPrice: number;
+        quantity: number;
+        options: string;
+        specialInstructions: string;
+    }[];
+}
+
+export const syncCart = async (request: SyncCartRequest, replaceCart: boolean = true): Promise<any> => {
+    try {
+        const response = await authFetch(`/cart/sync?replaceCart=${replaceCart}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+        if (!response.ok) throw new Error(`Failed to sync cart: ${response.statusText}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Error syncing cart:', error);
+        throw error;
+    }
+};
+
 export interface ApiRestaurant {
     id: string;
     name: string;
@@ -251,7 +378,7 @@ export const fetchItemDetails = async (itemId: string): Promise<ApiItem | null> 
     try {
         const response = await fetch(`${BASE_URL}/items/${itemId}`);
         if (!response.ok) {
-             throw new Error(`Failed to fetch item details: ${response.statusText}`);
+            throw new Error(`Failed to fetch item details: ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {

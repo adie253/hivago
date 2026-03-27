@@ -64,7 +64,7 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
     };
 
     return createPortal(
-        <div 
+        <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={handleBackdropClick}
         >
@@ -82,12 +82,12 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                     >
                         <X className="w-5 h-5 text-gray-800" />
                     </button>
-                    
+
                     {/* Bestseller Badge (if applicable) */}
                     {item.bestseller && (
-                         <div className="absolute bottom-4 right-4 bg-[#4CAF50] text-white px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 shadow-lg">
-                             <Star className="w-3.5 h-3.5 fill-white" />
-                             <span>Best Seller</span>
+                        <div className="absolute bottom-4 right-4 bg-[#4CAF50] text-white px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 shadow-lg">
+                            <Star className="w-3.5 h-3.5 fill-white" />
+                            <span>Best Seller</span>
                         </div>
                     )}
                 </div>
@@ -155,10 +155,10 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
             </div>
 
             {showCustomize && (
-                <AddOnsOverlay 
-                    originalItem={item} 
-                    onClose={() => setShowCustomize(false)} 
-                    onConfirmAdd={handleConfirmAdd} 
+                <AddOnsOverlay
+                    originalItem={item}
+                    onClose={() => setShowCustomize(false)}
+                    onConfirmAdd={handleConfirmAdd}
                 />
             )}
         </div>,

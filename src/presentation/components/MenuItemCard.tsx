@@ -16,14 +16,16 @@ export interface MenuItem {
 
 interface MenuItemCardProps {
     item: MenuItem;
+    restaurantId?: string;
+    restaurantName?: string;
     onClick?: () => void;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, restaurantName, onClick }) => {
     const { cartItems, addToCart, removeFromCart } = useCart();
     const [showCustomize, setShowCustomize] = useState(false);
     const [isCheckingOptions, setIsCheckingOptions] = useState(false);
-    
+
     const cartItem = cartItems.find(i => i.id === item.id);
     const quantity = cartItem ? cartItem.quantity : 0;
 
@@ -31,7 +33,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
 
     const handleInitialAdd = async (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
-        
+
         setIsCheckingOptions(true);
         try {
             const details = await fetchItemDetails(item.id);
@@ -45,7 +47,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
                     name: item.name,
                     price: getNumericPrice(),
                     isVeg: item.isVeg,
-                });
+                }, restaurantId, restaurantName);
             }
         } catch (error) {
             console.error("Failed to fetch item details to check for options", error);
@@ -56,14 +58,14 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         }
     };
 
-    const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: {id: string, name: string, price: number}[]) => {
+    const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: { id: string, name: string, price: number }[]) => {
         // Add the main item
         addToCart({
             id: itemToAdd.id,
             name: `${itemToAdd.name} (Customized)`,
             price: mainItemPrice,
             isVeg: itemToAdd.isVeg,
-        });
+        }, restaurantId, restaurantName);
 
         // Add each addon as a separate item with isAddon flag
         selectedAddons.forEach(addon => {
@@ -73,7 +75,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
                 price: addon.price,
                 isVeg: true, // Assuming addons are mostly veg or inherit? Let's assume true for simplicity or if we had more metadata
                 isAddon: true
-            });
+            }, restaurantId, restaurantName);
         });
 
         console.log("Instructions for", itemToAdd.name, ":", instructions);
@@ -86,11 +88,11 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     };
 
     return (
-        <div 
+        <div
             className={`bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col h-full border border-gray-100`}
         >
             {/* Image Section */}
-            <div 
+            <div
                 className={`relative aspect-[4/3] overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
                 onClick={onClick}
             >
@@ -117,8 +119,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
                     </div>
                     {item.bestseller && (
                         <div className="bg-[#4CAF50] text-white px-2 py-0.5 rounded-md text-[9px] font-black flex items-center gap-1 shadow-sm">
-                             <Star className="w-2.5 h-2.5 fill-white" />
-                             <span>Best Seller</span>
+                            <Star className="w-2.5 h-2.5 fill-white" />
+                            <span>Best Seller</span>
                         </div>
                     )}
                 </div>
@@ -179,10 +181,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
             </div>
 
             {showCustomize && (
-                <AddOnsOverlay 
-                    originalItem={item} 
-                    onClose={() => setShowCustomize(false)} 
-                    onConfirmAdd={handleConfirmAdd} 
+                <AddOnsOverlay
+                    originalItem={item}
+                    onClose={() => setShowCustomize(false)}
+                    onConfirmAdd={handleConfirmAdd}
                 />
             )}
         </div>

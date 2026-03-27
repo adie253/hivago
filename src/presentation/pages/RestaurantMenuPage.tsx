@@ -228,6 +228,8 @@ export const RestaurantMenuPage: React.FC = () => {
                             <MenuItemCard 
                                 key={item.id} 
                                 item={item} 
+                                restaurantId={restaurant.id}
+                                restaurantName={restaurant.name}
                                 onClick={() => setSelectedItem(item)}
                             />
                         ))}
@@ -380,6 +382,8 @@ export const RestaurantMenuPage: React.FC = () => {
                             <MenuItemCard 
                                 key={item.id} 
                                 item={item} 
+                                restaurantId={restaurant.id}
+                                restaurantName={restaurant.name}
                                 onClick={() => setSelectedItem(item)}
                             />
                         ))}

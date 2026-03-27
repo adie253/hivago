@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, CheckCircle, ShoppingCart, MapPin, Wallet, Check, Ticket, ReceiptText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, ShoppingCart, MapPin, Wallet, Check, Ticket, ReceiptText, ChevronRight, Book } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import DIContainer from '../../di/container';
 import { CouponOverlay } from '../components/CouponOverlay';
+import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
+import { isTokenValid } from '../../data/api';
 
 const frequentlyBought = [
     { id: 'f1', name: 'Power Bowl', restaurant: 'Green Garden', time: '20-25 min', distance: '0.8 km', priceForTwo: '₹300 for two', price: 150, originalPrice: 300, discount: '50% off', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&dpr=2&q=80' },
@@ -13,55 +14,33 @@ const frequentlyBought = [
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal, clearCart } = useCart();
-    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-    const [isOrdered, setIsOrdered] = useState(false);
+    const { cartItems, addToCart, removeFromCart, cartTotal } = useCart();
     const [cutlery, setCutlery] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
+    const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
 
     const deliveryFee = cartTotal > 0 ? 40 : 0;
     const platformFee = cartTotal > 0 ? 5 : 0;
-    const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0; 
+    const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
+    
+    const isLoggedIn = isTokenValid();
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) return;
 
-        setIsPlacingOrder(true);
-        try {
-            const createOrderUseCase = DIContainer.getCreateOrderUseCase();
-            await createOrderUseCase.execute({
-                customerId: 'USER-001', 
-                items: cartItems.map(i => i.name),
-                totalAmount: grandTotal,
-                status: 'pending'
-            });
-
-            setIsOrdered(true);
-            setTimeout(() => {
-                clearCart();
-                navigate('/profile');
-            }, 2000);
-        } catch (error) {
-            console.error('Failed to place order:', error);
-            alert('Something went wrong. Please try again.');
-        } finally {
-            setIsPlacingOrder(false);
+        if (!isLoggedIn) {
+            setIsDetailsFlowOpen(true);
+        } else {
+            navigate('/demo-checkout');
         }
     };
 
-    if (isOrdered) {
-        return (
-            <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans gap-4 p-6 text-center">
-                <div className="bg-emerald-100 p-6 rounded-full">
-                    <CheckCircle className="w-16 h-16 text-emerald-600" />
-                </div>
-                <h1 className="text-3xl font-black text-gray-900">Order Placed!</h1>
-                <p className="text-gray-500 max-w-xs">Your food will be delivered in 30-45 mins. Redirecting you to your profile...</p>
-            </div>
-        );
-    }
+    const handleDetailsComplete = async (_address: any) => {
+        setIsDetailsFlowOpen(false);
+        navigate('/demo-checkout');
+    };
 
     return (
         <div className="min-h-screen bg-[#F5F6F8] font-sans pb-40">
@@ -70,23 +49,21 @@ export const CheckoutPage: React.FC = () => {
                 <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center">
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
-                {/* <div className="w-8 h-8 rounded-full bg-[#DD352E] text-white flex items-center justify-center font-bold text-lg italic shadow-md">
-                    H
-                </div> */}
+                <div className="flex-1"></div>
                 <button className="p-2 text-gray-700">
                     <MenuIcon className="w-6 h-6" />
                 </button>
             </div>
             {cartItems.length === 0 ? (
                 <div className="max-w-md mx-auto px-6 flex flex-col  items-center justify-center pt-24 text-center">
-                    <div className="p-12 rounded-[40px]  w-full flex flex-col items-center">
+                    <div className="p-12 rounded-[40px] w-full flex flex-col items-center">
                         <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3 tracking-tight">Your Cart is Empty</h2>
                         <p className="text-gray-400 font-inter font-regular text-sm mb-10 leading-relaxed max-w-[200px]">
-                            Add items to get started    
+                            Add items to get started
                         </p>
                         <img src={emptyCart} alt="Empty Cart" className='w-full h-full object-cover scale-110 opacity-80 mb-10' />
-                        <button 
-                            onClick={() => navigate('/')} 
+                        <button
+                            onClick={() => navigate('/')}
                             className="w-full bg-[#F36259] text-white font-inter py-5 rounded-[24px] shadow-xl shadow-red-100 hover:scale-[1.02] active:scale-95 transition-all mb-4"
                         >
                             Browse Restaurants
@@ -96,37 +73,54 @@ export const CheckoutPage: React.FC = () => {
             ) : (
                 <>
                     {/* Stepper */}
-                    <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-center shadow-sm gap-0">
+                    <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm">
                         {/* Menu Step - done */}
-                        <div className="flex flex-col items-center flex-shrink-0 w-20">
-                            <div className="w-8 h-8 rounded-full bg-green-50 text-[#00A050] border border-green-100 flex items-center justify-center mb-1">
-                                <Check className="w-4 h-4" strokeWidth={3} />
+                        <div className="flex flex-col items-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
+                                <Book className="w-4 h-4 fill-current" />
                             </div>
                             <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                         </div>
 
-                        {/* Connector - done */}
-                        <div className="flex gap-1 items-center flex-shrink-0 mb-4 flex-1 justify-center">
-                            {[1,2,3,4,5,6].map(i => <div key={i} className="w-1.5 h-1 rounded-full bg-green-400"></div>)}
+                        {/* Connector 1 */}
+                        <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
                         </div>
 
                         {/* Cart Step - active */}
-                        <div className="flex flex-col items-center flex-shrink-0 w-20">
-                            <div className="w-8 h-8 rounded-full bg-[#FF4732] text-white flex items-center justify-center mb-1 shadow-md">
-                                <ShoppingCart className="w-4 h-4" />
+                        <div className="flex flex-col items-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
+                                <ShoppingCart className="w-4 h-4 fill-current" />
                             </div>
                             <span className="text-[10px] font-bold text-[#FF4732]">Cart</span>
                         </div>
+                        
+                        {!isLoggedIn && (
+                            <>
+                                {/* Connector 2 */}
+                                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
+                                </div>
 
-                        {/* Connector - pending */}
-                        <div className="flex gap-1 items-center flex-shrink-0 mb-4 flex-1 justify-center">
-                            {[1,2,3,4,5,6].map(i => <div key={i} className="w-1.5 h-1 rounded-full bg-gray-200"></div>)}
+                                {/* Details Step - pending */}
+                                <div className="flex flex-col items-center flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
+                                        <MapPin className="w-4 h-4 fill-current" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-500">Details</span>
+                                </div>
+                            </>
+                        )}
+                        
+                        {/* Connector 3 */}
+                        <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
                         </div>
 
                         {/* Checkout Step - pending */}
-                        <div className="flex flex-col items-center flex-shrink-0 w-20 opacity-50">
-                            <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-200 text-gray-400 flex items-center justify-center mb-1">
-                                <Wallet className="w-4 h-4" />
+                        <div className="flex flex-col items-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
+                                <Wallet className="w-4 h-4 fill-current text-gray-300" />
                             </div>
                             <span className="text-[10px] font-medium text-gray-500">Checkout</span>
                         </div>
@@ -150,7 +144,7 @@ export const CheckoutPage: React.FC = () => {
                                                 </div>
                                             </div>
                                         )}
-                                        
+
                                         <div className="flex-1">
                                             <h4 className="font-bold text-[15px] text-[#2D2D2D]">{item.name}</h4>
                                             <div className="flex items-center gap-2 mt-1">
@@ -158,7 +152,7 @@ export const CheckoutPage: React.FC = () => {
                                                 <span className={`${item.isAddon ? 'text-gray-500 text-sm' : 'text-[#FF4732] font-bold text-[15px]'}`}>Rs. {item.price.toFixed(2)}</span>
                                             </div>
                                         </div>
-                                        
+
                                         {!item.isAddon ? (
                                             <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-[34px]">
                                                 <button onClick={() => removeFromCart(item.id)} className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50">-</button>
@@ -189,7 +183,7 @@ export const CheckoutPage: React.FC = () => {
                                 <h2 className="font-extrabold text-[#111] text-xl">Frequently Bought</h2>
                                 <ChevronRight className="w-5 h-5 text-gray-800" />
                             </div>
-                            
+
                             <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-4 snap-x">
                                 {frequentlyBought.map(item => (
                                     <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col">
@@ -199,13 +193,13 @@ export const CheckoutPage: React.FC = () => {
                                         <div className="px-3 py-3 flex flex-col flex-1">
                                             <h4 className="font-bold text-[15px] text-[#222] truncate">{item.name}</h4>
                                             <p className="text-gray-500 text-xs mt-0.5">{item.restaurant}</p>
-                                            
+
                                             <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-500 font-medium">
-                                                <span className="flex items-center"><span className="w-3 h-3 mr-1 opacity-60"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>{item.time}</span>
+                                                <span className="flex items-center"><span className="w-3 h-3 mr-1 opacity-60"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg></span>{item.time}</span>
                                                 <span className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" />{item.distance}</span>
                                                 <span>{item.priceForTwo}</span>
                                             </div>
-                                            
+
                                             <div className="flex items-center justify-between mt-auto pt-3">
                                                 <div className="flex items-center gap-1.5">
                                                     <span className="text-[#00A050] font-bold text-sm">Rs.{item.price.toFixed(2)}</span>
@@ -228,7 +222,7 @@ export const CheckoutPage: React.FC = () => {
                                 <div className="flex items-center gap-3 mb-2">
                                     <h3 className="font-bold text-[17px] text-[#222]">Cutlery</h3>
                                     {/* Simple Toggle Switch */}
-                                    <div 
+                                    <div
                                         onClick={() => setCutlery(!cutlery)}
                                         className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors flex items-center ${cutlery ? 'bg-[#FF4732]' : 'bg-gray-200'}`}
                                     >
@@ -248,8 +242,38 @@ export const CheckoutPage: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Delivery Address */}
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                    <MapPin className="w-5 h-5 fill-current" />
+                                </div>
+                                <div className="flex items-center gap-1.5 text-[15px]">
+                                    <span className="font-medium text-gray-600">Deliver to</span>
+                                    <span className="text-gray-900 font-bold">-&gt;</span>
+                                    <span className="font-bold text-gray-900">Home</span>
+                                </div>
+                            </div>
+                            <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
+                                6, Yash Complex, Near Metro Station, Navi...
+                            </div>
+                        </div>
+
+                        {/* Payment Method */}
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                    <Wallet className="w-5 h-5 fill-current" />
+                                </div>
+                                <span className="font-medium text-gray-600 text-[15px]">Payment method</span>
+                            </div>
+                            <div className="pl-11 text-gray-900 text-[15px] font-bold">
+                                Cash
+                            </div>
+                        </div>
+
                         {/* Coupon */}
-                        <div 
+                        <div
                             className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer mt-4"
                             onClick={() => setIsCouponOverlayOpen(true)}
                         >
@@ -267,7 +291,7 @@ export const CheckoutPage: React.FC = () => {
 
                         {/* To Pay */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col mt-4 overflow-hidden mb-4">
-                            <div 
+                            <div
                                 className="p-4 flex items-center justify-between cursor-pointer"
                                 onClick={() => setIsToPayExpanded(!isToPayExpanded)}
                             >
@@ -328,10 +352,10 @@ export const CheckoutPage: React.FC = () => {
                         <div className="max-w-md mx-auto">
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={isPlacingOrder || cartItems.length === 0}
+                                disabled={cartItems.length === 0}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {isPlacingOrder ? 'Processing...' : 'Add phone and address details'}
+                                {isLoggedIn ? "Proceed to pay" : "Add phone and address details"}
                             </button>
                         </div>
                     </div>
@@ -341,6 +365,13 @@ export const CheckoutPage: React.FC = () => {
                 <CouponOverlay onClose={() => setIsCouponOverlayOpen(false)} />
             )}
             
+            {isDetailsFlowOpen && (
+                <DetailsFlowOverlay 
+                    onClose={() => setIsDetailsFlowOpen(false)}
+                    onComplete={handleDetailsComplete}
+                />
+            )}
+
             <style>{`
                 .no-scrollbar::-webkit-scrollbar {
                     display: none;
