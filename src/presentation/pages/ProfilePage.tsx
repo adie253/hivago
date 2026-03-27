@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Settings, ChevronRight, LogOut, Heart, User, Trash2, CreditCard, Bell, HelpCircle, Menu } from 'lucide-react';
+import { MapPin, Clock, ChevronRight, User, Trash2, CreditCard, Bell, HelpCircle } from 'lucide-react';
 import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid } from '../../data/api';
 
 export const ProfilePage: React.FC = () => {
