@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Search, Navigation2, Plus, Home, Building2, Send, ChevronDown, X } from 'lucide-react';
+import { ArrowLeft, Search, Navigation2, Plus, Home, Building2, Send, ChevronDown, Check, X, Loader2 } from 'lucide-react';
+import { useUserLocation } from '../context/LocationContext';
 
 interface LocationSelectorOverlayProps {
     isOpen: boolean;
@@ -8,6 +9,7 @@ interface LocationSelectorOverlayProps {
 }
 
 export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = ({ isOpen, onClose }) => {
+    const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
     const [searchQuery, setSearchQuery] = useState('');
 
     // Prevent body scroll when overlay is open
@@ -24,19 +26,17 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
 
     if (!isOpen) return null;
 
-    const savedAddresses = [
-        { id: '1', name: 'Home Name', address: 'Lorem Ipsum', type: 'home', selected: true },
-        { id: '2', name: 'Company Name', address: 'Lorem Ipsum', type: 'work' },
-        { id: '3', name: 'Other', address: 'Lorem Ipsum', type: 'other' },
-    ];
-
-    const getIcon = (type: string) => {
-        switch (type) {
-            case 'home': return <Home className="w-5 h-5 text-gray-700" />;
-            case 'work': return <Building2 className="w-5 h-5 text-gray-700" />;
-            default: return <Send className="w-5 h-5 text-gray-700" />;
-        }
+    const getIcon = (label: string) => {
+        const lowerLabel = label.toLowerCase();
+        if (lowerLabel.includes('home')) return <Home className="w-5 h-5 text-gray-700" />;
+        if (lowerLabel.includes('work') || lowerLabel.includes('office')) return <Building2 className="w-5 h-5 text-gray-700" />;
+        return <Send className="w-5 h-5 text-gray-700" />;
     };
+
+    const filteredAddresses = addresses.filter(addr => 
+        addr.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        addr.addressLine.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return createPortal(
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col font-sans animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -96,29 +96,51 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
             {/* Saved Addresses List */}
             <div className="flex-1 overflow-y-auto px-4 md:px-6">
                 <div className="bg-white border border-gray-50 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-6">
-                    {savedAddresses.map((addr, index) => (
-                        <div key={addr.id}>
-                            <div className="flex items-start gap-4 p-5 hover:bg-gray-50 cursor-pointer transition-colors group">
-                                <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 group-hover:bg-white transition-colors">
-                                    {getIcon(addr.type)}
-                                </div>
-                                <div className="flex-1 pt-1">
-                                    <div className="flex items-center gap-3 mb-0.5">
-                                        <h3 className="font-bold text-gray-900">{addr.name}</h3>
-                                        {addr.selected && (
-                                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
-                                                SELECTED
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-sm text-gray-400 font-medium">{addr.address}</p>
-                                </div>
-                            </div>
-                            {index < savedAddresses.length - 1 && (
-                                <div className="mx-5 border-b border-gray-100" />
-                            )}
+                    {isLoadingAddresses ? (
+                        <div className="p-10 flex flex-col items-center justify-center gap-3">
+                            <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
+                            <p className="text-gray-400 text-sm font-medium">Fetching your addresses...</p>
                         </div>
-                    ))}
+                    ) : filteredAddresses.length === 0 ? (
+                        <div className="p-10 text-center">
+                            <p className="text-gray-400 text-sm font-medium">No saved addresses found</p>
+                        </div>
+                    ) : (
+                        filteredAddresses.map((addr, index) => (
+                            <div key={addr.id}>
+                                <div 
+                                    onClick={() => {
+                                        selectLocation(addr);
+                                        onClose();
+                                    }}
+                                    className="flex items-start gap-4 p-5 hover:bg-gray-50 cursor-pointer transition-colors group"
+                                >
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 group-hover:bg-white transition-colors">
+                                        {getIcon(addr.label)}
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                        <div className="flex items-center gap-3 mb-0.5">
+                                            <h3 className="font-bold text-gray-900">{addr.label}</h3>
+                                            {selectedLocation?.id === addr.id && (
+                                                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                                                    SELECTED
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-gray-400 font-medium">{addr.addressLine}</p>
+                                    </div>
+                                    {selectedLocation?.id === addr.id && (
+                                        <div className="self-center">
+                                            <Check className="w-5 h-5 text-emerald-500" />
+                                        </div>
+                                    )}
+                                </div>
+                                {index < filteredAddresses.length - 1 && (
+                                    <div className="mx-5 border-b border-gray-100" />
+                                )}
+                            </div>
+                        ))
+                    )}
                     
                     {/* View All Button */}
                     <button className="w-full flex items-center justify-center gap-2 py-5 text-brand-primary font-bold hover:bg-gray-50 transition-colors border-t border-gray-50">

@@ -15,6 +15,7 @@ import { FloatingCart } from './presentation/components/FloatingCart';
 import { CartProvider } from './presentation/context/CartContext';
 import { FavoritesProvider } from './presentation/context/FavoritesContext';
 import { FilterProvider } from './presentation/context/FilterContext';
+import { LocationProvider } from './presentation/context/LocationContext';
 
 const MainContent = () => {
   const location = useLocation();
@@ -45,16 +46,18 @@ const MainContent = () => {
 function App() {
   return (
     <FavoritesProvider>
-      <CartProvider>
-        <FilterProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
-              <MainContent />
-            </div>
-          </BrowserRouter>
-        </FilterProvider>
-      </CartProvider>
+      <LocationProvider>
+        <CartProvider>
+          <FilterProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
+                <MainContent />
+              </div>
+            </BrowserRouter>
+          </FilterProvider>
+        </CartProvider>
+      </LocationProvider>
     </FavoritesProvider>
   );
 }

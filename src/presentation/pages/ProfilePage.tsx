@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, ChevronRight, User, Trash2, CreditCard, Bell, HelpCircle } from 'lucide-react';
 import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid } from '../../data/api';
+import { useCart } from '../../presentation/context/CartContext';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
@@ -9,6 +10,7 @@ export const ProfilePage: React.FC = () => {
     const [profileName, setProfileName] = useState(localStorage.getItem('customer_name') || "User");
     const [addresses, setAddresses] = useState<any[]>([]);
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+    const { refreshLoginStatus } = useCart();
     
     useEffect(() => {
         const fetchUserData = async () => {
@@ -52,6 +54,7 @@ export const ProfilePage: React.FC = () => {
         localStorage.removeItem('customer_id');
         localStorage.removeItem('customer_phone');
         localStorage.removeItem('customer_name');
+        refreshLoginStatus();
         navigate('/');
     };
 

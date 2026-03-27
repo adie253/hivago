@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, MapPin, Book, ShoppingCart, Menu as MenuIcon, Wallet, Loader2 } from 'lucide-react';
 import { sendOtp, verifyOtp, addAddress } from '../../../data/api';
+import { useCart } from '../../context/CartContext';
+import { useUserLocation } from '../../context/LocationContext';
 
 export type DetailsFlowOverlayProps = {
     onClose: () => void;
@@ -8,19 +10,6 @@ export type DetailsFlowOverlayProps = {
 };
 
 type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
-
-const addressesListMock = [
-    {
-        id: '1',
-        type: 'Home',
-        address: '6, Yash Complex, Near Metro Station, Navi...',
-    },
-    {
-        id: '2',
-        type: 'Home',
-        address: '201, Aaradhya Society, Opposite...',
-    }
-];
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
     const [step, setStep] = useState<Step>('phone');
@@ -36,6 +25,8 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const [isDefault, setIsDefault] = useState(true);
     const [label, setLabel] = useState('Home');
 
+    const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
+    const { refreshLoginStatus } = useCart();
     const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const renderStepper = () => {
@@ -90,6 +81,8 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             </div>
         );
     };
+
+
 
     const handleBack = () => {
         switch (step) {
@@ -167,8 +160,15 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             if (data && data.accessToken) {
                 localStorage.setItem('customer_token', data.accessToken);
                 localStorage.setItem('customer_phone', phone);
-                if (data.customerId) localStorage.setItem('customer_id', data.customerId);
+                // Handle both id and customerId to be safe
+                const cid = data.customerId || data.id;
+                if (cid) localStorage.setItem('customer_id', cid);
                 if (data.accessTokenExpiresAt) localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
+                
+                // Trigger cart sync in context
+                refreshLoginStatus();
+                // Pre-fetch addresses right after login globally
+                refreshAddresses();
             }
             setStep('location');
         } catch (e: any) {
@@ -254,13 +254,19 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <p className="text-gray-500 text-sm mb-10 flex-1 pr-24 leading-snug">This lets show you which restaurants you can order from.</p>
 
             <button
-                onClick={() => setStep('addresses')}
+                onClick={() => {
+                    setStep('addresses');
+                    refreshAddresses();
+                }}
                 className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors mb-3"
             >
                 Allow
             </button>
             <button
-                onClick={() => setStep('addresses')}
+                onClick={() => {
+                    setStep('addresses');
+                    refreshAddresses();
+                }}
                 className="w-full bg-white border border-gray-200 text-gray-500 font-bold text-[16px] py-[16px] rounded-xl hover:bg-gray-50 transition-colors"
             >
                 Reject
@@ -275,22 +281,39 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <h2 className="text-xl font-black text-[#111] mb-6 px-2">Add Address Details</h2>
                 <h3 className="text-sm font-bold text-[#333] mb-4 px-2">Saved Addresses</h3>
 
-                <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
-                    {addressesListMock.map(add => (
-                        <div
-                            key={add.id}
-                            onClick={() => setSelectedAddressId(add.id)}
-                            className={`bg-white rounded-2xl p-4 border ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-100'} flex items-start justify-between cursor-pointer`}
-                        >
-                            <div className="flex flex-col gap-1.5 flex-1 pr-4">
-                                <h4 className="font-bold text-[15px] text-[#222]">{add.type}</h4>
-                                <p className="text-gray-500 text-[13px] leading-relaxed truncate">{add.address}</p>
-                            </div>
-                            <div className={`w-5 h-5 rounded-full border-[1.5px] mt-1 flex items-center justify-center ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-300'}`}>
-                                {selectedAddressId === add.id && <div className="w-2.5 h-2.5 bg-[#FF4732] rounded-full"></div>}
-                            </div>
+                <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
+                    {isLoadingAddresses ? (
+                        <div className="flex flex-col items-center justify-center py-10 gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-[#FF4732]" />
+                            <p className="text-gray-400 text-sm font-medium">Loading your addresses...</p>
                         </div>
-                    ))}
+                    ) : addresses.length === 0 ? (
+                        <div className="bg-white rounded-2xl p-8 border border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
+                            <MapPin className="w-10 h-10 text-gray-200 mb-3" />
+                            <p className="text-gray-500 font-bold text-sm">No saved addresses found</p>
+                            <p className="text-gray-400 text-xs mt-1">Add a new one to proceed</p>
+                        </div>
+                    ) : (
+                        addresses.map(add => (
+                            <div
+                                key={add.id}
+                                onClick={() => setSelectedAddressId(add.id)}
+                                className={`bg-white rounded-2xl p-4 border transition-all ${selectedAddressId === add.id ? 'border-[#FF4732] bg-red-50/10' : 'border-gray-100'} flex items-start justify-between cursor-pointer`}
+                            >
+                                <div className="flex flex-col gap-1.5 flex-1 pr-4">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="font-bold text-[15px] text-[#222]">{add.label || 'Other'}</h4>
+                                        {add.isDefault && <span className="text-[10px] font-bold text-[#00A050] bg-[#E6F5EC] px-1.5 py-0.5 rounded">DEFAULT</span>}
+                                    </div>
+                                    <p className="text-gray-500 text-[13px] leading-relaxed line-clamp-2">{add.addressLine}</p>
+                                    {add.landmark && <p className="text-gray-400 text-[11px]">Landmark: {add.landmark}</p>}
+                                </div>
+                                <div className={`w-5 h-5 rounded-full border-[1.5px] mt-1 flex items-center justify-center ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-300'}`}>
+                                    {selectedAddressId === add.id && <div className="w-2.5 h-2.5 bg-[#FF4732] rounded-full"></div>}
+                                </div>
+                            </div>
+                        ))
+                    )}
 
                     <button
                         onClick={() => setStep('addAddress')}
@@ -304,10 +327,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <button
                     onClick={() => {
                         if (canApply) {
-                            onComplete(addressesListMock.find(a => a.id === selectedAddressId));
+                            onComplete(addresses.find(a => a.id === selectedAddressId));
                         }
                     }}
-                    disabled={!canApply}
+                    disabled={!canApply || isLoadingAddresses}
                     className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${canApply ? 'bg-[#FF584A] hover:bg-[#E5483B]' : 'bg-[#FFB7B0] border border-transparent'}`}
                 >
                     Apply
@@ -332,6 +355,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 isDefault
             });
             setStep('addresses');
+            refreshAddresses();
             // Reset form
             setAddressLine('');
             setLandmark('');

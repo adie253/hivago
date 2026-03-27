@@ -9,9 +9,11 @@ import ordersIcon from "../../assets/icons/orders_icon.png";
 import navLogo from "../../assets/footer/footer_logo.svg";
 import { LocationSelectorOverlay } from './LocationSelectorOverlay';
 import hivagoLogo from "../../assets/footer/footer_logo.svg";
+import { useUserLocation } from '../context/LocationContext';
 
 export const Navbar: React.FC = () => {
     const { cartItems } = useCart();
+    const { selectedLocation } = useUserLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
     const location = useLocation();
@@ -46,7 +48,9 @@ export const Navbar: React.FC = () => {
                     <div className="flex flex-col overflow-hidden">
                         <span className="text-[10px] md:text-xs text-white/60 font-medium tracking-wide">Deliver to</span>
                         <div className="flex items-center gap-1">
-                            <span className="text-xs md:text-sm font-semibold text-white truncate max-w-[120px] md:max-w-[200px]">Koramangala, Bangalore</span>
+                            <span className="text-xs md:text-sm font-semibold text-white truncate max-w-[120px] md:max-w-[200px]">
+                                {selectedLocation ? selectedLocation.label : 'Select Location'}
+                            </span>
                             <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-white/80 flex-shrink-0" />
                         </div>
                     </div>
@@ -92,7 +96,9 @@ export const Navbar: React.FC = () => {
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-500 font-medium tracking-wide">Your Location</span>
                     <div className="flex items-center gap-1">
-                        <span className="text-sm font-bold text-gray-900">Vikroli, Mumbai</span>
+                        <span className="text-sm font-bold text-gray-900">
+                            {selectedLocation ? selectedLocation.label : 'Select Location'}
+                        </span>
                         <ChevronDown className="w-3 h-3 text-gray-600" />
                     </div>
                 </div>

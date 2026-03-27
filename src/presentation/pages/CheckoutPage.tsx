@@ -6,6 +6,7 @@ import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { isTokenValid } from '../../data/api';
+import { useUserLocation } from '../context/LocationContext';
 
 const frequentlyBought = [
     { id: 'f1', name: 'Power Bowl', restaurant: 'Green Garden', time: '20-25 min', distance: '0.8 km', priceForTwo: '₹300 for two', price: 150, originalPrice: 300, discount: '50% off', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&dpr=2&q=80' },
@@ -19,6 +20,8 @@ export const CheckoutPage: React.FC = () => {
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
     const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
+    const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
+    const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
 
     const deliveryFee = cartTotal > 0 ? 40 : 0;
     const platformFee = cartTotal > 0 ? 5 : 0;
@@ -37,8 +40,9 @@ export const CheckoutPage: React.FC = () => {
         }
     };
 
-    const handleDetailsComplete = async (_address: any) => {
+    const handleDetailsComplete = async (address: any) => {
         setIsDetailsFlowOpen(false);
+        selectLocation(address);
         navigate('/demo-checkout');
     };
 
@@ -243,20 +247,67 @@ export const CheckoutPage: React.FC = () => {
                         </div>
 
                         {/* Delivery Address */}
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
-                                    <MapPin className="w-5 h-5 fill-current" />
+                        <div 
+                            onClick={() => isLoggedIn && setIsAddressDropdownOpen(!isAddressDropdownOpen)}
+                            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 cursor-pointer hover:bg-gray-50 transition-all relative"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                        <MapPin className="w-5 h-5 fill-current" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[15px]">
+                                        <span className="font-medium text-gray-600">Deliver to</span>
+                                        <span className="text-gray-900 font-bold">-&gt;</span>
+                                        <span className="font-bold text-gray-900">{selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Home')}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-[15px]">
-                                    <span className="font-medium text-gray-600">Deliver to</span>
-                                    <span className="text-gray-900 font-bold">-&gt;</span>
-                                    <span className="font-bold text-gray-900">Home</span>
-                                </div>
+                                {isLoggedIn && (
+                                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isAddressDropdownOpen ? 'rotate-180' : ''}`} />
+                                )}
                             </div>
                             <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
-                                6, Yash Complex, Near Metro Station, Navi...
+                                {selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : '6, Yash Complex, Near Metro Station, Navi...')}
                             </div>
+
+                            {/* Address Dropdown Overlay/List */}
+                            {isAddressDropdownOpen && isLoggedIn && (
+                                <div className="absolute top-[105%] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 z-40 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                                    <div className="p-2 flex flex-col max-h-[240px] overflow-y-auto">
+                                        {addresses.length === 0 ? (
+                                            <div className="p-4 text-center text-gray-400 text-sm">No saved addresses found</div>
+                                        ) : (
+                                            addresses.map(add => (
+                                                <div
+                                                    key={add.id}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        selectLocation(add);
+                                                        setIsAddressDropdownOpen(false);
+                                                    }}
+                                                    className={`p-3 rounded-xl hover:bg-gray-50 transition-colors flex flex-col gap-0.5 mb-1 last:mb-0 ${selectedLocation?.id === add.id ? 'bg-red-50/50' : ''}`}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="font-bold text-sm text-gray-800">{add.label}</span>
+                                                        {selectedLocation?.id === add.id && <Check className="w-4 h-4 text-[#FF4732]" />}
+                                                    </div>
+                                                    <span className="text-xs text-gray-500 truncate">{add.addressLine}</span>
+                                                </div>
+                                            ))
+                                        )}
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDetailsFlowOpen(true);
+                                                setIsAddressDropdownOpen(false);
+                                            }}
+                                            className="mt-2 text-[#FF4732] text-sm font-bold p-3 border-t border-gray-50 hover:bg-red-50/30 transition-colors text-center"
+                                        >
+                                            + Add New Address
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Payment Method */}

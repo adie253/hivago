@@ -11,6 +11,7 @@ interface CartContextType {
     removeFromCart: (itemId: string) => void;
     clearCart: () => void;
     cartTotal: number;
+    refreshLoginStatus: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -19,6 +20,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [restaurantId, setRestaurantId] = useState<string | undefined>(undefined);
     const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
+    const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
 
     useEffect(() => {
         const cartData = DIContainer.getGetCartUseCase().execute();
@@ -29,7 +31,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
-        if (isTokenValid() && userId && cartItems.length > 0 && restaurantId) {
+        if (isLoggedIn && userId && cartItems.length > 0 && restaurantId) {
             syncCart({
                 restaurantId,
                 restaurantName: restaurantName || 'Restaurant',
@@ -43,7 +45,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }))
             }).catch(e => console.error("Failed to sync cart:", e));
         }
-    }, [cartItems, restaurantId, restaurantName]);
+    }, [cartItems, restaurantId, restaurantName, isLoggedIn]);
 
     const addToCart = (item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
         const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
@@ -68,6 +70,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
+    const refreshLoginStatus = () => {
+        setIsLoggedIn(isTokenValid());
+    };
+
     return (
         <CartContext.Provider value={{ 
             cartItems, 
@@ -76,7 +82,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             addToCart, 
             removeFromCart, 
             clearCart, 
-            cartTotal 
+            cartTotal,
+            refreshLoginStatus
         }}>
             {children}
         </CartContext.Provider>
