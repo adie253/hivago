@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu as MenuIcon, CheckCircle, ShoppingCart, MapPin, Wallet, Book, Mic, Plus, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import DIContainer from '../../di/container';
+import { useUserLocation } from '../context/LocationContext';
+import { placeOrder } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, cartTotal, clearCart } = useCart();
+    const { cartItems, cartTotal, clearCart, restaurantName } = useCart();
+    const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isOrdered, setIsOrdered] = useState(false);
     const [instructions, setInstructions] = useState('');
@@ -29,13 +31,53 @@ export const DemoCheckoutPage: React.FC = () => {
     const handlePlaceOrder = async () => {
         setIsPlacingOrder(true);
         try {
-            const createOrderUseCase = DIContainer.getCreateOrderUseCase();
-            await createOrderUseCase.execute({
-                customerId: 'USER-001',
-                items: cartItems.map(i => i.name),
-                totalAmount: grandTotal,
-                status: 'pending'
-            });
+            const payload = {
+                paymentId: selectedPaymentMethod || "CASH",
+                paymentTransactionId: "",
+                deliveryQuoteId: "",
+                restaurantId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // Fallback to valid UUID to prevent backend 500s
+                restaurantName: restaurantName || "Unknown Restaurant",
+                restaurantPhone: "0000000000",
+                pickupLatitude: 19.0760, // Temporary data
+                pickupLongitude: 72.8777, // Temporary data
+                pickupPincode: "400001", // Temporary data
+                pickupAddress: "123 Temporary Pickup Location, City Center", // Temporary data
+                deliveryAddress: {
+                    street: selectedLocation?.addressLine || "Unknown Street",
+                    city: "Unknown City",
+                    pincode: "000000",
+                    latitude: selectedLocation?.latitude || 0,
+                    longitude: selectedLocation?.longitude || 0,
+                    landmark: selectedLocation?.label || "",
+                    buildingName: "",
+                    floor: "",
+                    contactPhone: "0000000000",
+                    instructions: selectedDeliveryOption
+                },
+                items: cartItems.map(item => ({
+                    menuItemId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // Ensure valid UUID
+                    itemName: item.name,
+                    itemDescription: "Description",
+                    imageUrl: "https://example.com/image.jpg",
+                    unitPrice: item.price,
+                    quantity: item.quantity,
+                    specialInstructions: ""
+                })),
+                pricing: {
+                    subTotal: cartTotal,
+                    deliveryFee: deliveryFee,
+                    tax: gst,
+                    discount: 0,
+                    packagingFee: 0,
+                    serviceFee: platformFee,
+                    tip: tipAmount,
+                    discountCode: "",
+                    discountDescription: ""
+                },
+                specialInstructions: instructions
+            };
+
+            await placeOrder(payload);
 
             setFinalAmount(cartTotal);
             setIsOrdered(true);

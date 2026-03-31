@@ -60,7 +60,7 @@ export const Navbar: React.FC = () => {
                 <div className="hidden lg:flex items-center gap-8 font-semibold text-base">
                     <Link to="/" className={`transition-colors ${location.pathname === '/' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Home</Link>
                     <Link to="/restaurants" className={`transition-colors ${location.pathname === '/restaurants' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Restaurants</Link>
-                    <Link to="/profile" className={`transition-colors ${location.pathname === '/profile' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Orders</Link>
+                    <Link to="/orders" className={`transition-colors ${location.pathname === '/orders' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Orders</Link>
                 </div>
 
                 {/* Icons */}
@@ -147,7 +147,7 @@ export const Navbar: React.FC = () => {
                                 <img src={searchIcon} alt="search icon" className='w-5 h-5 p-0' />
                                 Search Restaurants
                             </Link>
-                            <Link to="/profile" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/profile' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                            <Link to="/orders" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/orders' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={ordersIcon} alt="orders icon" className='w-5 h-5 p-0' />
                                 My Orders
                             </Link>

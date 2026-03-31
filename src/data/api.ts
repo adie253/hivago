@@ -386,3 +386,119 @@ export const fetchItemDetails = async (itemId: string): Promise<ApiItem | null> 
         return null;
     }
 };
+
+export interface ApiOrderItem {
+    menuItemId: string;
+    name: string;
+    unitPrice: number;
+    quantity: number;
+    options?: string;
+    specialInstructions?: string;
+}
+
+export interface ApiOrder {
+    id: string;
+    orderNumber: string;
+    customerId: string;
+    restaurantId: string;
+    restaurantName: string;
+    status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | string;
+    totalAmount: number;
+    total?: number;
+    totalItems?: number;
+    orderType: 'DELIVERY' | 'PICKUP';
+    items: ApiOrderItem[];
+    deliveryAddress?: any;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const getMyOrders = async (page: number = 0, pageSize: number = 50): Promise<any> => {
+    try {
+        const response = await authFetch(`/orders/my-orders?page=${page}&pageSize=${pageSize}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch orders: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in getMyOrders:', error);
+        return [];
+    }
+};
+
+export const getActiveOrders = async (): Promise<ApiOrder[]> => {
+    try {
+        const response = await authFetch('/orders/active');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch active orders: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in getActiveOrders:', error);
+        return [];
+    }
+};
+
+export interface ApiPlaceOrderRequest {
+    paymentId: string;
+    paymentTransactionId: string;
+    deliveryQuoteId: string;
+    restaurantId: string;
+    restaurantName: string;
+    restaurantPhone: string;
+    pickupLatitude: number;
+    pickupLongitude: number;
+    pickupPincode: string;
+    pickupAddress: string;
+    deliveryAddress: {
+        street: string;
+        city: string;
+        pincode: string;
+        latitude: number;
+        longitude: number;
+        landmark: string;
+        buildingName: string;
+        floor: string;
+        contactPhone: string;
+        instructions: string;
+    };
+    items: {
+        menuItemId: string;
+        itemName: string;
+        itemDescription: string;
+        imageUrl: string;
+        unitPrice: number;
+        quantity: number;
+        specialInstructions: string;
+    }[];
+    pricing: {
+        subTotal: number;
+        deliveryFee: number;
+        tax: number;
+        discount: number;
+        packagingFee: number;
+        serviceFee: number;
+        tip: number;
+        discountCode: string;
+        discountDescription: string;
+    };
+    specialInstructions: string;
+}
+
+export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<ApiOrder> => {
+    try {
+        const response = await authFetch('/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderPayload)
+        });
+        if (!response.ok) {
+            const errBody = await response.text();
+            throw new Error(`Failed to place order: ${response.statusText} - ${errBody}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error placing order:', error);
+        throw error;
+    }
+};
