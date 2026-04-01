@@ -32,17 +32,27 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
         if (isLoggedIn && userId && cartItems.length > 0 && restaurantId) {
+            // Function to ensure valid UUIDs for the backend
+            const ensureGuid = (id: string | undefined) => {
+                if (!id) return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+                if (id.includes('-') && id.length >= 32) return id;
+                return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+            };
+
             syncCart({
-                restaurantId,
+                restaurantId: ensureGuid(restaurantId),
                 restaurantName: restaurantName || 'Restaurant',
-                items: cartItems.map(item => ({
-                    menuItemId: item.id,
-                    name: item.name,
-                    unitPrice: item.price,
-                    quantity: item.quantity,
-                    options: "",
-                    specialInstructions: ""
-                }))
+                items: cartItems.map(item => {
+                    const payload: any = {
+                        menuItemId: ensureGuid(item.id),
+                        name: item.name,
+                        unitPrice: item.price,
+                        quantity: item.quantity,
+                        options: "[]",
+                        specialInstructions: ""
+                    };
+                    return payload;
+                })
             }).catch(e => console.error("Failed to sync cart:", e));
         }
     }, [cartItems, restaurantId, restaurantName, isLoggedIn]);

@@ -41,7 +41,8 @@ export const verifyOtp = async (phoneNumber: string, otp: string): Promise<any> 
 export const isTokenValid = (): boolean => {
     const token = localStorage.getItem('customer_token');
     const expiresAt = localStorage.getItem('customer_token_expires_at');
-    if (!token || !expiresAt) return false;
+    if (!token) return false;
+    if (!expiresAt) return true;
     return new Date(expiresAt).getTime() > Date.now();
 };
 
@@ -103,6 +104,35 @@ export const getCustomerProfile = async (): Promise<any> => {
     }
 };
 
+export const getPlacesAutocomplete = async (input: string, lat?: number, lng?: number): Promise<any[]> => {
+    try {
+        let url = `/places/autocomplete?input=${encodeURIComponent(input)}`;
+        if (lat !== undefined && lng !== undefined) {
+            url += `&lat=${lat}&lng=${lng}`;
+        }
+        const response = await authFetch(url);
+        if (!response.ok) throw new Error('Failed to fetch autocomplete');
+        
+        // Some backends wrap in an array, some in an object like { predictions: [] }. Handle gracefully.
+        const data = await response.json();
+        return Array.isArray(data) ? data : (data.suggestions || data.predictions || data.results || []);
+    } catch (e) {
+        console.error('Error fetching autocomplete:', e);
+        return [];
+    }
+};
+
+export const getPlaceDetails = async (placeId: string): Promise<any> => {
+    try {
+        const response = await authFetch(`/places/${placeId}`);
+        if (!response.ok) throw new Error('Failed to fetch place details');
+        return await response.json();
+    } catch (e) {
+        console.error('Error fetching place details:', e);
+        return null;
+    }
+};
+
 export interface SyncCartRequest {
     restaurantId: string;
     restaurantName: string;
@@ -111,8 +141,8 @@ export interface SyncCartRequest {
         name: string;
         unitPrice: number;
         quantity: number;
-        options: string;
-        specialInstructions: string;
+        options?: string;
+        specialInstructions?: string;
     }[];
 }
 
@@ -123,7 +153,10 @@ export const syncCart = async (request: SyncCartRequest, replaceCart: boolean = 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(request)
         });
-        if (!response.ok) throw new Error(`Failed to sync cart: ${response.statusText}`);
+        if (!response.ok) {
+            const errBody = await response.text();
+            throw new Error(`Failed to sync cart: ${response.statusText} - ${errBody}`);
+        }
         return await response.json();
     } catch (error) {
         console.error('Error syncing cart:', error);

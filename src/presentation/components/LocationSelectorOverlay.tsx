@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Search, Navigation2, Plus, Home, Building2, Send, ChevronDown, Check, X, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
+import { AddAddressOverlay } from './AddAddressOverlay';
 
 interface LocationSelectorOverlayProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface LocationSelectorOverlayProps {
 export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = ({ isOpen, onClose }) => {
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
     const [searchQuery, setSearchQuery] = useState('');
+    const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
 
     // Prevent body scroll when overlay is open
     useEffect(() => {
@@ -82,7 +84,10 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                     </div>
                 </button>
 
-                <button className="flex flex-col items-start gap-2 p-4 border border-gray-100 rounded-2xl bg-white hover:bg-gray-50 transition-colors shadow-sm group">
+                <button 
+                    onClick={() => setIsAddAddressOpen(true)}
+                    className="flex flex-col items-start gap-2 p-4 border border-gray-100 rounded-2xl bg-white hover:bg-gray-50 transition-colors shadow-sm group"
+                >
                     <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-white transition-colors">
                         <Plus className="w-5 h-5 text-brand-primary" />
                     </div>
@@ -149,6 +154,11 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                     </button>
                 </div>
             </div>
+
+            <AddAddressOverlay 
+                isOpen={isAddAddressOpen} 
+                onClose={() => setIsAddAddressOpen(false)} 
+            />
         </div>,
         document.body
     );
