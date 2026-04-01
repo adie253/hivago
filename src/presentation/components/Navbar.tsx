@@ -10,6 +10,7 @@ import navLogo from "../../assets/footer/footer_logo.svg";
 import { LocationSelectorOverlay } from './LocationSelectorOverlay';
 import hivagoLogo from "../../assets/footer/footer_logo.svg";
 import { useUserLocation } from '../context/LocationContext';
+import { isTokenValid } from '../../data/api';
 
 export const Navbar: React.FC = () => {
     const { cartItems } = useCart();
@@ -155,12 +156,15 @@ export const Navbar: React.FC = () => {
                                 <img src={profileIcon} alt="profile icon" className='w-5 h-5 p-0' />
                                 Profile <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full ml-auto">New</span>
                             </Link>
-                            {/* <div className="mt-8 pt-6 border-t border-gray-100">
-                                <Link to="/signin" className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
-                                    <User className="w-4 h-4" />
-                                    Sign In / Register
-                                </Link>
-                            </div> */}
+                            {/* Login Option */}
+                            {!isTokenValid() && (
+                                <div className="mt-2 pt-2 border-t border-gray-100">
+                                    <Link to="/signin" className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
+                                        <User className="w-4 h-4" />
+                                        Log In / Register
+                                    </Link>
+                                </div>
+                            )}
                             <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
                                 <p className='text-xs'>
                                     <span className='text-gray-700'>Need help? </span>

@@ -6,8 +6,8 @@ import { useCart } from '../../presentation/context/CartContext';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
-    const [profilePhone, setProfilePhone] = useState(localStorage.getItem('customer_phone') || "");
-    const [profileName, setProfileName] = useState(localStorage.getItem('customer_name') || "User");
+    const [profilePhone, setProfilePhone] = useState(() => isTokenValid() ? (localStorage.getItem('customer_phone') || "") : "");
+    const [profileName, setProfileName] = useState(() => isTokenValid() ? (localStorage.getItem('customer_name') || "User") : "User");
     const [addresses, setAddresses] = useState<any[]>([]);
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const { refreshLoginStatus } = useCart();
@@ -104,8 +104,8 @@ export const ProfilePage: React.FC = () => {
                                 <User className="w-8 h-8 stroke-[1.5]" />
                             </div>
                             <div className="flex flex-col">
-                                <h2 className="text-[18px] font-bold text-[#111]">{profileName || "Ashok Lele"}</h2>
-                                <p className="text-[13px] text-gray-500 font-medium mt-0.5">{profilePhone || "9856342534"}</p>
+                                <h2 className="text-[18px] font-bold text-[#111]">{profileName || "User"}</h2>
+                                <p className="text-[13px] text-gray-500 font-medium mt-0.5">{profilePhone || "No Phone Number"}</p>
                             </div>
                         </div>
                         <button className="text-gray-400 font-medium text-sm px-2">
@@ -120,7 +120,7 @@ export const ProfilePage: React.FC = () => {
                                 <Clock className="w-4 h-4" />
                                 <span className="text-[13px] font-medium">Total Orders</span>
                             </div>
-                            <span className="text-[28px] font-black text-[#111] mt-2 leading-none">4</span>
+                            <span className="text-[28px] font-black text-[#111] mt-2 leading-none">{isTokenValid() ? 4 : 0}</span>
                         </div>
                         
                         <div className="bg-white rounded-[24px] p-5 py-6 shadow-sm border border-gray-50 flex-1 flex flex-col justify-between h-[120px]">
@@ -128,7 +128,7 @@ export const ProfilePage: React.FC = () => {
                                 <MapPin className="w-4 h-4" />
                                 <span className="text-[13px] font-medium">Saved Addresses</span>
                             </div>
-                            <span className="text-[28px] font-black text-[#111] mt-2 leading-none">{addresses.length || 2}</span>
+                            <span className="text-[28px] font-black text-[#111] mt-2 leading-none">{addresses.length}</span>
                         </div>
                     </div>
 
@@ -140,18 +140,7 @@ export const ProfilePage: React.FC = () => {
                             {isLoadingAddresses ? (
                                 <p className="text-center py-4 text-gray-400 text-sm">Loading addresses...</p>
                             ) : addresses.length === 0 ? (
-                                <div className="p-4 border border-gray-100 rounded-[20px] bg-[#FAFAFA]">
-                                    <div className="flex items-start justify-between mb-2">
-                                        <span className="text-[11px] font-bold text-[#FF8A00] bg-[#FFF3E0] px-2 py-0.5 rounded uppercase tracking-wide">HOME</span>
-                                        <button className="p-1 text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors">
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                    <div className="flex flex-col mt-2">
-                                        <h4 className="font-bold text-[15px] text-[#222]">8, Yash Complex</h4>
-                                        <p className="text-gray-500 text-[13px] mt-1 leading-[1.4]">Rasne Nagar, Navi Mumbai<br/>Near Metro Station<br/>411265</p>
-                                    </div>
-                                </div>
+                                <p className="text-center py-4 text-gray-400 text-sm">No saved addresses</p>
                             ) : (
                                 addresses.map(add => (
                                     <div key={add.id} className="p-4 border border-gray-100 rounded-[20px] bg-[#FAFAFA]">

@@ -6,6 +6,8 @@ import searchIcon from "../../../assets/icons/search_icon.png";
 import profileIcon from "../../../assets/icons/profile_icon.png";
 import ordersIcon from "../../../assets/icons/orders_icon.png";
 import hivagoLogo from "../../../assets/footer/footer_logo.svg";
+import { isTokenValid } from '../../../data/api';
+import { User } from 'lucide-react';
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -49,7 +51,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                             <img src={searchIcon} alt="search icon" className='w-5 h-5 p-0' />
                             Search Restaurants
                         </Link>
-                        <Link to="/profile" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/profile' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                        <Link to="/orders" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/orders' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                             <img src={ordersIcon} alt="orders icon" className='w-5 h-5 p-0' />
                             My Orders
                         </Link>
@@ -57,6 +59,14 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                             <img src={profileIcon} alt="profile icon" className='w-5 h-5 p-0' />
                             Profile <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full ml-auto">New</span>
                         </Link>
+                        {!isTokenValid() && (
+                            <div className="mt-2 pt-2 border-t border-gray-100">
+                                <Link to="/signin" className="w-full flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
+                                    <User className="w-4 h-4" />
+                                    Log In / Register
+                                </Link>
+                            </div>
+                        )}
                         <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
                             <p className='text-xs'>
                                 <span className='text-gray-700'>Need help? </span>
