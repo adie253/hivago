@@ -36,9 +36,7 @@ export const CheckoutPage: React.FC = () => {
                                 id: item.menuItemId,
                                 name: item.name,
                                 price: item.unitPrice,
-                                description: item.options || '',
-                                type: 'Veg', // Default to Veg
-                                category: 'General',
+                                isVeg: true, // Default to Veg
                                 isAddon: false
                             }, apiCart.restaurantId, apiCart.restaurantName);
                         }
