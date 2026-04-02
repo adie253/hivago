@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
-import { isTokenValid } from '../../data/api';
+import { isTokenValid, getCart } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
 
 const frequentlyBought = [
@@ -15,20 +15,44 @@ const frequentlyBought = [
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal } = useCart();
+    const { cartItems, addToCart, removeFromCart, cartTotal, clearCart } = useCart();
     const [cutlery, setCutlery] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
     const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
+    const isLoggedIn = isTokenValid();
+
+    React.useEffect(() => {
+        const fetchAndSyncCart = async () => {
+            if (isLoggedIn) {
+                const apiCart = await getCart();
+                if (apiCart && apiCart.items && apiCart.items.length > 0) {
+                    clearCart();
+                    apiCart.items.forEach((item: any) => {
+                        for(let i=0; i<item.quantity; i++) {
+                            addToCart({
+                                id: item.menuItemId,
+                                name: item.name,
+                                price: item.unitPrice,
+                                description: item.options || '',
+                                type: 'Veg', // Default to Veg
+                                category: 'General',
+                                isAddon: false
+                            }, apiCart.restaurantId, apiCart.restaurantName);
+                        }
+                    });
+                }
+            }
+        };
+        fetchAndSyncCart();
+    }, [isLoggedIn]);
 
     const deliveryFee = cartTotal > 0 ? 40 : 0;
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
-    
-    const isLoggedIn = isTokenValid();
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) return;

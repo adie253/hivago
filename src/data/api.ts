@@ -133,6 +133,19 @@ export const getPlaceDetails = async (placeId: string): Promise<any> => {
     }
 };
 
+export const getCart = async (): Promise<any> => {
+    try {
+        const response = await authFetch('/cart');
+        if (!response.ok) {
+            throw new Error(`Failed to get cart: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        return null;
+    }
+};
+
 export interface SyncCartRequest {
     restaurantId: string;
     restaurantName: string;
