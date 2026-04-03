@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
-import { isTokenValid, getCart } from '../../data/api';
+import { isTokenValid } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
 
 const frequentlyBought = [
@@ -15,7 +15,7 @@ const frequentlyBought = [
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal, clearCart } = useCart();
+    const { cartItems, addToCart, removeFromCart, cartTotal } = useCart();
     const [cutlery, setCutlery] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
@@ -24,28 +24,7 @@ export const CheckoutPage: React.FC = () => {
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
     const isLoggedIn = isTokenValid();
 
-    React.useEffect(() => {
-        const fetchAndSyncCart = async () => {
-            if (isLoggedIn) {
-                const apiCart = await getCart();
-                if (apiCart && apiCart.items && apiCart.items.length > 0) {
-                    clearCart();
-                    apiCart.items.forEach((item: any) => {
-                        for(let i=0; i<item.quantity; i++) {
-                            addToCart({
-                                id: item.menuItemId,
-                                name: item.name,
-                                price: item.unitPrice,
-                                isVeg: true, // Default to Veg
-                                isAddon: false
-                            }, apiCart.restaurantId, apiCart.restaurantName);
-                        }
-                    });
-                }
-            }
-        };
-        fetchAndSyncCart();
-    }, [isLoggedIn]);
+
 
     const deliveryFee = cartTotal > 0 ? 40 : 0;
     const platformFee = cartTotal > 0 ? 5 : 0;

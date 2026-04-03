@@ -31,6 +31,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
+        let timeoutId: ReturnType<typeof setTimeout>;
+
         if (isLoggedIn && userId && cartItems.length > 0 && restaurantId) {
             // Function to ensure valid UUIDs for the backend
             const ensureGuid = (id: string | undefined) => {
@@ -39,22 +41,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
             };
 
-            syncCart({
-                restaurantId: ensureGuid(restaurantId),
-                restaurantName: restaurantName || 'Restaurant',
-                items: cartItems.map(item => {
-                    const payload: any = {
-                        menuItemId: ensureGuid(item.id),
-                        name: item.name,
-                        unitPrice: item.price,
-                        quantity: item.quantity,
-                        options: "[]",
-                        specialInstructions: ""
-                    };
-                    return payload;
-                })
-            }).catch(e => console.error("Failed to sync cart:", e));
+            // Debounce the API call by 800ms to avoid multiple concurrent requests
+            timeoutId = setTimeout(() => {
+                syncCart({
+                    restaurantId: ensureGuid(restaurantId),
+                    restaurantName: restaurantName || 'Restaurant',
+                    items: cartItems.map(item => {
+                        const payload: any = {
+                            menuItemId: ensureGuid(item.id),
+                            name: item.name,
+                            unitPrice: item.price,
+                            quantity: item.quantity,
+                            options: "[]",
+                            specialInstructions: ""
+                        };
+                        return payload;
+                    })
+                }).catch(e => console.error("Failed to sync cart:", e));
+            }, 800);
         }
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [cartItems, restaurantId, restaurantName, isLoggedIn]);
 
     const addToCart = (item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
