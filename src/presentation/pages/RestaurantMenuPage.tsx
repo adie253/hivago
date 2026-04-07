@@ -156,8 +156,8 @@ export const RestaurantMenuPage: React.FC = () => {
                 {/* Delivery/Pickup Toggle (Mobile) */}
                 <div className="px-5 mt-6">
                     <div className="bg-white rounded-full border border-gray-100 shadow-sm p-1.5 flex items-center justify-between w-full mx-auto max-w-[320px]">
-                        <div className="flex items-center gap-2">
-                            <div className="flex -space-x-1">
+                        <div className="flex items-center gap-2 pl-2 md:pl-2 ">
+                            <div className="flex -space-x-1 ">
                                 <button 
                                     onClick={() => setDeliveryMode('delivery')}
                                     className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
@@ -298,7 +298,7 @@ export const RestaurantMenuPage: React.FC = () => {
                         </div>
 
                         {/* Middle Section: Delivery Status */}
-                        <div className="flex flex-col items-center justify-center border-x border-gray-100 px-8">
+                        <div className="flex flex-col items-center justify-center px-10">
                             <div className="bg-white rounded-full border border-gray-100 shadow-sm p-1.5 flex items-center gap-4">
                                 <div className="flex">
                                     <button 

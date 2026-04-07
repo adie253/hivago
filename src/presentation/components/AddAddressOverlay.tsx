@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { ArrowLeft, Search, Navigation2, MapPin, Loader2 } from 'lucide-react';
 import { getPlacesAutocomplete, getPlaceDetails, addAddress } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
+import { MapPicker } from './checkout/MapPicker';
 
 interface AddAddressOverlayProps {
     isOpen: boolean;
@@ -72,6 +73,25 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     }, [searchQuery]);
 
     if (!isOpen) return null;
+
+    const handleUseCurrentLocation = () => {
+        if ('geolocation' in navigator) {
+            setIsSearching(true);
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setLatitude(pos.coords.latitude);
+                    setLongitude(pos.coords.longitude);
+                    setSelectedAddressText('Selected via GPS');
+                    setStep('details');
+                    setIsSearching(false);
+                },
+                (err) => {
+                    console.error("Error fetching GPS:", err);
+                    setIsSearching(false);
+                }
+            );
+        }
+    };
 
     const handleSelectPrediction = async (placeId: string, description: string) => {
         setSelectedPlaceId(placeId);
@@ -154,15 +174,38 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                             />
                         </div>
 
-                        <button className="flex items-center gap-3 p-4 mb-4 border border-gray-100 rounded-2xl hover:bg-red-50 transition-colors group">
-                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                                <Navigation2 className="w-5 h-5 text-[#FF4732]" />
-                            </div>
-                            <div className="flex flex-col text-left">
-                                <span className="font-bold text-[#FF4732] text-sm">Use Current Location</span>
-                                <span className="text-gray-400 text-[11px] font-medium">Using GPS</span>
-                            </div>
-                        </button>
+                        <div className="flex flex-col gap-3 mb-4">
+                            <button 
+                                onClick={handleUseCurrentLocation}
+                                disabled={isSearching}
+                                className={`flex items-center gap-3 p-4 border border-gray-100 rounded-2xl transition-colors group ${isSearching ? 'opacity-70 cursor-wait bg-gray-50' : 'hover:bg-red-50'}`}
+                            >
+                                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                                    <Navigation2 className="w-5 h-5 text-[#FF4732]" />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                    <span className="font-bold text-[#FF4732] text-[15px]">Use Current Location</span>
+                                    <span className="text-[#FF4732]/70 text-[12px] font-medium mt-0.5">Using GPS</span>
+                                </div>
+                            </button>
+                            
+                            <button 
+                                onClick={() => {
+                                    setSelectedAddressText('Selected via Map');
+                                    setStep('details');
+                                }}
+                                disabled={isSearching}
+                                className={`flex items-center gap-3 p-4 border border-gray-100 rounded-2xl transition-colors group ${isSearching ? 'opacity-70 cursor-wait bg-gray-50' : 'hover:bg-gray-50'}`}
+                            >
+                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                    <MapPin className="w-5 h-5 text-gray-700" />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                    <span className="font-bold text-gray-800 text-[15px]">Select location on Map</span>
+                                    <span className="text-gray-400 text-[12px] font-medium mt-0.5">Pin your exact address coordinates</span>
+                                </div>
+                            </button>
+                        </div>
 
                         <div className="flex-1 flex flex-col gap-1 overflow-y-auto">
                             {isSearching ? (
@@ -218,8 +261,17 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 <p className="text-gray-400 text-sm font-medium">Fetching exact coordinates...</p>
                             </div>
                         ) : (
-                            <div className="px-5 py-6 flex flex-col gap-6 flex-1 bg-white mx-3 mt-4 rounded-3xl shadow-sm border border-gray-100">
-                                <div className="flex flex-col gap-2">
+                            <div className="px-5 py-6 flex flex-col gap-6 flex-1 bg-white mx-3 mt-4 rounded-3xl shadow-sm border border-gray-100 relative">
+                                <div className="flex flex-col gap-2 relative z-0">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Confirm exact location</label>
+                                    <MapPicker 
+                                        position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
+                                        onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                    />
+                                    <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>
+                                </div>
+
+                                <div className="flex flex-col gap-2 relative z-20">
                                     <label className="text-sm font-bold text-gray-800 ml-1">Flat / House No. / Floor / Building <span className="text-[#FF4732]">*</span></label>
                                     <input
                                         type="text"

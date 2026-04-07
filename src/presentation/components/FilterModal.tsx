@@ -12,7 +12,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
         sortBy, setSortBy,
         isVegOnly, setIsVegOnly,
         minRating, setMinRating
-    } = useFilters();
+    } = useFilters();   
 
     const [tempSort, setTempSort] = useState(sortBy);
     const [tempVeg, setTempVeg] = useState(isVegOnly);
@@ -48,7 +48,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm px-0 md:px-4">
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm px-0 md:px-4 mt-15">
             <div className="bg-white w-full max-w-lg rounded-t-[32px] md:rounded-[32px] flex flex-col max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-300 shadow-2xl">
                 {/* Header */}
                 <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">

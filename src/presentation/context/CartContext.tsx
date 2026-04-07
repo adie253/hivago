@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
-import { syncCart, isTokenValid } from '../../data/api';
+import { syncCart, isTokenValid, getCart } from '../../data/api';
 
 interface CartContextType {
     cartItems: CartItem[];
@@ -23,11 +23,60 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
 
     useEffect(() => {
-        const cartData = DIContainer.getGetCartUseCase().execute();
-        setCartItems(cartData.items);
-        setRestaurantId(cartData.restaurantId);
-        setRestaurantName(cartData.restaurantName);
-    }, []);
+        const initCart = async () => {
+            const localCartData = DIContainer.getGetCartUseCase().execute();
+            
+            if (isLoggedIn) {
+                if (localCartData.items && localCartData.items.length > 0) {
+                    // Local cart exists, it will trigger the syncCart useEffect which handles replaceCart=true
+                    setCartItems(localCartData.items);
+                    setRestaurantId(localCartData.restaurantId);
+                    setRestaurantName(localCartData.restaurantName);
+                } else {
+                    // Local cart is empty, fetch from remote backend
+                    try {
+                        const remoteCart = await getCart();
+                        if (remoteCart && remoteCart.items && remoteCart.items.length > 0) {
+                            const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
+                                id: rItem.menuItemId,
+                                name: rItem.name,
+                                price: rItem.unitPrice,
+                                quantity: rItem.quantity,
+                                description: rItem.options || '',
+                                isVeg: true,
+                                isAddon: false
+                            }));
+                            
+                            setCartItems(convertedItems);
+                            setRestaurantId(remoteCart.restaurantId);
+                            setRestaurantName(remoteCart.restaurantName);
+                            
+                            // Save to local storage for persistent UI state
+                            localStorage.setItem('hivago_cart_v2', JSON.stringify({
+                                items: convertedItems,
+                                restaurantId: remoteCart.restaurantId,
+                                restaurantName: remoteCart.restaurantName
+                            }));
+                        } else {
+                            setCartItems([]);
+                            setRestaurantId(undefined);
+                            setRestaurantName(undefined);
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch cart from server on load:', e);
+                        setCartItems([]);
+                    }
+                }
+            } else {
+                // Not logged in, use local cart
+                setCartItems(localCartData.items);
+                setRestaurantId(localCartData.restaurantId);
+                setRestaurantName(localCartData.restaurantName);
+            }
+        };
+
+        initCart();
+    }, [isLoggedIn]);
 
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
@@ -57,7 +106,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         };
                         return payload;
                     })
-                }).catch(e => console.error("Failed to sync cart:", e));
+                }, true).catch(e => console.error("Failed to sync cart:", e));
             }, 800);
         }
 

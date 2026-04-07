@@ -20,7 +20,7 @@ export const SearchBar: React.FC = () => {
     };
 
     return (
-        <div className="w-full flex justify-between items-center py-2 md:py-6 px-4 md:px-12 border-b border-gray-100 font-sans gap-2 md:gap-0 sticky top-[119px] sm:top-[82px] z-40 bg-white">
+        <div className="w-full flex justify-between items-center py-2 md:py-6 px-4 md:px-12 border-b border-gray-100 font-sans gap-2 md:gap-0 sticky top-[116px] sm:top-[60px] z-40 bg-white">
 
             {/* Search Input */}
             <div

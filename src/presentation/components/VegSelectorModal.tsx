@@ -26,7 +26,7 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
                         </h2>
                     </div>
                     <div className="relative">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-lg mr-5">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-lg mr-10">
                             <img
                                 src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=200"
                                 alt="Veg Bowl"
@@ -35,7 +35,7 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
                         </div>
                         <button
                             onClick={onClose}
-                            className="absolute -top-5 -right-5 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                            className="absolute -top-3 -right-3 p-2 text-gray-400 hover:text-gray-600 transition-colors"
                         >
                             <X className="w-6 h-6" />
                         </button>
@@ -57,11 +57,11 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
                         </div>
                     </button>
 
-                    <div className="h-px bg-gray-100" />
+                    {/* <div className="h-px bg-gray-100" /> */}
 
                     <button
                         onClick={() => setSelection('pure-veg')}
-                        className="w-full flex items-center justify-between group"
+                        className="w-full flex items-center justify-between group mt-3"
                     >
                         <span className={`text-md transition-colors ${selection === 'pure-veg' ? 'text-gray-900 font-bold' : 'text-gray-500  font-inter-500'}`}>
                             Pure veg restaurants only
@@ -75,7 +75,7 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
 
                 {/* Remember Checkbox */}
                 <div className="flex items-center justify-between mb-8 mt-10 opacity-60">
-                    <span className="text-sm font-bold text-gray-600">Remember my choice going forward</span>
+                    <span className="text-sm text-gray-600">Remember my choice going forward</span>
                     <button
                         onClick={() => setRemember(!remember)}
                         className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${remember ? 'bg-emerald-600' : 'border-2 border-gray-300'

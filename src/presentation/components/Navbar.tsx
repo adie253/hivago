@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
                 {/* Logo and Mobile Menu */}
                 <div className="flex items-center gap-3 md:gap-4 ">
                     <Link to="/" className="flex items-center justify-center ">
-                        <img src={navLogo} alt="Logo" className="h-16 w-16 md:h-20 md:w-20 object-contain" />
+                        <img src={navLogo} alt="Logo" className="h-16 w-16 md:h-15 md:w-20 object-contain" />
                     </Link>
                 </div>
 

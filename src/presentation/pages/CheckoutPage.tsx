@@ -4,6 +4,7 @@ import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, ShoppingCart, MapP
 import { useCart } from '../context/CartContext';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
+import { MobileMenu } from '../components/checkout/MobileMenu';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { isTokenValid } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
@@ -22,8 +23,9 @@ export const CheckoutPage: React.FC = () => {
     const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const isLoggedIn = isTokenValid();
-
+    
 
 
     const deliveryFee = cartTotal > 0 ? 40 : 0;
@@ -55,7 +57,7 @@ export const CheckoutPage: React.FC = () => {
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
                 <div className="flex-1"></div>
-                <button className="p-2 text-gray-700">
+                <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-gray-700">
                     <MenuIcon className="w-6 h-6" />
                 </button>
             </div>
@@ -77,64 +79,67 @@ export const CheckoutPage: React.FC = () => {
                 </div>
             ) : (
                 <>
-                    {/* Stepper */}
-                    <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm">
-                        {/* Menu Step - done */}
-                        <div className="flex flex-col items-center flex-shrink-0">
-                            <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                                <Book className="w-4 h-4 fill-current" />
-                            </div>
-                            <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
-                        </div>
-
-                        {/* Connector 1 */}
-                        <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                        </div>
-
-                        {/* Cart Step - active */}
-                        <div className="flex flex-col items-center flex-shrink-0">
-                            <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                                <ShoppingCart className="w-4 h-4 fill-current" />
-                            </div>
-                            <span className="text-[10px] font-bold text-[#FF4732]">Cart</span>
-                        </div>
+                    <div className="max-w-md lg:max-w-6xl mx-auto px-4 flex flex-col lg:flex-row gap-6 lg:items-start lg:pt-4">
                         
-                        {!isLoggedIn && (
-                            <>
-                                {/* Connector 2 */}
-                                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
-                                </div>
+                        {/* Left Column for Desktop */}
+                        <div className="flex flex-col gap-4 flex-1 w-full">
 
-                                {/* Details Step - pending */}
-                                <div className="flex flex-col items-center flex-shrink-0">
-                                    <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                                        <MapPin className="w-4 h-4 fill-current" />
+                        {/* Stepper */}
+                        <div className="bg-white lg:rounded-2xl px-6 py-4 border-b lg:border border-gray-100 flex items-center justify-between shadow-sm -mx-4 lg:mx-0 mb-1 lg:mb-0">
+                            {/* Menu Step - done */}
+                            <div className="flex flex-col items-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
+                                    <Book className="w-4 h-4 fill-current" />
+                                </div>
+                                <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
+                            </div>
+
+                            {/* Connector 1 */}
+                            <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
+                            </div>
+
+                            {/* Cart Step - active */}
+                            <div className="flex flex-col items-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
+                                    <ShoppingCart className="w-4 h-4 fill-current" />
+                                </div>
+                                <span className="text-[10px] font-bold text-[#FF4732]">Cart</span>
+                            </div>
+                            
+                            {!isLoggedIn && (
+                                <>
+                                    {/* Connector 2 */}
+                                    <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-500">Details</span>
-                                </div>
-                            </>
-                        )}
-                        
-                        {/* Connector 3 */}
-                        <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
-                        </div>
 
-                        {/* Checkout Step - pending */}
-                        <div className="flex flex-col items-center flex-shrink-0">
-                            <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                                <Wallet className="w-4 h-4 fill-current text-gray-300" />
+                                    {/* Details Step - pending */}
+                                    <div className="flex flex-col items-center flex-shrink-0">
+                                        <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
+                                            <MapPin className="w-4 h-4 fill-current" />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-gray-500">Details</span>
+                                    </div>
+                                </>
+                            )}
+                            
+                            {/* Connector 3 */}
+                            <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
                             </div>
-                            <span className="text-[10px] font-medium text-gray-500">Checkout</span>
-                        </div>
-                    </div>
 
-                    <div className="max-w-md mx-auto px-4 flex flex-col gap-4">
+                            {/* Checkout Step - pending */}
+                            <div className="flex flex-col items-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
+                                    <Wallet className="w-4 h-4 fill-current text-gray-300" />
+                                </div>
+                                <span className="text-[10px] font-medium text-gray-500">Checkout</span>
+                            </div>
+                        </div>
 
                         {/* Cart Items List */}
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3 lg:mt-2">
                             {cartItems.map((item, index) => (
                                 <div key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-50">
                                     <div className="flex gap-4 items-center w-full">
@@ -246,6 +251,11 @@ export const CheckoutPage: React.FC = () => {
                                 <div className="w-2 h-10 bg-gray-300 rounded-t-full rounded-b-sm translate-y-1"></div>
                             </div>
                         </div>
+
+                        </div>
+
+                        {/* Right Column for Desktop */}
+                        <div className="flex flex-col gap-4 w-full lg:w-[420px] lg:sticky lg:top-24">
 
                         {/* Delivery Address */}
                         <div 
@@ -397,10 +407,20 @@ export const CheckoutPage: React.FC = () => {
                             )}
                         </div>
 
+                            {/* Desktop Checkout Button */}
+                            <button
+                                onClick={handlePlaceOrder}
+                                disabled={cartItems.length === 0}
+                                className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
+                            >
+                                {isLoggedIn ? "Proceed to pay" : "Add phone and address details"}
+                            </button>
+
+                        </div>
                     </div>
 
-                    {/* Bottom Fixed Button */}
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
+                    {/* Bottom Fixed Button - Mobile Only */}
+                    <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
                         <div className="max-w-md mx-auto">
                             <button
                                 onClick={handlePlaceOrder}
@@ -423,6 +443,8 @@ export const CheckoutPage: React.FC = () => {
                     onComplete={handleDetailsComplete}
                 />
             )}
+
+            <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar {

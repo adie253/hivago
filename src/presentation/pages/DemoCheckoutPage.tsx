@@ -175,8 +175,11 @@ export const DemoCheckoutPage: React.FC = () => {
 
 
 
+            {/* Main Content Wrapper */}
+            <div className="max-w-md lg:max-w-6xl mx-auto px-4 flex flex-col lg:pt-4">
+
             {/* Stepper */}
-            <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm">
+            <div className="bg-white lg:rounded-2xl px-6 py-4 border-b lg:border border-gray-100 flex items-center justify-between shadow-sm -mx-4 lg:mx-0 mb-1 lg:mb-4">
                 {/* Menu Step - done */}
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
@@ -225,7 +228,26 @@ export const DemoCheckoutPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="max-w-md mx-auto px-4 flex flex-col gap-6 pt-4">
+            {/* Two Column Layout for Desktop */}
+            <div className="flex flex-col lg:flex-row gap-6 lg:items-start lg:mt-2">
+                
+                {/* Left Column */}
+                <div className="flex flex-col gap-6 flex-1 w-full lg:max-w-[48%]">
+
+                    {/* Address Map */}
+                    <div className="hidden lg:flex flex-col gap-2 pt-2">
+                        <h2 className="text-sm font-black text-gray-900 ml-1">Address Map</h2>
+                        <div className="w-full h-[220px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative">
+                            {/* Generic map placeholder styling */}
+                            <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&h=400&fit=crop" alt="Map" className="w-full h-full object-cover opacity-60 mix-blend-multiply" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="bg-white p-2 flex items-center justify-center rounded-full shadow-lg">
+                                    <MapPin className="text-[#00A050] w-6 h-6" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 {/* Delivery Instructions */}
                 <div className="flex flex-col gap-2 pt-2">
                     <h2 className="text-sm font-black text-gray-900 ml-1">Delivery Instructions</h2>
@@ -268,9 +290,47 @@ export const DemoCheckoutPage: React.FC = () => {
                         ))}
                     </div>
                 </div>
+                </div> {/* End Left Column */}
+
+                {/* Right Column */}
+                <div className="flex flex-col gap-6 w-full lg:flex-1 lg:max-w-[50%] lg:bg-white lg:p-6 lg:rounded-[24px] lg:shadow-sm lg:border lg:border-gray-50">
+
+                    {/* Cart Items */}
+                    <div className="hidden lg:flex flex-col gap-3">
+                        <h2 className="text-sm font-black text-gray-900 ml-1">Cart Items</h2>
+                        <div className="flex flex-col gap-3">
+                            {cartItems.map((item, index) => (
+                                <div key={`dc-${item.id}`} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-100">
+                                    <div className="flex gap-4 items-center w-full">
+                                        {!item.isAddon && (
+                                            <div className="w-14 h-14 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden relative">
+                                                <img src={`https://images.unsplash.com/photo-${index % 2 === 0 ? '1544025162-831514eb3176' : '1552611052-33e04de081de'}?w=150&dpr=2&q=80`} alt={item.name} className="w-full h-full object-cover" />
+                                            </div>
+                                        )}
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-[14px] text-[#2D2D2D]">{item.name}</h4>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                {!item.isAddon && <span className="text-gray-400 line-through text-xs font-medium">Rs. {Math.round(item.price * 1.1).toFixed(2)}</span>}
+                                                <span className={`${item.isAddon ? 'text-gray-500 text-xs' : 'text-[#FF4732] font-bold text-[14px]'}`}>Rs. {item.price.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                        {!item.isAddon ? (
+                                            <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm px-3 py-1">
+                                                <span className="font-bold text-xs">Qty: {item.quantity}</span>
+                                            </div>
+                                        ) : (
+                                            <div className="w-5 h-5 rounded-md bg-[#00A050] flex items-center justify-center mr-1">
+                                                <CheckCircle className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
                 {/* Add Tip */}
-                <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-50 flex flex-col gap-4">
+                <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-5 lg:p-0 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
                     <h2 className="text-sm font-black text-gray-900">Add Tip for Delivery Partner</h2>
                     <div className="flex gap-2">
                         {[
@@ -311,7 +371,7 @@ export const DemoCheckoutPage: React.FC = () => {
                 {/* Order Summary */}
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-black text-gray-900 ml-1">Order Summary</h2>
-                    <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-50 flex flex-col gap-4">
+                    <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-6 lg:p-2 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-400 font-medium">Item Total</span>
                             <span className="text-gray-700 font-bold">{cartTotal.toFixed(0)}</span>
@@ -362,10 +422,21 @@ export const DemoCheckoutPage: React.FC = () => {
                         Check the payment details & restaurant information before placing your order. Business ID: 2026115526H
                     </p>
                 </div>
+                
+                {/* Desktop Proceed Button */}
+                <button
+                    onClick={handlePlaceOrder}
+                    disabled={isPlacingOrder || !agreedToTerms}
+                    className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
+                >
+                    {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Proceed to checkout'}
+                </button>
+                    </div>
+                </div>
             </div>
 
-            {/* Bottom Fixed Button */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
+            {/* Bottom Fixed Button - Mobile Only */}
+            <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
                 <div className="max-w-md mx-auto">
                         <button
                                 onClick={handlePlaceOrder}

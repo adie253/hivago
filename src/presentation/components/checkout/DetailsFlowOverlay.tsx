@@ -3,6 +3,8 @@ import { ArrowLeft, MapPin, Book, ShoppingCart, Menu as MenuIcon, Wallet, Loader
 import { sendOtp, verifyOtp, addAddress } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
+import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
+import { MapPicker } from './MapPicker';
 
 export type DetailsFlowOverlayProps = {
     onClose: () => void;
@@ -24,6 +26,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const [landmark, setLandmark] = useState('');
     const [isDefault, setIsDefault] = useState(true);
     const [label, setLabel] = useState('Home');
+    const [mapCoordinates, setMapCoordinates] = useState<{lat: number, lng: number} | null>(null);
 
     const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
     const { refreshLoginStatus } = useCart();
@@ -248,16 +251,37 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         </div>
     );
 
+    const handleAllowLocation = () => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setMapCoordinates({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                    setStep('addresses');
+                    refreshAddresses();
+                },
+                (error) => {
+                    console.error("Error getting location: ", error);
+                    // On error, still proceed so they can type it manually
+                    setStep('addresses');
+                    refreshAddresses(); // Fallback flow still allows address addition
+                }
+            );
+        } else {
+            setStep('addresses');
+            refreshAddresses();
+        }
+    };
+
     const renderLocation = () => (
         <div className="flex-1 px-6 pt-10 pb-6 flex flex-col">
             <h2 className="text-[22px] font-black text-[#111] leading-tight mb-2 pr-24">Allow Location Access</h2>
             <p className="text-gray-500 text-sm mb-10 flex-1 pr-24 leading-snug">This lets show you which restaurants you can order from.</p>
 
             <button
-                onClick={() => {
-                    setStep('addresses');
-                    refreshAddresses();
-                }}
+                onClick={handleAllowLocation}
                 className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors mb-3"
             >
                 Allow
@@ -349,8 +373,8 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             await addAddress({
                 addressLine,
                 landmark,
-                latitude: 19.033, // Mocked
-                longitude: 73.029, // Mocked
+                latitude: mapCoordinates?.lat || 19.033, // Default fallback if not allowed
+                longitude: mapCoordinates?.lng || 73.029,
                 label,
                 isDefault
             });
@@ -375,7 +399,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             </div>
 
             <div className="px-6 flex flex-col gap-5 flex-1 pb-10">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 relative z-0">
+                    <label className="text-sm font-bold text-gray-700 ml-1">Pin your exact location</label>
+                    <MapPicker position={mapCoordinates} onPositionChange={setMapCoordinates} />
+                    <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>
+                </div>
+
+                <div className="flex flex-col gap-2 relative z-20">
                     <label className="text-sm font-bold text-gray-700 ml-1">Flat / House No. / Building / Area</label>
                     <input
                         type="text"
@@ -439,32 +469,47 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     );
 
     return (
-        <div className="fixed inset-0 z-50 bg-[#FAFAFA] flex flex-col font-sans h-screen overflow-hidden">
-            {/* Top Bar shared by all steps now that map is gone */}
-            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm shrink-0">
-                <button onClick={handleBack} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center">
-                    <ArrowLeft className="w-5 h-5 text-gray-800" />
+        <div className="fixed inset-0 z-[60] bg-[#F5F6F8] flex flex-col font-sans h-screen overflow-hidden">
+            {/* Top Bar */}
+            <div className="bg-[#D12E27] lg:bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm shrink-0 text-white lg:text-gray-800 lg:border-b lg:border-gray-100">
+                <button onClick={handleBack} className="p-2 lg:bg-white rounded-full lg:shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center transition-transform hover:scale-105">
+                    <ArrowLeft className="w-5 h-5 text-white lg:text-gray-800" />
                 </button>
                 <div className="flex-1 text-center">
-                    <span className="text-sm font-black text-gray-900">
+                    <span className="text-sm font-black tracking-wide">
                         {step === 'phone' || step === 'otp' ? 'Login' : 'Delivery Details'}
                     </span>
                 </div>
-                <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600">
+                <button onClick={onClose} className="p-2 text-white lg:text-gray-400 hover:text-white lg:hover:text-gray-600 transition-colors">
                     <MenuIcon className="w-6 h-6" />
                 </button>
             </div>
 
-            <div className="shrink-0">
-                {renderStepper()}
-            </div>
+            <div className="flex-1 overflow-y-auto flex items-start justify-center w-full lg:p-8">
+                <div className="w-full lg:max-w-[1000px] bg-[#FAFAFA] lg:bg-white lg:rounded-[32px] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex flex-col overflow-hidden min-h-full lg:min-h-0 border border-transparent lg:border-gray-100">
+                    <div className="shrink-0 lg:px-8 lg:pt-6">
+                        {renderStepper()}
+                    </div>
 
-            <div className="flex-1 overflow-y-auto">
-                {step === 'phone' && renderPhone()}
-                {step === 'otp' && renderOtp()}
-                {step === 'location' && renderLocation()}
-                {step === 'addresses' && renderAddresses()}
-                {step === 'addAddress' && renderAddAddress()}
+                    <div className="flex flex-1 flex-col lg:flex-row relative">
+                        {/* Form Section */}
+                        <div className="flex-1 flex flex-col lg:max-w-[55%] z-10 pb-10 bg-[#FAFAFA] lg:bg-white">
+                            {step === 'phone' && renderPhone()}
+                            {step === 'otp' && renderOtp()}
+                            {step === 'location' && renderLocation()}
+                            {step === 'addresses' && renderAddresses()}
+                            {step === 'addAddress' && renderAddAddress()}
+                        </div>
+
+                        {/* Image Section for Desktop */}
+                        {(step === 'phone' || step === 'otp') && (
+                            <div className="hidden lg:flex flex-1 items-center justify-center p-8 self-center relative">
+                                <img src={girlOnSofa} alt="Login graphic" className="w-[80%] max-w-[340px] object-contain drop-shadow-xl shrink-0 translate-y-[-10px]" />
+                            </div>
+                        )}
+                        
+                    </div>
+                </div>
             </div>
         </div>
     );

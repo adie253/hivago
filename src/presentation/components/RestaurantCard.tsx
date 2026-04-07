@@ -80,7 +80,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                     {restaurant.cuisines.join(', ')}
                 </p>
 
-                <div className="mt-auto border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 space-x-2">
+                <div className="mt-auto flex items-center justify-between text-xs text-gray-600 space-x-2">
                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <Clock className="w-4 h-4 text-gray-400" />
                         <span className="font-medium">{restaurant.deliveryTime}</span>

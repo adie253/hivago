@@ -22,7 +22,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     ];
 
     const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
-    const [fbtQuantities, setFbtQuantities] = useState<Record<string, number>>({ fb1: 1, fb2: 1 });
+    const [fbtQuantities, setFbtQuantities] = useState<Record<string, number>>({});
     const [specialInstructions, setSpecialInstructions] = useState('');
     const [unavailabilityAction, setUnavailabilityAction] = useState('Remove it from my order');
     const [isUnavailabilityMenuOpen, setIsUnavailabilityMenuOpen] = useState(false);
