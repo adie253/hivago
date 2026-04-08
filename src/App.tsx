@@ -10,6 +10,7 @@ import { RegisterPage } from './presentation/pages/RegisterPage';
 import { DemoCheckoutPage } from './presentation/pages/DemoCheckoutPage';
 import { OrderTrackingPage } from './presentation/pages/OrderTrackingPage';
 import { OrdersPage } from './presentation/pages/OrdersPage';
+import { PaymentSuccessPage } from './presentation/pages/PaymentSuccessPage';
 import { Footer } from './presentation/components/Footer';
 import { ScrollToTop } from './presentation/components/ScrollToTop';
 import { FloatingCart } from './presentation/components/FloatingCart';
@@ -20,7 +21,7 @@ import { LocationProvider } from './presentation/context/LocationContext';
 
 const MainContent = () => {
   const location = useLocation();
-  const isCheckout = location.pathname === '/checkout' || location.pathname === '/demo-checkout' || location.pathname === '/track-order';
+  const isCheckout = location.pathname === '/checkout' || location.pathname === '/demo-checkout' || location.pathname === '/track-order' || location.pathname === '/payment-success';
 
   return (
     <>
@@ -33,6 +34,7 @@ const MainContent = () => {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/demo-checkout" element={<DemoCheckoutPage />} />
           <Route path="/track-order" element={<OrderTrackingPage />} />
+          <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/signin" element={<SignInPage />} />

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
 import { syncCart, isTokenValid, getCart } from '../../data/api';
@@ -115,26 +115,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }, [cartItems, restaurantId, restaurantName, isLoggedIn]);
 
-    const addToCart = (item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
+    const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
         const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
         setCartItems([...updatedCartData.items]);
         setRestaurantId(updatedCartData.restaurantId);
         setRestaurantName(updatedCartData.restaurantName);
-    };
+    }, []);
 
-    const removeFromCart = (itemId: string) => {
+    const removeFromCart = useCallback((itemId: string) => {
         const updatedCartData = DIContainer.getRemoveFromCartUseCase().execute(itemId);
         setCartItems([...updatedCartData.items]);
         setRestaurantId(updatedCartData.restaurantId);
         setRestaurantName(updatedCartData.restaurantName);
-    };
+    }, []);
 
-    const clearCart = () => {
+    const clearCart = useCallback(() => {
         DIContainer.getClearCartUseCase().execute();
         setCartItems([]);
         setRestaurantId(undefined);
         setRestaurantName(undefined);
-    };
+    }, []);
 
     const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 

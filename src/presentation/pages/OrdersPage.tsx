@@ -13,8 +13,19 @@ export const OrdersPage: React.FC = () => {
         const fetchOrders = async () => {
             setIsLoading(true);
             try {
+                // Try fetching my-orders
                 const data = await getMyOrders(0, 50);
-                const ordersList = Array.isArray(data) ? data : (data?.items || data?.content || data?.data?.content || data?.data || []);
+                let ordersList = Array.isArray(data) ? data : (data?.orders || data?.items || data?.content || data?.data?.content || data?.data || []);
+                
+                // If empty or failed, fallback to getActiveOrders just in case the API structure expects that
+                if (!ordersList || ordersList.length === 0) {
+                    const { getActiveOrders } = await import('../../data/api');
+                    const activeData = await getActiveOrders();
+                    if (Array.isArray(activeData) && activeData.length > 0) {
+                        ordersList = activeData;
+                    }
+                }
+                
                 setOrders(ordersList);
             } catch (error) {
                 console.error("Failed to load orders", error);
@@ -136,7 +147,7 @@ export const OrdersPage: React.FC = () => {
                                                 {/* Details */}
                                                 <div className="flex flex-col">
                                                     <h3 className="font-bold text-[16px] text-gray-900 leading-tight mb-0.5">{order.restaurantName || "Restaurant"}</h3>
-                                                    <div className="text-[#6C727F] text-[13px]">{itemsCount} items • ₹{order.totalAmount || order.total || 0}</div>
+                                                    <div className="text-[#6C727F] text-[13px]">{itemsCount} items • ₹{order.pricing?.total || order.totalAmount || order.total || 0}</div>
                                                     <div className="text-[#9CA3AF] text-[12px] mt-0.5">{formatDate(order.updatedAt || order.createdAt)}</div>
                                                 </div>
                                             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Menu } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Menu, Loader2 } from 'lucide-react';
+import { getOrderById, getActiveOrders, ApiOrder } from '../../data/api';
 
 // Using the assets we moved/generated
 import orderPlacedImg from '../../assets/checkout/order_placed.svg';
@@ -11,18 +12,58 @@ import { MobileMenu } from '../components/checkout/MobileMenu';
 
 export const OrderTrackingPage: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const orderId = searchParams.get('orderId');
+    const [order, setOrder] = useState<ApiOrder | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered'>('placed');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    // Automatically transition through states for demo purposes
+    // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (status === 'placed') setStatus('preparing');
-            else if (status === 'preparing') setStatus('delivery');
-            else if (status === 'delivery') setStatus('delivered');
-        }, 8000);
-        return () => clearTimeout(timer);
-    }, [status]);
+        if (order) {
+            const apiStatus = (order.status || '').toUpperCase();
+            if (['DELIVERED', 'COMPLETED'].includes(apiStatus)) {
+                setStatus('delivered');
+            } else if (['ASSIGNED', 'PICKED_UP'].includes(apiStatus)) {
+                setStatus('delivery');
+            } else if (['PREPARING', 'READY'].includes(apiStatus)) {
+                setStatus('preparing');
+            } else {
+                setStatus('placed'); // PENDING, PAID, CONFIRMED
+            }
+        }
+    }, [order]);
+
+    useEffect(() => {
+        let isInitialLoad = true;
+        
+        const fetchOrder = async () => {
+            if (isInitialLoad) setIsLoading(true);
+            try {
+                if (orderId) {
+                    const o = await getOrderById(orderId);
+                    if (o) setOrder(o);
+                } else {
+                    const active = await getActiveOrders();
+                    if (active && active.length > 0) setOrder(active[0]);
+                }
+            } finally {
+                if (isInitialLoad) {
+                    setIsLoading(false);
+                    isInitialLoad = false;
+                }
+            }
+        };
+        
+        // Initial fetch
+        fetchOrder();
+
+        // Silent polling for real-time status updates perfectly synced with backend!
+        const interval = setInterval(fetchOrder, 10000);
+        
+        return () => clearInterval(interval);
+    }, [orderId]);
 
     const stages = [
         { 
@@ -57,12 +98,80 @@ export const OrderTrackingPage: React.FC = () => {
 
     const currentStageIndex = stages.findIndex(s => s.id === status);
 
+    // Robust parsing functions to handle varying backend serialization formats
+    const getAddressDisplay = (o: any) => {
+        if (!o) return 'Plot No.7, Arenja Chambers, Navi Mumbai';
+        
+        // Match the real backend: o.deliveryInfo.deliveryAddress
+        if (o.deliveryInfo?.deliveryAddress) {
+            const addr = o.deliveryInfo.deliveryAddress;
+            if (addr.formattedAddress) return addr.formattedAddress;
+            const street = addr.street || addr.addressLine || addr.address || '';
+            const city = addr.city || '';
+            if (street || city) return [street, city].filter(Boolean).join(', ');
+        }
+        
+        // Legacy fallback check on root if structure reverts
+        if (o.deliveryAddress) {
+            if (typeof o.deliveryAddress === 'string') return o.deliveryAddress;
+            const street = o.deliveryAddress.street || o.deliveryAddress.addressLine || o.deliveryAddress.address || '';
+            const city = o.deliveryAddress.city || '';
+            if (street || city) return [street, city].filter(Boolean).join(', ');
+        }
+        
+        return 'Plot No.7, Arenja Chambers, Navi Mumbai';
+    };
+
+    const getOrderTotal = (o: any) => {
+        if (!o) return 370;
+        if (o.totalAmount) return o.totalAmount;
+        if (o.total) return o.total;
+        if (o.pricing?.total) return o.pricing.total;
+        if (o.pricing?.subTotal) return o.pricing.subTotal;
+        
+        // Final fallback: Calculate from items
+        if (Array.isArray(o.items) && o.items.length > 0) {
+            return o.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0);
+        }
+        
+        return 370;
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center font-sans">
+                <Loader2 className="w-10 h-10 animate-spin text-[#00A050]" />
+                <p className="mt-4 text-gray-500 font-medium">Fetching order details...</p>
+            </div>
+        );
+    }
+
+    if (!order) {
+        return (
+            <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center font-sans pb-20">
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center gap-4 max-w-sm text-center">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                        <ShoppingBag className="w-8 h-8 text-gray-300" />
+                    </div>
+                    <h2 className="text-xl font-black text-gray-900">No Active Order</h2>
+                    <p className="text-gray-500 text-sm font-medium">We couldn't find an active order to track right now.</p>
+                    <button 
+                        onClick={() => navigate('/', { replace: true })}
+                        className="mt-4 bg-[#FF584A] text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:bg-[#E5483B] active:scale-[0.98] transition-all"
+                    >
+                        Browse Restaurants
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#F8F9FA] font-sans pb-24">
             {/* Navbar */}
             <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
+                    <button onClick={() => navigate('/')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
                         <ArrowLeft className="w-5 h-5 text-gray-800" />
                     </button>
                     <h1 className="text-lg font-black text-gray-900">Track Order</h1>
@@ -101,7 +210,9 @@ export const OrderTrackingPage: React.FC = () => {
                                 <div className="flex items-center gap-4">
                                     <div className="flex flex-col">
                                         <span className="text-gray-900 font-black text-[18px] mb-2 tracking-tight">Delivery Address</span>
-                                        <span className="text-gray-400 text-[15px] font-medium w-[85%] text-pretty leading-relaxed">Plot No.7, Arenja Chambers, Navi Mumbai</span>
+                                        <span className="text-gray-400 text-[15px] font-medium w-[85%] text-pretty leading-relaxed">
+                                            {getAddressDisplay(order)}
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="w-[70px] h-[70px] rounded-full bg-[#E5F5EC] border-2 border-[#D1EEDB] flex items-center justify-center shrink-0 relative">
@@ -139,25 +250,23 @@ export const OrderTrackingPage: React.FC = () => {
                             
                             {/* Order Details */}
                             <div className="flex flex-col gap-4 mt-2">
-                                <h2 className="text-[18px] font-black text-gray-900 tracking-tight">Order Details</h2>
+                                <h2 className="text-[18px] font-black text-gray-900 tracking-tight">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
                                 <div className="flex flex-col gap-4">
-                                    <div className="flex justify-between items-center text-[16px]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
-                                            <span className="text-gray-700 font-semibold tracking-tight">Margherita Pizza x 1</span>
+                                    {(order?.items || [
+                                        { name: 'Margherita Pizza', quantity: 1, unitPrice: 250 },
+                                        { name: 'Garlic Breadsticks', quantity: 1, unitPrice: 120 }
+                                    ]).map((item, idx, arr) => (
+                                        <div key={idx} className={`flex justify-between items-center text-[16px] ${idx !== arr.length - 1 ? 'pb-5 border-b border-gray-100' : ''}`}>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
+                                                <span className="text-gray-700 font-semibold tracking-tight">{item.itemName || item.name || 'Item'} x {item.quantity || 1}</span>
+                                            </div>
+                                            <span className="text-gray-900 font-bold">₹{item.unitPrice * item.quantity}</span>
                                         </div>
-                                        <span className="text-gray-900 font-bold">₹250</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[16px] pb-5 border-b border-gray-100">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
-                                            <span className="text-gray-700 font-semibold tracking-tight">Garlic Breadsticks x 1</span>
-                                        </div>
-                                        <span className="text-gray-900 font-bold">₹120</span>
-                                    </div>
-                                    <div className="flex justify-between items-center pt-2">
+                                    ))}
+                                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                                         <span className="text-gray-900 font-black text-[18px]">Total Amount</span>
-                                        <span className="text-gray-900 font-black text-xl">₹370</span>
+                                        <span className="text-gray-900 font-black text-xl">₹{getOrderTotal(order)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +299,9 @@ export const OrderTrackingPage: React.FC = () => {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-gray-900 font-bold text-[15px] mb-0.5">Delivery Address</span>
-                                    <span className="text-gray-400 text-[13px] font-medium">Plot No.7, Arenja Chambers, Navi Mumbai</span>
+                                    <span className="text-gray-400 text-[13px] font-medium">
+                                        {getAddressDisplay(order)}
+                                    </span>
                                 </div>
                             </div>
                             <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
@@ -294,25 +405,23 @@ export const OrderTrackingPage: React.FC = () => {
 
                     {/* Order Details Summary */}
                     <div className="flex flex-col gap-3">
-                        <h2 className="text-sm font-black text-gray-900 ml-1">Order Details</h2>
+                        <h2 className="text-sm font-black text-gray-900 ml-1">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
                         <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-50 flex flex-col gap-4">
-                            <div className="flex justify-between items-center text-sm">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>
-                                    <span className="text-gray-700 font-bold">Margherita Pizza x 1</span>
+                            {(order?.items || [
+                                { name: 'Margherita Pizza', quantity: 1, unitPrice: 250 },
+                                { name: 'Garlic Breadsticks', quantity: 1, unitPrice: 120 }
+                            ]).map((item, idx, arr) => (
+                                <div key={idx} className={`flex justify-between items-center text-sm ${idx !== arr.length - 1 ? 'pb-2 border-b border-dashed border-gray-100' : ''}`}>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>
+                                        <span className="text-gray-700 font-bold">{item.itemName || item.name || 'Item'} x {item.quantity || 1}</span>
+                                    </div>
+                                    <span className="text-gray-700 font-bold">₹{item.unitPrice * item.quantity}</span>
                                 </div>
-                                <span className="text-gray-700 font-bold">₹250</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm pb-2 border-b border-dashed border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>
-                                    <span className="text-gray-700 font-bold">Garlic Breadsticks x 1</span>
-                                </div>
-                                <span className="text-gray-700 font-bold">₹120</span>
-                            </div>
-                            <div className="flex justify-between items-center pt-1">
+                            ))}
+                            <div className="flex justify-between items-center pt-1 border-t border-dashed border-gray-100 mt-1">
                                 <span className="text-gray-900 font-black">Total Amount</span>
-                                <span className="text-gray-900 font-black text-lg">₹370</span>
+                                <span className="text-gray-900 font-black text-lg">₹{getOrderTotal(order)}</span>
                             </div>
                         </div>
                     </div>

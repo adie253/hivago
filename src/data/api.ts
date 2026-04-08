@@ -451,10 +451,30 @@ export interface ApiOrder {
     status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | string;
     totalAmount: number;
     total?: number;
+    pricing?: {
+        subTotal?: number;
+        deliveryFee?: number;
+        tax?: number;
+        discount?: number;
+        packagingFee?: number;
+        serviceFee?: number;
+        tip?: number;
+        total?: number;
+        currency?: string;
+    };
     totalItems?: number;
     orderType: 'DELIVERY' | 'PICKUP';
     items: ApiOrderItem[];
     deliveryAddress?: any;
+    deliveryInfo?: {
+        pickupAddress?: string;
+        deliveryAddress?: {
+            street?: string;
+            city?: string;
+            pincode?: string;
+            formattedAddress?: string;
+        } | string;
+    };
     createdAt: string;
     updatedAt: string;
 }
@@ -482,6 +502,23 @@ export const getActiveOrders = async (): Promise<ApiOrder[]> => {
     } catch (error) {
         console.error('Error in getActiveOrders:', error);
         return [];
+    }
+};
+
+export const getOrderById = async (orderId: string): Promise<ApiOrder | null> => {
+    try {
+        // Adjust endpoint if needed. Typically /orders/{id} or we can search inside getActiveOrders
+        const response = await authFetch(`/orders/${orderId}`);
+        if (!response.ok) {
+             // Fallback: search in active orders if direct ID endpoint isn't supported
+             const activeOrders = await getActiveOrders();
+             const found = activeOrders.find(o => o.id === orderId || o.orderNumber === orderId);
+             return found || null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in getOrderById:', error);
+        return null;
     }
 };
 
@@ -547,4 +584,99 @@ export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<Ap
         console.error('Error placing order:', error);
         throw error;
     }
+};
+
+
+// payment apis_____________________________________________________________________________
+
+
+export const initiatePayment = async (orderId: string) => {
+  const res = await authFetch("/payments/initiate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ orderId })
+  });
+
+  return res.json();
+};
+
+function redirectToPayU(params: any) {
+  // Open popup window centered on screen
+  const width = 600, height = 700;
+  const left = window.screenX + (window.outerWidth - width) / 2;
+  const top = window.screenY + (window.outerHeight - height) / 2;
+  window.open('', 'PayUPopup', `width=${width},height=${height},left=${left},top=${top}`);
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = params.payUBaseUrl;
+  form.target = 'PayUPopup'; // Submit to the popup
+
+  const fields = {
+    key: params.key,
+    txnid: params.txnId,
+    amount: params.amount,
+    productinfo: params.productInfo,
+    firstname: params.firstName,
+    email: params.email,
+    phone: params.phone,
+    surl: window.location.origin + '/payment-success',
+    furl: window.location.origin + '/payment-failure',
+    hash: params.hash
+  };
+
+  Object.entries(fields).forEach(([name, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = String(value);
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+}
+
+export const startPayment = async (orderId: string) => {
+  const params = await initiatePayment(orderId);
+
+  // ✅ save before redirect
+  sessionStorage.setItem("txnId", params.txnId);
+  sessionStorage.setItem("orderId", orderId);
+
+  redirectToPayU(params);
+};
+
+export const reportPaymentFailure = async (orderId: string, txnId: string) => {
+  try {
+    const res = await authFetch("/payments/failure", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ orderId, txnId })
+    });
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to report payment failure:", error);
+    return null;
+  }
+};
+
+export const verifyPayment = async (txnId: string): Promise<any> => {
+  try {
+    const res = await authFetch("/payments/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ txnId })
+    });
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to verify payment:", error);
+    return null;
+  }
 };
