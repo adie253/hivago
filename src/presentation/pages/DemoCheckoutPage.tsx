@@ -32,34 +32,39 @@ export const DemoCheckoutPage: React.FC = () => {
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
 
-    // Polling for order status when popup is open
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isPaymentPopupOpen && currentOrderId) {
-            interval = setInterval(async () => {
-                const txnId = sessionStorage.getItem("txnId");
-                if (!txnId) return;
+   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
 
-                const response = await verifyPayment(txnId);
-                if (response && response.status === 'success') {
-                    clearInterval(interval);
-                    setIsPaymentPopupOpen(false);
-                    // Trigger the internal order success screen
-                    setFinalAmount(grandTotal);
-                    setIsOrdered(true);
-                    clearCart();
-                } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
-                    clearInterval(interval);
-                    setIsPaymentPopupOpen(false);
-                    alert("Payment failed or was cancelled.");
-                    reportPaymentFailure(currentOrderId, txnId).catch(console.error);
-                }
-            }, 3000); // Poll every 3 seconds
-        }
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [isPaymentPopupOpen, currentOrderId, grandTotal, clearCart]);
+    if (isPaymentPopupOpen && currentOrderId) {
+        interval = setInterval(async () => {
+            const txnId = sessionStorage.getItem("txnId");
+            if (!txnId) return;
+
+            const response = await verifyPayment(txnId);
+
+            if (response && response.status === 'success') {
+                clearInterval(interval);
+                setIsPaymentPopupOpen(false);
+
+                // 🎉 success UI
+                setFinalAmount(grandTotal);
+                setIsOrdered(true);
+                clearCart();
+
+            } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
+                clearInterval(interval);
+                setIsPaymentPopupOpen(false);
+
+                alert("Payment failed or was cancelled.");
+                reportPaymentFailure(currentOrderId, txnId).catch(console.error);
+            }
+        }, 3000);
+    }
+
+    return () => {
+        if (interval) clearInterval(interval);
+    };
+}, [isPaymentPopupOpen, currentOrderId, grandTotal, clearCart]);
 
     // Check for payment failure on mount (if they return from PayU via back button)
     useEffect(() => {
