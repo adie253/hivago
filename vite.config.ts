@@ -7,7 +7,7 @@ const postToGetPlugin = () => {
   return {
     name: 'post-to-get',
     configureServer(server: any) {
-      server.middlewares.use((req: any, res: any, next: any) => {
+      server.middlewares.use((req: any, _res: any, next: any) => {
         if (req.method === 'POST' && (req.url?.startsWith('/payment-success') || req.url?.startsWith('/payment-failure'))) {
           req.method = 'GET';
         }
