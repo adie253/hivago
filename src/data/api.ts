@@ -602,12 +602,14 @@ export const initiatePayment = async (orderId: string) => {
   return res.json();
 };
 
+let payuWindowRef: Window | null = null;
+
 function redirectToPayU(params: any) {
   // Open popup window centered on screen
   const width = 600, height = 700;
   const left = window.screenX + (window.outerWidth - width) / 2;
   const top = window.screenY + (window.outerHeight - height) / 2;
-  window.open('', 'PayUPopup', `width=${width},height=${height},left=${left},top=${top}`);
+  payuWindowRef = window.open('', 'PayUPopup', `width=${width},height=${height},left=${left},top=${top}`);
 
   const form = document.createElement('form');
   form.method = 'POST';
@@ -638,6 +640,17 @@ function redirectToPayU(params: any) {
   document.body.appendChild(form);
   form.submit();
 }
+
+export const closePayUPopupWindow = () => {
+  if (payuWindowRef) {
+    try {
+      payuWindowRef.close();
+    } catch (e) {
+      console.error("Failed to close PayU popup programmatically", e);
+    }
+    payuWindowRef = null;
+  }
+};
 
 export const startPayment = async (orderId: string) => {
   const params = await initiatePayment(orderId);

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu as MenuIcon, CheckCircle, ShoppingCart, MapPin, Wallet, Book, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, reportPaymentFailure, verifyPayment } from '../../data/api';
+import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
@@ -45,6 +45,7 @@ export const DemoCheckoutPage: React.FC = () => {
             if (response && response.status === 'success') {
                 clearInterval(interval);
                 setIsPaymentPopupOpen(false);
+                closePayUPopupWindow();
 
                 // 🎉 success UI
                 setFinalAmount(grandTotal);
@@ -54,6 +55,7 @@ export const DemoCheckoutPage: React.FC = () => {
             } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
                 clearInterval(interval);
                 setIsPaymentPopupOpen(false);
+                closePayUPopupWindow();
 
                 alert("Payment failed or was cancelled.");
                 reportPaymentFailure(currentOrderId, txnId).catch(console.error);
