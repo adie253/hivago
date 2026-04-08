@@ -259,7 +259,7 @@ export const OrderTrackingPage: React.FC = () => {
                                         <div key={idx} className={`flex justify-between items-center text-[16px] ${idx !== arr.length - 1 ? 'pb-5 border-b border-gray-100' : ''}`}>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
-                                                <span className="text-gray-700 font-semibold tracking-tight">{item.itemName || item.name || 'Item'} x {item.quantity || 1}</span>
+                                                <span className="text-gray-700 font-semibold tracking-tight">{ item.name || 'Item'} x {item.quantity || 1}</span>
                                             </div>
                                             <span className="text-gray-900 font-bold">₹{item.unitPrice * item.quantity}</span>
                                         </div>
@@ -414,7 +414,7 @@ export const OrderTrackingPage: React.FC = () => {
                                 <div key={idx} className={`flex justify-between items-center text-sm ${idx !== arr.length - 1 ? 'pb-2 border-b border-dashed border-gray-100' : ''}`}>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>
-                                        <span className="text-gray-700 font-bold">{item.itemName || item.name || 'Item'} x {item.quantity || 1}</span>
+                                        <span className="text-gray-700 font-bold">{ item.name || 'Item'} x {item.quantity || 1}</span>
                                     </div>
                                     <span className="text-gray-700 font-bold">₹{item.unitPrice * item.quantity}</span>
                                 </div>
