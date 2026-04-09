@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
 import { syncCart, isTokenValid, getCart } from '../../data/api';
@@ -43,6 +43,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 price: rItem.unitPrice,
                                 quantity: rItem.quantity,
                                 description: rItem.options || '',
+                                imageUrl: rItem.imageUrl || '',
                                 isVeg: true,
                                 isAddon: false
                             }));
@@ -78,9 +79,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         initCart();
     }, [isLoggedIn]);
 
+    const prevIsLoggedIn = useRef(isLoggedIn);
+    const prevRestaurantId = useRef(restaurantId);
+
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
         let timeoutId: ReturnType<typeof setTimeout>;
+
+        const isLoginEvent = !prevIsLoggedIn.current && isLoggedIn;
+        const isDiffRestaurant = prevRestaurantId.current !== restaurantId;
+        const shouldReplace = isLoginEvent || isDiffRestaurant;
 
         if (isLoggedIn && userId && cartItems.length > 0 && restaurantId) {
             // Function to ensure valid UUIDs for the backend
@@ -101,14 +109,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             name: item.name,
                             unitPrice: item.price,
                             quantity: item.quantity,
-                            options: "[]",
+                            options: item.description || "[]",
                             specialInstructions: ""
                         };
                         return payload;
                     })
-                }, true).catch(e => console.error("Failed to sync cart:", e));
+                }, shouldReplace).catch(e => console.error("Failed to sync cart:", e));
             }, 800);
         }
+
+        prevIsLoggedIn.current = isLoggedIn;
+        prevRestaurantId.current = restaurantId;
 
         return () => {
             if (timeoutId) clearTimeout(timeoutId);

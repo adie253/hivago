@@ -5,4 +5,6 @@ export interface CartItem {
     isVeg: boolean;
     quantity: number;
     isAddon?: boolean;
+    description?: string;
+    imageUrl?: string;
 }

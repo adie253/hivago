@@ -402,6 +402,19 @@ export const fetchRestaurantById = async (id: string): Promise<Restaurant | null
     }
 };
 
+export const fetchRawRestaurantById = async (id: string): Promise<ApiRestaurant | null> => {
+    try {
+        const response = await fetch(`${BASE_URL}/catalog/restaurants`);
+        if (!response.ok) return null;
+
+        const apiRestaurants: ApiRestaurant[] = await response.json();
+        return apiRestaurants.find(r => r.id === id) || null;
+    } catch (error) {
+        console.error(`Error in fetchRawRestaurantById for ${id}:`, error);
+        return null;
+    }
+};
+
 export interface ApiItemOption {
     id: string;
     name: string;

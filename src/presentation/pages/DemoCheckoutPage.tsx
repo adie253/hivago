@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu as MenuIcon, CheckCircle, ShoppingCart, MapPin, Wallet, Book, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow } from '../../data/api';
+import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
@@ -11,7 +11,7 @@ import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, cartTotal, clearCart, restaurantName } = useCart();
+    const { cartItems, cartTotal, clearCart, restaurantName, restaurantId } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isOrdered, setIsOrdered] = useState(false);
@@ -26,54 +26,55 @@ export const DemoCheckoutPage: React.FC = () => {
     const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
+    const [restaurantDetails, setRestaurantDetails] = useState<ApiRestaurant | null>(null);
 
     const deliveryFee = cartTotal > 0 ? 0 : 0; // Set to 0 to match "FREE" in image
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
 
-   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
 
-    if (isPaymentPopupOpen && currentOrderId) {
-        interval = setInterval(async () => {
-            const txnId = sessionStorage.getItem("txnId");
-            if (!txnId) return;
+        if (isPaymentPopupOpen && currentOrderId) {
+            interval = setInterval(async () => {
+                const txnId = sessionStorage.getItem("txnId");
+                if (!txnId) return;
 
-            const response = await verifyPayment(txnId);
+                const response = await verifyPayment(txnId);
 
-            if (response && response.status === 'success') {
-                clearInterval(interval);
-                setIsPaymentPopupOpen(false);
-                closePayUPopupWindow();
+                if (response && response.status === 'success') {
+                    clearInterval(interval);
+                    setIsPaymentPopupOpen(false);
+                    closePayUPopupWindow();
 
-                // 🎉 success UI
-                setFinalAmount(grandTotal);
-                setIsOrdered(true);
-                clearCart();
+                    // 🎉 success UI
+                    setFinalAmount(grandTotal);
+                    setIsOrdered(true);
+                    clearCart();
 
-            } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
-                clearInterval(interval);
-                setIsPaymentPopupOpen(false);
-                closePayUPopupWindow();
+                } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
+                    clearInterval(interval);
+                    setIsPaymentPopupOpen(false);
+                    closePayUPopupWindow();
 
-                alert("Payment failed or was cancelled.");
-                reportPaymentFailure(currentOrderId, txnId).catch(console.error);
-            }
-        }, 3000);
-    }
+                    alert("Payment failed or was cancelled.");
+                    reportPaymentFailure(currentOrderId, txnId).catch(console.error);
+                }
+            }, 3000);
+        }
 
-    return () => {
-        if (interval) clearInterval(interval);
-    };
-}, [isPaymentPopupOpen, currentOrderId, grandTotal, clearCart]);
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isPaymentPopupOpen, currentOrderId, grandTotal, clearCart]);
 
     // Check for payment failure on mount (if they return from PayU via back button)
     useEffect(() => {
         const txnId = sessionStorage.getItem("txnId");
         const orderId = sessionStorage.getItem("orderId");
-        
-        if (txnId && orderId) {
+
+        if (txnId && orderId && !isPaymentPopupOpen) {
             // User came back from payment page without success
             reportPaymentFailure(orderId, txnId).catch(console.error);
             sessionStorage.removeItem("txnId");
@@ -81,20 +82,45 @@ export const DemoCheckoutPage: React.FC = () => {
         }
     }, []);
 
+    useEffect(() => {
+        const loadRestaurantDetails = async () => {
+            if (restaurantId) {
+                try {
+                    const details = await fetchRawRestaurantById(restaurantId);
+                    setRestaurantDetails(details);
+                } catch (error) {
+                    console.error("Failed to fetch restaurant details:", error);
+                }
+            }
+        };
+        loadRestaurantDetails();
+    }, [restaurantId]);
+
     const handlePlaceOrder = async () => {
+        // if (!restaurantId) {
+        //     alert("Restaurant information is missing. Please try re-adding items to your cart.");
+        //     return;
+        // }
+
         setIsPlacingOrder(true);
         try {
+            if (!restaurantId) {
+                alert("Restaurant information is missing. Please try re-adding items to your cart.");
+                return;
+            }
+            const customerPhone = localStorage.getItem('customer_phone') || "0000000000";
+
             const payload = {
                 paymentId: selectedPaymentMethod || "CASH",
                 paymentTransactionId: "",
                 deliveryQuoteId: "",
-                restaurantId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // Fallback to valid UUID to prevent backend 500s
-                restaurantName: restaurantName || "Unknown Restaurant",
-                restaurantPhone: "0000000000",
-                pickupLatitude: 19.0760, // Temporary data
-                pickupLongitude: 72.8777, // Temporary data
-                pickupPincode: "400001", // Temporary data
-                pickupAddress: "123 Temporary Pickup Location, City Center", // Temporary data
+                restaurantId: restaurantId,
+                restaurantName: restaurantName || restaurantDetails?.name || "Unknown Restaurant",
+                restaurantPhone: restaurantDetails?.phone || "0000000000",
+                pickupLatitude: restaurantDetails?.latitude || 19.0760,
+                pickupLongitude: restaurantDetails?.longitude || 72.8777,
+                pickupPincode: restaurantDetails?.pincode || "400001",
+                pickupAddress: restaurantDetails?.addressLine || "Restaurant Address",
                 deliveryAddress: {
                     street: selectedLocation?.addressLine || "Unknown Street",
                     city: "Unknown City",
@@ -104,14 +130,14 @@ export const DemoCheckoutPage: React.FC = () => {
                     landmark: selectedLocation?.label || "",
                     buildingName: "",
                     floor: "",
-                    contactPhone: "0000000000",
+                    contactPhone: customerPhone,
                     instructions: selectedDeliveryOption
                 },
                 items: cartItems.map(item => ({
-                    menuItemId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // Ensure valid UUID
+                    menuItemId: item.id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     itemName: item.name,
-                    itemDescription: "Description",
-                    imageUrl: "https://example.com/image.jpg",
+                    itemDescription: item.description || "Description",
+                    imageUrl: item.imageUrl || "https://example.com/image.jpg",
                     unitPrice: item.price,
                     quantity: item.quantity,
                     specialInstructions: ""
@@ -299,9 +325,9 @@ export const DemoCheckoutPage: React.FC = () => {
                         <div className="hidden lg:flex flex-col gap-2 pt-2">
                             <h2 className="text-sm font-black text-gray-900 ml-1">Address Map</h2>
                             <div className="w-full h-[220px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative pointer-events-none">
-                                <MapPicker 
-                                    position={selectedLocation?.latitude ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : { lat: 18.5204, lng: 73.8567 }} 
-                                    onPositionChange={() => {}} 
+                                <MapPicker
+                                    position={selectedLocation?.latitude ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : { lat: 18.5204, lng: 73.8567 }}
+                                    onPositionChange={() => { }}
                                 />
                             </div>
                         </div>
