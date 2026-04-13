@@ -22,54 +22,64 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
     const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
 
+    const hasSyncedAfterLogin = useRef(false);
+    const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // 🚀 INIT CART
     useEffect(() => {
         const initCart = async () => {
             const localCartData = DIContainer.getGetCartUseCase().execute();
-            
+
             if (isLoggedIn) {
-                if (localCartData.items && localCartData.items.length > 0) {
-                    // Local cart exists, it will trigger the syncCart useEffect which handles replaceCart=true
-                    setCartItems(localCartData.items);
-                    setRestaurantId(localCartData.restaurantId);
-                    setRestaurantName(localCartData.restaurantName);
-                } else {
-                    // Local cart is empty, fetch from remote backend
-                    try {
-                        const remoteCart = await getCart();
-                        if (remoteCart && remoteCart.items && remoteCart.items.length > 0) {
-                            const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
-                                id: rItem.menuItemId,
-                                name: rItem.name,
-                                price: rItem.unitPrice,
-                                quantity: rItem.quantity,
-                                description: rItem.options || '',
-                                imageUrl: rItem.imageUrl || '',
-                                isVeg: true,
-                                isAddon: false
-                            }));
-                            
-                            setCartItems(convertedItems);
-                            setRestaurantId(remoteCart.restaurantId);
-                            setRestaurantName(remoteCart.restaurantName);
-                            
-                            // Save to local storage for persistent UI state
-                            localStorage.setItem('hivago_cart_v2', JSON.stringify({
-                                items: convertedItems,
-                                restaurantId: remoteCart.restaurantId,
-                                restaurantName: remoteCart.restaurantName
-                            }));
-                        } else {
-                            setCartItems([]);
-                            setRestaurantId(undefined);
-                            setRestaurantName(undefined);
+                try {
+                    const remoteCart = await getCart();
+
+                    if (localCartData.items?.length > 0) {
+                        // 🔥 PRIORITY → LOCAL CART
+                        setCartItems(localCartData.items);
+                        setRestaurantId(localCartData.restaurantId);
+                        setRestaurantName(localCartData.restaurantName);
+
+                        // 🔥 SYNC ONLY ONCE
+                        if (!hasSyncedAfterLogin.current) {
+                            hasSyncedAfterLogin.current = true;
+
+                            await syncCart({
+                                restaurantId: localCartData.restaurantId!,
+                                restaurantName: localCartData.restaurantName || 'Restaurant',
+                                items: localCartData.items.map(item => ({
+                                    menuItemId: item.id,
+                                    name: item.name,
+                                    unitPrice: item.price,
+                                    quantity: item.quantity,
+                                    options: item.description || "[]",
+                                    specialInstructions: ""
+                                }))
+                            }, true);
                         }
-                    } catch (e) {
-                        console.error('Failed to fetch cart from server on load:', e);
-                        setCartItems([]);
+
+                    } else if (remoteCart?.items?.length > 0) {
+                        // 🔥 FALLBACK → SERVER CART
+                        const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
+                            id: rItem.menuItemId,
+                            name: rItem.name,
+                            price: rItem.unitPrice,
+                            quantity: rItem.quantity,
+                            description: rItem.options || '',
+                            imageUrl: rItem.imageUrl || '',
+                            isVeg: true,
+                            isAddon: false
+                        }));
+
+                        setCartItems(convertedItems);
+                        setRestaurantId(remoteCart.restaurantId);
+                        setRestaurantName(remoteCart.restaurantName);
                     }
+
+                } catch (e) {
+                    console.error('Cart init failed:', e);
                 }
             } else {
-                // Not logged in, use local cart
                 setCartItems(localCartData.items);
                 setRestaurantId(localCartData.restaurantId);
                 setRestaurantName(localCartData.restaurantName);
@@ -79,67 +89,71 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         initCart();
     }, [isLoggedIn]);
 
-    const prevIsLoggedIn = useRef(isLoggedIn);
-    const prevRestaurantId = useRef(restaurantId);
-
+    // 🚀 SYNC CART (ONLY AFTER INIT)
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
-        let timeoutId: ReturnType<typeof setTimeout>;
 
-        const isLoginEvent = !prevIsLoggedIn.current && isLoggedIn;
-        const isDiffRestaurant = prevRestaurantId.current !== restaurantId;
-        const shouldReplace = isLoginEvent || isDiffRestaurant;
+        if (!isLoggedIn || !userId) return;
+        if (!restaurantId || cartItems.length === 0) return;
 
-        if (isLoggedIn && userId && cartItems.length > 0 && restaurantId) {
-            // Function to ensure valid UUIDs for the backend
-            const ensureGuid = (id: string | undefined) => {
-                if (!id) return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-                if (id.includes('-') && id.length >= 32) return id;
-                return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-            };
+        // ❗ Skip initial login sync (already handled)
+        if (!hasSyncedAfterLogin.current) return;
 
-            // Debounce the API call by 800ms to avoid multiple concurrent requests
-            timeoutId = setTimeout(() => {
+        if (intervalRef.current) clearTimeout(intervalRef.current);
+
+        intervalRef.current = setTimeout(() => {
+            try {
+                const itemsPayload = cartItems.map(item => ({
+                    menuItemId: item.id,
+                    name: item.name,
+                    unitPrice: item.price,
+                    quantity: item.quantity,
+                    options: item.description || "[]",
+                    specialInstructions: ""
+                }));
+
                 syncCart({
-                    restaurantId: ensureGuid(restaurantId),
+                    restaurantId,
                     restaurantName: restaurantName || 'Restaurant',
-                    items: cartItems.map(item => {
-                        const payload: any = {
-                            menuItemId: ensureGuid(item.id),
-                            name: item.name,
-                            unitPrice: item.price,
-                            quantity: item.quantity,
-                            options: item.description || "[]",
-                            specialInstructions: ""
-                        };
-                        return payload;
-                    })
-                }, shouldReplace).catch(e => console.error("Failed to sync cart:", e));
-            }, 800);
-        }
+                    items: itemsPayload
+                }, true);
 
-        prevIsLoggedIn.current = isLoggedIn;
-        prevRestaurantId.current = restaurantId;
+            } catch (err) {
+                console.error("Cart sync failed:", err);
+            }
+        }, 400);
 
         return () => {
-            if (timeoutId) clearTimeout(timeoutId);
+            if (intervalRef.current) clearTimeout(intervalRef.current);
         };
     }, [cartItems, restaurantId, restaurantName, isLoggedIn]);
 
+    // 🚀 ADD TO CART
     const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
+        if (!rId) return;
+
+        // 🔥 Prevent multi-restaurant cart
+        if (restaurantId && restaurantId !== rId) {
+            DIContainer.getClearCartUseCase().execute();
+        }
+
         const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
+
         setCartItems([...updatedCartData.items]);
         setRestaurantId(updatedCartData.restaurantId);
         setRestaurantName(updatedCartData.restaurantName);
-    }, []);
+    }, [restaurantId]);
 
+    // 🚀 REMOVE
     const removeFromCart = useCallback((itemId: string) => {
         const updatedCartData = DIContainer.getRemoveFromCartUseCase().execute(itemId);
+
         setCartItems([...updatedCartData.items]);
         setRestaurantId(updatedCartData.restaurantId);
         setRestaurantName(updatedCartData.restaurantName);
     }, []);
 
+    // 🚀 CLEAR
     const clearCart = useCallback(() => {
         DIContainer.getClearCartUseCase().execute();
         setCartItems([]);
@@ -151,16 +165,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const refreshLoginStatus = () => {
         setIsLoggedIn(isTokenValid());
+        hasSyncedAfterLogin.current = false; // 🔥 reset for next login
     };
 
     return (
-        <CartContext.Provider value={{ 
-            cartItems, 
-            restaurantId, 
-            restaurantName, 
-            addToCart, 
-            removeFromCart, 
-            clearCart, 
+        <CartContext.Provider value={{
+            cartItems,
+            restaurantId,
+            restaurantName,
+            addToCart,
+            removeFromCart,
+            clearCart,
             cartTotal,
             refreshLoginStatus
         }}>
@@ -171,8 +186,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useCart = () => {
     const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
+    if (!context) throw new Error('useCart must be used within a CartProvider');
     return context;
 };

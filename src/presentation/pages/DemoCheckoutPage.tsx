@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu as MenuIcon, CheckCircle, ShoppingCart, MapPin, Wallet, Book, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant } from '../../data/api';
+import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, ApiPlaceOrderRequest } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
@@ -110,7 +110,7 @@ export const DemoCheckoutPage: React.FC = () => {
             }
             const customerPhone = localStorage.getItem('customer_phone') || "0000000000";
 
-            const payload = {
+              const payload = {
                 paymentId: selectedPaymentMethod || "CASH",
                 paymentTransactionId: "",
                 deliveryQuoteId: "",

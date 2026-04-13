@@ -637,8 +637,8 @@ function redirectToPayU(params: any) {
     firstname: params.firstName,
     email: params.email,
     phone: params.phone,
-    surl: window.location.origin + '/payment-success',
-    furl: window.location.origin + '/payment-failure',
+     surl: params.surl,
+  furl: params.furl,
     hash: params.hash
   };
 

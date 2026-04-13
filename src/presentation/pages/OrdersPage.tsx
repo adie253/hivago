@@ -161,7 +161,7 @@ export const OrdersPage: React.FC = () => {
                                         {/* Action Buttons */}
                                         <div className="flex items-center gap-3 mt-1">
                                             <button 
-                                                onClick={() => activeTab === 'active' ? navigate('/track-order') : null}
+                                                onClick={() => activeTab === 'active' ? navigate(`/track-order?orderId=${order.id}`) : null}
                                                 className="flex-1 bg-[#F3F4F6] hover:bg-gray-200 text-gray-900 font-bold py-2.5 rounded-[10px] text-[14px] transition-colors"
                                             >
                                                 View Details
