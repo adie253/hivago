@@ -4,6 +4,7 @@ import { ArrowLeft, Menu as MenuIcon, CheckCircle, ShoppingCart, MapPin, Wallet,
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
 import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, ApiPlaceOrderRequest } from '../../data/api';
+import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, ApiPlaceOrderRequest } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
@@ -27,7 +28,6 @@ export const DemoCheckoutPage: React.FC = () => {
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
     const [restaurantDetails, setRestaurantDetails] = useState<ApiRestaurant | null>(null);
-
     const deliveryFee = cartTotal > 0 ? 0 : 0; // Set to 0 to match "FREE" in image
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
