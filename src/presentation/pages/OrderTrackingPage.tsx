@@ -23,11 +23,12 @@ export const OrderTrackingPage: React.FC = () => {
     useEffect(() => {
         if (order) {
             const apiStatus = (order.status || '').toUpperCase();
-            if (['DELIVERED', 'COMPLETED'].includes(apiStatus)) {
+            const statusDisplay = ((order as any).statusDisplay || '').toUpperCase();
+            if (['DELIVERED', 'COMPLETED'].includes(apiStatus) || statusDisplay === 'DELIVERED') {
                 setStatus('delivered');
-            } else if (['ASSIGNED', 'PICKED_UP'].includes(apiStatus)) {
+            } else if (['ASSIGNED', 'PICKED_UP'].includes(apiStatus) || statusDisplay === 'PICKED UP') {
                 setStatus('delivery');
-            } else if (['PREPARING', 'READY'].includes(apiStatus)) {
+            } else if (['PREPARING', 'READY', 'READY FOR PICKUP', 'READY_FOR_PICKUP'].includes(apiStatus) || statusDisplay === 'READY FOR PICKUP') {
                 setStatus('preparing');
             } else {
                 setStatus('placed'); // PENDING, PAID, CONFIRMED
