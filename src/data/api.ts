@@ -536,6 +536,8 @@ export const getOrderById = async (orderId: string): Promise<ApiOrder | null> =>
 };
 
 export interface ApiPlaceOrderRequest {
+     paymentId: string;
+    paymentTransactionId: string;
     deliveryQuoteId: string;
     restaurantId: string;
     restaurantName: string;
