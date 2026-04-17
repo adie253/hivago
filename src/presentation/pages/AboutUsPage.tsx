@@ -125,7 +125,7 @@ export const AboutUsPage: React.FC = () => {
                             </p>
                             <div className="pt-6 grid grid-cols-2 gap-8">
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-3xl font-black text-gray-900 italic">2020</span>
+                                    <span className="text-3xl font-black text-gray-900 italic">2026</span>
                                     <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Founded In</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
@@ -161,7 +161,7 @@ export const AboutUsPage: React.FC = () => {
             </section>
 
             {/* Stats Section */}
-            <section 
+            {/* <section 
                 ref={(el) => (sectionRefs.current[3] = el)}
                 className="py-20 px-6 bg-[#B02421]"
             >
@@ -173,7 +173,7 @@ export const AboutUsPage: React.FC = () => {
                         </div>
                     ))}
                 </div>
-            </section>
+            </section> */}
 
             {/* Meet the Team Section (Culture) */}
             <section 

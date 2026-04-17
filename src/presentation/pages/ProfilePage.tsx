@@ -37,12 +37,6 @@ export const ProfilePage: React.FC = () => {
                 } finally {
                     setIsLoadingAddresses(false);
                 }
-            } else {
-                // If token is invalid and no phone is found, clear and redirect or stay restricted
-                const token = localStorage.getItem('customer_token');
-                if (!token) {
-                    navigate('/'); 
-                }
             }
         };
         fetchUserData();

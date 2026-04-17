@@ -12,6 +12,7 @@ import { OrderTrackingPage } from './presentation/pages/OrderTrackingPage';
 import { OrdersPage } from './presentation/pages/OrdersPage';
 import { PaymentSuccessPage } from './presentation/pages/PaymentSuccessPage';
 import { AboutUsPage } from './presentation/pages/AboutUsPage';
+import { ProtectedRoute } from './presentation/components/ProtectedRoute';
 import { Footer } from './presentation/components/Footer';
 import { ScrollToTop } from './presentation/components/ScrollToTop';
 import { FloatingCart } from './presentation/components/FloatingCart';
@@ -36,8 +37,8 @@ const MainContent = () => {
           <Route path="/demo-checkout" element={<DemoCheckoutPage />} />
           <Route path="/track-order" element={<OrderTrackingPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/about" element={<AboutUsPage />} />
