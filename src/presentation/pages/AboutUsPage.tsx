@@ -47,12 +47,12 @@ export const AboutUsPage: React.FC = () => {
         }
     ];
 
-    const stats = [
-        { label: "Partner Restaurants", value: "500+" },
-        { label: "Daily Deliveries", value: "10k+" },
-        { label: "Happy Customers", value: "100k+" },
-        { label: "Cities Covered", value: "25+" }
-    ];
+    // const stats = [
+    //     { label: "Partner Restaurants", value: "500+" },
+    //     { label: "Daily Deliveries", value: "10k+" },
+    //     { label: "Happy Customers", value: "100k+" },
+    //     { label: "Cities Covered", value: "25+" }
+    // ];
 
     return (
         <div className="min-h-screen bg-white font-sans overflow-hidden">

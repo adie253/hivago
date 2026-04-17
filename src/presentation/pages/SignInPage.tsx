@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, ArrowLeft, Menu as MenuIcon, Book, ShoppingCart, MapPin, Wallet } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { sendOtp, verifyOtp } from '../../data/api';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -103,13 +103,13 @@ export const SignInPage: React.FC = () => {
         }
     };
 
-    const handleBack = () => {
-        if (step === 'otp') {
-            setStep('phone');
-        } else {
-            navigate(-1);
-        }
-    };
+    // const handleBack = () => {
+    //     if (step === 'otp') {
+    //         setStep('phone');
+    //     } else {
+    //         navigate(-1);
+    //     }
+    // };
 
     // const renderStepper = () => (
     //     <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm rounded-t-[32px]">
