@@ -1,5 +1,6 @@
 import React from 'react';
-import { Facebook, Linkedin, Twitter, Youtube, Instagram, MapPin, Mail, Phone } from 'lucide-react';
+import { Facebook, Linkedin, Twitter, Youtube, Instagram, MapPin, Mail, Phone, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import footerLogo from '../../assets/footer/footer_logo.svg';
 import scooty from '../../assets/footer/scooty.svg';
 
@@ -71,8 +72,16 @@ export const Footer: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Quick Links */}
+                <div className="flex flex-col md:flex-row gap-4 md:gap-10 order-5 md:order-5 items-center md:items-start text-center md:text-left">
+                    <Link to="/about" className="flex items-center gap-2 text-sm font-bold opacity-90 hover:opacity-100 transition-all hover:translate-x-1">
+                        <Info className="w-4 h-4" />
+                        About Us
+                    </Link>
+                </div>
+
                 {/* Mobile Bottom Line */}
-                <div className="md:hidden order-5 w-3/4 h-[1px] bg-white/20 mt-4 self-center"></div>
+                <div className="md:hidden order-6 w-3/4 h-[1px] bg-white/20 mt-4 self-center"></div>
 
             </div>
         </footer>

@@ -11,6 +11,7 @@ import { DemoCheckoutPage } from './presentation/pages/DemoCheckoutPage';
 import { OrderTrackingPage } from './presentation/pages/OrderTrackingPage';
 import { OrdersPage } from './presentation/pages/OrdersPage';
 import { PaymentSuccessPage } from './presentation/pages/PaymentSuccessPage';
+import { AboutUsPage } from './presentation/pages/AboutUsPage';
 import { Footer } from './presentation/components/Footer';
 import { ScrollToTop } from './presentation/components/ScrollToTop';
 import { FloatingCart } from './presentation/components/FloatingCart';
@@ -39,6 +40,7 @@ const MainContent = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
         </Routes>
       </div>
       {!isCheckout && <FloatingCart />}

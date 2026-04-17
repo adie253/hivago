@@ -194,6 +194,7 @@ export interface ApiMenuItem {
     description: string;
     basePrice: number;
     imageUrl?: string;
+    isAvailable: boolean;
     isVegetarian: boolean;
     preparationTimeMinutes: number;
     category?: string;
@@ -270,15 +271,17 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
     if (safeMenus.length > 0) {
         if (safeMenus[0].items && Array.isArray(safeMenus[0].items)) {
             // It's a list of categories (ApiMenu[])
-            allItems = safeMenus.flatMap(m => m.items || []);
+            allItems = safeMenus.flatMap(m => (m.items || []).filter((i: any) => i.isAvailable !== false));
         } else if (safeMenus[0].name && safeMenus[0].basePrice !== undefined) {
             // It's a flat list of items (ApiMenuItem[])
-            allItems = safeMenus as ApiMenuItem[];
+            allItems = (safeMenus as ApiMenuItem[]).filter(i => i.isAvailable !== false);
         }
     }
 
     const categories = safeMenus[0]?.items
-        ? safeMenus.map(m => m.name) // Categories from ApiMenu structure
+        ? safeMenus
+            .filter(m => (m.items || []).some((i: any) => i.isAvailable !== false))
+            .map(m => m.name) // Categories from ApiMenu structure
         : Array.from(new Set(allItems.map(i => i.category || 'General'))); // Categories from items
 
     // In a real app, these would come from the API or be calculated

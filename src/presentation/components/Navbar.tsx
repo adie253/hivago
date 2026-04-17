@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, ChevronDown, User, ShoppingCart, Menu, X } from 'lucide-react';
+import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import homeIcon from "../../assets/icons/home_icon.png";
@@ -61,6 +61,7 @@ export const Navbar: React.FC = () => {
                 <div className="hidden lg:flex items-center gap-8 font-semibold text-base">
                     <Link to="/" className={`transition-colors ${location.pathname === '/' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Home</Link>
                     <Link to="/restaurants" className={`transition-colors ${location.pathname === '/restaurants' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Restaurants</Link>
+                    <Link to="/about" className={`transition-colors ${location.pathname === '/about' ? 'text-white' : 'text-white/60 hover:text-white'}`}>About</Link>
                     <Link to="/orders" className={`transition-colors ${location.pathname === '/orders' ? 'text-white' : 'text-white/60 hover:text-white'}`}>Orders</Link>
                 </div>
 
@@ -143,6 +144,10 @@ export const Navbar: React.FC = () => {
                             <Link to="/" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={homeIcon} alt="home icon" className='w-5 h-5 p-0' />
                                 Home
+                            </Link>
+                            <Link to="/about" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/about' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
+                                <Users className={`w-5 h-5 ${location.pathname === '/about' ? 'text-brand-primary' : 'text-gray-500'}`} />
+                                About Us
                             </Link>
                             <Link to="/restaurants" className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${location.pathname === '/restaurants' ? 'text-brand-primary bg-brand-light' : 'text-gray-800 hover:bg-gray-50'}`}>
                                 <img src={searchIcon} alt="search icon" className='w-5 h-5 p-0' />
