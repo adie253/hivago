@@ -586,9 +586,13 @@ export interface ApiPlaceOrderRequest {
 
 export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<ApiOrder> => {
     try {
+        const idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString() + Math.random().toString();
         const response = await authFetch('/orders', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Idempotency-Key': idempotencyKey
+            },
             body: JSON.stringify(orderPayload)
         });
         if (!response.ok) {
