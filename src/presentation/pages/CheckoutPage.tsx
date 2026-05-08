@@ -13,7 +13,7 @@ import menuIcon from '../../assets/stepper_icons/menu_gray.svg';
 import cartIcon from '../../assets/stepper_icons/cart_gray.svg';
 import addressIcon from '../../assets/stepper_icons/address_gray.svg';
 import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
-import { fetchRestaurantById, ApiMenuItem } from '../../data/api';
+import { fetchRestaurantById } from '../../data/api';
 import { Plus } from 'lucide-react';
 
 const StepperIcon = ({ src, className }: { src: string, className?: string }) => (
@@ -93,8 +93,8 @@ export const CheckoutPage: React.FC = () => {
                             time: "20-30 min",
                             distance: "1.2 km",
                             priceForTwo: "₹400 for two",
-                            price: typeof i.price === 'string' ? parseFloat(i.price.replace(/[^0-9.]/g, '')) : i.price,
-                            originalPrice: (typeof i.price === 'string' ? parseFloat(i.price.replace(/[^0-9.]/g, '')) : i.price) * 1.2,
+                            price: i.price,
+                            originalPrice: i.price * 1.2,
                             discount: "20% OFF",
                             image: i.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&dpr=2&q=80',
                             isVeg: i.type === 'Veg'

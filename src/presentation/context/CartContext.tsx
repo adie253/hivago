@@ -11,6 +11,7 @@ interface CartContextType {
     addToCart: (item: Omit<CartItem, 'quantity'>, restaurantId?: string, restaurantName?: string) => void;
     removeFromCart: (itemId: string) => void;
     clearCart: () => void;
+    refreshCartFromServer: () => Promise<void>;
     cartTotal: number;
     refreshLoginStatus: () => void;
 }
