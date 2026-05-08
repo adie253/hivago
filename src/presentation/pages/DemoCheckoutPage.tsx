@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Menu as MenuIcon, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
 import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, checkDeliveryAvailability } from '../../data/api';
@@ -53,11 +53,6 @@ export const DemoCheckoutPage: React.FC = () => {
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
 
-    const [deliveryCheck, setDeliveryCheck] = useState<{
-        canDeliver: boolean;
-        distanceKm: number;
-        maxDistanceKm: number;
-    } | null>(null);
     const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
     const [deliveryError, setDeliveryError] = useState<string | null>(null);
     const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);

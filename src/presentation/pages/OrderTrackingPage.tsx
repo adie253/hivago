@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Menu, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Loader2 } from 'lucide-react';
 import { getOrderById, getActiveOrders, ApiOrder } from '../../data/api';
 
 // Using the assets we moved/generated

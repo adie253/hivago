@@ -3,7 +3,6 @@ import { Star, Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import { useUserLocation } from '../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
-import { Restaurant } from '../context/FilterContext';
 import { haversineKm, formatDistance } from '../../utils/distanceUtils';
 
 export const RestaurantsNearby: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { checkDeliveryAvailability } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
@@ -67,11 +67,6 @@ export const CheckoutPage: React.FC = () => {
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
 
-    const [deliveryCheck, setDeliveryCheck] = React.useState<{
-        canDeliver: boolean;
-        distanceKm: number;
-        maxDistanceKm: number;
-    } | null>(null);
     const [isCheckingDelivery, setIsCheckingDelivery] = React.useState(false);
     const [deliveryError, setDeliveryError] = React.useState<string | null>(null);
     const [deliveryStatus, setDeliveryStatus] = React.useState<'success' | 'error' | 'warning' | null>(null);
