@@ -1,18 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const PromoBanners: React.FC = () => {
+    const navigate = useNavigate();
+    const goToRestaurants = () => navigate('/restaurants');
     return (
         <div className="px-4 md:px-12 py-8 overflow-hidden">
             <div className="flex overflow-x-auto pb-6 gap-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1">
 
                 {/* 10% Off Card */}
-                <div className="flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#EEF7F2] rounded-3xl p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
+                <div onClick={goToRestaurants} className="cursor-pointer hover:scale-[1.02] transition-transform flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#EEF7F2] rounded-3xl p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
                     <div className="z-10 w-3/5">
                         <h3 className="text-xl md:text-2xl font-extrabold text-[#113C40] mb-2 leading-tight">10% off food</h3>
                         <p className="text-[10px] md:text-xs text-[#113C40] mb-4 opacity-70">
                             Orders over Rs.399, the best food in Local countries is automatically applied.
                         </p>
-                        <button className="bg-[#1D99B1] text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-teal-700 transition-colors">
+                        <button onClick={goToRestaurants} className="bg-[#1D99B1] text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-teal-700 transition-colors">
                             Order now!
                         </button>
                     </div>
@@ -25,7 +28,7 @@ export const PromoBanners: React.FC = () => {
                 </div>
 
                 {/* Special Deal Card (Girl eating pizza) */}
-                <div className="flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#7854F8] rounded-3xl p-6 flex flex-col items-end justify-center relative overflow-hidden h-48 md:h-56 text-right">
+                <div onClick={goToRestaurants} className="cursor-pointer hover:scale-[1.02] transition-transform flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#7854F8] rounded-3xl p-6 flex flex-col items-end justify-center relative overflow-hidden h-48 md:h-56 text-right">
                     {/* Girl Image */}
                     <div className="absolute left-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
                         <img
@@ -38,20 +41,20 @@ export const PromoBanners: React.FC = () => {
 
                     <div className="z-10 w-1/2 flex flex-col items-center pt-4">
                         <h3 className="text-xl md:text-2xl font-bold text-white mb-4 leading-tight text-center">Special Deal For<br />February</h3>
-                        <button className="bg-white text-[#7854F8] text-xs font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors shadow-sm">
+                        <button onClick={goToRestaurants} className="bg-white text-[#7854F8] text-xs font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors shadow-sm">
                             Order now!
                         </button>
                     </div>
                 </div>
 
                 {/* 20% Off Card */}
-                <div className="flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#FFF5ED] rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden h-48 md:h-56">
+                <div onClick={goToRestaurants} className="cursor-pointer hover:scale-[1.02] transition-transform flex-shrink-0 snap-start w-[300px] md:w-[400px] bg-[#FFF5ED] rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden h-48 md:h-56">
                     <div className="z-10 w-full sm:w-4/5">
                         <h3 className="text-xl md:text-2xl font-extrabold text-[#113C40] mb-2 leading-tight">20% off food</h3>
                         <p className="text-[10px] md:text-xs text-[#113C40] mb-4 opacity-70">
                             Orders over Rs.599, the best food in Local countries is automatically applied.
                         </p>
-                        <button className="bg-[#E67E22] text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-orange-600 transition-colors">
+                        <button onClick={goToRestaurants} className="bg-[#E67E22] text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-orange-600 transition-colors">
                             Order now!
                         </button>
                     </div>

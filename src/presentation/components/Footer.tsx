@@ -43,11 +43,10 @@ export const Footer: React.FC = () => {
                     {/* Address */}
                     <div className="flex items-start gap-4 md:gap-3">
                         <div className="bg-white/10 p-2 rounded-lg md:bg-transparent md:p-0">
-                            <MapPin className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white" />
+                            <MapPin className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white mt-1" />
                         </div>
                         <div className="text-sm md:text-sm font-medium leading-relaxed opacity-90">
-                            M.G. road, Pune,<br className="hidden md:block" />
-                            India
+                            Airoli, Mumbai
                         </div>
                     </div>
 

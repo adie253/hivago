@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Clock, MapPin, Tag, ChevronRight, Percent } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useFilters } from '../context/FilterContext';
+import { useUserLocation } from '../context/LocationContext';
+import { haversineKm, formatDistance } from '../../utils/distanceUtils';
 
 interface DiscountedDish {
     id: string;
@@ -12,67 +15,63 @@ interface DiscountedDish {
     discount: string;
     deliveryTime: string;
     distance: string;
-    priceForTwo: string;
     imageUrl: string;
 }
 
-const mockDiscountedDishes: DiscountedDish[] = [
-    {
-        id: 'dd1',
-        name: 'Power Bowl',
-        restaurant: 'Cafe Good Luck',
-        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556665',
-        originalPrice: 300,
-        discountedPrice: 150,
-        discount: '50% off',
-        deliveryTime: '20-25 min',
-        distance: '0.8 km',
-        priceForTwo: '₹300 for two',
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-        id: 'dd2',
-        name: 'Margherita Pizza',
-        restaurant: 'Pizza Hut',
-        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556661',
-        originalPrice: 500,
-        discountedPrice: 400,
-        discount: '20% off',
-        deliveryTime: '20-25 min',
-        distance: '0.8 km',
-        priceForTwo: '₹400 for two',
-        imageUrl: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-        id: 'dd3',
-        name: 'Avocado Toast',
-        restaurant: 'Vohuman Cafe',
-        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556662',
-        originalPrice: 250,
-        discountedPrice: 125,
-        discount: '50% off',
-        deliveryTime: '15-20 min',
-        distance: '1.2 km',
-        priceForTwo: '₹250 for two',
-        imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-        id: 'dd4',
-        name: 'Grilled Chicken',
-        restaurant: 'Blue Nile',
-        restaurantId: 'a1b2c3d4-1111-2222-3333-444455556663',
-        originalPrice: 450,
-        discountedPrice: 225,
-        discount: '50% off',
-        deliveryTime: '25-30 min',
-        distance: '2.5 km',
-        priceForTwo: '₹450 for two',
-        imageUrl: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=400'
-    }
-];
-
 export const DishesDiscount: React.FC = () => {
     const navigate = useNavigate();
+    const { allRestaurants, isLoading } = useFilters();
+    const { selectedLocation } = useUserLocation();
+
+    const discountedDishes = useMemo(() => {
+        if (!allRestaurants || allRestaurants.length === 0) return [];
+
+        const allItems: DiscountedDish[] = [];
+        
+        const userLat = selectedLocation?.latitude;
+        const userLng = selectedLocation?.longitude;
+
+        allRestaurants.forEach(restaurant => {
+            const distKm =
+                userLat != null && userLng != null && restaurant.latitude != null && restaurant.longitude != null
+                    ? haversineKm(userLat, userLng, restaurant.latitude, restaurant.longitude)
+                    : null;
+            
+            const distStr = distKm != null ? formatDistance(distKm) : restaurant.distance;
+
+            restaurant.menu.forEach(item => {
+                // Randomly decide if this item has a discount for our "Offers" section
+                // In a real app, this would come from the backend
+                // Using a semi-stable "random" based on item ID
+                const hash = item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const hasDiscount = hash % 3 === 0; // 1/3 of items have discounts
+                
+                if (hasDiscount) {
+                    const discountValues = [20, 30, 40, 50];
+                    const discountPercent = discountValues[hash % discountValues.length];
+                    const discountedPrice = item.price * (1 - discountPercent / 100);
+
+                    allItems.push({
+                        id: item.id,
+                        name: item.name,
+                        restaurant: restaurant.name,
+                        restaurantId: restaurant.id,
+                        originalPrice: item.price,
+                        discountedPrice: discountedPrice,
+                        discount: `${discountPercent}% off`,
+                        deliveryTime: restaurant.deliveryTime,
+                        distance: distStr,
+                        imageUrl: item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400'
+                    });
+                }
+            });
+        });
+
+        // Shuffle and take top 8
+        return allItems.sort(() => 0.5 - Math.random()).slice(0, 8);
+    }, [allRestaurants, selectedLocation]);
+
+    if (isLoading || discountedDishes.length === 0) return null;
 
     return (
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
@@ -89,9 +88,9 @@ export const DishesDiscount: React.FC = () => {
             </div>
 
             <div className="flex overflow-x-auto gap-4 md:gap-6 pb-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {mockDiscountedDishes.map((dish) => (
+                {discountedDishes.map((dish) => (
                     <div
-                        key={dish.id}
+                        key={`${dish.restaurantId}-${dish.id}`}
                         onClick={() => navigate(`/restaurant/${dish.restaurantId}`)}
                         className="flex flex-col min-w-[220px] md:min-w-[260px] bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                     >

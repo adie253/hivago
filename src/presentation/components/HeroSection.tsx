@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import banner1 from "../../assets/hero_section/banner1.svg";
 import banner2 from "../../assets/hero_section/banner2.svg";
@@ -13,6 +14,7 @@ export const HeroSection: React.FC = () => {
         { desktop: banner3, mobile: mobileBanner1 } // Fallback since there is no mobile_banner3
     ];
     const [currentIndex, setCurrentIndex] = useState(0);
+    const navigate = useNavigate();
 
     // Auto-rotate every 4 seconds
     useEffect(() => {
@@ -22,8 +24,14 @@ export const HeroSection: React.FC = () => {
         return () => clearInterval(timer);
     }, [slides.length]);
 
-    const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % slides.length);
-    const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    const nextSlide = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setCurrentIndex((prev) => (prev + 1) % slides.length);
+    };
+    const prevSlide = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    };
 
     return (
         <div className="relative w-full overflow-hidden bg-gray-50 group">
@@ -33,7 +41,11 @@ export const HeroSection: React.FC = () => {
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
                 {slides.map((slide, index) => (
-                    <div key={index} className="w-full flex-shrink-0 relative">
+                    <div 
+                        key={index} 
+                        className="w-full flex-shrink-0 relative cursor-pointer"
+                        onClick={() => navigate('/restaurants')}
+                    >
                         <picture>
                             <source media="(max-width: 767px)" srcSet={slide.mobile} />
                             <source media="(min-width: 768px)" srcSet={slide.desktop} />
@@ -68,7 +80,10 @@ export const HeroSection: React.FC = () => {
                 {slides.map((_, index) => (
                     <button
                         key={index}
-                        onClick={() => setCurrentIndex(index)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setCurrentIndex(index);
+                        }}
                         className={`transition-all rounded-full shadow-sm outline-none ${
                             currentIndex === index 
                             ? 'bg-white w-6 md:w-8 h-1.5 md:h-2 opacity-100' 

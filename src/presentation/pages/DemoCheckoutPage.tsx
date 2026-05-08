@@ -350,9 +350,9 @@ export const DemoCheckoutPage: React.FC = () => {
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
                 <div className="flex-1"></div>
-                <button onClick={() => setIsMenuOpen(true)} className="p-2 text-gray-700">
+                {/* <button onClick={() => setIsMenuOpen(true)} className="p-2 text-gray-700">
                     <MenuIcon className="w-6 h-6" />
-                </button>
+                </button> */}
             </div>
 
 
@@ -431,7 +431,7 @@ export const DemoCheckoutPage: React.FC = () => {
                                 )}
                                 
                                 {deliveryStatus && (
-                                    <div className={`absolute bottom-4 left-4 right-4 p-3 rounded-xl shadow-lg border flex items-start gap-3 z-20 animate-in slide-in-from-bottom-2 duration-300 ${
+                                    <div className={`max-w-[150px] absolute bottom-4 left-4 right-4 p-3 rounded-xl shadow-lg border flex items-start gap-3 z-20 animate-in slide-in-from-bottom-2 duration-300 ${
                                         deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : 
                                         deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 
                                         'bg-amber-50 border-amber-100 text-amber-700'
@@ -439,12 +439,12 @@ export const DemoCheckoutPage: React.FC = () => {
                                         {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : 
                                          deliveryStatus === 'error' ? <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" /> : 
                                          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
-                                        <div className="flex flex-col">
-                                            <span className="text-[13px] font-bold leading-snug">
-                                                {deliveryStatus === 'success' ? `Delivers in ~${deliveryCheck?.distanceKm} km` : deliveryError}
+                                        <div className="flex flex-col ">
+                                            <span className="text-[13px] font-medium leading-snug">
+                                                {deliveryStatus === 'success' ? `Deliverable` : deliveryError}
                                             </span>
                                             {deliveryStatus === 'error' && (
-                                                <span className="text-[11px] font-medium opacity-80 mt-1">Try a different address or pick a closer restaurant.</span>
+                                                <span className="text-[11px] font-medium opacity-80 mt-1 w-[200px]">Try a different address or pick a closer restaurant.</span>
                                             )}
                                         </div>
                                     </div>

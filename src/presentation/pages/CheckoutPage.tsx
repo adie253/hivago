@@ -161,21 +161,21 @@ export const CheckoutPage: React.FC = () => {
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
                 <div className="flex-1"></div>
-                <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-gray-700">
+                {/* <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-gray-700">
                     <MenuIcon className="w-6 h-6" />
-                </button>
+                </button> */}
             </div>
             {cartItems.length === 0 ? (
-                <div className="max-w-md mx-auto px-6 flex flex-col  items-center justify-center pt-24 text-center">
-                    <div className="p-12 rounded-[40px] w-full flex flex-col items-center">
+                <div className="max-w-md mx-auto px-6 flex flex-col  items-center justify-center     text-center">
+                    <div className="p-12 rounded-[40px] w-full flex flex-col items-center mt-10">
                         <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3 tracking-tight">Your Cart is Empty</h2>
                         <p className="text-gray-400 font-inter font-regular text-sm mb-10 leading-relaxed max-w-[200px]">
                             Add items to get started
                         </p>
-                        <img src={emptyCart} alt="Empty Cart" className='w-full h-full object-cover scale-110 opacity-80 mb-10' />
+                        <img src={emptyCart} alt="Empty Cart" className=' h-full object-cover opacity-80 mb-10' />
                         <button
                             onClick={() => navigate('/')}
-                            className="w-full bg-[#F36259] text-white font-inter py-5 rounded-[24px] shadow-xl shadow-red-100 hover:scale-[1.02] active:scale-95 transition-all mb-4"
+                            className="w-full bg-[#F36259] text-white font-inter py-3 rounded-[24px] shadow-xl shadow-red-100 hover:scale-[1.02] active:scale-95 transition-all mb-4"
                         >
                             Browse Restaurants
                         </button>
@@ -421,7 +421,7 @@ export const CheckoutPage: React.FC = () => {
                                         'text-amber-600'
                                     }`}>
                                         {deliveryStatus === 'success' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                                        {deliveryStatus === 'success' ? `Delivers here (~${deliveryCheck?.distanceKm} km)` : deliveryError}
+                                        {deliveryStatus === 'success' ? `Delivers here` : deliveryError}
                                     </div>
                                 )}
 

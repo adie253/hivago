@@ -189,9 +189,9 @@ export const OrderTrackingPage: React.FC = () => {
                     </button>
                     <h1 className="text-lg font-bold text-gray-900">Track Order</h1>
                 </div>
-                <button onClick={() => setIsMenuOpen(true)} className="p-2 text-gray-700">
+                {/* <button onClick={() => setIsMenuOpen(true)} className="p-2 text-gray-700">
                     <Menu className="w-6 h-6" />
-                </button>
+                </button> */}
             </div>
 
             <div className="max-w-md lg:max-w-[1000px] mx-auto px-4 pt-6 flex flex-col lg:flex-row gap-8 lg:gap-10 w-full items-start pb-10">
@@ -274,9 +274,9 @@ export const OrderTrackingPage: React.FC = () => {
                                         <div key={idx} className={`flex justify-between items-center text-[16px] ${idx !== arr.length - 1 ? 'pb-5 border-b border-gray-100' : ''}`}>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
-                                                <span className="text-gray-700 font-semibold tracking-tight">{ item.name || 'Item'} x {item.quantity || 1}</span>
+                                                <span className="text-gray-700 font-semibold tracking-tight">{ item.name || (item as any).itemName || 'Item'} x {item.quantity || 1}</span>
                                             </div>
-                                            <span className="text-gray-900 font-bold">₹{item.unitPrice * item.quantity}</span>
+                                            <span className="text-gray-900 font-bold">₹{(item.unitPrice || 0) * (item.quantity || 1)}</span>
                                         </div>
                                     ))}
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
@@ -431,9 +431,9 @@ export const OrderTrackingPage: React.FC = () => {
                                 <div key={idx} className={`flex justify-between items-center text-sm ${idx !== arr.length - 1 ? 'pb-2 border-b border-dashed border-gray-100' : ''}`}>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>
-                                        <span className="text-gray-700 font-bold">{ item.name || 'Item'} x {item.quantity || 1}</span>
+                                        <span className="text-gray-700 font-bold">{ item.name || (item as any).itemName || 'Item'} x {item.quantity || 1}</span>
                                     </div>
-                                    <span className="text-gray-700 font-bold">₹{item.unitPrice * item.quantity}</span>
+                                    <span className="text-gray-700 font-bold">₹{(item.unitPrice || 0) * (item.quantity || 1)}</span>
                                 </div>
                             ))}
                             <div className="flex justify-between items-center pt-1 border-t border-dashed border-gray-100 mt-1">
