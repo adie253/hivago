@@ -26,6 +26,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const hasSyncedAfterLogin = useRef(false);
     const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Session Warning States
     const [isSessionWarningOpen, setIsSessionWarningOpen] = useState(false);
@@ -115,11 +116,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRestaurantId(rId);
         setRestaurantName(rName);
         
-        DIContainer.getCartRepository().saveCart({
-            restaurantId: rId,
-            restaurantName: rName,
-            items: items
-        });
+        // Only persist to localStorage for guests — logged-in users rely on server
+        if (!isLoggedIn) {
+            DIContainer.getCartRepository().saveCart({
+                restaurantId: rId,
+                restaurantName: rName,
+                items: items
+            });
+        }
     };
 
     const performFrontendMerge = (local: CartItem[], remote: any[]): CartItem[] => {
@@ -173,30 +177,107 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // We now only sync once during login (reconcileCarts) to avoid "again and again" calls.
     // Items added during the session are kept in local state and synchronized on the next login or manual refresh.
 
+    // Shared debounced push — batches rapid +/- taps into a single API call
+    const debouncedPushToServer = useCallback((cartData: { restaurantId: string; restaurantName: string; items: CartItem[] }) => {
+        if (!isLoggedIn) return;
+        if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+        syncDebounceRef.current = setTimeout(() => {
+            const itemsPayload = cartData.items.map(i => {
+                const payload: Record<string, any> = {
+                    menuItemId: i.menuItemId || i.id,
+                    name: i.name,
+                    unitPrice: i.price,
+                    quantity: i.quantity,
+                };
+                // Only include optional fields if they have content — server rejects empty strings
+                if (i.description && i.description !== "") payload.options = i.description;
+                if (i.customizations && i.customizations !== "") payload.specialInstructions = i.customizations;
+                return payload;
+            });
+
+            syncCart({
+                restaurantId: cartData.restaurantId,
+                restaurantName: cartData.restaurantName || 'Restaurant',
+                items: itemsPayload
+            }, false).catch(err => console.error("Failed to push cart to server:", err));
+        }, 800);
+    }, [isLoggedIn]);
+
     // 🚀 ADD TO CART
     const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
         if (!rId) return;
 
-        // 🔥 Prevent multi-restaurant cart
+        // Prevent multi-restaurant cart
         if (restaurantId && restaurantId !== rId) {
             DIContainer.getClearCartUseCase().execute();
         }
 
-        const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
+        if (isLoggedIn) {
+            // Logged in: update React state directly, skip localStorage
+            const existingItems = [...cartItems];
+            const key = `${item.menuItemId || item.id}-${item.customizations || ''}`;
+            const existingIndex = existingItems.findIndex(
+                i => `${i.menuItemId || i.id}-${i.customizations || ''}` === key
+            );
+            let updatedItems: CartItem[];
+            if (existingIndex >= 0) {
+                updatedItems = existingItems.map((i, idx) =>
+                    idx === existingIndex ? { ...i, quantity: i.quantity + 1 } : i
+                );
+            } else {
+                updatedItems = [...existingItems, { ...item, quantity: 1 }];
+            }
+            setCartItems(updatedItems);
+            setRestaurantId(rId);
+            setRestaurantName(rName);
 
-        setCartItems([...updatedCartData.items]);
-        setRestaurantId(updatedCartData.restaurantId);
-        setRestaurantName(updatedCartData.restaurantName);
-    }, [restaurantId]);
+            debouncedPushToServer({
+                restaurantId: rId,
+                restaurantName: rName || 'Restaurant',
+                items: updatedItems
+            });
+        } else {
+            // Guest: use DI use case which writes to localStorage
+            const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
+            setCartItems([...updatedCartData.items]);
+            setRestaurantId(updatedCartData.restaurantId);
+            setRestaurantName(updatedCartData.restaurantName);
+        }
+    }, [restaurantId, isLoggedIn, cartItems, debouncedPushToServer]);
 
     // 🚀 REMOVE
     const removeFromCart = useCallback((itemId: string) => {
-        const updatedCartData = DIContainer.getRemoveFromCartUseCase().execute(itemId);
+        if (isLoggedIn) {
+            // Logged in: update React state directly, skip localStorage
+            const updatedItems = cartItems
+                .map(i => i.id === itemId || i.menuItemId === itemId
+                    ? { ...i, quantity: i.quantity - 1 }
+                    : i
+                )
+                .filter(i => i.quantity > 0);
 
-        setCartItems([...updatedCartData.items]);
-        setRestaurantId(updatedCartData.restaurantId);
-        setRestaurantName(updatedCartData.restaurantName);
-    }, []);
+            const currentRestaurantId = updatedItems.length > 0 ? restaurantId : undefined;
+            const currentRestaurantName = updatedItems.length > 0 ? restaurantName : undefined;
+
+            setCartItems(updatedItems);
+            setRestaurantId(currentRestaurantId);
+            setRestaurantName(currentRestaurantName);
+
+            if (currentRestaurantId) {
+                debouncedPushToServer({
+                    restaurantId: currentRestaurantId,
+                    restaurantName: currentRestaurantName || 'Restaurant',
+                    items: updatedItems
+                });
+            }
+        } else {
+            // Guest: use DI use case which writes to localStorage
+            const updatedCartData = DIContainer.getRemoveFromCartUseCase().execute(itemId);
+            setCartItems([...updatedCartData.items]);
+            setRestaurantId(updatedCartData.restaurantId);
+            setRestaurantName(updatedCartData.restaurantName);
+        }
+    }, [isLoggedIn, cartItems, restaurantId, restaurantName, debouncedPushToServer]);
 
     // 🚀 CLEAR
     const clearCart = useCallback(() => {
@@ -280,11 +361,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem('customer_token');
+        
         localStorage.removeItem('customer_refresh_token');
         localStorage.removeItem('customer_token_expires_at');
         localStorage.removeItem('customer_id');
         localStorage.removeItem('customer_phone');
         localStorage.removeItem('customer_name');
+        localStorage.removeItem('hivago_cart_v2');
+        localStorage.removeItem('customer_refresh_token');
+
+        // ❗ Clear cart from localStorage so stale local items don't
+        // get merged into the server cart on the NEXT login
+        DIContainer.getClearCartUseCase().execute();
+        setCartItems([]);
+        setRestaurantId(undefined);
+        setRestaurantName(undefined);
+        hasSyncedAfterLogin.current = false;
+
         setIsLoggedIn(false);
         setIsSessionWarningOpen(false);
     }, []);

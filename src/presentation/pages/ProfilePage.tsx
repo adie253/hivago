@@ -48,6 +48,8 @@ export const ProfilePage: React.FC = () => {
         localStorage.removeItem('customer_id');
         localStorage.removeItem('customer_phone');
         localStorage.removeItem('customer_name');
+        localStorage.removeItem('hivago_cart_v2');
+        localStorage.removeItem('customer_refresh_token');
         refreshLoginStatus();
         navigate('/');
     };
