@@ -110,7 +110,6 @@ export const CheckoutPage: React.FC = () => {
                 try {
                     const result = await checkDeliveryAvailability(restaurantId, selectedLocation.latitude, selectedLocation.longitude);
                     if (result) {
-                        setDeliveryCheck(result);
                         if (result.canDeliver) {
                             setDeliveryStatus('success');
                         } else {
