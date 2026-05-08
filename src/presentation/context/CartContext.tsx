@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
-import { syncCart, isTokenValid, getCart, refreshToken, clearServerCart } from '../../data/api';
+import { syncCart, isTokenValid, getCart, refreshToken } from '../../data/api';
 import { SessionWarningPopup } from '../components/SessionWarningPopup';
 
 interface CartContextType {
@@ -25,10 +25,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
 
     const hasSyncedAfterLogin = useRef(false);
-    const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const isUpdatingFromSync = useRef(false);
-    const lastSyncedCartRef = useRef<string>("");
 
     // Session Warning States
     const [isSessionWarningOpen, setIsSessionWarningOpen] = useState(false);
@@ -114,10 +111,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const updateStateWithFinalCart = (items: CartItem[], rId: string, rName: string) => {
-        isUpdatingFromSync.current = true;
-        const itemsJson = JSON.stringify(items);
-        lastSyncedCartRef.current = itemsJson; // ❗ Prevent the sync effect from firing again
-        
         setCartItems(items);
         setRestaurantId(rId);
         setRestaurantName(rName);
@@ -170,7 +163,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setRestaurantId(localCartData.restaurantId);
                 setRestaurantName(localCartData.restaurantName);
                 hasSyncedAfterLogin.current = false;
-                lastSyncedCartRef.current = "";
             }
         };
 
