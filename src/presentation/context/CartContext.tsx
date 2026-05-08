@@ -273,7 +273,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         if (isLoggedIn) {
-            sessionCheckIntervalRef.current = setInterval(checkSession, 10000); // Check every 10s
+            sessionCheckIntervalRef.current = setInterval(checkSession, 1000); // Check every 1s for accuracy
             checkSession();
         } else {
             if (sessionCheckIntervalRef.current) clearInterval(sessionCheckIntervalRef.current);

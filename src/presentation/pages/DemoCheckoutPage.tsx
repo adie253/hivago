@@ -192,13 +192,13 @@ export const DemoCheckoutPage: React.FC = () => {
                     instructions: selectedDeliveryOption
                 },
                 items: cartItems.map(item => ({
-                    menuItemId: item.id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    menuItemId: item.menuItemId || item.id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     itemName: item.name,
                     itemDescription: item.description || "Description",
                     imageUrl: item.imageUrl || "https://example.com/image.jpg",
                     unitPrice: item.price,
                     quantity: item.quantity,
-                    specialInstructions: ""
+                    specialInstructions: item.customizations || ""
                 })),
                 pricing: {
                     subTotal: cartTotal,
