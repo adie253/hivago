@@ -182,8 +182,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!isLoggedIn) return;
         if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
         syncDebounceRef.current = setTimeout(() => {
-            const itemsPayload = cartData.items.map(i => {
-                const payload: Record<string, any> = {
+            const itemsPayload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; }[] = cartData.items.map(i => {
+                const payload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; } = {
                     menuItemId: i.menuItemId || i.id,
                     name: i.name,
                     unitPrice: i.price,
