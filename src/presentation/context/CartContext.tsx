@@ -356,6 +356,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const refreshCartFromServer = useCallback(async () => {
+        if (!isLoggedIn) return;
+        try {
+            const remoteCart = await getCart();
+            if (remoteCart && remoteCart.items) {
+                const convertedItems = convertServerItems(remoteCart.items);
+                updateStateWithFinalCart(convertedItems, remoteCart.restaurantId, remoteCart.restaurantName);
+            } else {
+                updateStateWithFinalCart([], "", "");
+                DIContainer.getClearCartUseCase().execute();
+            }
+        } catch (e) {
+            console.error("Failed to refresh cart from server:", e);
+        }
+    }, [isLoggedIn]);
+
     const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     const refreshLoginStatus = () => {
@@ -438,6 +454,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             addToCart,
             removeFromCart,
             clearCart,
+            refreshCartFromServer,
             cartTotal,
             refreshLoginStatus
         }}>
