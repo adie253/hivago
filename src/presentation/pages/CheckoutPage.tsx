@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, ShoppingCart, MapPin, Wallet, Check, Ticket, ReceiptText, ChevronRight, Book, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { checkDeliveryAvailability } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Check, Package, Loader2, ChevronRight, ArrowRight } from 'lucide-react';
+import { Check, Package, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 

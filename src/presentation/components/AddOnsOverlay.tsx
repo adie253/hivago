@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Minus, Check, ShoppingBag, Loader2, ChevronRight } from 'lucide-react';
+import { X, Check, ShoppingBag, Loader2, ChevronRight } from 'lucide-react';
 import { MenuItem } from './MenuItemCard';
 import { fetchItemDetails, ApiItem } from '../../data/api';
 
@@ -60,14 +60,6 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
             newSet.add(id);
         }
         setSelectedOptions(newSet);
-    };
-
-    const updateFbtQuantity = (id: string, delta: number) => {
-        setFbtQuantities(prev => {
-            const current = prev[id] || 0;
-            const next = Math.max(0, current + delta);
-            return { ...prev, [id]: next };
-        });
     };
 
     const basePrice = useMemo(() => {
