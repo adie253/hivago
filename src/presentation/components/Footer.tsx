@@ -46,8 +46,8 @@ export const Footer: React.FC = () => {
                             <MapPin className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white" />
                         </div>
                         <div className="text-sm md:text-sm font-medium leading-relaxed opacity-90">
-                            Block A, First Floor, M.G. road,<br className="hidden md:block" />
-                            Navi Mumbai, India
+                            M.G. road, Pune,<br className="hidden md:block" />
+                            India
                         </div>
                     </div>
 

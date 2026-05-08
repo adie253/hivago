@@ -182,6 +182,16 @@ export const syncCart = async (request: SyncCartRequest, replaceCart: boolean = 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(request)
         });
+        
+        if (response.status === 409) {
+            const conflictData = await response.json();
+            return {
+                isConflict: true,
+                existingRestaurantId: conflictData.restaurantId,
+                existingRestaurantName: conflictData.restaurantName
+            };
+        }
+
         if (!response.ok) {
             const errBody = await response.text();
             throw new Error(`Failed to sync cart: ${response.statusText} - ${errBody}`);
@@ -320,6 +330,7 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         promoted: false,
         isVeg: allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true,
         categories: categories,
+        addressLine: apiRes.addressLine || "Address not available",
         menu: allItems.map(item => ({
             id: item.id,
             name: item.name,

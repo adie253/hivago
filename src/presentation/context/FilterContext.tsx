@@ -26,6 +26,7 @@ export interface Restaurant {
     isVeg: boolean;
     categories: string[];
     menu: FoodItem[];
+    addressLine?: string;
 }
 
 interface FilterContextType {

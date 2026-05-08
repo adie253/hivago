@@ -124,7 +124,7 @@ export const OrderTrackingPage: React.FC = () => {
             if (street || city) return cleanAddress([street, city].filter(Boolean).join(', '));
         }
         
-        return 'Plot No.7, Arenja Chambers, Navi Mumbai';
+        return o.deliveryInfo?.deliveryAddress?.formattedAddress || 'Pune, India';
     };
 
     const getOrderTotal = (o: any) => {

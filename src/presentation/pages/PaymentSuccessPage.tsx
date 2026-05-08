@@ -7,7 +7,7 @@ import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 export const PaymentSuccessPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { clearCart } = useCart();
+    const { refreshCartFromServer } = useCart();
     const [isLoading, setIsLoading] = useState(true);
     const [orderId, setOrderId] = useState<string | null>(null);
 
@@ -19,7 +19,7 @@ export const PaymentSuccessPage: React.FC = () => {
 
         // Use standard ID if none found
         setOrderId(id || txn || "1771138859799");
-        clearCart();
+        refreshCartFromServer();
         
         // Simulate a slight delay to show loading state
         const timer = setTimeout(() => {

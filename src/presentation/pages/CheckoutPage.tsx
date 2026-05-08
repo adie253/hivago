@@ -13,6 +13,8 @@ import menuIcon from '../../assets/stepper_icons/menu_gray.svg';
 import cartIcon from '../../assets/stepper_icons/cart_gray.svg';
 import addressIcon from '../../assets/stepper_icons/address_gray.svg';
 import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
+import { fetchRestaurantById, ApiMenuItem } from '../../data/api';
+import { Plus } from 'lucide-react';
 
 const StepperIcon = ({ src, className }: { src: string, className?: string }) => (
     <div 
@@ -30,10 +32,20 @@ const StepperIcon = ({ src, className }: { src: string, className?: string }) =>
     />
 );
 
-const frequentlyBought = [
-    { id: 'f1', name: 'Power Bowl', restaurant: 'Green Garden', time: '20-25 min', distance: '0.8 km', priceForTwo: '₹300 for two', price: 150, originalPrice: 300, discount: '50% off', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&dpr=2&q=80' },
-    { id: 'f2', name: 'Margherita Pizza', restaurant: 'Pizza Paradise', time: '20-25 min', distance: '0.8 km', priceForTwo: '₹500 for two', price: 400, originalPrice: 500, discount: '20% off', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&dpr=2&q=80' }
-];
+// Mock frequently bought items removed - now fetching dynamic ones
+interface SuggestedItem {
+    id: string;
+    name: string;
+    restaurant: string;
+    time: string;
+    distance: string;
+    priceForTwo: string;
+    price: number;
+    originalPrice: number;
+    discount: string;
+    image: string;
+    isVeg: boolean;
+}
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
@@ -45,6 +57,7 @@ export const CheckoutPage: React.FC = () => {
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
     const isLoggedIn = isTokenValid();
 
 
@@ -62,6 +75,36 @@ export const CheckoutPage: React.FC = () => {
     const [isCheckingDelivery, setIsCheckingDelivery] = React.useState(false);
     const [deliveryError, setDeliveryError] = React.useState<string | null>(null);
     const [deliveryStatus, setDeliveryStatus] = React.useState<'success' | 'error' | 'warning' | null>(null);
+
+    React.useEffect(() => {
+        if (restaurantId) {
+            const loadSuggestions = async () => {
+                const restaurant = await fetchRestaurantById(restaurantId);
+                if (restaurant && restaurant.menu) {
+                    // Filter items NOT already in cart
+                    const cartItemIds = new Set(cartItems.map(i => i.menuItemId || i.id));
+                    const otherItems = restaurant.menu
+                        .filter(i => !cartItemIds.has(i.id))
+                        .slice(0, 2) // Top 2 items
+                        .map(i => ({
+                            id: i.id,
+                            name: i.name,
+                            restaurant: restaurantName || "Restaurant",
+                            time: "20-30 min",
+                            distance: "1.2 km",
+                            priceForTwo: "₹400 for two",
+                            price: typeof i.price === 'string' ? parseFloat(i.price.replace(/[^0-9.]/g, '')) : i.price,
+                            originalPrice: (typeof i.price === 'string' ? parseFloat(i.price.replace(/[^0-9.]/g, '')) : i.price) * 1.2,
+                            discount: "20% OFF",
+                            image: i.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&dpr=2&q=80',
+                            isVeg: i.type === 'Veg'
+                        }));
+                    setSuggestedItems(otherItems);
+                }
+            };
+            loadSuggestions();
+        }
+    }, [restaurantId, cartItems.length]); // Refresh suggestions if restaurant or cart size changes
 
     React.useEffect(() => {
         if (selectedLocation?.latitude && restaurantId) {
@@ -261,10 +304,22 @@ export const CheckoutPage: React.FC = () => {
                                 </div>
 
                                 <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-4 snap-x">
-                                    {frequentlyBought.map(item => (
-                                        <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col">
-                                            <div className="h-32 w-full overflow-hidden">
+                                    {suggestedItems.map(item => (
+                                        <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col relative group">
+                                            <div className="h-32 w-full overflow-hidden relative">
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                <button 
+                                                    onClick={() => addToCart({
+                                                        id: item.id,
+                                                        menuItemId: item.id,
+                                                        name: item.name,
+                                                        price: item.price,
+                                                        isVeg: item.isVeg
+                                                    }, restaurantId, restaurantName)}
+                                                    className="absolute bottom-2 right-2 bg-white text-[#FF4732] p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors active:scale-90"
+                                                >
+                                                    <Plus className="w-5 h-5" strokeWidth={3} />
+                                                </button>
                                             </div>
                                             <div className="px-3 py-3 flex flex-col flex-1">
                                                 <h4 className="font-bold text-[15px] text-[#222] truncate">{item.name}</h4>
@@ -289,6 +344,9 @@ export const CheckoutPage: React.FC = () => {
                                             </div>
                                         </div>
                                     ))}
+                                    {suggestedItems.length === 0 && (
+                                        <div className="p-8 text-center text-gray-400 w-full text-sm">No suggestions available</div>
+                                    )}
                                 </div>
                             </div>
 
@@ -346,7 +404,7 @@ export const CheckoutPage: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
-                                    {selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : '6, Yash Complex, Near Metro Station, Navi...')}
+                                    {selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability')}
                                 </div>
                                 
                                 {isCheckingDelivery && (

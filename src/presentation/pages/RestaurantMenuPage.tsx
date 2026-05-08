@@ -126,7 +126,7 @@ export const RestaurantMenuPage: React.FC = () => {
 
                         <div className="flex items-center gap-2 text-gray-600 mt-4">
                             <MapPin className="w-3.5 h-3.5 text-[#FF4732]" />
-                            <span className="text-[11px] font-bold line-clamp-1">Plot No.7, Arenja Chambers, Navi Mumbai</span>
+                            <span className="text-[11px] font-bold line-clamp-1">{restaurant.addressLine || 'Pune, India'}</span>
                         </div>
 
                         <div className="flex items-center justify-center gap-3 mt-4 text-[11px] font-bold text-gray-500">
@@ -277,7 +277,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 </p>
                                 <div className="flex items-center gap-1.5 text-gray-500 text-sm">
                                     <MapPin className="w-4 h-4 text-[#FF4732]" />
-                                    <span className="font-bold">Plot No.7, Arenja Chambers, Navi Mumbai</span>
+                                    <span className="font-bold">{restaurant.addressLine || 'Pune, India'}</span>
                                 </div>
                             </div>
 

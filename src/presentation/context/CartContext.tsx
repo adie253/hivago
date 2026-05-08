@@ -26,118 +26,167 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const hasSyncedAfterLogin = useRef(false);
     const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const isUpdatingFromSync = useRef(false);
+    const lastSyncedCartRef = useRef<string>("");
 
     // Session Warning States
     const [isSessionWarningOpen, setIsSessionWarningOpen] = useState(false);
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
     const [expiresInSeconds, setExpiresInSeconds] = useState(0);
     const [refreshError, setRefreshError] = useState<string | null>(null);
+    
+    // Conflict State
+    const [conflictInfo, setConflictInfo] = useState<{ name: string, id: string } | null>(null);
+
+    // 🚀 RECONCILE CARTS (STRICT FRONTEND MERGE)
+    const reconcileCarts = useCallback(async (localCart: any) => {
+        if (!isLoggedIn || hasSyncedAfterLogin.current) return;
+
+        try {
+            // 1. Fetch current server state
+            const remoteCart = await getCart();
+            const hasLocalItems = localCart?.items?.length > 0;
+            const hasRemoteItems = remoteCart?.items?.length > 0;
+
+            // Handle Restaurant Conflict
+            if (hasLocalItems && hasRemoteItems && localCart.restaurantId !== remoteCart.restaurantId) {
+                setConflictInfo({ 
+                    name: remoteCart.restaurantName || "another restaurant",
+                    id: remoteCart.restaurantId
+                });
+                return;
+            }
+
+            let finalItems: CartItem[] = [];
+            let finalRestaurantId = localCart.restaurantId || remoteCart.restaurantId;
+            let finalRestaurantName = localCart.restaurantName || remoteCart.restaurantName;
+
+            if (hasLocalItems && hasRemoteItems) {
+                // Perform Frontend Merge
+                finalItems = performFrontendMerge(localCart.items, remoteCart.items);
+            } else if (hasLocalItems) {
+                finalItems = localCart.items;
+            } else if (hasRemoteItems) {
+                finalItems = convertServerItems(remoteCart.items);
+            }
+
+            // 2. Update UI & Local Storage immediately
+            updateStateWithFinalCart(finalItems, finalRestaurantId, finalRestaurantName);
+            
+            // 3. Push to server with replaceCart=true to OVERWRITE with the merged result
+            if (finalItems.length > 0) {
+                await syncCart({
+                    restaurantId: finalRestaurantId!,
+                    restaurantName: finalRestaurantName || 'Restaurant',
+                    items: finalItems.map(item => ({
+                        menuItemId: item.menuItemId || item.id,
+                        name: item.name,
+                        unitPrice: item.price,
+                        quantity: item.quantity,
+                        options: item.description || "",
+                        specialInstructions: item.customizations || ""
+                    }))
+                }, true); // FORCE OVERWRITE with our merged state
+            }
+
+        } catch (e) {
+            console.error('Cart reconciliation failed:', e);
+        } finally {
+            hasSyncedAfterLogin.current = true;
+        }
+    }, [isLoggedIn]);
+
+    const convertServerItems = (remoteItems: any[]): CartItem[] => {
+        return remoteItems.map((rItem: any) => ({
+            id: rItem.id || (rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId),
+            menuItemId: rItem.menuItemId,
+            name: rItem.name,
+            price: rItem.unitPrice,
+            quantity: rItem.quantity,
+            isVeg: true,
+            isAddon: false,
+            customizations: rItem.specialInstructions || undefined,
+            description: Array.isArray(rItem.options) 
+                ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+                : (typeof rItem.options === 'string' ? rItem.options : "")
+        }));
+    };
+
+    const updateStateWithFinalCart = (items: CartItem[], rId: string, rName: string) => {
+        isUpdatingFromSync.current = true;
+        const itemsJson = JSON.stringify(items);
+        lastSyncedCartRef.current = itemsJson; // ❗ Prevent the sync effect from firing again
+        
+        setCartItems(items);
+        setRestaurantId(rId);
+        setRestaurantName(rName);
+        
+        DIContainer.getCartRepository().saveCart({
+            restaurantId: rId,
+            restaurantName: rName,
+            items: items
+        });
+    };
+
+    const performFrontendMerge = (local: CartItem[], remote: any[]): CartItem[] => {
+        const mergedMap = new Map<string, CartItem>();
+
+        // 1. Process remote items first (trusting server pricing)
+        const remoteItems = convertServerItems(remote);
+        remoteItems.forEach(item => {
+            const key = `${item.menuItemId}-${item.customizations || ''}`;
+            mergedMap.set(key, { ...item });
+        });
+
+        // 2. Merge local items
+        local.forEach(lItem => {
+            const key = `${lItem.menuItemId}-${lItem.customizations || ''}`;
+            if (mergedMap.has(key)) {
+                // If exists, increment quantity (frontend deduplication)
+                const existing = mergedMap.get(key)!;
+                existing.quantity += lItem.quantity;
+            } else {
+                // New item
+                mergedMap.set(key, { ...lItem });
+            }
+        });
+
+        return Array.from(mergedMap.values());
+    };
 
     // 🚀 INIT CART
     useEffect(() => {
-        const initCart = async () => {
+        const init = async () => {
             const localCartData = DIContainer.getGetCartUseCase().execute();
 
             if (isLoggedIn) {
-                try {
-                    const remoteCart = await getCart();
-
-                    if (localCartData.items?.length > 0) {
-                        // 🔥 PRIORITY → LOCAL CART
-                        setCartItems(localCartData.items);
-                        setRestaurantId(localCartData.restaurantId);
-                        setRestaurantName(localCartData.restaurantName);
-
-                        // 🔥 SYNC ONLY ONCE
-                        if (!hasSyncedAfterLogin.current) {
-                            hasSyncedAfterLogin.current = true;
-
-                            const syncResponse = await syncCart({
-                                restaurantId: localCartData.restaurantId!,
-                                restaurantName: localCartData.restaurantName || 'Restaurant',
-                                items: localCartData.items.map(item => ({
-                                    menuItemId: item.menuItemId || item.id,
-                                    name: item.name,
-                                    unitPrice: item.price,
-                                    quantity: item.quantity,
-                                    options: item.description || "[]",
-                                    specialInstructions: item.customizations || ""
-                                }))
-                            }, true);
-
-                            // The backend MERGES the guest cart with the saved server cart.
-                            // We MUST update the local UI and storage with the merged result!
-                            if (syncResponse && syncResponse.items) {
-                                const mergedItems: CartItem[] = syncResponse.items.map((rItem: any) => ({
-                                    id: rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId,
-                                    menuItemId: rItem.menuItemId,
-                                    name: rItem.name,
-                                    price: rItem.unitPrice,
-                                    quantity: rItem.quantity,
-                                    description: typeof rItem.options === 'string' ? rItem.options : JSON.stringify(rItem.options || []),
-                                    imageUrl: rItem.imageUrl || '',
-                                    isVeg: true,
-                                    isAddon: false,
-                                    customizations: rItem.specialInstructions || undefined
-                                }));
-
-                                setCartItems(mergedItems);
-                                setRestaurantId(syncResponse.restaurantId);
-                                setRestaurantName(syncResponse.restaurantName);
-                                
-                                DIContainer.getCartRepository().saveCart({
-                                    restaurantId: syncResponse.restaurantId,
-                                    restaurantName: syncResponse.restaurantName,
-                                    items: mergedItems
-                                });
-                            }
-                        }
-
-                    } else if (remoteCart?.items?.length > 0) {
-                        // 🔥 FALLBACK → SERVER CART
-                        const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
-                            id: rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId,
-                            menuItemId: rItem.menuItemId,
-                            name: rItem.name,
-                            price: rItem.unitPrice,
-                            quantity: rItem.quantity,
-                            description: typeof rItem.options === 'string' ? rItem.options : JSON.stringify(rItem.options || []),
-                            imageUrl: rItem.imageUrl || '',
-                            isVeg: true,
-                            isAddon: false,
-                            customizations: rItem.specialInstructions || undefined
-                        }));
-
-                        setCartItems(convertedItems);
-                        setRestaurantId(remoteCart.restaurantId);
-                        setRestaurantName(remoteCart.restaurantName);
-                        
-                        // Save the server cart to local storage to keep them perfectly in sync
-                        DIContainer.getCartRepository().saveCart({
-                            restaurantId: remoteCart.restaurantId,
-                            restaurantName: remoteCart.restaurantName,
-                            items: convertedItems
-                        });
-                    }
-
-                } catch (e) {
-                    console.error('Cart init failed:', e);
+                if (!hasSyncedAfterLogin.current) {
+                    await reconcileCarts(localCartData);
                 }
             } else {
-                setCartItems(localCartData.items);
+                // Guest mode
+                setCartItems(localCartData.items || []);
                 setRestaurantId(localCartData.restaurantId);
                 setRestaurantName(localCartData.restaurantName);
+                hasSyncedAfterLogin.current = false;
+                lastSyncedCartRef.current = "";
             }
         };
 
-        initCart();
-    }, [isLoggedIn]);
+        init();
+    }, [isLoggedIn, reconcileCarts]);
 
     // 🚀 SYNC CART (ONLY AFTER INIT)
     useEffect(() => {
         const userId = localStorage.getItem('customer_id');
 
         if (!isLoggedIn || !userId) return;
+
+        // ❗ Skip if this change matches the last state we received from the server
+        const currentCartJson = JSON.stringify(cartItems);
+        if (lastSyncedCartRef.current === currentCartJson) {
+            return;
+        }
 
         // ❗ Skip initial login sync (already handled)
         if (!hasSyncedAfterLogin.current) return;
@@ -153,21 +202,67 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 
                 if (!restaurantId) return;
 
-                const itemsPayload = cartItems.map(item => ({
-                    menuItemId: item.menuItemId || item.id,
-                    name: item.name,
-                    unitPrice: item.price,
-                    quantity: item.quantity,
-                    options: item.description || "[]",
-                    specialInstructions: item.customizations || ""
-                }));
+                // 🔥 Deduplicate items before sending to server as a safety measure
+                const itemMap = new Map<string, any>();
+                cartItems.forEach(item => {
+                    const key = `${item.menuItemId || item.id}-${item.customizations || ''}`;
+                    if (itemMap.has(key)) {
+                        itemMap.get(key).quantity += item.quantity;
+                    } else {
+                        const payloadItem: any = {
+                            menuItemId: item.menuItemId || item.id,
+                            name: item.name,
+                            unitPrice: item.price,
+                            quantity: item.quantity,
+                        };
+                        
+                        // 🔥 Omit empty strings to avoid 500 errors on some backends
+                        if (item.description && item.description !== "") {
+                            payloadItem.options = item.description;
+                        }
+                        
+                        if (item.customizations && item.customizations !== "") {
+                            payloadItem.specialInstructions = item.customizations;
+                        }
 
-                syncCart({
+                        itemMap.set(key, payloadItem);
+                    }
+                });
+
+                const itemsPayload = Array.from(itemMap.values());
+
+                const syncResponse = await syncCart({
                     restaurantId,
                     restaurantName: restaurantName || 'Restaurant',
                     items: itemsPayload
                 }, true);
 
+                if (syncResponse && syncResponse.items) {
+                    const updatedItems: CartItem[] = syncResponse.items.map((rItem: any) => ({
+                        id: rItem.id || (rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId),
+                        menuItemId: rItem.menuItemId,
+                        name: rItem.name,
+                        price: rItem.unitPrice,
+                        quantity: rItem.quantity,
+                        isVeg: true,
+                        isAddon: false,
+                        customizations: rItem.specialInstructions || undefined,
+                        // Handle options array from server
+                        description: Array.isArray(rItem.options) 
+                            ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+                            : (typeof rItem.options === 'string' ? rItem.options : "")
+                    }));
+
+                    const updatedJson = JSON.stringify(updatedItems);
+                    lastSyncedCartRef.current = updatedJson;
+                    setCartItems(updatedItems);
+                    
+                    DIContainer.getCartRepository().saveCart({
+                        restaurantId: syncResponse.restaurantId,
+                        restaurantName: syncResponse.restaurantName,
+                        items: updatedItems
+                    });
+                }
             } catch (err) {
                 console.error("Cart sync failed:", err);
             }
@@ -210,6 +305,55 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRestaurantId(undefined);
         setRestaurantName(undefined);
     }, []);
+
+    const forceReplaceCart = async () => {
+        if (!conflictInfo) return;
+        const localCartData = DIContainer.getGetCartUseCase().execute();
+        
+        try {
+            const syncResponse = await syncCart({
+                restaurantId: localCartData.restaurantId!,
+                restaurantName: localCartData.restaurantName || 'Restaurant',
+                items: localCartData.items.map(item => ({
+                    menuItemId: item.menuItemId || item.id,
+                    name: item.name,
+                    unitPrice: item.price,
+                    quantity: item.quantity,
+                    options: item.description || "",
+                    specialInstructions: item.customizations || ""
+                }))
+            }, true); // FORCE REPLACE
+
+            if (syncResponse && syncResponse.items) {
+                const mergedItems: CartItem[] = syncResponse.items.map((rItem: any) => ({
+                    id: rItem.id || (rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId),
+                    menuItemId: rItem.menuItemId,
+                    name: rItem.name,
+                    price: rItem.unitPrice,
+                    quantity: rItem.quantity,
+                    isVeg: true,
+                    isAddon: false,
+                    customizations: rItem.specialInstructions || undefined,
+                    description: Array.isArray(rItem.options) 
+                        ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+                        : (typeof rItem.options === 'string' ? rItem.options : "")
+                }));
+                
+                setCartItems(mergedItems);
+                setRestaurantId(syncResponse.restaurantId);
+                setRestaurantName(syncResponse.restaurantName);
+                DIContainer.getCartRepository().saveCart({
+                    restaurantId: syncResponse.restaurantId,
+                    restaurantName: syncResponse.restaurantName,
+                    items: mergedItems
+                });
+            }
+        } catch (e) {
+            console.error("Force replace failed:", e);
+        } finally {
+            setConflictInfo(null);
+        }
+    };
 
     const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
@@ -306,6 +450,62 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 expiresInSeconds={expiresInSeconds}
                 error={refreshError}
             />
+
+            {conflictInfo && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[28px] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="p-8 text-center">
+                            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <svg className="w-10 h-10 text-[#FF4732]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 mb-3">Restaurant Conflict</h3>
+                            <p className="text-gray-500 leading-relaxed font-medium">
+                                Your existing cart has items from <span className="text-gray-900 font-bold">"{conflictInfo.name}"</span>. 
+                                Would you like to clear it and start fresh with your current items?
+                            </p>
+                        </div>
+                        <div className="flex border-t border-gray-100">
+                            <button 
+                                onClick={() => {
+                                    setConflictInfo(null);
+                                    // Optionally pull existing cart here if they "Keep"
+                                    getCart().then(remoteCart => {
+                                        if (remoteCart && remoteCart.items) {
+                                            const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
+                                                id: rItem.id || rItem.menuItemId,
+                                                menuItemId: rItem.menuItemId,
+                                                name: rItem.name,
+                                                price: rItem.unitPrice,
+                                                quantity: rItem.quantity,
+                                                isVeg: true,
+                                                isAddon: false,
+                                                customizations: rItem.specialInstructions || undefined,
+                                                description: Array.isArray(rItem.options) 
+                                                    ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+                                                    : (typeof rItem.options === 'string' ? rItem.options : "")
+                                            }));
+                                            setCartItems(convertedItems);
+                                            setRestaurantId(remoteCart.restaurantId);
+                                            setRestaurantName(remoteCart.restaurantName);
+                                        }
+                                    });
+                                }}
+                                className="flex-1 px-6 py-5 text-gray-500 font-bold hover:bg-gray-50 transition-colors border-r border-gray-100"
+                            >
+                                Keep Existing
+                            </button>
+                            <button 
+                                onClick={forceReplaceCart}
+                                className="flex-1 px-6 py-5 text-[#FF4732] font-extrabold hover:bg-red-50 transition-colors"
+                            >
+                                Start Fresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </CartContext.Provider>
     );
 };
