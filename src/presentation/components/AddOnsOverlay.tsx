@@ -14,11 +14,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     const [apiItem, setApiItem] = useState<ApiItem | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Frequently bought together is still mock as API doesn't provide it yet
-    const frequentlyBought: any[] = [];
-
     const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
-    const [fbtQuantities, setFbtQuantities] = useState<Record<string, number>>({});
     const [specialInstructions, setSpecialInstructions] = useState('');
     const [unavailabilityAction, setUnavailabilityAction] = useState('Remove it from my order');
     const [isUnavailabilityMenuOpen, setIsUnavailabilityMenuOpen] = useState(false);
@@ -82,19 +78,6 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         return total;
     }, [basePrice, selectedOptions, apiItem]);
 
-    const selectedAddonsList = useMemo(() => {
-        const list: {id: string, name: string, price: number}[] = [];
-        frequentlyBought.forEach(fb => {
-            const qty = fbtQuantities[fb.id] || 0;
-            if (qty > 0) {
-                for (let i = 0; i < qty; i++) {
-                    list.push({ id: `${fb.id}-${i}`, name: fb.name, price: fb.price });
-                }
-            }
-        });
-        return list;
-    }, [fbtQuantities, frequentlyBought]);
-
     const selectedOptionsText = useMemo(() => {
         if (!apiItem || !apiItem.options) return "";
         return apiItem.options
@@ -111,8 +94,8 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     }, [selectedOptionsText, specialInstructions]);
 
     const totalPrice = useMemo(() => {
-        return mainItemPrice + selectedAddonsList.reduce((acc, curr) => acc + curr.price, 0);
-    }, [mainItemPrice, selectedAddonsList]);
+        return mainItemPrice;
+    }, [mainItemPrice]);
     if (!originalItem) return null;
 
     return createPortal(
@@ -233,7 +216,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                      <button
                          onClick={() => onConfirmAdd({
                              ...originalItem,
-                         }, mainItemPrice, finalInstructions, selectedAddonsList)}
+                         }, mainItemPrice, finalInstructions, [])}
                          className="w-full bg-[#D12E27] text-white rounded-2xl py-4 px-6 flex items-center justify-between shadow-lg hover:bg-[#B52721] active:scale-[0.98] transition-all group"
                          disabled={isLoading}
                      >
