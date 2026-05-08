@@ -8,11 +8,13 @@ import { MapPicker } from './checkout/MapPicker';
 interface AddAddressOverlayProps {
     isOpen: boolean;
     onClose: () => void;
+    initialStep?: Step;
+    initialLocation?: { lat: number; lng: number };
 }
 
 type Step = 'search' | 'details';
 
-export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, onClose }) => {
+export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, onClose, initialStep, initialLocation }) => {
     const { refreshAddresses } = useUserLocation();
 
     // Search Step States
@@ -40,7 +42,17 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
         if (isOpen) {
             document.body.style.overflow = 'hidden';
             // Reset state on open
-            setStep('search');
+            if (initialStep && initialLocation) {
+                setStep(initialStep);
+                setLatitude(initialLocation.lat);
+                setLongitude(initialLocation.lng);
+                setSelectedAddressText('Current Location');
+            } else {
+                setStep('search');
+                setLatitude(0);
+                setLongitude(0);
+                setSelectedAddressText('');
+            }
             setSearchQuery('');
             setPredictions([]);
             setAddressLine('');
@@ -77,19 +89,24 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     const handleUseCurrentLocation = () => {
         if ('geolocation' in navigator) {
             setIsSearching(true);
+            setErrorMsg('');
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     setLatitude(pos.coords.latitude);
                     setLongitude(pos.coords.longitude);
-                    setSelectedAddressText('Selected via GPS');
+                    setSelectedAddressText('Current Location');
                     setStep('details');
                     setIsSearching(false);
                 },
                 (err) => {
                     console.error("Error fetching GPS:", err);
+                    setErrorMsg("Please enable location access to use this feature.");
                     setIsSearching(false);
-                }
+                },
+                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
             );
+        } else {
+            setErrorMsg("Geolocation is not supported by your browser.");
         }
     };
 
@@ -152,7 +169,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
                 <div className="flex-1 text-center">
-                    <span className="text-[16px] font-black text-gray-900">
+                    <span className="text-[16px] font-bold text-gray-900">
                         {step === 'search' ? 'Add New Address' : 'Enter Details'}
                     </span>
                 </div>
@@ -173,6 +190,12 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-gray-800 font-medium focus:outline-none focus:border-[#FF4732] focus:bg-white shadow-sm transition-all"
                             />
                         </div>
+
+                        {errorMsg && step === 'search' && (
+                            <div className="mb-4 p-3 bg-red-50 text-[#FF4732] text-sm font-semibold rounded-xl border border-red-100">
+                                {errorMsg}
+                            </div>
+                        )}
 
                         <div className="flex flex-col gap-3 mb-4">
                             <button 
@@ -250,7 +273,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                         <div className="bg-[#FFF4F2] px-6 py-5 border-b border-red-50 flex items-start gap-3">
                             <MapPin className="w-6 h-6 text-[#FF4732] shrink-0 mt-0.5" />
                             <div className="flex flex-col">
-                                <span className="text-[15px] font-black text-[#111] leading-tight mb-1">Delivering to</span>
+                                <span className="text-[15px] font-bold text-[#111] leading-tight mb-1">Delivering to</span>
                                 <span className="text-sm font-medium text-gray-500 leading-snug">{selectedAddressText}</span>
                             </div>
                         </div>
@@ -333,7 +356,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                             <button
                                 onClick={handleSaveAddress}
                                 disabled={isSaving || !addressLine.trim() || isLoadingDetails}
-                                className={`w-full text-white font-black text-[17px] py-[18px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
+                                className={`w-full text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
                                     ${isSaving || !addressLine.trim() || isLoadingDetails ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
                             >
                                 {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Save Address'}

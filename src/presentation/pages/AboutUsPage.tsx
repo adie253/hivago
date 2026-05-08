@@ -70,7 +70,7 @@ export const AboutUsPage: React.FC = () => {
                         <Award className="w-4 h-4" />
                         <span>Redefining Food Delivery</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black text-gray-900 leading-tight mb-8">
+                    <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-tight mb-8">
                         Bringing the best of <br />
                         <span className="text-[#B02421] italic">local flavors</span> to you.
                     </h1>
@@ -80,7 +80,7 @@ export const AboutUsPage: React.FC = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <button 
                             onClick={() => navigate('/restaurants')}
-                            className="w-full sm:w-auto px-8 py-4 bg-[#B02421] text-white rounded-2xl font-black text-lg shadow-xl shadow-[#B02421]/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto px-8 py-4 bg-[#B02421] text-white rounded-2xl font-bold text-lg shadow-xl shadow-[#B02421]/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                         >
                             Explore Restaurants <ArrowRight className="w-5 h-5" />
                         </button>
@@ -114,7 +114,7 @@ export const AboutUsPage: React.FC = () => {
                         </div>
                     </div>
                     <div className="lg:w-1/2">
-                        <h2 className="text-4xl font-black text-gray-900 mb-6 leading-tight">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
                             Our mission is to <br />
                             <span className="text-[#FF4732]">Spread Happiness</span> <br />
                             through every bite.
@@ -125,11 +125,11 @@ export const AboutUsPage: React.FC = () => {
                             </p>
                             <div className="pt-6 grid grid-cols-2 gap-8">
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-3xl font-black text-gray-900 italic">2026</span>
+                                    <span className="text-3xl font-bold text-gray-900 italic">2026</span>
                                     <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Founded In</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-3xl font-black text-gray-900 italic">Global</span>
+                                    <span className="text-3xl font-bold text-gray-900 italic">Global</span>
                                     <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Vision</span>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@ export const AboutUsPage: React.FC = () => {
                 className="py-24 px-6"
             >
                 <div className="max-w-7xl mx-auto text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-4">Values that drive us</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Values that drive us</h2>
                     <p className="text-gray-500 font-bold max-w-xl mx-auto">We're built on a foundation of trust, quality, and community.</p>
                 </div>
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -153,7 +153,7 @@ export const AboutUsPage: React.FC = () => {
                             <div className="mb-6 p-4 bg-gray-50 rounded-2xl w-fit group-hover:bg-[#FF4732]/10 transition-colors">
                                 {v.icon}
                             </div>
-                            <h3 className="text-2xl font-black text-gray-900 mb-4">{v.title}</h3>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">{v.title}</h3>
                             <p className="text-gray-500 font-medium leading-relaxed">{v.description}</p>
                         </div>
                     ))}
@@ -168,7 +168,7 @@ export const AboutUsPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12">
                     {stats.map((s, i) => (
                         <div key={i} className="text-center">
-                            <div className="text-4xl md:text-5xl font-black text-white mb-2">{s.value}</div>
+                            <div className="text-4xl md:text-5xl font-bold text-white mb-2">{s.value}</div>
                             <div className="text-white/60 font-bold text-sm uppercase tracking-widest">{s.label}</div>
                         </div>
                     ))}
@@ -189,15 +189,15 @@ export const AboutUsPage: React.FC = () => {
                         />
                     </div>
                     <div className="lg:w-1/2">
-                        <div className="inline-flex items-center gap-2 text-[#FF4732] font-black text-sm uppercase tracking-widest mb-4">
+                        <div className="inline-flex items-center gap-2 text-[#FF4732] font-bold text-sm uppercase tracking-widest mb-4">
                             <Users className="w-4 h-4" />
                             <span>Our Culture</span>
                         </div>
-                        <h2 className="text-4xl font-black text-gray-900 mb-6">Built by humans, <br /> for humans.</h2>
+                        <h2 className="text-4xl font-bold text-gray-900 mb-6">Built by humans, <br /> for humans.</h2>
                         <p className="text-lg text-gray-600 font-medium leading-relaxed mb-8">
                             Behind the app and the scooties is a diverse team of dreamers, doers, and food-lovers. We're united by a shared passion for technology and a deep respect for the culinary arts.
                         </p>
-                        <button className="flex items-center gap-2 text-gray-900 font-black hover:text-[#FF4732] transition-colors group">
+                        <button className="flex items-center gap-2 text-gray-900 font-bold hover:text-[#FF4732] transition-colors group">
                             Learn more about our culture <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
@@ -212,10 +212,10 @@ export const AboutUsPage: React.FC = () => {
                 <div className="max-w-5xl mx-auto bg-gradient-to-r from-[#D03727] to-[#AD2523] rounded-[48px] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-red-200">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                     <div className="relative z-10">
-                        <h2 className="text-4xl md:text-5xl font-black text-white mb-8">Ready to taste the <br /> difference?</h2>
+                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">Ready to taste the <br /> difference?</h2>
                         <button 
                             onClick={() => navigate('/restaurants')}
-                            className="bg-white text-[#B02421] px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl"
+                            className="bg-white text-[#B02421] px-10 py-5 rounded-2xl font-bold text-xl hover:scale-105 active:scale-95 transition-all shadow-xl"
                         >
                             Order Your Next Meal
                         </button>

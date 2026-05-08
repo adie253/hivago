@@ -1,0 +1,4725 @@
+[
+  {
+    "endpoint": "/api/admin/menu/template.xlsx",
+    "method": "GET",
+    "summary": "Download the bulk-import Excel template",
+    "description": "",
+    "tags": [
+      "Admin Catalog"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/restaurants/{restaurantId}/menu/import",
+    "method": "POST",
+    "summary": "Bulk-import a restaurant menu from Excel + images zip",
+    "description": "",
+    "tags": [
+      "Admin Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/menu/ocr-extract",
+    "method": "POST",
+    "summary": "OCR a menu image and return suggested item rows",
+    "description": "",
+    "tags": [
+      "Admin Catalog"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/pending",
+    "method": "GET",
+    "summary": "Get all pending payouts waiting for processing",
+    "description": "",
+    "tags": [
+      "Admin Payouts"
+    ],
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 50
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/{payoutId}/process",
+    "method": "PUT",
+    "summary": "Mark a payout as processed with transaction reference",
+    "description": "",
+    "tags": [
+      "Admin Payouts"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.ProcessPayoutRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/{orderId}/assign-rider",
+    "method": "POST",
+    "summary": "Manually assign a rider to an order (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.AdminAssignRider.AdminAssignRiderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/{orderId}/cancel",
+    "method": "POST",
+    "summary": "Admin cancel — bypasses the normal status guard (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.AdminCancelOrder.AdminCancelOrderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/{orderId}/refund",
+    "method": "POST",
+    "summary": "Admin refund — bypasses the normal refundable-status guard (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.AdminRefundOrder.AdminRefundOrderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/profile/password",
+    "method": "PUT",
+    "summary": "Change the signed-in admin's password. Requires current password.",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.ChangeAdminPassword.ChangeAdminPasswordRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/users",
+    "method": "POST",
+    "summary": "Create a new admin user (SuperAdmin only). Allowed roles: Support, CityAdmin.",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.CreateAdmin.CreateAdminRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/users",
+    "method": "GET",
+    "summary": "List admin users (SuperAdmin only). Optional filters: role (Support|CityAdmin|SuperAdmin), isActive.",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "role",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "isActive",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/restaurants",
+    "method": "POST",
+    "summary": "Create a restaurant from the admin panel (requires existing owner)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.CreateAdminPanelRestaurant.CreateAdminPanelRestaurantRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/owners",
+    "method": "POST",
+    "summary": "Create a new restaurant owner. OwnerId returned here is required when creating outlets via POST /api/admin/restaurants.",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.CreateOwner.CreateOwnerRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/restaurants",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.CreateRestaurant.CreateRestaurantRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/restaurants",
+    "method": "GET",
+    "summary": "List restaurants with optional filters (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "isActive",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/riders",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.CreateRider.CreateRiderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/riders",
+    "method": "GET",
+    "summary": "List all riders with optional filtering by online status and KYC status",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "isOnline",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "kycStatus",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/restaurants/{restaurantId}",
+    "method": "PUT",
+    "summary": "Edit a restaurant's details (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.EditRestaurantRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/restaurants/{restaurantId}",
+    "method": "GET",
+    "summary": "Get full restaurant details (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/{orderId}/escalate",
+    "method": "POST",
+    "summary": "Manually escalate an order to admin (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.EscalateOrder.EscalateOrderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/export",
+    "method": "GET",
+    "summary": "Stream matching orders as CSV (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "default": "all"
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/alerts",
+    "method": "GET",
+    "summary": "Active operational alerts for the dashboard",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 50
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/{orderId}",
+    "method": "GET",
+    "summary": "Admin-scoped order detail with rider/restaurant phones, escalation, and delay",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders",
+    "method": "GET",
+    "summary": "Paged orders list with status/search/date filters and tab counts (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "default": "all"
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/profile",
+    "method": "GET",
+    "summary": "Get the currently signed-in admin's profile (read-only).",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/stats",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/dashboard/stats",
+    "method": "GET",
+    "summary": "Top-bar 5-number stats for the live operations dashboard",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/orders/escalated",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/orders/live",
+    "method": "GET",
+    "summary": "Live feed of orders currently in active states (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 200
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/stats/orders",
+    "method": "GET",
+    "summary": "Order count breakdown by status and period (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/restaurant",
+    "method": "GET",
+    "summary": "Paged restaurant payouts list with date/owner/status filters (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "ownerId",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/restaurant/summary",
+    "method": "GET",
+    "summary": "Stats bar for the restaurant payouts page (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/stats/revenue",
+    "method": "GET",
+    "summary": "Revenue and commission breakdown by period (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/{riderId}/kyc-documents",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "riderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/riders/{riderId}",
+    "method": "GET",
+    "summary": "Get full rider profile and status for admin panel",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "riderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/rider",
+    "method": "GET",
+    "summary": "Paged rider payouts list with date/rider/status filters (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "riderId",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/rider/summary",
+    "method": "GET",
+    "summary": "Stats bar for the rider payouts page (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/owners",
+    "method": "GET",
+    "summary": "List restaurant owners with optional filters (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "isActive",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/login",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.Login.AdminLoginRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/restaurant/{payoutId}/pay-now",
+    "method": "POST",
+    "summary": "Trigger immediate payout via gateway (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/restaurant/{payoutId}/hold",
+    "method": "POST",
+    "summary": "Pause a Pending payout (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.HoldRestaurantPayout.HoldRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/restaurant/{payoutId}/release-hold",
+    "method": "POST",
+    "summary": "Release a payout from hold back to Pending (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/restaurant/{payoutId}/retry",
+    "method": "POST",
+    "summary": "Re-queue a Failed payout for the next auto-run (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/rider/{payoutId}/pay-now",
+    "method": "POST",
+    "summary": "Trigger immediate rider payout via gateway (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/rider/{payoutId}/hold",
+    "method": "POST",
+    "summary": "Pause a Pending rider payout (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.HoldRiderPayout.HoldRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/rider/{payoutId}/release-hold",
+    "method": "POST",
+    "summary": "Release a rider payout from hold back to Pending (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admin/payouts/rider/{payoutId}/retry",
+    "method": "POST",
+    "summary": "Re-queue a Failed rider payout for the next auto-run (admin panel)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/admins/restaurants/{restaurantId}/status",
+    "method": "PUT",
+    "summary": "Activate or deactivate a restaurant (admin)",
+    "description": "",
+    "tags": [
+      "Admins"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Admins.SetRestaurantStatus.SetRestaurantStatusRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/auth/refresh",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Auth"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Auth.RefreshTokenEndpoint.RefreshRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/auth/revoke",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Auth"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Auth.RevokeTokenEndpoint.RevokeRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/cart",
+    "method": "GET",
+    "summary": "Get the current customer's cart",
+    "description": "",
+    "tags": [
+      "Cart"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Cart.DTOs.CartDto"
+            }
+          }
+        }
+      },
+      "204": {
+        "description": "No Content"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/cart",
+    "method": "DELETE",
+    "summary": "Clear the entire cart",
+    "description": "",
+    "tags": [
+      "Cart"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "204": {
+        "description": "No Content"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/cart/items",
+    "method": "POST",
+    "summary": "Add an item to the cart",
+    "description": "",
+    "tags": [
+      "Cart"
+    ],
+    "parameters": [
+      {
+        "name": "replaceCart",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.CartEndpoints.AddCartItemRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Cart.DTOs.CartDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/cart/items/{itemId}",
+    "method": "PUT",
+    "summary": "Update quantity of a cart item",
+    "description": "",
+    "tags": [
+      "Cart"
+    ],
+    "parameters": [
+      {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.CartEndpoints.UpdateCartItemRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Cart.DTOs.CartDto"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/cart/items/{itemId}",
+    "method": "DELETE",
+    "summary": "Remove an item from the cart",
+    "description": "",
+    "tags": [
+      "Cart"
+    ],
+    "parameters": [
+      {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Cart.DTOs.CartDto"
+            }
+          }
+        }
+      },
+      "204": {
+        "description": "No Content"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/cart/sync",
+    "method": "POST",
+    "summary": "Merge a guest cart into the server-side cart after login",
+    "description": "",
+    "tags": [
+      "Cart"
+    ],
+    "parameters": [
+      {
+        "name": "replaceCart",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.CartEndpoints.SyncCartRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Cart.DTOs.CartDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/catalog/menu-items/{menuItemId}/image/upload-url",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Catalog - Images"
+    ],
+    "parameters": [
+      {
+        "name": "menuItemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.UpdateMenuItem.GenerateUploadUrlRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Catalog.Application.MenuItems.Commands.GenerateMenuItemUploadUrl.GenerateMenuItemUploadUrlResponse"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden"
+      },
+      "404": {
+        "description": "Not Found"
+      },
+      "422": {
+        "description": "Unprocessable Content"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/catalog/menu-items/{menuItemId}/image/confirm",
+    "method": "PATCH",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Catalog - Images"
+    ],
+    "parameters": [
+      {
+        "name": "menuItemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.UpdateMenuItem.ConfirmImageRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Catalog.Application.MenuItems.Commands.ConfirmMenuItemImage.ConfirmMenuItemImageResponse"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden"
+      },
+      "404": {
+        "description": "Not Found"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/catalog/restaurants/{restaurantId}/menu",
+    "method": "GET",
+    "summary": "Get full menu with items and options for a restaurant",
+    "description": "",
+    "tags": [
+      "Customer Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/catalog/restaurants",
+    "method": "GET",
+    "summary": "List active restaurants with optional location, cuisine, and dietary filters",
+    "description": "",
+    "tags": [
+      "Customer Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "lat",
+        "in": "query",
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      {
+        "name": "lng",
+        "in": "query",
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      {
+        "name": "radiusKm",
+        "in": "query",
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      {
+        "name": "cuisines",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "pureVeg",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "veganFriendly",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "jainOptions",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "openNow",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/catalog/search",
+    "method": "GET",
+    "summary": "Search menu items by name across all restaurants",
+    "description": "",
+    "tags": [
+      "Customer Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "q",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "maxResults",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/{restaurantId}/menus",
+    "method": "GET",
+    "summary": "Get all menus for a restaurant",
+    "description": "",
+    "tags": [
+      "Customer Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/items/{itemId}",
+    "method": "GET",
+    "summary": "Get menu item details",
+    "description": "",
+    "tags": [
+      "Customer Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/menus/{menuId}/items",
+    "method": "GET",
+    "summary": "Get all items for a menu",
+    "description": "",
+    "tags": [
+      "Customer Catalog"
+    ],
+    "parameters": [
+      {
+        "name": "menuId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/addresses",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Customers.AddAddress.AddCustomerAddressRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/addresses",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/addresses/{addressId}",
+    "method": "DELETE",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [
+      {
+        "name": "addressId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/addresses/{addressId}",
+    "method": "PUT",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [
+      {
+        "name": "addressId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Customers.UpdateAddress.UpdateAddressRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/profile",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/profile",
+    "method": "PUT",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Customers.UpdateProfile.UpdateCustomerProfileRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/otp/send",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Customers.SendOtp.SendCustomerOtpRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/addresses/{addressId}/default",
+    "method": "PUT",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [
+      {
+        "name": "addressId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/customers/otp/verify",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Customers"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Customers.VerifyOtp.VerifyCustomerOtpRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/delivery/quote",
+    "method": "POST",
+    "summary": "Get delivery quote at checkout",
+    "description": "",
+    "tags": [
+      "Delivery"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Delivery.Endpoints.Requests.GetQuoteRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Delivery.Application.DTOs.DeliveryQuoteDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/dev/seed-users",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Dev"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Dev.SeedUsers.SeedUsersRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/dev/orders/purge-by-restaurant",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Dev"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Host.DevEndpoints.PurgeOrdersByRestaurant.Request"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/dev/owners/seed",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Dev"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Host.DevEndpoints.SeedRestaurantOwner.Request"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/places/{placeId}",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Geocoding"
+    ],
+    "parameters": [
+      {
+        "name": "placeId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/places/autocomplete",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Geocoding"
+    ],
+    "parameters": [
+      {
+        "name": "input",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "lat",
+        "in": "query",
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      {
+        "name": "lng",
+        "in": "query",
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/geocode/reverse",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Geocoding"
+    ],
+    "parameters": [
+      {
+        "name": "lat",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      {
+        "name": "lng",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/option-groups/{groupId}/options",
+    "method": "POST",
+    "summary": "Add an option to an existing option group",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "groupId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.AddOptionToGroupRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items/{menuItemId}/option-groups",
+    "method": "POST",
+    "summary": "Create a new option group for a menu item",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "menuItemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.CreateOptionGroupRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items/{menuItemId}/option-groups",
+    "method": "GET",
+    "summary": "Get all option groups for a menu item",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "menuItemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/options/{optionId}",
+    "method": "DELETE",
+    "summary": "Delete an option",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "optionId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/options/{optionId}",
+    "method": "PUT",
+    "summary": "Update an option",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "optionId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.UpdateOptionRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items/{menuItemId}/option-groups/{groupId}",
+    "method": "DELETE",
+    "summary": "Delete an option group and its options",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "menuItemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "groupId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items/{menuItemId}/option-groups/{groupId}",
+    "method": "PUT",
+    "summary": "Update an option group",
+    "description": "",
+    "tags": [
+      "Option Groups"
+    ],
+    "parameters": [
+      {
+        "name": "menuItemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "groupId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.UpdateOptionGroupRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders",
+    "method": "POST",
+    "summary": "Place a new order",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.Requests.PlaceOrderRequest"
+    },
+    "responses": {
+      "201": {
+        "description": "Created",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders",
+    "method": "GET",
+    "summary": "Get filtered order history",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "restaurantId",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Queries.GetOrdersByCustomer.PagedResult`1[[RallyAPI.Orders.Application.DTOs.OrderSummaryDto, RallyAPI.Orders.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}",
+    "method": "GET",
+    "summary": "Get order by ID",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/number/{orderNumber}",
+    "method": "GET",
+    "summary": "Get order by order number",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderNumber",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/my-orders",
+    "method": "GET",
+    "summary": "Get current customer's orders",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Queries.GetOrdersByCustomer.PagedResult`1[[RallyAPI.Orders.Application.DTOs.OrderSummaryDto, RallyAPI.Orders.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/restaurant/{restaurantId}",
+    "method": "GET",
+    "summary": "Get orders for a restaurant",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "activeOnly",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Queries.GetOrdersByCustomer.PagedResult`1[[RallyAPI.Orders.Application.DTOs.OrderSummaryDto, RallyAPI.Orders.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/active",
+    "method": "GET",
+    "summary": "Get all active orders",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "limit",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderSummaryDto"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/notes",
+    "method": "POST",
+    "summary": "Add an admin note to an order",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.Requests.AddOrderNoteRequest"
+    },
+    "responses": {
+      "204": {
+        "description": "No Content"
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/notes",
+    "method": "GET",
+    "summary": "Get admin notes for an order",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.Queries.GetOrderNotes.OrderNotesResponse"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/confirm",
+    "method": "PUT",
+    "summary": "Confirm an order (restaurant)",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/preparing",
+    "method": "PUT",
+    "summary": "Mark order as preparing",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/ready",
+    "method": "PUT",
+    "summary": "Mark order as ready for pickup",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/assign-rider",
+    "method": "PUT",
+    "summary": "Assign a rider to the order",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.Requests.AssignRiderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/pickup",
+    "method": "PUT",
+    "summary": "Mark order as picked up by rider",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/deliver",
+    "method": "PUT",
+    "summary": "Mark order as delivered",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/customer-pickup",
+    "method": "PUT",
+    "summary": "Mark pickup order as collected by customer",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/cancel",
+    "method": "PUT",
+    "summary": "Cancel an order",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.Requests.CancelOrderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/orders/{orderId}/reject",
+    "method": "PUT",
+    "summary": "Reject an order (restaurant)",
+    "description": "",
+    "tags": [
+      "Orders"
+    ],
+    "parameters": [
+      {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.Requests.RejectOrderRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Orders.Application.DTOs.OrderDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/owners/me/outlets",
+    "method": "GET",
+    "summary": "List all outlets owned by the authenticated owner",
+    "description": "",
+    "tags": [
+      "Owners"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/owners/me",
+    "method": "GET",
+    "summary": "Get the authenticated owner's profile",
+    "description": "",
+    "tags": [
+      "Owners"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/owners/login",
+    "method": "POST",
+    "summary": "Authenticate a restaurant owner (super-admin for multiple outlets)",
+    "description": "",
+    "tags": [
+      "Owners"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Owners.Login.OwnerLoginRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/owners/outlets/{restaurantId}/switch",
+    "method": "POST",
+    "summary": "Exchange owner token for a restaurant-scoped token for the given outlet",
+    "description": "",
+    "tags": [
+      "Owners"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/payments/initiate",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Payments"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.InitiatePaymentRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/payments/webhook",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Payments"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/payments/verify",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Payments"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.VerifyPaymentRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/payments/refund",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Payments"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Orders.Endpoints.RefundPaymentRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/payments/return/success",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Payments"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/payments/return/failure",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Payments"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "RallyAPI.Host"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items",
+    "method": "POST",
+    "summary": "Create a new menu item",
+    "description": "",
+    "tags": [
+      "Restaurant Menu Items"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.CreateMenuItemRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items/{itemId}/availability",
+    "method": "PATCH",
+    "summary": "Set menu item availability (in stock / out of stock)",
+    "description": "",
+    "tags": [
+      "Restaurant Menu Items"
+    ],
+    "parameters": [
+      {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.SetMenuItemAvailabilityRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/items/{itemId}",
+    "method": "PUT",
+    "summary": "Update a menu item",
+    "description": "",
+    "tags": [
+      "Restaurant Menu Items"
+    ],
+    "parameters": [
+      {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.MenuItems.UpdateMenuItemRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/menus",
+    "method": "POST",
+    "summary": "Create a new menu",
+    "description": "",
+    "tags": [
+      "Restaurant Menus"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Catalog.Endpoints.Menus.CreateMenuRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurant/menus/{menuId}",
+    "method": "DELETE",
+    "summary": "Delete a menu",
+    "description": "",
+    "tags": [
+      "Restaurant Menus"
+    ],
+    "parameters": [
+      {
+        "name": "menuId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/payouts/earnings",
+    "method": "GET",
+    "summary": "Get current week's earnings summary",
+    "description": "",
+    "tags": [
+      "Restaurant Payouts"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/payouts",
+    "method": "GET",
+    "summary": "Get payout history for the restaurant owner",
+    "description": "",
+    "tags": [
+      "Restaurant Payouts"
+    ],
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/payouts/{payoutId}",
+    "method": "GET",
+    "summary": "Get payout detail with order-level breakdown",
+    "description": "",
+    "tags": [
+      "Restaurant Payouts"
+    ],
+    "parameters": [
+      {
+        "name": "payoutId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/payouts/gst-summary",
+    "method": "GET",
+    "summary": "Get GST summary for a date range",
+    "description": "",
+    "tags": [
+      "Restaurant Payouts"
+    ],
+    "parameters": [
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/payouts/tds-summary",
+    "method": "GET",
+    "summary": "Get TDS summary for a date range",
+    "description": "",
+    "tags": [
+      "Restaurant Payouts"
+    ],
+    "parameters": [
+      {
+        "name": "from",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/outlets",
+    "method": "POST",
+    "summary": "Add a new outlet for the restaurant owner",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.AddOutlet.AddOutletRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/details",
+    "method": "GET",
+    "summary": "Get full restaurant settings (profile, dietary, operations, hours, delivery, notifications)",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/login",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.Login.RestaurantLoginRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/settings/auto-accept",
+    "method": "PUT",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.SetAutoAccept.SetAutoAcceptRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/availability",
+    "method": "PUT",
+    "summary": "Restaurant marks itself as open (accepting orders) or closed",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.SetAvailability.SetAvailabilityRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/profile",
+    "method": "PATCH",
+    "summary": "Update restaurant basics: name, phone, email, FSSAI, address, description",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateBasics.UpdateBasicsRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/delivery",
+    "method": "PATCH",
+    "summary": "Switch between Hivago delivery and self-delivery",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateDelivery.UpdateDeliveryRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/dietary",
+    "method": "PATCH",
+    "summary": "Update dietary type, vegan/Jain flags, and cuisine types",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateDietary.UpdateDietaryRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/hours",
+    "method": "PATCH",
+    "summary": "Update opening/closing time and weekly schedule (up to 3 slots per day)",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateHours.UpdateHoursRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/notifications",
+    "method": "PATCH",
+    "summary": "Toggle email alerts, browser notifications, order sound",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateNotifications.UpdateNotificationsRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/operations",
+    "method": "PATCH",
+    "summary": "Toggle auto-accept, accepting orders, min order amount, prep time, custom schedule flag",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateOperations.UpdateOperationsRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/me/password",
+    "method": "PATCH",
+    "summary": "Change account password (requires current password)",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdatePassword.UpdatePasswordRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/restaurants/profile",
+    "method": "PUT",
+    "summary": "Update restaurant profile including cuisine types, dietary attributes, and FSSAI",
+    "description": "",
+    "tags": [
+      "Restaurants"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateProfile.UpdateRestaurantProfileRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/pending-offer",
+    "method": "GET",
+    "summary": "Get pending delivery offer for rider",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Delivery.Application.DTOs.RiderOfferDto"
+            }
+          }
+        }
+      },
+      "204": {
+        "description": "No Content"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/offer/{offerId}/accept",
+    "method": "POST",
+    "summary": "Accept a delivery offer",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "offerId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Delivery.Application.DTOs.DeliveryRequestDto"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/offer/{offerId}/reject",
+    "method": "POST",
+    "summary": "Reject a delivery offer",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "offerId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Delivery.Endpoints.RejectOfferRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/{deliveryId}/arrived-pickup",
+    "method": "POST",
+    "summary": "Mark rider arrived at restaurant",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "deliveryId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/{deliveryId}/pickup",
+    "method": "POST",
+    "summary": "Mark order as picked up",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "deliveryId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/{deliveryId}/arrived-drop",
+    "method": "POST",
+    "summary": "Mark rider arrived at customer",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "deliveryId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/{deliveryId}/delivered",
+    "method": "POST",
+    "summary": "Mark order as delivered",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "deliveryId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/{deliveryId}/failed",
+    "method": "POST",
+    "summary": "Mark delivery as failed",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [
+      {
+        "name": "deliveryId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Delivery.Endpoints.Requests.MarkFailedRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/rider/delivery/current",
+    "method": "GET",
+    "summary": "Get rider's current active delivery",
+    "description": "",
+    "tags": [
+      "Rider Delivery"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Delivery.Application.DTOs.DeliveryRequestDto"
+            }
+          }
+        }
+      },
+      "204": {
+        "description": "No Content"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/profile",
+    "method": "GET",
+    "summary": "Get rider profile",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/profile",
+    "method": "PUT",
+    "summary": "Update rider profile",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Riders.UpdateRiderProfileRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/status/offline",
+    "method": "POST",
+    "summary": "Set rider status to offline",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/status/online",
+    "method": "POST",
+    "summary": "Set rider status to online",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/otp/send",
+    "method": "POST",
+    "summary": "Send OTP to rider phone",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Riders.SendRiderOtpRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/location",
+    "method": "POST",
+    "summary": "Update rider current location",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Riders.UpdateRiderLocationRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/riders/otp/verify",
+    "method": "POST",
+    "summary": "Verify OTP and get token",
+    "description": "",
+    "tags": [
+      "Riders"
+    ],
+    "parameters": [],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Riders.VerifyRiderOtpRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/test/distance",
+    "method": "GET",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Test"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/track/{orderNumber}",
+    "method": "GET",
+    "summary": "Get delivery tracking information",
+    "description": "",
+    "tags": [
+      "Tracking"
+    ],
+    "parameters": [
+      {
+        "name": "orderNumber",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RallyAPI.Delivery.Application.DTOs.TrackingDto"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "endpoint": "/api/users/riders/{riderId}/kyc/upload-url",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Users - Images"
+    ],
+    "parameters": [
+      {
+        "name": "riderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Riders.UpdateProfile.GenerateKycUploadUrlRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/users/riders/{riderId}/kyc/confirm",
+    "method": "PATCH",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Users - Images"
+    ],
+    "parameters": [
+      {
+        "name": "riderId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Riders.UpdateProfile.ConfirmKycRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/users/restaurants/{restaurantId}/logo/upload-url",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Users - Images"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateProfile.GenerateUploadUrlRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/users/restaurants/{restaurantId}/logo/confirm",
+    "method": "PATCH",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Users - Images"
+    ],
+    "parameters": [
+      {
+        "name": "restaurantId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "$ref": "#/components/schemas/RallyAPI.Users.Endpoints.Restaurants.UpdateProfile.ConfirmImageRequest"
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/webhooks/prorouting",
+    "method": "POST",
+    "summary": "Handle ProRouting status update callbacks",
+    "description": "",
+    "tags": [
+      "Webhooks"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "401": {
+        "description": "Unauthorized"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/webhooks/prorouting/status",
+    "method": "POST",
+    "summary": "",
+    "description": "",
+    "tags": [
+      "Webhooks"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "401": {
+        "description": "Unauthorized"
+      }
+    }
+  },
+  {
+    "endpoint": "/api/webhooks/prorouting/track",
+    "method": "POST",
+    "summary": "Handle ProRouting bulk live-location callbacks",
+    "description": "",
+    "tags": [
+      "Webhooks"
+    ],
+    "parameters": [],
+    "requestBody": {},
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "401": {
+        "description": "Unauthorized"
+      }
+    }
+  }
+]

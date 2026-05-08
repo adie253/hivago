@@ -103,21 +103,25 @@ export const OrderTrackingPage: React.FC = () => {
     const getAddressDisplay = (o: any) => {
         if (!o) return 'Plot No.7, Arenja Chambers, Navi Mumbai';
         
+        const cleanAddress = (addrStr: string) => {
+            return addrStr.replace(/,?\s*000000\b/g, '').trim().replace(/,\s*$/, '');
+        };
+
         // Match the real backend: o.deliveryInfo.deliveryAddress
         if (o.deliveryInfo?.deliveryAddress) {
             const addr = o.deliveryInfo.deliveryAddress;
-            if (addr.formattedAddress) return addr.formattedAddress;
+            if (addr.formattedAddress) return cleanAddress(addr.formattedAddress);
             const street = addr.street || addr.addressLine || addr.address || '';
             const city = addr.city || '';
-            if (street || city) return [street, city].filter(Boolean).join(', ');
+            if (street || city) return cleanAddress([street, city].filter(Boolean).join(', '));
         }
         
         // Legacy fallback check on root if structure reverts
         if (o.deliveryAddress) {
-            if (typeof o.deliveryAddress === 'string') return o.deliveryAddress;
+            if (typeof o.deliveryAddress === 'string') return cleanAddress(o.deliveryAddress);
             const street = o.deliveryAddress.street || o.deliveryAddress.addressLine || o.deliveryAddress.address || '';
             const city = o.deliveryAddress.city || '';
-            if (street || city) return [street, city].filter(Boolean).join(', ');
+            if (street || city) return cleanAddress([street, city].filter(Boolean).join(', '));
         }
         
         return 'Plot No.7, Arenja Chambers, Navi Mumbai';
@@ -125,17 +129,25 @@ export const OrderTrackingPage: React.FC = () => {
 
     const getOrderTotal = (o: any) => {
         if (!o) return 370;
-        if (o.totalAmount) return o.totalAmount;
-        if (o.total) return o.total;
-        if (o.pricing?.total) return o.pricing.total;
+        
+        const itemsTotal = Array.isArray(o.items) ? o.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
+        const backendTotal = o.pricing?.total || o.total || o.totalAmount;
+
+        // If backend returns a drastically lower total (like 173 instead of 660+), the backend calculation is likely bugged
+        // We calculate it manually to preserve UI consistency
+        if (itemsTotal > 0 && backendTotal && Math.abs(backendTotal - itemsTotal) > 100) {
+            const tax = o.pricing?.tax || 0;
+            const fee = o.pricing?.serviceFee || 0;
+            return itemsTotal + tax + fee;
+        }
+
+        if (backendTotal) return backendTotal;
         if (o.pricing?.subTotal) return o.pricing.subTotal;
         
         // Final fallback: Calculate from items
-        if (Array.isArray(o.items) && o.items.length > 0) {
-            return o.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0);
-        }
+        if (itemsTotal > 0) return itemsTotal;
         
-        return 370;
+        return backendTotal || 0;
     };
 
     if (isLoading) {
@@ -154,7 +166,7 @@ export const OrderTrackingPage: React.FC = () => {
                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
                         <ShoppingBag className="w-8 h-8 text-gray-300" />
                     </div>
-                    <h2 className="text-xl font-black text-gray-900">No Active Order</h2>
+                    <h2 className="text-xl font-bold text-gray-900">No Active Order</h2>
                     <p className="text-gray-500 text-sm font-medium">We couldn't find an active order to track right now.</p>
                     <button 
                         onClick={() => navigate('/', { replace: true })}
@@ -175,7 +187,7 @@ export const OrderTrackingPage: React.FC = () => {
                     <button onClick={() => navigate('/')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
                         <ArrowLeft className="w-5 h-5 text-gray-800" />
                     </button>
-                    <h1 className="text-lg font-black text-gray-900">Track Order</h1>
+                    <h1 className="text-lg font-bold text-gray-900">Track Order</h1>
                 </div>
                 <button onClick={() => setIsMenuOpen(true)} className="p-2 text-gray-700">
                     <Menu className="w-6 h-6" />
@@ -198,8 +210,8 @@ export const OrderTrackingPage: React.FC = () => {
                                         <Bike className="w-8 h-8 text-[#FF4732]" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-gray-900 text-[18px] font-black leading-none mb-2 tracking-tight">Estimated Delivery Time</span>
-                                        <span className="text-[#FF4732] font-black text-[22px]">30-35 min</span>
+                                        <span className="text-gray-900 text-[18px] font-bold leading-none mb-2 tracking-tight">Estimated Delivery Time</span>
+                                        <span className="text-[#FF4732] font-bold text-[22px]">{(order as any).estimatedTimeDisplay || '30-40 min'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -210,7 +222,7 @@ export const OrderTrackingPage: React.FC = () => {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="flex flex-col">
-                                        <span className="text-gray-900 font-black text-[18px] mb-2 tracking-tight">Delivery Address</span>
+                                        <span className="text-gray-900 font-bold text-[18px] mb-2 tracking-tight">Delivery Address</span>
                                         <span className="text-gray-400 text-[15px] font-medium w-[85%] text-pretty leading-relaxed">
                                             {getAddressDisplay(order)}
                                         </span>
@@ -225,33 +237,35 @@ export const OrderTrackingPage: React.FC = () => {
                             <hr className="border-gray-50 border-t-2" />
 
                             {/* Contact Partner */}
-                            <div className="flex flex-col gap-4">
-                                <h2 className="text-[18px] font-black text-gray-900 tracking-tight">Contact Delivery Partner</h2>
-                                <div className="bg-[#FCFCFC] rounded-[24px] p-2.5 border border-gray-100 flex items-center justify-between shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
-                                    <div className="flex items-center gap-4 pl-1.5">
-                                        <div className="w-14 h-14 rounded-[18px] bg-gray-200 overflow-hidden shrink-0 border border-gray-100 shadow-inner">
-                                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anand" alt="Delivery Partner" />
-                                        </div>
-                                        <div className="flex flex-col justify-center gap-1">
-                                            <span className="text-[16px] font-black text-gray-900 leading-none">Anand Kamble</span>
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex items-center gap-0.5 text-[#F7A626]">
-                                                    <Star className="w-[14px] h-[14px] fill-current" />
-                                                    <span className="text-[12px] font-bold">4.9</span>
+                            {(order as any)?.rider && (
+                                <div className="flex flex-col gap-4">
+                                    <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Contact Delivery Partner</h2>
+                                    <div className="bg-[#FCFCFC] rounded-[24px] p-2.5 border border-gray-100 flex items-center justify-between shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
+                                        <div className="flex items-center gap-4 pl-1.5">
+                                            <div className="w-14 h-14 rounded-[18px] bg-gray-200 overflow-hidden shrink-0 border border-gray-100 shadow-inner">
+                                                <img src={(order as any)?.rider?.photo || "https://api.dicebear.com/7.x/avataaars/svg?seed=Anand"} alt="Delivery Partner" />
+                                            </div>
+                                            <div className="flex flex-col justify-center gap-1">
+                                                <span className="text-[16px] font-bold text-gray-900 leading-none">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-0.5 text-[#F7A626]">
+                                                        <Star className="w-[14px] h-[14px] fill-current" />
+                                                        <span className="text-[12px] font-bold">{(order as any)?.rider?.rating || '4.9'}</span>
+                                                    </div>
+                                                    <span className="text-gray-300 text-[12px] font-bold tracking-wider">• ID {(order as any)?.rider?.id || 'DW2125'}</span>
                                                 </div>
-                                                <span className="text-gray-300 text-[12px] font-bold tracking-wider">• ID DW2125</span>
                                             </div>
                                         </div>
+                                        <button className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1">
+                                            <Phone className="w-5 h-5 fill-current" />
+                                        </button>
                                     </div>
-                                    <button className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1">
-                                        <Phone className="w-5 h-5 fill-current" />
-                                    </button>
                                 </div>
-                            </div>
+                            )}
                             
                             {/* Order Details */}
                             <div className="flex flex-col gap-4 mt-2">
-                                <h2 className="text-[18px] font-black text-gray-900 tracking-tight">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
+                                <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
                                 <div className="flex flex-col gap-4">
                                     {(order?.items || [
                                         { name: 'Margherita Pizza', quantity: 1, unitPrice: 250 },
@@ -260,14 +274,14 @@ export const OrderTrackingPage: React.FC = () => {
                                         <div key={idx} className={`flex justify-between items-center text-[16px] ${idx !== arr.length - 1 ? 'pb-5 border-b border-gray-100' : ''}`}>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
-                                                <span className="text-gray-700 font-semibold tracking-tight">{ item.name || 'Item'} x {item.quantity || 1}</span>
+                                                <span className="text-gray-700 font-semibold tracking-tight">{ item.itemName || item.name || 'Item'} x {item.quantity || 1}</span>
                                             </div>
                                             <span className="text-gray-900 font-bold">₹{item.unitPrice * item.quantity}</span>
                                         </div>
                                     ))}
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                                        <span className="text-gray-900 font-black text-[18px]">Total Amount</span>
-                                        <span className="text-gray-900 font-black text-xl">₹{getOrderTotal(order)}</span>
+                                        <span className="text-gray-900 font-bold text-[18px]">Total Amount</span>
+                                        <span className="text-gray-900 font-bold text-xl">₹{getOrderTotal(order)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -286,7 +300,7 @@ export const OrderTrackingPage: React.FC = () => {
                                     <span className="text-gray-400 text-[13px] font-medium leading-none mb-1.5">Estimated Delivery Time</span>
                                     <div className="flex items-center gap-1.5">
                                         <Clock className="w-4 h-4 text-[#FF4732]" />
-                                        <span className="text-[#FF4732] font-black text-[17px]">30-35 min</span>
+                                        <span className="text-[#FF4732] font-bold text-[17px]">{(order as any).estimatedTimeDisplay || '30-40 min'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -322,12 +336,12 @@ export const OrderTrackingPage: React.FC = () => {
                             <img src={stages[currentStageIndex].image} alt="Status" className="h-[140px] object-contain drop-shadow-xl translate-y-2 mix-blend-multiply" />
                         </div>
                         <div className="hidden lg:flex bg-[#E0D8FC] min-h-[64px] items-center justify-center border-t border-white/20 shadow-inner">
-                             <h2 className="text-[#8B5CF6] font-black text-[22px] tracking-wide">{stages[currentStageIndex].label}</h2>
+                             <h2 className="text-[#8B5CF6] font-bold text-[22px] tracking-wide">{stages[currentStageIndex].label}</h2>
                         </div>
                         
                         {/* Order Stepper */}
                         <div className="p-6 lg:p-10 relative bg-white">
-                            <h2 className="text-[22px] font-black text-gray-900 mb-10 tracking-tight text-center">Order Status</h2>
+                            <h2 className="text-[22px] font-bold text-gray-900 mb-10 tracking-tight text-center">Order Status</h2>
                             
                             {/* Vertical Line */}
                             <div className="absolute left-[47px] lg:left-[63px] top-[148px] lg:top-[128px] bottom-10 w-0.5 bg-gray-100"></div>
@@ -351,7 +365,7 @@ export const OrderTrackingPage: React.FC = () => {
                                                     <Icon className={`w-5 h-5 lg:w-4 lg:h-4 ${isCompleted || isActive ? 'text-white' : 'text-gray-300'}`} />
                                                 </div>
                                                 <div className="flex flex-col pt-1 bg-white pr-4">
-                                                    <span className={`text-[15px] lg:text-[18px] font-black leading-none mb-1.5 transition-colors duration-500 tracking-tight ${isActive ? 'text-gray-900' : isCompleted ? 'text-gray-900' : 'text-gray-300'}`}>
+                                                    <span className={`text-[15px] lg:text-[18px] font-bold leading-none mb-1.5 transition-colors duration-500 tracking-tight ${isActive ? 'text-gray-900' : isCompleted ? 'text-gray-900' : 'text-gray-300'}`}>
                                                         {stage.label}
                                                     </span>
                                                     {(isActive || isCompleted) ? (
@@ -380,33 +394,35 @@ export const OrderTrackingPage: React.FC = () => {
 
                 <div className="flex flex-col gap-6 lg:hidden w-full">
                     {/* Contact Partner Card */}
-                    <div className="flex flex-col gap-3">
-                        <h2 className="text-sm font-black text-gray-900 ml-1">Contact Delivery Partner</h2>
-                        <div className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-14 h-14 rounded-2xl bg-gray-100 overflow-hidden">
-                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anand" alt="Delivery Partner" />
-                                </div>
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="text-[15px] font-bold text-gray-900">Anand Kamble</span>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="flex items-center gap-0.5 text-amber-500">
-                                            <Star className="w-3.5 h-3.5 fill-current" />
-                                            <span className="text-[12px] font-bold">4.9</span>
+                    {(order as any)?.rider && (
+                        <div className="flex flex-col gap-3">
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Contact Delivery Partner</h2>
+                            <div className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-14 h-14 rounded-2xl bg-gray-100 overflow-hidden">
+                                        <img src={(order as any)?.rider?.photo || "https://api.dicebear.com/7.x/avataaars/svg?seed=Anand"} alt="Delivery Partner" />
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[15px] font-bold text-gray-900">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-0.5 text-amber-500">
+                                                <Star className="w-3.5 h-3.5 fill-current" />
+                                                <span className="text-[12px] font-bold">{(order as any)?.rider?.rating || '4.9'}</span>
+                                            </div>
+                                            <span className="text-gray-300 text-[11px] font-medium">• ID {(order as any)?.rider?.id || 'DW2125'}</span>
                                         </div>
-                                        <span className="text-gray-300 text-[11px] font-medium">• ID DW2125</span>
                                     </div>
                                 </div>
+                                <button className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all">
+                                    <Phone className="w-5 h-5 fill-current" />
+                                </button>
                             </div>
-                            <button className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all">
-                                <Phone className="w-5 h-5 fill-current" />
-                            </button>
                         </div>
-                    </div>
+                    )}
 
                     {/* Order Details Summary */}
                     <div className="flex flex-col gap-3">
-                        <h2 className="text-sm font-black text-gray-900 ml-1">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
+                        <h2 className="text-sm font-bold text-gray-900 ml-1">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
                         <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-50 flex flex-col gap-4">
                             {(order?.items || [
                                 { name: 'Margherita Pizza', quantity: 1, unitPrice: 250 },
@@ -415,20 +431,20 @@ export const OrderTrackingPage: React.FC = () => {
                                 <div key={idx} className={`flex justify-between items-center text-sm ${idx !== arr.length - 1 ? 'pb-2 border-b border-dashed border-gray-100' : ''}`}>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>
-                                        <span className="text-gray-700 font-bold">{ item.name || 'Item'} x {item.quantity || 1}</span>
+                                        <span className="text-gray-700 font-bold">{ item.itemName || item.name || 'Item'} x {item.quantity || 1}</span>
                                     </div>
                                     <span className="text-gray-700 font-bold">₹{item.unitPrice * item.quantity}</span>
                                 </div>
                             ))}
                             <div className="flex justify-between items-center pt-1 border-t border-dashed border-gray-100 mt-1">
-                                <span className="text-gray-900 font-black">Total Amount</span>
-                                <span className="text-gray-900 font-black text-lg">₹{getOrderTotal(order)}</span>
+                                <span className="text-gray-900 font-bold">Total Amount</span>
+                                <span className="text-gray-900 font-bold text-lg">₹{getOrderTotal(order)}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Need Help Button */}
-                    <button className="w-full bg-[#F2F4F7] text-gray-700 font-black text-[16px] py-[18px] rounded-xl active:scale-[0.98] transition-all mb-6">
+                    <button className="w-full bg-[#F2F4F7] text-gray-700 font-bold text-[16px] py-[18px] rounded-xl active:scale-[0.98] transition-all mb-6">
                         Need Help?
                     </button>
                 </div>

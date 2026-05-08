@@ -31,8 +31,8 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
 
     if (!item) return null;
 
-    const cartItem = cartItems.find(i => i.id === item.id);
-    const quantity = cartItem ? cartItem.quantity : 0;
+    const cartItemsOfThisType = cartItems.filter(i => (i.menuItemId || i.id) === item.id);
+    const quantity = cartItemsOfThisType.reduce((acc, i) => acc + i.quantity, 0);
 
     const handleInitialAdd = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -40,21 +40,30 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
     };
 
     const handleConfirmAdd = (itemToAdd: MenuItem, finalPrice: number, instructions: string) => {
+        // Generate a unique ID if there are instructions to separate customized items in cart
+        const cartItemId = instructions 
+            ? `${itemToAdd.id}-${btoa(instructions).substring(0, 8)}` 
+            : itemToAdd.id;
+
         addToCart({
-            id: itemToAdd.id,
-            name: `${itemToAdd.name} (Customized)`,
+            id: cartItemId,
+            menuItemId: itemToAdd.id,
+            name: itemToAdd.name, // Keep the original name clean, we'll display customizations in the subtitle
             price: finalPrice,
             isVeg: itemToAdd.isVeg,
+            customizations: instructions || undefined
         });
-        // We might want to pass instructions down the line, but cart item context doesn't support it yet
-        console.log("Instructions:", instructions);
+        
         setShowCustomize(false);
         onClose();
     };
 
     const handleRemove = (e: React.MouseEvent) => {
         e.stopPropagation();
-        removeFromCart(item.id);
+        if (cartItemsOfThisType.length > 0) {
+            // Remove the last added variation
+            removeFromCart(cartItemsOfThisType[cartItemsOfThisType.length - 1].id);
+        }
     };
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -85,7 +94,7 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
 
                     {/* Bestseller Badge (if applicable) */}
                     {item.bestseller && (
-                        <div className="absolute bottom-4 right-4 bg-[#4CAF50] text-white px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 shadow-lg">
+                        <div className="absolute bottom-4 right-4 bg-[#4CAF50] text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg">
                             <Star className="w-3.5 h-3.5 fill-white" />
                             <span>Best Seller</span>
                         </div>
@@ -100,16 +109,16 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                                 <div className={`w-4 h-4 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center bg-white p-0.5 shrink-0`}>
                                     <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
                                 </div>
-                                <span className={`text-[10px] uppercase font-black tracking-wider ${item.isVeg ? 'text-green-600' : 'text-red-600'}`}>
+                                <span className={`text-[10px] uppercase font-bold tracking-wider ${item.isVeg ? 'text-green-600' : 'text-red-600'}`}>
                                     {item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
                                 </span>
                             </div>
-                            <h2 className="text-2xl font-black text-gray-900 leading-tight">
+                            <h2 className="text-2xl font-bold text-gray-900 leading-tight">
                                 {item.name}
                             </h2>
                         </div>
                         <div className="text-right shrink-0">
-                            <span className="text-xl font-black text-gray-900 block">
+                            <span className="text-xl font-bold text-gray-900 block">
                                 Rs. {typeof item.price === 'string' ? item.price.replace(/[^0-9.]/g, '') : item.price.toFixed(2)}
                             </span>
                         </div>
@@ -129,7 +138,7 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                         {quantity === 0 ? (
                             <button
                                 onClick={handleInitialAdd}
-                                className="px-8 py-3 rounded-xl bg-[#FF4732] text-white font-black text-base shadow-lg hover:shadow-xl hover:bg-[#E03A28] active:scale-95 transition-all"
+                                className="px-8 py-3 rounded-xl bg-[#FF4732] text-white font-bold text-base shadow-lg hover:shadow-xl hover:bg-[#E03A28] active:scale-95 transition-all"
                             >
                                 ADD TO CART
                             </button>
@@ -141,7 +150,7 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                                 >
                                     <Minus className="w-5 h-5" strokeWidth={2.5} />
                                 </button>
-                                <span className="w-10 text-center text-lg font-black text-gray-900">{quantity}</span>
+                                <span className="w-10 text-center text-lg font-bold text-gray-900">{quantity}</span>
                                 <button
                                     onClick={handleInitialAdd}
                                     className="w-12 h-full flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"

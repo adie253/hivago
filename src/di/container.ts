@@ -58,6 +58,10 @@ class DIContainer {
     static getGetRestaurantUseCase() {
         return new GetRestaurantUseCase(this._restaurantRepository);
     }
+
+    static getCartRepository() {
+        return this._cartRepository;
+    }
 }
 
 export default DIContainer;

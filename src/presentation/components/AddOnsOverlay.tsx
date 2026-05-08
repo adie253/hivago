@@ -14,12 +14,8 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     const [apiItem, setApiItem] = useState<ApiItem | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Mock Data for Add-ons fallback if options empty (for demonstration if needed, but we rely on API)
     // Frequently bought together is still mock as API doesn't provide it yet
-    const frequentlyBought = [
-        { id: 'fb1', name: 'Ramen Noodles', price: 390.00, originalPrice: 430.00, image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=200' },
-        { id: 'fb2', name: 'Cherry Tomato Salad', price: 280.00, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=200' },
-    ];
+    const frequentlyBought: any[] = [];
 
     const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
     const [fbtQuantities, setFbtQuantities] = useState<Record<string, number>>({});
@@ -107,11 +103,24 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         return list;
     }, [fbtQuantities, frequentlyBought]);
 
+    const selectedOptionsText = useMemo(() => {
+        if (!apiItem || !apiItem.options) return "";
+        return apiItem.options
+            .filter(opt => selectedOptions.has(opt.id))
+            .map(opt => opt.name)
+            .join(", ");
+    }, [apiItem, selectedOptions]);
+
+    const finalInstructions = useMemo(() => {
+        const parts = [];
+        if (selectedOptionsText) parts.push(`Selected: ${selectedOptionsText}`);
+        if (specialInstructions) parts.push(specialInstructions);
+        return parts.join(" | ");
+    }, [selectedOptionsText, specialInstructions]);
+
     const totalPrice = useMemo(() => {
         return mainItemPrice + selectedAddonsList.reduce((acc, curr) => acc + curr.price, 0);
     }, [mainItemPrice, selectedAddonsList]);
-
-
     if (!originalItem) return null;
 
     return createPortal(
@@ -128,12 +137,12 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                 {/* Header */}
                 <div className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100 shrink-0 sticky top-0 z-10">
                     <div>
-                        <h2 className="text-xl font-black text-gray-900 leading-tight flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-gray-900 leading-tight flex items-center gap-2">
                              Add Ons
                         </h2>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="text-sm font-bold text-gray-500">{apiItem ? apiItem.name : originalItem.name}</span>
-                            <span className="text-sm font-black text-gray-900">Rs. {basePrice}</span>
+                            <span className="text-sm font-bold text-gray-900">Rs. {basePrice}</span>
                         </div>
                     </div>
                     <button
@@ -159,7 +168,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                         <>
                             {/* Tabs */}
                             <div className="flex border-b border-gray-200 mb-6">
-                                <button className="text-sm font-black text-gray-900 pb-3 border-b-2 border-gray-900 px-1">
+                                <button className="text-sm font-bold text-gray-900 pb-3 border-b-2 border-gray-900 px-1">
                                     Customise as per your Taste
                                 </button>
                             </div>
@@ -167,7 +176,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                             {/* Options Section */}
                             {apiItem && apiItem.options && apiItem.options.length > 0 && (
                                 <div className="mb-8 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                                    <h3 className="text-sm font-black text-gray-900 mb-4 tracking-wide">Add Ingredients</h3>
+                                    <h3 className="text-sm font-bold text-gray-900 mb-4 tracking-wide">Add Ingredients</h3>
                                     <div className="space-y-4">
                                         {apiItem.options.map((opt) => {
                                             const isSelected = selectedOptions.has(opt.id);
@@ -182,8 +191,8 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                                             <p className="text-[11px] font-bold text-gray-400">Included</p>
                                                         )}
                                                     </div>
-                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${isSelected ? 'bg-[#00A859] shadow-sm scale-110' : 'bg-gray-100 hover:bg-gray-200'}`}>
-                                                        {isSelected ? <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} /> : <Plus className="w-3.5 h-3.5 text-gray-500" strokeWidth={3} />}
+                                                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#FF4732] border-[#FF4732] shadow-sm scale-105' : 'bg-transparent border-gray-300 hover:border-[#FF4732]'}`}>
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                                                     </div>
                                                 </div>
                                             );
@@ -192,54 +201,10 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                 </div>
                             )}
 
-                            {/* Frequently Bought Together section */}
-                            <div className="mb-8">
-                                <h3 className="text-sm font-black text-gray-900 mb-4 tracking-wide px-1">Frequently bought together</h3>
-                                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                                    {frequentlyBought.map((fb) => {
-                                        const qty = fbtQuantities[fb.id] || 0;
-                                        return (
-                                            <div key={fb.id} className="min-w-[280px] bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-4">
-                                                <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-100 bg-gray-50">
-                                                    <img src={fb.image} alt={fb.name} className="w-full h-full object-cover" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h4 className="text-xs font-black text-gray-900 mb-1 leading-tight">{fb.name}</h4>
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        {fb.originalPrice && (
-                                                            <span className="text-[11px] font-bold text-gray-400 line-through">Rs. {fb.originalPrice.toFixed(2)}</span>
-                                                        )}
-                                                        <span className="text-sm font-black text-[#FF4732]">Rs. {fb.price.toFixed(2)}</span>
-                                                    </div>
-                                                    
-                                                    {qty === 0 ? (
-                                                        <button 
-                                                            onClick={() => updateFbtQuantity(fb.id, 1)}
-                                                            className="w-full py-1.5 rounded-lg border border-gray-200 text-gray-600 font-bold text-xs hover:bg-gray-50 transition-colors"
-                                                        >
-                                                            ADD
-                                                        </button>
-                                                    ) : (
-                                                        <div className="flex items-center justify-between bg-gray-50 rounded-lg overflow-hidden border border-gray-200 w-[90px]">
-                                                            <button onClick={() => updateFbtQuantity(fb.id, -1)} className="w-8 h-7 flex items-center justify-center text-gray-700 hover:bg-gray-100">
-                                                                    <Minus className="w-3.5 h-3.5" />
-                                                            </button>
-                                                            <span className="text-xs font-bold text-gray-900">{qty}</span>
-                                                            <button onClick={() => updateFbtQuantity(fb.id, 1)} className="w-8 h-7 flex items-center justify-center text-gray-700 hover:bg-gray-100">
-                                                                    <Plus className="w-3.5 h-3.5" />
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
 
                             {/* Special Instructions */}
                             <div className="mb-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                                <h3 className="text-sm font-black text-gray-900 mb-2">Special Instructions</h3>
+                                <h3 className="text-sm font-bold text-gray-900 mb-2">Special Instructions</h3>
                                 <p className="text-[10px] text-gray-500 font-medium mb-3">Please let us know if you are allergic to something or if we need to avoid anything.</p>
                                 <div className="relative">
                                     <textarea 
@@ -276,14 +241,14 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                      <button
                          onClick={() => onConfirmAdd({
                              ...originalItem,
-                         }, mainItemPrice, specialInstructions, selectedAddonsList)}
+                         }, mainItemPrice, finalInstructions, selectedAddonsList)}
                          className="w-full bg-[#D12E27] text-white rounded-2xl py-4 px-6 flex items-center justify-between shadow-lg hover:bg-[#B52721] active:scale-[0.98] transition-all group"
                          disabled={isLoading}
                      >
                          <div className="flex items-center gap-3">
-                              <span className="text-lg font-black tracking-wide">Rs. {totalPrice.toFixed(2)}</span>
+                              <span className="text-lg font-bold tracking-wide">Rs. {totalPrice.toFixed(2)}</span>
                          </div>
-                         <div className="flex items-center gap-2 bg-white text-[#D12E27] px-4 py-2 rounded-xl font-black text-sm group-hover:bg-red-50 transition-colors">
+                         <div className="flex items-center gap-2 bg-white text-[#D12E27] px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-red-50 transition-colors">
                               <ShoppingBag className="w-4 h-4" />
                               <span>{isLoading ? 'Loading...' : 'Add item to cart'}</span>
                          </div>
@@ -304,7 +269,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                     onClick={e => e.stopPropagation()}
                 >
                     <div className="flex justify-between items-start mb-6">
-                        <h3 className="text-[15px] font-black text-gray-900 pr-5 leading-tight">If this product is not available</h3>
+                        <h3 className="text-[15px] font-bold text-gray-900 pr-5 leading-tight">If this product is not available</h3>
                         <button 
                             onClick={() => setIsUnavailabilityMenuOpen(false)} 
                             className="text-gray-400 hover:text-gray-600 p-1 -mt-1 -mr-2"

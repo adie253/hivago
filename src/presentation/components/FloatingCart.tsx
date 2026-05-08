@@ -30,17 +30,17 @@ export const FloatingCart: React.FC = () => {
                         <ShoppingCart className="w-6 h-6 text-brand-primary" strokeWidth={2.5} />
                     </div>
                     <div className="flex flex-col items-start">
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-tight">
+                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 leading-tight">
                             {totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'} Added
                         </span>
-                        <span className="text-lg font-black leading-tight">
+                        <span className="text-lg font-bold leading-tight">
                             ₹{cartTotal.toLocaleString('en-IN')}
                         </span>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2 relative z-10">
-                    <span className="text-sm font-black uppercase tracking-wider">View Cart</span>
+                    <span className="text-sm font-bold uppercase tracking-wider">View Cart</span>
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center group-hover:translate-x-1 transition-transform">
                         <ArrowRight className="w-4 h-4 text-[#FF4732]" strokeWidth={3} />
                     </div>

@@ -35,7 +35,7 @@ export const RecommendedRestaurants: React.FC = () => {
                                 {/* Overlay Badges */}
                                 {restaurant.promoted && (
                                     <div className="absolute top-4 left-4">
-                                        <span className="bg-[#FFC107] text-gray-900 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm">
+                                        <span className="bg-[#FFC107] text-gray-900 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm">
                                             Promoted
                                         </span>
                                     </div>

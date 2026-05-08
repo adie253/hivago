@@ -1,10 +1,31 @@
-import React, { useState, useRef } from 'react';
-import { ArrowLeft, MapPin, Book, ShoppingCart, Menu as MenuIcon, Wallet, Loader2 } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress } from '../../../data/api';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { sendOtp, verifyOtp, addAddress, checkDeliveryAvailability } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
+import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
+import menuIcon from '../../../assets/stepper_icons/menu_gray.svg';
+import cartIcon from '../../../assets/stepper_icons/cart_gray.svg';
+import addressIcon from '../../../assets/stepper_icons/address_gray.svg';
+import checkoutIcon from '../../../assets/stepper_icons/checkout_gray.svg';
+
+const StepperIcon = ({ src, className }: { src: string, className?: string }) => (
+    <div 
+        className={`w-[18px] h-[18px] ${className || 'bg-[#00A050]'}`}
+        style={{
+            WebkitMaskImage: `url(${src})`,
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskImage: `url(${src})`,
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+        }}
+    />
+);
 
 export type DetailsFlowOverlayProps = {
     onClose: () => void;
@@ -14,6 +35,7 @@ export type DetailsFlowOverlayProps = {
 type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
+    const { restaurantId } = useCart();
     const [step, setStep] = useState<Step>('phone');
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -28,64 +50,100 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const [label, setLabel] = useState('Home');
     const [mapCoordinates, setMapCoordinates] = useState<{lat: number, lng: number} | null>(null);
 
+    // Delivery check states
+    const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
+    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
+    const [deliveryDistance, setDeliveryDistance] = useState<number | null>(null);
+    const [deliveryError, setDeliveryError] = useState<string | null>(null);
+
     const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
     const { refreshLoginStatus } = useCart();
     const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+    const performDeliveryCheck = async (lat: number, lng: number) => {
+        if (!restaurantId) return;
+        setIsCheckingDelivery(true);
+        setDeliveryStatus(null);
+        setDeliveryError(null);
+        try {
+            const result = await checkDeliveryAvailability(restaurantId, lat, lng);
+            if (result) {
+                setDeliveryDistance(result.distanceKm);
+                if (result.canDeliver) {
+                    setDeliveryStatus('success');
+                } else {
+                    setDeliveryStatus('error');
+                    setDeliveryError(`This restaurant only delivers up to ${result.maxDistanceKm} km. You are ${result.distanceKm} km away.`);
+                }
+            } else {
+                setDeliveryStatus('warning');
+            }
+        } catch (e) {
+            setDeliveryStatus('warning');
+        } finally {
+            setIsCheckingDelivery(false);
+        }
+    };
+
+    useEffect(() => {
+        if (step === 'addAddress' && mapCoordinates) {
+            const timer = setTimeout(() => {
+                performDeliveryCheck(mapCoordinates.lat, mapCoordinates.lng);
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [mapCoordinates, step, restaurantId]);
+
+    useEffect(() => {
+        if (step === 'addresses' && selectedAddressId) {
+            const addr = addresses.find(a => a.id === selectedAddressId);
+            if (addr && addr.latitude && addr.longitude) {
+                performDeliveryCheck(addr.latitude, addr.longitude);
+            }
+        } else if (step === 'addresses' && !selectedAddressId) {
+            setDeliveryStatus(null);
+        }
+    }, [selectedAddressId, step, restaurantId, addresses]);
+
     const renderStepper = () => {
         return (
             <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm">
-                {/* Menu Step - done */}
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                        <Book className="w-4 h-4 fill-current" />
+                        <StepperIcon src={menuIcon} className="bg-[#00A050]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                 </div>
-
-                {/* Connector 1 */}
                 <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
                     {[1, 2, 3, 4, 5, 6].map(i => <div key={`c1-${i}`} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
                 </div>
-
-                {/* Cart Step - done */}
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                        <ShoppingCart className="w-4 h-4 fill-current" />
+                        <StepperIcon src={cartIcon} className="bg-[#00A050]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Cart</span>
                 </div>
-
-                {/* Connector 2 */}
                 <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
                     {[1, 2, 3, 4, 5, 6].map(i => <div key={`c2-${i}`} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
                 </div>
-
-                {/* Details Step - active */}
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                        <MapPin className="w-4 h-4 fill-current" />
+                        <StepperIcon src={addressIcon} className="bg-[#FF4732]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#FF4732]">Details</span>
                 </div>
-
-                {/* Connector 3 */}
                 <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
                     {[1, 2, 3, 4, 5, 6].map(i => <div key={`c3-${i}`} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
                 </div>
-
-                {/* Checkout Step - pending */}
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                        <Wallet className="w-4 h-4 fill-current text-gray-300" />
+                        <StepperIcon src={checkoutIcon} className="bg-gray-300" />
                     </div>
                     <span className="text-[10px] font-medium text-gray-500">Checkout</span>
                 </div>
             </div>
         );
     };
-
-
 
     const handleBack = () => {
         switch (step) {
@@ -117,9 +175,8 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
     const renderPhone = () => (
         <div className="flex-1 px-6 pt-10 pb-6 flex flex-col">
-            <h2 className="text-[22px] font-black text-[#111] leading-tight mb-2 pr-20">Enter your phone number</h2>
+            <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-20">Enter your phone number</h2>
             <p className="text-gray-500 text-sm mb-10 pb-6 pr-24 leading-snug">We'll use this to keep you updated about your order</p>
-
             <div className="flex flex-col mb-auto gap-2">
                 <div className="flex gap-3">
                     <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#333] font-bold flex items-center">
@@ -139,7 +196,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 {errorMsg && step === 'phone' && <p className="text-red-500 text-sm">{errorMsg}</p>}
             </div>
-
             <button
                 onClick={handleSendOtp}
                 disabled={isSendingOtp || phone.length !== 10}
@@ -163,14 +219,12 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             if (data && data.accessToken) {
                 localStorage.setItem('customer_token', data.accessToken);
                 localStorage.setItem('customer_phone', phone);
-                // Handle both id and customerId to be safe
                 const cid = data.customerId || data.id;
                 if (cid) localStorage.setItem('customer_id', cid);
                 if (data.accessTokenExpiresAt) localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
-                
-                // Trigger cart sync in context
+                if (data.refreshToken) localStorage.setItem('customer_refresh_token', data.refreshToken);
+
                 refreshLoginStatus();
-                // Pre-fetch addresses right after login globally
                 refreshAddresses();
             }
             setStep('location');
@@ -183,8 +237,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
     const handleOtpChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return;
-
-        // Handle paste of multiple digits
         if (value.length > 1) {
             const pastedData = value.slice(0, 6).split('');
             const newOtp = [...otp];
@@ -194,16 +246,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 }
             }
             setOtp(newOtp);
-            // Focus last filled or next empty
             const nextIndex = Math.min(index + pastedData.length, 5);
             otpInputRefs.current[nextIndex]?.focus();
             return;
         }
-
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
-
         if (value && index < 5) {
             otpInputRefs.current[index + 1]?.focus();
         }
@@ -217,9 +266,8 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
     const renderOtp = () => (
         <div className="flex-1 px-6 pt-10 pb-6 flex flex-col">
-            <h2 className="text-[22px] font-black text-[#111] leading-tight mb-2 pr-20">Enter OTP</h2>
+            <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-20">Enter OTP</h2>
             <p className="text-gray-500 text-sm mb-10 pb-6 pr-20 leading-snug">Enter the 6 digit code sent to you at +91 {phone || 'XXXXXX1234'}</p>
-
             <p className="text-gray-800 font-bold mb-3 text-sm">OTP</p>
             <div className="flex flex-col mb-auto gap-2">
                 <div className="flex gap-2 sm:gap-4 justify-between">
@@ -240,7 +288,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <p className="text-gray-400 text-xs mt-2">Enter 6 digit OTP</p>
                 {errorMsg && step === 'otp' && <p className="text-red-500 text-sm mt-1">{errorMsg}</p>}
             </div>
-
             <button
                 onClick={handleVerifyOtp}
                 disabled={isVerifyingOtp || otp.join('').length !== 6}
@@ -262,11 +309,9 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     setStep('addresses');
                     refreshAddresses();
                 },
-                (error) => {
-                    console.error("Error getting location: ", error);
-                    // On error, still proceed so they can type it manually
+                () => {
                     setStep('addresses');
-                    refreshAddresses(); // Fallback flow still allows address addition
+                    refreshAddresses();
                 }
             );
         } else {
@@ -277,9 +322,8 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
     const renderLocation = () => (
         <div className="flex-1 px-6 pt-10 pb-6 flex flex-col">
-            <h2 className="text-[22px] font-black text-[#111] leading-tight mb-2 pr-24">Allow Location Access</h2>
+            <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-24">Allow Location Access</h2>
             <p className="text-gray-500 text-sm mb-10 flex-1 pr-24 leading-snug">This lets show you which restaurants you can order from.</p>
-
             <button
                 onClick={handleAllowLocation}
                 className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors mb-3"
@@ -299,12 +343,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     );
 
     const renderAddresses = () => {
-        const canApply = selectedAddressId !== null;
         return (
             <div className="flex-1 px-4 pt-6 pb-6 flex flex-col bg-[#FAFAFA]">
-                <h2 className="text-xl font-black text-[#111] mb-6 px-2">Add Address Details</h2>
+                <h2 className="text-xl font-bold text-[#111] mb-6 px-2">Add Address Details</h2>
                 <h3 className="text-sm font-bold text-[#333] mb-4 px-2">Saved Addresses</h3>
-
                 <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
                     {isLoadingAddresses ? (
                         <div className="flex flex-col items-center justify-center py-10 gap-3">
@@ -338,7 +380,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             </div>
                         ))
                     )}
-
                     <button
                         onClick={() => setStep('addAddress')}
                         className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF4732] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
@@ -347,17 +388,24 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         <span>Add New Address</span>
                     </button>
                 </div>
-
+                {deliveryStatus && (
+                    <div className={`mt-4 p-3 rounded-xl border flex items-start gap-3 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
+                        {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
+                        <div className="flex flex-col">
+                            <span className="text-[12px] font-bold leading-tight">{deliveryStatus === 'success' ? `Restaurant delivers here (~${deliveryDistance} km)` : deliveryStatus === 'error' ? deliveryError : "Couldn't verify delivery distance"}</span>
+                        </div>
+                    </div>
+                )}
                 <button
                     onClick={() => {
-                        if (canApply) {
+                        if (selectedAddressId && deliveryStatus !== 'error') {
                             onComplete(addresses.find(a => a.id === selectedAddressId));
                         }
                     }}
-                    disabled={!canApply || isLoadingAddresses}
-                    className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${canApply ? 'bg-[#FF584A] hover:bg-[#E5483B]' : 'bg-[#FFB7B0] border border-transparent'}`}
+                    disabled={!selectedAddressId || isLoadingAddresses || isCheckingDelivery || deliveryStatus === 'error'}
+                    className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${selectedAddressId && deliveryStatus !== 'error' ? 'bg-[#FF584A] hover:bg-[#E5483B]' : 'bg-[#FFB7B0]'}`}
                 >
-                    Apply
+                    {isCheckingDelivery ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : deliveryStatus === 'error' ? "Out of Range" : "Apply"}
                 </button>
             </div>
         );
@@ -373,19 +421,17 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             await addAddress({
                 addressLine,
                 landmark,
-                latitude: mapCoordinates?.lat || 19.033, // Default fallback if not allowed
+                latitude: mapCoordinates?.lat || 19.033,
                 longitude: mapCoordinates?.lng || 73.029,
                 label,
                 isDefault
             });
             setStep('addresses');
             refreshAddresses();
-            // Reset form
             setAddressLine('');
             setLandmark('');
             setLabel('Home');
         } catch (e: any) {
-            console.error('Failed to save address:', e);
             setErrorMsg(e.message || 'Failed to save address');
         } finally {
             setIsSavingAddress(false);
@@ -395,16 +441,26 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const renderAddAddress = () => (
         <div className="flex-1 flex flex-col bg-[#FAFAFA] overflow-y-auto">
             <div className="px-6 pt-6 pb-2">
-                <h2 className="text-[22px] font-black text-[#111] leading-tight mb-6">Add Address Details</h2>
+                <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-6">Add Address Details</h2>
             </div>
-
             <div className="px-6 flex flex-col gap-5 flex-1 pb-10">
                 <div className="flex flex-col gap-2 relative z-0">
                     <label className="text-sm font-bold text-gray-700 ml-1">Pin your exact location</label>
-                    <MapPicker position={mapCoordinates} onPositionChange={setMapCoordinates} />
-                    <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>
+                    <div className="relative">
+                        <MapPicker position={mapCoordinates} onPositionChange={setMapCoordinates} />
+                        {isCheckingDelivery && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center rounded-2xl z-10">
+                                <Loader2 className="w-6 h-6 animate-spin text-[#FF4732]" />
+                            </div>
+                        )}
+                    </div>
+                    {deliveryStatus && (
+                        <div className={`mt-2 p-2.5 rounded-lg border flex items-center gap-2 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
+                            {deliveryStatus === 'success' ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                            <span className="text-[11px] font-bold">{deliveryStatus === 'success' ? `Delivers in ~${deliveryDistance} km` : deliveryStatus === 'error' ? deliveryError : "Couldn't verify delivery"}</span>
+                        </div>
+                    )}
                 </div>
-
                 <div className="flex flex-col gap-2 relative z-20">
                     <label className="text-sm font-bold text-gray-700 ml-1">Flat / House No. / Building / Area</label>
                     <input
@@ -415,7 +471,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
-
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-bold text-gray-700 ml-1">Nearby Landmark (Optional)</label>
                     <input
@@ -426,7 +481,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
-
                 <div className="flex flex-col gap-3 mt-2">
                     <label className="text-sm font-bold text-gray-700 ml-1">Save address as</label>
                     <div className="flex gap-3">
@@ -441,7 +495,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         ))}
                     </div>
                 </div>
-
                 <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-2">
                     <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-800">Set as default address</span>
@@ -454,15 +507,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${isDefault ? 'right-1' : 'left-1'}`}></div>
                     </button>
                 </div>
-
                 {errorMsg && <p className="text-red-500 text-xs font-bold mt-2 ml-1">{errorMsg}</p>}
-
                 <button
                     onClick={handleSaveAddress}
-                    disabled={isSavingAddress || !addressLine.trim()}
-                    className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center active:scale-95 ${isSavingAddress || !addressLine.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                    disabled={isSavingAddress || isCheckingDelivery || deliveryStatus === 'error'}
+                    className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() || deliveryStatus === 'error' ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
                 >
-                    {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Address'}
+                    {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : deliveryStatus === 'error' ? "Out of Delivery Range" : "Save and Continue"}
                 </button>
             </div>
         </div>
@@ -476,7 +527,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     <ArrowLeft className="w-5 h-5 text-white lg:text-gray-800" />
                 </button>
                 <div className="flex-1 text-center">
-                    <span className="text-sm font-black tracking-wide">
+                    <span className="text-sm font-bold tracking-wide">
                         {step === 'phone' || step === 'otp' ? 'Login' : 'Delivery Details'}
                     </span>
                 </div>
@@ -502,11 +553,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         </div>
 
                         {/* Image Section for Desktop */}
-                        {(step === 'phone' || step === 'otp') && (
-                            <div className="hidden lg:flex flex-1 items-center justify-center p-8 self-center relative">
+                        <div className="hidden lg:flex flex-1 items-center justify-center p-8 self-center relative">
+                            {(step === 'phone' || step === 'otp') ? (
                                 <img src={girlOnSofa} alt="Login graphic" className="w-[80%] max-w-[340px] object-contain drop-shadow-xl shrink-0 translate-y-[-10px]" />
-                            </div>
-                        )}
+                            ) : (
+                                <img src={girlWithMap} alt="Location graphic" className="w-[80%] max-w-[340px] object-contain drop-shadow-xl shrink-0 translate-y-[-10px]" />
+                            )}
+                        </div>
                         
                     </div>
                 </div>

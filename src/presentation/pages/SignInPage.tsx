@@ -58,6 +58,7 @@ export const SignInPage: React.FC = () => {
                 const cid = data.customerId || data.id;
                 if (cid) localStorage.setItem('customer_id', cid);
                 if (data.accessTokenExpiresAt) localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
+                if (data.refreshToken) localStorage.setItem('customer_refresh_token', data.refreshToken);
 
                 refreshLoginStatus();
                 refreshAddresses();
@@ -130,7 +131,7 @@ export const SignInPage: React.FC = () => {
     //             <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1 scale-110">
     //                 <MapPin className="w-4 h-4 fill-current" />
     //             </div>
-    //             <span className="text-[10px] font-black text-[#FF4732] uppercase tracking-tighter">Sign In</span>
+    //             <span className="text-[10px] font-bold text-[#FF4732] uppercase tracking-tighter">Sign In</span>
     //         </div>
 
     //         <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
@@ -155,7 +156,7 @@ export const SignInPage: React.FC = () => {
                     <ArrowLeft className="w-5 h-5 text-white lg:text-gray-800" />
                 </button>
                 <div className="flex-1 text-center">
-                    <span className="text-sm font-black tracking-widest uppercase">Sign In</span>
+                    <span className="text-sm font-bold tracking-widest uppercase">Sign In</span>
                 </div>
                 <button className="p-2 text-white/50 lg:text-gray-300 pointer-events-none">
                     <MenuIcon className="w-6 h-6" />
@@ -174,15 +175,15 @@ export const SignInPage: React.FC = () => {
                         <div className="flex-1 flex flex-col lg:max-w-[55%] z-10 pb-10 px-6 pt-10">
                             {step === 'phone' ? (
                                 <div className="flex flex-col h-full">
-                                    <h2 className="text-[28px] font-black text-[#111] leading-tight mb-2 pr-10">Welcome Back</h2>
+                                    <h2 className="text-[28px] font-bold text-[#111] leading-tight mb-2 pr-10">Welcome Back</h2>
                                     <p className="text-gray-500 text-[15px] mb-10 pb-4 pr-10 leading-snug font-medium">
                                         Enter your phone number to continue your culinary journey with Hivago.
                                     </p>
 
                                     <div className="flex flex-col gap-3">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                                         <div className="flex gap-3">
-                                            <div className="bg-white border border-gray-200 rounded-2xl px-5 py-4 text-[#333] font-black text-lg shadow-sm flex items-center">
+                                            <div className="bg-white border border-gray-200 rounded-2xl px-5 py-4 text-[#333] font-bold text-lg shadow-sm flex items-center">
                                                 +91
                                             </div>
                                             <input
@@ -194,7 +195,7 @@ export const SignInPage: React.FC = () => {
                                                     setErrorMsg('');
                                                 }}
                                                 placeholder="Enter 10 digit number"
-                                                className={`flex-1 bg-white border rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] font-black text-lg text-[#111] shadow-sm transition-all ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
+                                                className={`flex-1 bg-white border rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] font-bold text-lg text-[#111] shadow-sm transition-all ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
                                                 autoFocus
                                             />
                                         </div>
@@ -205,7 +206,7 @@ export const SignInPage: React.FC = () => {
                                         <button
                                             onClick={handleSendOtp}
                                             disabled={isSendingOtp || phone.length !== 10}
-                                            className={`w-full mt-10 text-white font-black text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-95 ${isSendingOtp || phone.length !== 10 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
+                                            className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-95 ${isSendingOtp || phone.length !== 10 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
                                         >
                                             {isSendingOtp ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Get OTP Code'}
                                         </button>
@@ -216,13 +217,13 @@ export const SignInPage: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="flex flex-col h-full">
-                                    <h2 className="text-[28px] font-black text-[#111] leading-tight mb-2 pr-10">Verify Identity</h2>
+                                    <h2 className="text-[28px] font-bold text-[#111] leading-tight mb-2 pr-10">Verify Identity</h2>
                                     <p className="text-gray-500 text-[15px] mb-10 pb-4 pr-10 leading-snug font-medium">
                                         We've sent a 6-digit verification code to <span className="text-[#111] font-bold">+91 {phone}</span>
                                     </p>
 
                                     <div className="flex flex-col gap-3">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">OTP Code</label>
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">OTP Code</label>
                                         <div className="flex gap-2 sm:gap-3 justify-between">
                                             {[0, 1, 2, 3, 4, 5].map((idx) => (
                                                 <input
@@ -234,7 +235,7 @@ export const SignInPage: React.FC = () => {
                                                     value={otp[idx]}
                                                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                                                     onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                                                    className="w-12 h-14 sm:w-14 sm:h-16 bg-white border border-gray-200 focus:border-[#FF4732] rounded-2xl text-center text-2xl font-black text-[#111] outline-none transition-all shadow-sm focus:shadow-md"
+                                                    className="w-12 h-14 sm:w-14 sm:h-16 bg-white border border-gray-200 focus:border-[#FF4732] rounded-2xl text-center text-2xl font-bold text-[#111] outline-none transition-all shadow-sm focus:shadow-md"
                                                     autoFocus={idx === 0}
                                                 />
                                             ))}
@@ -246,13 +247,13 @@ export const SignInPage: React.FC = () => {
                                         <button
                                             onClick={handleVerifyOtp}
                                             disabled={isVerifyingOtp || otp.join('').length !== 6}
-                                            className={`w-full mt-10 text-white font-black text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex justify-center items-center active:scale-95 ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
+                                            className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex justify-center items-center active:scale-95 ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
                                         >
                                             {isVerifyingOtp ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Verify & Sign In'}
                                         </button>
                                         <div className="mt-8 text-center text-sm font-bold text-gray-500">
                                             Didn't receive the code?{' '}
-                                            <button className="text-[#FF4732] font-black hover:underline" onClick={handleSendOtp}>
+                                            <button className="text-[#FF4732] font-bold hover:underline" onClick={handleSendOtp}>
                                                 Resend Now
                                             </button>
                                         </div>

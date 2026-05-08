@@ -114,7 +114,7 @@ export const ProfilePage: React.FC = () => {
                                 <Clock className="w-4 h-4" />
                                 <span className="text-[13px] font-medium">Total Orders</span>
                             </div>
-                            <span className="text-[28px] font-black text-[#111] mt-2 leading-none">{isTokenValid() ? 4 : 0}</span>
+                            <span className="text-[28px] font-bold text-[#111] mt-2 leading-none">{isTokenValid() ? 4 : 0}</span>
                         </div>
                         
                         <div className="bg-white rounded-[24px] p-5 py-6 shadow-sm border border-gray-50 flex-1 flex flex-col justify-between h-[120px]">
@@ -122,7 +122,7 @@ export const ProfilePage: React.FC = () => {
                                 <MapPin className="w-4 h-4" />
                                 <span className="text-[13px] font-medium">Saved Addresses</span>
                             </div>
-                            <span className="text-[28px] font-black text-[#111] mt-2 leading-none">{addresses.length}</span>
+                            <span className="text-[28px] font-bold text-[#111] mt-2 leading-none">{addresses.length}</span>
                         </div>
                     </div>
 
@@ -154,7 +154,7 @@ export const ProfilePage: React.FC = () => {
                                                 {add.addressLine || 'Address'}
                                             </h4>
                                             <p className="text-gray-500 text-[13px] mt-1 leading-[1.4]">
-                                                {add.pincode && <span>{add.pincode}</span>}
+                                                {add.pincode && add.pincode !== '000000' && <span>{add.pincode}</span>}
                                             </p>
                                         </div>
                                     </div>

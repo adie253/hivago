@@ -1,13 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, ShoppingCart, MapPin, Wallet, Check, Ticket, ReceiptText, ChevronRight, Book } from 'lucide-react';
+import { ArrowLeft, Menu as MenuIcon, ChevronDown, ChevronUp, ShoppingCart, MapPin, Wallet, Check, Ticket, ReceiptText, ChevronRight, Book, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { checkDeliveryAvailability } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { isTokenValid } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
+import menuIcon from '../../assets/stepper_icons/menu_gray.svg';
+import cartIcon from '../../assets/stepper_icons/cart_gray.svg';
+import addressIcon from '../../assets/stepper_icons/address_gray.svg';
+import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
+
+const StepperIcon = ({ src, className }: { src: string, className?: string }) => (
+    <div 
+        className={`w-[18px] h-[18px] ${className || 'bg-[#00A050]'}`}
+        style={{
+            WebkitMaskImage: `url(${src})`,
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskImage: `url(${src})`,
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+        }}
+    />
+);
 
 const frequentlyBought = [
     { id: 'f1', name: 'Power Bowl', restaurant: 'Green Garden', time: '20-25 min', distance: '0.8 km', priceForTwo: '₹300 for two', price: 150, originalPrice: 300, discount: '50% off', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&dpr=2&q=80' },
@@ -16,7 +37,7 @@ const frequentlyBought = [
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal } = useCart();
+    const { cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName } = useCart();
     const [cutlery, setCutlery] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
@@ -32,6 +53,46 @@ export const CheckoutPage: React.FC = () => {
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
+
+    const [deliveryCheck, setDeliveryCheck] = React.useState<{
+        canDeliver: boolean;
+        distanceKm: number;
+        maxDistanceKm: number;
+    } | null>(null);
+    const [isCheckingDelivery, setIsCheckingDelivery] = React.useState(false);
+    const [deliveryError, setDeliveryError] = React.useState<string | null>(null);
+    const [deliveryStatus, setDeliveryStatus] = React.useState<'success' | 'error' | 'warning' | null>(null);
+
+    React.useEffect(() => {
+        if (selectedLocation?.latitude && restaurantId) {
+            const check = async () => {
+                setIsCheckingDelivery(true);
+                setDeliveryError(null);
+                setDeliveryStatus(null);
+                try {
+                    const result = await checkDeliveryAvailability(restaurantId, selectedLocation.latitude, selectedLocation.longitude);
+                    if (result) {
+                        setDeliveryCheck(result);
+                        if (result.canDeliver) {
+                            setDeliveryStatus('success');
+                        } else {
+                            setDeliveryStatus('error');
+                            setDeliveryError(`Not deliverable: ${result.distanceKm} km away (max ${result.maxDistanceKm} km)`);
+                        }
+                    } else {
+                        setDeliveryStatus('warning');
+                        setDeliveryError("Couldn't verify delivery");
+                    }
+                } catch (e) {
+                    setDeliveryStatus('warning');
+                    setDeliveryError("Couldn't verify delivery");
+                } finally {
+                    setIsCheckingDelivery(false);
+                }
+            };
+            check();
+        }
+    }, [selectedLocation, restaurantId]);
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) return;
@@ -89,7 +150,7 @@ export const CheckoutPage: React.FC = () => {
                                 {/* Menu Step - done */}
                                 <div className="flex flex-col items-center flex-shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                                        <Book className="w-4 h-4 fill-current" />
+                                        <StepperIcon src={menuIcon} className="bg-[#00A050]" />
                                     </div>
                                     <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                                 </div>
@@ -102,7 +163,7 @@ export const CheckoutPage: React.FC = () => {
                                 {/* Cart Step - active */}
                                 <div className="flex flex-col items-center flex-shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                                        <ShoppingCart className="w-4 h-4 fill-current" />
+                                        <StepperIcon src={cartIcon} className="bg-[#FF4732]" />
                                     </div>
                                     <span className="text-[10px] font-bold text-[#FF4732]">Cart</span>
                                 </div>
@@ -117,7 +178,7 @@ export const CheckoutPage: React.FC = () => {
                                         {/* Details Step - pending */}
                                         <div className="flex flex-col items-center flex-shrink-0">
                                             <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                                                <MapPin className="w-4 h-4 fill-current" />
+                                                <StepperIcon src={addressIcon} className="bg-gray-300" />
                                             </div>
                                             <span className="text-[10px] font-bold text-gray-500">Details</span>
                                         </div>
@@ -132,7 +193,7 @@ export const CheckoutPage: React.FC = () => {
                                 {/* Checkout Step - pending */}
                                 <div className="flex flex-col items-center flex-shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                                        <Wallet className="w-4 h-4 fill-current text-gray-300" />
+                                        <StepperIcon src={checkoutIcon} className="bg-gray-300" />
                                     </div>
                                     <span className="text-[10px] font-medium text-gray-500">Checkout</span>
                                 </div>
@@ -157,6 +218,11 @@ export const CheckoutPage: React.FC = () => {
 
                                             <div className="flex-1">
                                                 <h4 className="font-bold text-[15px] text-[#2D2D2D]">{item.name}</h4>
+                                                {item.customizations && (
+                                                    <p className="text-xs text-gray-500 mt-0.5 leading-snug line-clamp-2">
+                                                        <span className="font-bold text-gray-600">Note:</span> {item.customizations}
+                                                    </p>
+                                                )}
                                                 <div className="flex items-center gap-2 mt-1">
                                                     {!item.isAddon && <span className="text-gray-400 line-through text-sm font-medium">Rs. {Math.round(item.price * 1.1).toFixed(2)}</span>}
                                                     <span className={`${item.isAddon ? 'text-gray-500 text-sm' : 'text-[#FF4732] font-bold text-[15px]'}`}>Rs. {item.price.toFixed(2)}</span>
@@ -167,7 +233,7 @@ export const CheckoutPage: React.FC = () => {
                                                 <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-[34px]">
                                                     <button onClick={() => removeFromCart(item.id)} className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50">-</button>
                                                     <span className="font-bold w-4 text-center text-[15px]">{item.quantity}</span>
-                                                    <button onClick={() => addToCart({ ...item })} className="w-8 h-full flex items-center justify-center text-gray-800 hover:bg-gray-50">+</button>
+                                                    <button onClick={() => addToCart({ ...item }, restaurantId, restaurantName)} className="w-8 h-full flex items-center justify-center text-gray-800 hover:bg-gray-50">+</button>
                                                 </div>
                                             ) : (
                                                 <div className="w-6 h-6 rounded-md bg-[#00A050] flex items-center justify-center">
@@ -282,6 +348,24 @@ export const CheckoutPage: React.FC = () => {
                                 <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
                                     {selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : '6, Yash Complex, Near Metro Station, Navi...')}
                                 </div>
+                                
+                                {isCheckingDelivery && (
+                                    <div className="pl-11 mt-1 flex items-center gap-2 text-[11px] text-gray-400">
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        Checking delivery availability...
+                                    </div>
+                                )}
+                                
+                                {!isCheckingDelivery && deliveryStatus && (
+                                    <div className={`pl-11 mt-1 flex items-center gap-1.5 text-[11px] font-bold ${
+                                        deliveryStatus === 'success' ? 'text-[#00A050]' : 
+                                        deliveryStatus === 'error' ? 'text-[#FF4732]' : 
+                                        'text-amber-600'
+                                    }`}>
+                                        {deliveryStatus === 'success' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                                        {deliveryStatus === 'success' ? `Delivers here (~${deliveryCheck?.distanceKm} km)` : deliveryError}
+                                    </div>
+                                )}
 
                                 {/* Address Dropdown Overlay/List */}
                                 {isAddressDropdownOpen && isLoggedIn && (
@@ -412,10 +496,10 @@ export const CheckoutPage: React.FC = () => {
                             {/* Desktop Checkout Button */}
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0}
+                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || deliveryStatus === 'error'}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isLoggedIn ? "Proceed to pay" : "Add phone and address details"}
+                                {isLoggedIn ? (deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
                             </button>
 
                         </div>
@@ -426,10 +510,10 @@ export const CheckoutPage: React.FC = () => {
                         <div className="max-w-md mx-auto">
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0}
+                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || deliveryStatus === 'error'}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {isLoggedIn ? "Proceed to pay" : "Add phone and address details"}
+                                {isLoggedIn ? (deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
                             </button>
                         </div>
                     </div>

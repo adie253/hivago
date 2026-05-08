@@ -12,7 +12,7 @@ export const OfferBanners: React.FC = () => {
                 <div className="flex-shrink-0 snap-start w-[280px] md:w-[360px] bg-gradient-to-br from-[#FFD600] to-[#E67E22] rounded-[32px] p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
                     <div className="z-10 w-3/5">
                         <p className="text-[10px] md:text-xs font-bold text-gray-900/80 mb-0.5">Get special discount</p>
-                        <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 leading-tight">upto 60%</h3>
+                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">upto 60%</h3>
                         <button className="bg-[#0D1B1E] text-xs font-bold py-2.5 px-6 rounded-xl hover:bg-gray-800 transition-colors shadow-lg text-white">
                             Order now
                         </button>
@@ -35,7 +35,7 @@ export const OfferBanners: React.FC = () => {
                     </div>
                     <div className="z-10 w-1/2 text-center flex flex-col items-center">
                         <p className="text-[10px] md:text-xs font-bold text-white/80 mb-0.5">Get special deal</p>
-                        <h3 className="text-xl md:text-2xl font-black text-white mb-4 leading-tight">for February</h3>
+                        <h3 className="text-xl md:text-2xl font-bold text-white mb-4 leading-tight">for February</h3>
                         <button className="bg-white text-[#6366F1] text-xs font-bold py-2.5 px-6 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
                             Order now!
                         </button>
@@ -46,7 +46,7 @@ export const OfferBanners: React.FC = () => {
                 <div className="flex-shrink-0 snap-start w-[260px] md:w-[340px] bg-[#000000] rounded-[32px] p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
                     <div className="z-10 w-1/2">
                         <p className="text-[10px] md:text-xs font-bold text-emerald-500 mb-0.5">Get special discount</p>
-                        <h3 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">upto 60%</h3>
+                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">upto 60%</h3>
                         <button className="bg-[#00C853] text-white text-xs font-bold py-2.5 px-6 rounded-xl hover:bg-emerald-600 transition-colors shadow-lg">
                             Order now
                         </button>

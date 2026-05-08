@@ -136,6 +136,9 @@ export const getPlaceDetails = async (placeId: string): Promise<any> => {
 export const getCart = async (): Promise<any> => {
     try {
         const response = await authFetch('/cart');
+        if (response.status === 204) {
+            return null;
+        }
         if (!response.ok) {
             throw new Error(`Failed to get cart: ${response.statusText}`);
         }
@@ -143,6 +146,19 @@ export const getCart = async (): Promise<any> => {
     } catch (error) {
         console.error('Error fetching cart:', error);
         return null;
+    }
+};
+
+export const clearServerCart = async (): Promise<void> => {
+    try {
+        const response = await authFetch('/cart', {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to clear server cart: ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error('Error clearing server cart:', error);
     }
 };
 
@@ -682,21 +698,7 @@ export const startPayment = async (orderId: string) => {
   redirectToPayU(params);
 };
 
-export const reportPaymentFailure = async (orderId: string, txnId: string) => {
-  try {
-    const res = await authFetch("/payments/failure", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ orderId, txnId })
-    });
-    return await res.json();
-  } catch (error) {
-    console.error("Failed to report payment failure:", error);
-    return null;
-  }
-};
+
 
 export const verifyPayment = async (txnId: string): Promise<any> => {
   try {
@@ -712,4 +714,86 @@ export const verifyPayment = async (txnId: string): Promise<any> => {
     console.error("Failed to verify payment:", error);
     return null;
   }
+};
+
+export const checkDeliveryAvailability = async (restaurantId: string, lat: number, lng: number): Promise<{
+    canDeliver: boolean;
+    distanceKm: number;
+    maxDistanceKm: number;
+} | null> => {
+    try {
+        const response = await fetch(`${BASE_URL}/catalog/restaurants/${restaurantId}/delivery-check?lat=${lat}&lng=${lng}`);
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Error in checkDeliveryAvailability:', error);
+        return null;
+    }
+};
+
+export const refreshToken = async (): Promise<any> => {
+    try {
+        const token = localStorage.getItem('customer_token');
+        const refreshTkn = localStorage.getItem('customer_refresh_token');
+        if (!token) return null;
+
+        // Try standard payload first (with refreshToken if available)
+        const payload = refreshTkn 
+            ? { refreshToken: refreshTkn }
+            : { token: token, accessToken: token };
+
+        const response = await fetch(`${BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload) 
+        });
+
+        if (!response.ok) {
+            // Fallback retry with Authorization header and alternative payload
+            const fallbackPayload = refreshTkn 
+                ? { accessToken: token, refreshToken: refreshTkn }
+                : { token: token };
+
+            const retryResponse = await fetch(`${BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(fallbackPayload)
+            });
+            if (!retryResponse.ok) return null;
+            
+            const data = await retryResponse.json();
+            if (data && data.accessToken) {
+                localStorage.setItem('customer_token', data.accessToken);
+                if (data.accessTokenExpiresAt) {
+                    localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
+                }
+                if (data.refreshToken) {
+                    localStorage.setItem('customer_refresh_token', data.refreshToken);
+                }
+                return data;
+            }
+            return null;
+        }
+        
+        const data = await response.json();
+        if (data && data.accessToken) {
+            localStorage.setItem('customer_token', data.accessToken);
+            if (data.accessTokenExpiresAt) {
+                localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
+            }
+            if (data.refreshToken) {
+                localStorage.setItem('customer_refresh_token', data.refreshToken);
+            }
+            return data;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        return null;
+    }
 };

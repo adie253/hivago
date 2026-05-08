@@ -1,5 +1,6 @@
 export interface CartItem {
-    id: string;
+    id: string; // Unique identifier for the cart entry (may include customization hash)
+    menuItemId?: string; // The original backend menu item ID
     name: string;
     price: number;
     isVeg: boolean;
@@ -7,4 +8,5 @@ export interface CartItem {
     isAddon?: boolean;
     description?: string;
     imageUrl?: string;
+    customizations?: string;
 }

@@ -13,6 +13,9 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+    const [initialLocation, setInitialLocation] = useState<{lat: number, lng: number} | undefined>(undefined);
+    const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+    const [locationError, setLocationError] = useState<string | null>(null);
 
     // Prevent body scroll when overlay is open
     useEffect(() => {
@@ -34,11 +37,40 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
         if (lowerLabel.includes('work') || lowerLabel.includes('office')) return <Building2 className="w-5 h-5 text-gray-700" />;
         return <Send className="w-5 h-5 text-gray-700" />;
     };
-
     const filteredAddresses = addresses.filter(addr => 
         addr.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
         addr.addressLine.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const handleUseCurrentLocation = () => {
+        if ('geolocation' in navigator) {
+            setIsDetectingLocation(true);
+            setLocationError(null);
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setInitialLocation({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    });
+                    setIsAddAddressOpen(true);
+                    setIsDetectingLocation(false);
+                },
+                (err) => {
+                    console.error("GPS Error:", err);
+                    setLocationError("Please enable location access to use this feature.");
+                    setIsDetectingLocation(false);
+                },
+                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            setLocationError("Geolocation is not supported by your browser.");
+        }
+    };
+
+    const handleOpenAddAddress = () => {
+        setInitialLocation(undefined);
+        setIsAddAddressOpen(true);
+    };
 
     return createPortal(
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col font-sans animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -74,9 +106,17 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
 
             {/* Action Buttons */}
             <div className="px-4 grid grid-cols-2 gap-4 mb-6 md:px-6">
-                <button className="flex flex-col items-start gap-2 p-4 border border-gray-100 rounded-2xl bg-white hover:bg-gray-50 transition-colors shadow-sm group">
+                <button 
+                    onClick={handleUseCurrentLocation}
+                    disabled={isDetectingLocation}
+                    className={`flex flex-col items-start gap-2 p-4 border border-gray-100 rounded-2xl bg-white hover:bg-gray-50 transition-colors shadow-sm group ${isDetectingLocation ? 'opacity-70 cursor-wait' : ''}`}
+                >
                     <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-white transition-colors">
-                        <Navigation2 className="w-5 h-5 text-brand-primary" />
+                        {isDetectingLocation ? (
+                            <Loader2 className="w-5 h-5 text-brand-primary animate-spin" />
+                        ) : (
+                            <Navigation2 className="w-5 h-5 text-brand-primary" />
+                        )}
                     </div>
                     <div className="text-left">
                         <p className="text-sm font-semibold text-gray-800">Use Current</p>
@@ -85,7 +125,7 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                 </button>
 
                 <button 
-                    onClick={() => setIsAddAddressOpen(true)}
+                    onClick={handleOpenAddAddress}
                     className="flex flex-col items-start gap-2 p-4 border border-gray-100 rounded-2xl bg-white hover:bg-gray-50 transition-colors shadow-sm group"
                 >
                     <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-white transition-colors">
@@ -97,6 +137,14 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                     </div>
                 </button>
             </div>
+
+            {locationError && (
+                <div className="px-4 md:px-6 mb-6">
+                    <div className="p-3 bg-red-50 text-[#FF4732] text-sm font-semibold rounded-xl border border-red-100">
+                        {locationError}
+                    </div>
+                </div>
+            )}
 
             {/* Saved Addresses List */}
             <div className="flex-1 overflow-y-auto px-4 md:px-6">
@@ -158,6 +206,8 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
             <AddAddressOverlay 
                 isOpen={isAddAddressOpen} 
                 onClose={() => setIsAddAddressOpen(false)} 
+                initialStep={initialLocation ? 'details' : 'search'}
+                initialLocation={initialLocation}
             />
         </div>,
         document.body

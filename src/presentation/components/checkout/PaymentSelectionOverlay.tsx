@@ -48,7 +48,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 animate-in fade-in duration-300">
             <div className="w-full max-w-md bg-white rounded-t-[32px] p-6 pb-8 animate-in slide-in-from-bottom duration-300">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-black text-gray-900">Add Payment Details</h2>
+                    <h2 className="text-xl font-bold text-gray-900">Add Payment Details</h2>
                     <button onClick={onClose} className="p-2 text-gray-400">
                         <X className="w-6 h-6" />
                     </button>
@@ -79,7 +79,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
 
                 <button
                     onClick={() => onSelect(selectedId)}
-                    className="w-full bg-[#FF584A] text-white font-black text-[17px] py-[18px] rounded-xl shadow-lg shadow-red-100 hover:bg-[#E5483B] transition-colors active:scale-[0.98]"
+                    className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-lg shadow-red-100 hover:bg-[#E5483B] transition-colors active:scale-[0.98]"
                 >
                     Apply
                 </button>

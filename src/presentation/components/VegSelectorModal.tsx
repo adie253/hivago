@@ -21,7 +21,7 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
                 {/* Header */}
                 <div className="flex justify-between items-start mb-6">
                     <div className="flex-1 pr-10">
-                        <h2 className="text-lg font-black text-gray-700 leading-tight">
+                        <h2 className="text-lg font-bold text-gray-700 leading-tight">
                             I want to see veg choices from
                         </h2>
                     </div>

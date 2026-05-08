@@ -1,13 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Menu as MenuIcon, CheckCircle, ShoppingCart, MapPin, Wallet, Book, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package } from 'lucide-react';
+import { ArrowLeft, Menu as MenuIcon, CheckCircle, Check, ShoppingCart, MapPin, Wallet, Book, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, reportPaymentFailure, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant } from '../../data/api';
+import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, checkDeliveryAvailability } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
+
+import menuIcon from '../../assets/stepper_icons/menu_gray.svg';
+import cartIcon from '../../assets/stepper_icons/cart_gray.svg';
+import addressIcon from '../../assets/stepper_icons/address_gray.svg';
+import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
+
+const StepperIcon = ({ src, active }: { src: string, active?: boolean }) => (
+    <div 
+        className={`w-[18px] h-[18px] ${active ? 'bg-[#FF4732]' : 'bg-[#00A050]'}`}
+        style={{
+            WebkitMaskImage: `url(${src})`,
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskImage: `url(${src})`,
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+        }}
+    />
+);
 
 export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
@@ -31,6 +52,46 @@ export const DemoCheckoutPage: React.FC = () => {
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
+
+    const [deliveryCheck, setDeliveryCheck] = useState<{
+        canDeliver: boolean;
+        distanceKm: number;
+        maxDistanceKm: number;
+    } | null>(null);
+    const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
+    const [deliveryError, setDeliveryError] = useState<string | null>(null);
+    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
+
+    useEffect(() => {
+        if (selectedLocation?.latitude && restaurantId) {
+            const check = async () => {
+                setIsCheckingDelivery(true);
+                setDeliveryError(null);
+                setDeliveryStatus(null);
+                try {
+                    const result = await checkDeliveryAvailability(restaurantId, selectedLocation.latitude, selectedLocation.longitude);
+                    if (result) {
+                        setDeliveryCheck(result);
+                        if (result.canDeliver) {
+                            setDeliveryStatus('success');
+                        } else {
+                            setDeliveryStatus('error');
+                            setDeliveryError(`Sorry, this restaurant doesn't deliver to your location. You're ${result.distanceKm} km away — they only deliver up to ${result.maxDistanceKm} km.`);
+                        }
+                    } else {
+                        setDeliveryStatus('warning');
+                        setDeliveryError("Couldn't verify delivery to this address.");
+                    }
+                } catch (e) {
+                    setDeliveryStatus('warning');
+                    setDeliveryError("Couldn't verify delivery to this address.");
+                } finally {
+                    setIsCheckingDelivery(false);
+                }
+            };
+            check();
+        }
+    }, [selectedLocation, restaurantId]);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
@@ -58,7 +119,6 @@ export const DemoCheckoutPage: React.FC = () => {
                     closePayUPopupWindow();
 
                     alert("Payment failed or was cancelled.");
-                    reportPaymentFailure(currentOrderId, txnId).catch(console.error);
                 }
             }, 3000);
         }
@@ -75,7 +135,6 @@ export const DemoCheckoutPage: React.FC = () => {
 
         if (txnId && orderId && !isPaymentPopupOpen) {
             // User came back from payment page without success
-            reportPaymentFailure(orderId, txnId).catch(console.error);
             sessionStorage.removeItem("txnId");
             sessionStorage.removeItem("orderId");
         }
@@ -178,69 +237,106 @@ export const DemoCheckoutPage: React.FC = () => {
 
     if (isOrdered) {
         return (
-            <div className="min-h-screen bg-white flex flex-col items-center px-6 pt-12 pb-10 font-sans">
-                {/* Header with Green Checkmark */}
-                <div className="flex flex-col items-center gap-2 mb-8">
-                    <div className="bg-[#E6F5EC] p-3 rounded-full">
-                        <CheckCircle className="w-8 h-8 text-[#00A050]" />
-                    </div>
-                    <h1 className="text-2xl font-black text-gray-900 mt-1">Order Placed!</h1>
-                    <p className="text-gray-400 text-[13px] font-medium">Your order has been successfully placed</p>
+            <div className="min-h-[100dvh] bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex items-center justify-center p-4 sm:p-6 lg:p-12 font-sans relative overflow-hidden">
+                {/* Background decorative elements */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#00A050] opacity-[0.03] rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#FF584A] opacity-[0.03] rounded-full blur-3xl"></div>
                 </div>
 
-                {/* Illustration */}
-                <div className="w-full max-w-[280px] mb-10 h-64 flex items-center justify-center overflow-hidden">
-                    <img
-                        src={orderSuccessImg}
-                        alt="Order Success"
-                        className="w-full h-full object-contain"
-                    />
-                </div>
-
-                {/* Order Details Card */}
-                <div className="w-full bg-[#FAFBFF] rounded-[28px] p-6 mb-12 shadow-sm border border-gray-50 flex flex-col gap-5">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-[#FFF4E8] p-4 rounded-full">
-                            <Package className="w-6 h-6 text-[#F7A626]" />
+                <div className="w-full max-w-[480px] lg:max-w-[900px] bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 p-6 sm:p-10 flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
+                    
+                    {/* Left Column: Success Animation & Illustration */}
+                    <div className="flex-1 flex flex-col items-center justify-center w-full">
+                        {/* Success Animation Circle */}
+                        <div className="relative mb-6 lg:mb-8 flex justify-center items-center mt-2">
+                            <div className="absolute w-24 h-24 bg-[#00A050] opacity-20 rounded-full animate-ping"></div>
+                            <div className="absolute w-20 h-20 bg-[#00A050] opacity-30 rounded-full animate-pulse"></div>
+                            <div className="relative z-10 bg-gradient-to-b from-[#00C864] to-[#00A050] w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-[#00A050]/30 transform hover:scale-105 transition-transform duration-300">
+                                <Check className="w-8 h-8 text-white stroke-[3]" />
+                            </div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-gray-400 text-sm font-medium">Order ID</span>
-                            <span className="text-gray-900 font-black text-[17px]">{currentOrderId || "1771138859799"}</span>
+
+                        {/* Header Text */}
+                        <div className="text-center mb-6 lg:mb-8 flex flex-col gap-2">
+                            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+                                Order Placed!
+                            </h1>
+                            <p className="text-gray-500 text-[15px] font-medium leading-relaxed max-w-[300px] mx-auto">
+                                Your order has been successfully placed and is on its way to being prepared.
+                            </p>
+                        </div>
+
+                        {/* Illustration container */}
+                        <div className="w-full max-w-[220px] relative mt-auto lg:mb-4">
+                            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10 pointer-events-none"></div>
+                            <img
+                                src={orderSuccessImg}
+                                alt="Order Success Celebration"
+                                className="w-full h-auto object-contain animate-in zoom-in duration-700 delay-150 drop-shadow-xl"
+                            />
                         </div>
                     </div>
 
-                    <div className="h-px bg-gray-100/50 w-full"></div>
+                    {/* Divider for Desktop */}
+                    <div className="hidden lg:block w-px bg-gray-100 my-4"></div>
+                    {/* Divider for Mobile */}
+                    <div className="block lg:hidden h-px bg-gray-100 w-full my-2"></div>
 
-                    <div className="flex flex-col gap-4 px-1">
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="text-gray-400 font-medium">Restaurant</span>
-                            <span className="text-gray-900 font-bold">{confirmedRestaurant || "Unknown Restaurant"}</span>
+                    {/* Right Column: Details & Actions */}
+                    <div className="flex-1 flex flex-col justify-center w-full">
+                        {/* Order Details Card */}
+                        <div className="w-full bg-[#FAFBFF] border border-gray-100 rounded-2xl p-5 mb-8 transform transition-all hover:shadow-md hover:border-gray-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-50">
+                                        <Package className="w-6 h-6 text-[#FF584A]" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider mb-0.5">Order ID</span>
+                                        <span className="text-gray-900 font-bold text-lg tracking-tight truncate w-[180px] sm:w-auto" title={currentOrderId || "1771138859799"}>
+                                            {currentOrderId || "1771138859799"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="h-px bg-gray-100 w-full mb-4"></div>
+
+                            <div className="flex flex-col gap-3">
+                                <div className="flex justify-between items-center text-[15px]">
+                                    <span className="text-gray-500 font-medium">Restaurant</span>
+                                    <span className="text-gray-900 font-bold truncate max-w-[150px] text-right" title={confirmedRestaurant || "Unknown Restaurant"}>
+                                        {confirmedRestaurant || "Unknown Restaurant"}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center text-[15px]">
+                                    <span className="text-gray-500 font-medium">Estimated Time</span>
+                                    <span className="text-gray-900 font-bold">30-35 min</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-3 mt-1 border-t border-gray-100">
+                                    <span className="text-gray-500 font-bold">Total Amount</span>
+                                    <span className="text-[#FF4732] font-bold text-[18px]">₹{finalAmount.toFixed(0)}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="text-gray-400 font-medium">Estimated Time</span>
-                            <span className="text-gray-900 font-bold">30-35 min</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-gray-400 font-medium text-sm">Total Amount</span>
-                            <span className="text-gray-900 font-black text-[18px]">₹{finalAmount.toFixed(0)}</span>
+
+                        {/* Action Buttons */}
+                        <div className="w-full flex flex-col gap-3 mt-auto">
+                            <button
+                                onClick={() => navigate(`/track-order?orderId=${currentOrderId}`, { replace: true })}
+                                className="group w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-[#FF584A]/25 hover:bg-[#E5483B] hover:shadow-[#FF584A]/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                            >
+                                Track Order Status
+                            </button>
+                            <button
+                                onClick={() => navigate('/', { replace: true })}
+                                className="w-full bg-white text-gray-500 font-bold text-[16px] py-[16px] rounded-2xl hover:bg-gray-50 hover:text-gray-900 transition-all active:scale-[0.98] border border-transparent hover:border-gray-200"
+                            >
+                                Back to Home
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="w-full flex flex-col gap-4 mt-auto">
-                    <button
-                        onClick={() => navigate(`/track-order?orderId=${currentOrderId}`, { replace: true })}
-                        className="w-full bg-[#FF584A] text-white font-black text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-all active:scale-[0.98]"
-                    >
-                        Track Order
-                    </button>
-                    <button
-                        onClick={() => navigate('/', { replace: true })}
-                        className="w-full bg-white text-gray-900 border border-gray-100 font-black text-[17px] py-[18px] rounded-xl hover:bg-gray-50 transition-all active:scale-[0.98]"
-                    >
-                        Back to Home
-                    </button>
                 </div>
             </div>
         );
@@ -269,7 +365,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Menu Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                            <Book className="w-4 h-4 fill-current" />
+                            <StepperIcon src={menuIcon} />
                         </div>
                         <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                     </div>
@@ -282,7 +378,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Cart Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                            <ShoppingCart className="w-4 h-4 fill-current" />
+                            <StepperIcon src={cartIcon} />
                         </div>
                         <span className="text-[10px] font-bold text-[#00A050]">Cart</span>
                     </div>
@@ -295,7 +391,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Details Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                            <MapPin className="w-4 h-4 fill-current" />
+                            <StepperIcon src={addressIcon} />
                         </div>
                         <span className="text-[10px] font-bold text-[#00A050]">Details</span>
                     </div>
@@ -308,7 +404,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Checkout Step - active */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                            <Wallet className="w-4 h-4 fill-current text-[#FF4732]" />
+                            <StepperIcon src={checkoutIcon} active />
                         </div>
                         <span className="text-[10px] font-bold text-[#FF4732]">Checkout</span>
                     </div>
@@ -322,18 +418,43 @@ export const DemoCheckoutPage: React.FC = () => {
 
                         {/* Address Map */}
                         <div className="hidden lg:flex flex-col gap-2 pt-2">
-                            <h2 className="text-sm font-black text-gray-900 ml-1">Address Map</h2>
-                            <div className="w-full h-[220px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative pointer-events-none">
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Address Map</h2>
+                            <div className="w-full h-[220px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative">
                                 <MapPicker
                                     position={selectedLocation?.latitude ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : { lat: 18.5204, lng: 73.8567 }}
                                     onPositionChange={() => { }}
                                 />
+                                {isCheckingDelivery && (
+                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+                                        <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                                    </div>
+                                )}
+                                
+                                {deliveryStatus && (
+                                    <div className={`absolute bottom-4 left-4 right-4 p-3 rounded-xl shadow-lg border flex items-start gap-3 z-20 animate-in slide-in-from-bottom-2 duration-300 ${
+                                        deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : 
+                                        deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 
+                                        'bg-amber-50 border-amber-100 text-amber-700'
+                                    }`}>
+                                        {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : 
+                                         deliveryStatus === 'error' ? <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" /> : 
+                                         <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
+                                        <div className="flex flex-col">
+                                            <span className="text-[13px] font-bold leading-snug">
+                                                {deliveryStatus === 'success' ? `Delivers in ~${deliveryCheck?.distanceKm} km` : deliveryError}
+                                            </span>
+                                            {deliveryStatus === 'error' && (
+                                                <span className="text-[11px] font-medium opacity-80 mt-1">Try a different address or pick a closer restaurant.</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         {/* Delivery Instructions */}
                         <div className="flex flex-col gap-2 pt-2">
-                            <h2 className="text-sm font-black text-gray-900 ml-1">Delivery Instructions</h2>
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Delivery Instructions</h2>
                             <div className="relative">
                                 <textarea
                                     value={instructions}
@@ -352,7 +473,7 @@ export const DemoCheckoutPage: React.FC = () => {
 
                         {/* Delivery Options */}
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-black text-gray-900 ml-1">Delivery Options</h2>
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Delivery Options</h2>
                             <div className="grid grid-cols-4 gap-2">
                                 {[
                                     { id: 'Door Pickup', icon: Users, label: 'Door Pickup' },
@@ -380,7 +501,7 @@ export const DemoCheckoutPage: React.FC = () => {
 
                         {/* Cart Items */}
                         <div className="hidden lg:flex flex-col gap-3">
-                            <h2 className="text-sm font-black text-gray-900 ml-1">Cart Items</h2>
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Cart Items</h2>
                             <div className="flex flex-col gap-3">
                                 {cartItems.map((item, index) => (
                                     <div key={`dc-${item.id}`} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-100">
@@ -392,6 +513,11 @@ export const DemoCheckoutPage: React.FC = () => {
                                             )}
                                             <div className="flex-1">
                                                 <h4 className="font-bold text-[14px] text-[#2D2D2D]">{item.name}</h4>
+                                                {item.customizations && (
+                                                    <p className="text-[11px] text-gray-500 mt-0.5 leading-snug line-clamp-2">
+                                                        <span className="font-bold text-gray-600">Note:</span> {item.customizations}
+                                                    </p>
+                                                )}
                                                 <div className="flex items-center gap-2 mt-1">
                                                     {!item.isAddon && <span className="text-gray-400 line-through text-xs font-medium">Rs. {Math.round(item.price * 1.1).toFixed(2)}</span>}
                                                     <span className={`${item.isAddon ? 'text-gray-500 text-xs' : 'text-[#FF4732] font-bold text-[14px]'}`}>Rs. {item.price.toFixed(2)}</span>
@@ -414,7 +540,7 @@ export const DemoCheckoutPage: React.FC = () => {
 
                         {/* Add Tip */}
                         <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-5 lg:p-0 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
-                            <h2 className="text-sm font-black text-gray-900">Add Tip for Delivery Partner</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Add Tip for Delivery Partner</h2>
                             <div className="flex gap-2">
                                 {[
                                     { label: 'No Tip', value: 0 },
@@ -436,7 +562,7 @@ export const DemoCheckoutPage: React.FC = () => {
                         {/* Add Payment Method Button */}
                         {/* <button
                             onClick={() => setIsPaymentOverlayOpen(true)}
-                            className="w-full bg-[#FFEFEF] text-[#FF4732] font-black text-[16px] py-5 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
+                            className="w-full bg-[#FFEFEF] text-[#FF4732] font-bold text-[16px] py-5 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
                         >
                             {selectedPaymentMethod ? (
                                 <div className="flex items-center gap-2">
@@ -453,7 +579,7 @@ export const DemoCheckoutPage: React.FC = () => {
 
                         {/* Order Summary */}
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-black text-gray-900 ml-1">Order Summary</h2>
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Order Summary</h2>
                             <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-6 lg:p-2 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-400 font-medium">Item Total</span>
@@ -481,8 +607,8 @@ export const DemoCheckoutPage: React.FC = () => {
                                 </div>
 
                                 <div className="flex justify-between items-center pt-1">
-                                    <span className="text-[#FF4732] font-black">To Pay</span>
-                                    <span className="text-[#FF4732] font-black">{grandTotal.toFixed(0)}</span>
+                                    <span className="text-[#FF4732] font-bold">To Pay</span>
+                                    <span className="text-[#FF4732] font-bold">{grandTotal.toFixed(0)}</span>
                                 </div>
                             </div>
                         </div>
@@ -515,7 +641,7 @@ export const DemoCheckoutPage: React.FC = () => {
                         ) : (
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={isPlacingOrder || !agreedToTerms}
+                                disabled={isPlacingOrder || !agreedToTerms || deliveryStatus === 'error'}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
                                 {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Proceed to checkout'}
@@ -535,7 +661,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     ) : (
                         <button
                             onClick={handlePlaceOrder}
-                            disabled={isPlacingOrder || !agreedToTerms}
+                            disabled={isPlacingOrder || !agreedToTerms || deliveryStatus === 'error'}
                             className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                         >
                             {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Proceed to checkout'}

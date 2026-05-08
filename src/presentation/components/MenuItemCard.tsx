@@ -26,8 +26,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
     const [showCustomize, setShowCustomize] = useState(false);
     const [isCheckingOptions, setIsCheckingOptions] = useState(false);
 
-    const cartItem = cartItems.find(i => i.id === item.id);
-    const quantity = cartItem ? cartItem.quantity : 0;
+    const cartItemsOfThisType = cartItems.filter(i => (i.menuItemId || i.id) === item.id);
+    const quantity = cartItemsOfThisType.reduce((acc, i) => acc + i.quantity, 0);
 
     const getNumericPrice = () => typeof item.price === 'string' ? parseInt(item.price.replace(/[^0-9]/g, ''), 10) : item.price;
 
@@ -60,11 +60,17 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
 
     const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: { id: string, name: string, price: number }[]) => {
         // Add the main item
+        const cartItemId = instructions 
+            ? `${itemToAdd.id}-${btoa(instructions).substring(0, 8)}` 
+            : itemToAdd.id;
+
         addToCart({
-            id: itemToAdd.id,
-            name: `${itemToAdd.name} (Customized)`,
+            id: cartItemId,
+            menuItemId: itemToAdd.id,
+            name: itemToAdd.name,
             price: mainItemPrice,
             isVeg: itemToAdd.isVeg,
+            customizations: instructions || undefined
         }, restaurantId, restaurantName);
 
         // Add each addon as a separate item with isAddon flag
@@ -84,7 +90,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
 
     const handleRemove = (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
-        removeFromCart(item.id);
+        if (cartItemsOfThisType.length > 0) {
+            // Remove the last added variation
+            removeFromCart(cartItemsOfThisType[cartItemsOfThisType.length - 1].id);
+        }
     };
 
     return (
@@ -103,7 +112,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                 />
 
                 {/* Discount Tag */}
-                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-[#4CAF50] text-white px-2 py-0.5 rounded-md shadow-sm text-[9px] font-black">
+                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-[#4CAF50] text-white px-2 py-0.5 rounded-md shadow-sm text-[9px] font-bold">
                     <div className="w-2.5 h-2.5 rounded-full bg-white flex items-center justify-center">
                         <div className="w-1.5 h-1.5 bg-[#4CAF50] rounded-full" />
                     </div>
@@ -118,7 +127,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                         </div>
                     </div>
                     {item.bestseller && (
-                        <div className="bg-[#4CAF50] text-white px-2 py-0.5 rounded-md text-[9px] font-black flex items-center gap-1 shadow-sm">
+                        <div className="bg-[#4CAF50] text-white px-2 py-0.5 rounded-md text-[9px] font-bold flex items-center gap-1 shadow-sm">
                             <Star className="w-2.5 h-2.5 fill-white" />
                             <span>Best Seller</span>
                         </div>

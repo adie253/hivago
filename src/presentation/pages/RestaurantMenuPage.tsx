@@ -61,11 +61,11 @@ export const RestaurantMenuPage: React.FC = () => {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans gap-6 text-center px-6">
                 <div className="text-6xl">🥘</div>
-                <h2 className="text-2xl font-black text-gray-900">Restaurant Not Found</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Restaurant Not Found</h2>
                 <p className="text-gray-500 max-w-xs">We couldn't find the restaurant you're looking for. It might be closed or doesn't exist.</p>
                 <button
                     onClick={() => navigate('/restaurants')}
-                    className="bg-[#FF4732] text-white px-8 py-3 rounded-full font-black shadow-lg hover:scale-105 active:scale-95 transition-all"
+                    className="bg-[#FF4732] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
                 >
                     Back to Restaurants
                 </button>
@@ -176,7 +176,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 </button>
                             </div>
                             <div className="pl-2">
-                                <p className="text-[#B02421] font-black text-lg leading-tight capitalize">{deliveryMode}</p>
+                                <p className="text-[#B02421] font-bold text-lg leading-tight capitalize">{deliveryMode}</p>
                                 <p className="text-gray-500 text-xs font-bold">
                                     {deliveryMode === 'delivery' ? '30 - 35 min' : '15 - 20 min'}
                                 </p>
@@ -209,7 +209,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <button
                                 key={cat}
                                 onClick={() => setActiveTab(cat)}
-                                className={`text-[14px] font-black whitespace-nowrap pb-3 transition-all relative ${activeTab === cat ? 'text-[#FF4732]' : 'text-gray-400 hober:text-gray-700'}`}
+                                className={`text-[14px] whitespace-nowrap pb-3 transition-all relative ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-700'}`}
                             >
                                 {cat}
                                 {activeTab === cat && (
@@ -222,7 +222,7 @@ export const RestaurantMenuPage: React.FC = () => {
 
                 {/* Menu Header & Grid (Mobile) */}
                 <div className="px-5 mt-8">
-                    <h2 className="text-xl font-black text-gray-900 mb-6">{activeTab}</h2>
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">{activeTab}</h2>
                     <div className="grid grid-cols-2 gap-4">
                         {menuItems.map(item => (
                             <MenuItemCard 
@@ -269,7 +269,7 @@ export const RestaurantMenuPage: React.FC = () => {
                         {/* Left Section: Info */}
                         <div className="flex-1 flex flex-col justify-between">
                             <div>
-                                <h1 className="text-3xl font-black text-gray-900 leading-tight mb-1">
+                                <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-1">
                                     {restaurant.name}
                                 </h1>
                                 <p className="text-gray-500 font-bold text-sm mb-2 uppercase tracking-tight">
@@ -284,7 +284,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <div className="flex items-center gap-8 mt-8">
                                 <div className="flex items-center gap-2">
                                     <Star className="w-5 h-5 text-green-600 fill-green-600" />
-                                    <span className="text-base font-black text-gray-900">{restaurant.rating}</span>
+                                    <span className="text-base font-bold text-gray-900">{restaurant.rating}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-500">
                                     <Clock className="w-5 h-5" />
@@ -315,8 +315,8 @@ export const RestaurantMenuPage: React.FC = () => {
                                     </button>
                                 </div>
                                 <div className="pr-4">
-                                    <p className="text-[#B02421] font-black text-lg leading-none capitalize">{deliveryMode}</p>
-                                    <p className="text-gray-500 text-xs font-black mt-0.5">
+                                    <p className="text-[#B02421] font-bold text-lg leading-none capitalize">{deliveryMode}</p>
+                                    <p className="text-gray-500 text-xs font-bold mt-0.5">
                                         {deliveryMode === 'delivery' ? '30 - 35 min' : '15 - 20 min'}
                                     </p>
                                 </div>
@@ -328,7 +328,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                         <Clock className="w-2.5 h-2.5 text-white" />
                                     </div>
                                     <div className="flex flex-col leading-tight">
-                                        <span className="text-[10px] font-black uppercase tracking-wider">Fast Delivery</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Fast Delivery</span>
                                         <span className="text-[9px] font-bold opacity-80">30 mins</span>
                                     </div>
                                 </div>
@@ -337,7 +337,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                         <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                                     </div>
                                     <div className="flex flex-col leading-tight">
-                                        <span className="text-[10px] font-black uppercase tracking-wider">Live Tracking</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Live Tracking</span>
                                         <span className="text-[9px] font-bold opacity-80">Real Time</span>
                                     </div>
                                 </div>
@@ -362,7 +362,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <button
                                 key={cat}
                                 onClick={() => setActiveTab(cat)}
-                                className={`text-base font-black pb-5 transition-all relative ${activeTab === cat ? 'text-[#FF4732]' : 'text-gray-400 hober:text-gray-900 group'}`}
+                                className={`text-base pb-5 transition-all relative ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-900 group'}`}
                             >
                                 {cat}
                                 {activeTab === cat && (
@@ -374,7 +374,7 @@ export const RestaurantMenuPage: React.FC = () => {
                     </div>
 
                     <div className="mt-12 mb-8">
-                        <h2 className="text-2xl font-black text-gray-900">{activeTab}</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">{activeTab}</h2>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

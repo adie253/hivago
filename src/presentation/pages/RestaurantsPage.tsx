@@ -5,6 +5,7 @@ import { SearchBar } from '../components/SearchBar';
 import { CategoryCarousel } from '../components/CategoryCarousel';
 import { FilterChips } from '../components/FilterChips';
 import { useFilters } from '../context/FilterContext';
+import restaurantBanner from '../../assets/restaurant_page/restaurant_banner.svg';
 
 export const RestaurantsPage: React.FC = () => {
     const navigate = useNavigate();
@@ -14,7 +15,7 @@ export const RestaurantsPage: React.FC = () => {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center">
                 <div className="w-16 h-16 border-4 border-red-200 border-t-[#FF4732] rounded-full animate-spin mb-4"></div>
-                <p className="text-gray-500 font-medium animate-pulse text-lg">Finding the best restaurants for you...</p>
+                <p className="text-gray-500 font-bold animate-pulse text-lg">Finding the best restaurants for you...</p>
             </div>
         );
     }
@@ -37,19 +38,16 @@ export const RestaurantsPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white font-sans overflow-x-hidden">
-            <div className="bg-[#FF4732] w-full pt-8 pb-16 px-6 md:px-12 lg:px-24 shadow-sm relative">
-                <div className="max-w-7xl mx-auto flex flex-col items-center justify-center text-center">
-                    <h1 className="text-white font-extrabold text-3xl md:text-5xl leading-tight mb-4 drop-shadow-md">
-                        Discover 100+ Restaurants
-                    </h1>
-                    <p className="text-red-100 font-medium text-sm md:text-base max-w-md">
-                        Explore the best food spots near you with exclusive offers and quick delivery.
-                    </p>
-                </div>
+        <div className="min-h-screen bg-white font-sans overflow-x-hidden p-0 ">
+            <div className="w-full">
+                <img 
+                    src={restaurantBanner} 
+                    alt="Discover 100+ Restaurants" 
+                    className="w-full h-auto object-cover m-0 p-0"
+                />
             </div>
 
-            <div className="max-w-7xl mx-auto bg-white relative z-30 pt-2 pb-20">
+            <div className="max-w-7xl mx-auto bg-white relative z-30 pt-6 pb-20">
                 <SearchBar />
                 <CategoryCarousel />
                 <FilterChips />
