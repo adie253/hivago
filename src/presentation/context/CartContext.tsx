@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
-import { syncCart, isTokenValid, getCart, refreshToken } from '../../data/api';
+import { syncCart, isTokenValid, getCart, refreshToken, clearServerCart } from '../../data/api';
 import { SessionWarningPopup } from '../components/SessionWarningPopup';
 
 interface CartContextType {
@@ -33,11 +33,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
     const [expiresInSeconds, setExpiresInSeconds] = useState(0);
     const [refreshError, setRefreshError] = useState<string | null>(null);
-    
+
     // Conflict State
     const [conflictInfo, setConflictInfo] = useState<{ name: string, id: string } | null>(null);
 
-    // 🚀 RECONCILE CARTS (STRICT FRONTEND MERGE)
+    // RECONCILE CARTS (STRICT FRONTEND MERGE)
     const reconcileCarts = useCallback(async (localCart: any) => {
         if (!isLoggedIn || hasSyncedAfterLogin.current) return;
 
@@ -47,9 +47,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const hasLocalItems = localCart?.items?.length > 0;
             const hasRemoteItems = remoteCart?.items?.length > 0;
 
+            // ❗ Immediately clear localStorage cart — once we're logged in, server is source of truth.
+            // This prevents reload from re-reading stale guest items and merging them again.
+            DIContainer.getClearCartUseCase().execute();
+
             // Handle Restaurant Conflict
             if (hasLocalItems && hasRemoteItems && localCart.restaurantId !== remoteCart.restaurantId) {
-                setConflictInfo({ 
+                setConflictInfo({
                     name: remoteCart.restaurantName || "another restaurant",
                     id: remoteCart.restaurantId
                 });
@@ -57,35 +61,44 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             let finalItems: CartItem[] = [];
-            let finalRestaurantId = localCart.restaurantId || remoteCart.restaurantId;
-            let finalRestaurantName = localCart.restaurantName || remoteCart.restaurantName;
+            let finalRestaurantId = localCart.restaurantId || remoteCart?.restaurantId;
+            let finalRestaurantName = localCart.restaurantName || remoteCart?.restaurantName;
 
             if (hasLocalItems && hasRemoteItems) {
-                // Perform Frontend Merge
                 finalItems = performFrontendMerge(localCart.items, remoteCart.items);
             } else if (hasLocalItems) {
                 finalItems = localCart.items;
             } else if (hasRemoteItems) {
                 finalItems = convertServerItems(remoteCart.items);
+                finalRestaurantId = remoteCart.restaurantId;
+                finalRestaurantName = remoteCart.restaurantName;
             }
 
-            // 2. Update UI & Local Storage immediately
-            updateStateWithFinalCart(finalItems, finalRestaurantId, finalRestaurantName);
-            
-            // 3. Push to server with replaceCart=true to OVERWRITE with the merged result
-            if (finalItems.length > 0) {
+            // 2. Update UI state (no localStorage write — we're logged in)
+            setCartItems(finalItems);
+            setRestaurantId(finalRestaurantId);
+            setRestaurantName(finalRestaurantName);
+
+            // 3. Push merged result to server only if local items were involved
+            if (hasLocalItems && finalItems.length > 0) {
+                const itemsPayload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; }[] =
+                    finalItems.map(item => {
+                        const p: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; } = {
+                            menuItemId: item.menuItemId || item.id,
+                            name: item.name,
+                            unitPrice: item.price,
+                            quantity: item.quantity,
+                        };
+                        if (item.description && item.description !== "") p.options = item.description;
+                        if (item.customizations && item.customizations !== "") p.specialInstructions = item.customizations;
+                        return p;
+                    });
+
                 await syncCart({
                     restaurantId: finalRestaurantId!,
                     restaurantName: finalRestaurantName || 'Restaurant',
-                    items: finalItems.map(item => ({
-                        menuItemId: item.menuItemId || item.id,
-                        name: item.name,
-                        unitPrice: item.price,
-                        quantity: item.quantity,
-                        options: item.description || "",
-                        specialInstructions: item.customizations || ""
-                    }))
-                }, true); // FORCE OVERWRITE with our merged state
+                    items: itemsPayload
+                }, true);
             }
 
         } catch (e) {
@@ -105,8 +118,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isVeg: true,
             isAddon: false,
             customizations: rItem.specialInstructions || undefined,
-            description: Array.isArray(rItem.options) 
-                ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+            description: Array.isArray(rItem.options)
+                ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
                 : (typeof rItem.options === 'string' ? rItem.options : "")
         }));
     };
@@ -115,7 +128,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCartItems(items);
         setRestaurantId(rId);
         setRestaurantName(rName);
-        
+
         // Only persist to localStorage for guests — logged-in users rely on server
         if (!isLoggedIn) {
             DIContainer.getCartRepository().saveCart({
@@ -152,17 +165,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return Array.from(mergedMap.values());
     };
 
-    // 🚀 INIT CART
+    //  INIT CART
     useEffect(() => {
         const init = async () => {
-            const localCartData = DIContainer.getGetCartUseCase().execute();
-
             if (isLoggedIn) {
-                if (!hasSyncedAfterLogin.current) {
+                const alreadySynced = sessionStorage.getItem('cart_reconciled') === 'true';
+
+                if (alreadySynced) {
+                    // Reload: skip reconcile, just load from server
+                    try {
+                        const remoteCart = await getCart();
+                        if (remoteCart?.items?.length > 0) {
+                            const items = convertServerItems(remoteCart.items);
+                            setCartItems(items);
+                            setRestaurantId(remoteCart.restaurantId);
+                            setRestaurantName(remoteCart.restaurantName);
+                        }
+                    } catch (e) {
+                        console.error('Failed to load cart on reload:', e);
+                    }
+                } else {
+                    // First login: run full reconcile (merge guest + server)
+                    const localCartData = DIContainer.getGetCartUseCase().execute();
                     await reconcileCarts(localCartData);
+                    sessionStorage.setItem('cart_reconciled', 'true');
                 }
             } else {
                 // Guest mode
+                const localCartData = DIContainer.getGetCartUseCase().execute();
                 setCartItems(localCartData.items || []);
                 setRestaurantId(localCartData.restaurantId);
                 setRestaurantName(localCartData.restaurantName);
@@ -173,7 +203,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         init();
     }, [isLoggedIn, reconcileCarts]);
 
-    // 🚀 SYNC CART (REMOVED CONTINUOUS SYNC TO PREVENT LOOPS)
+    //  SYNC CART (REMOVED CONTINUOUS SYNC TO PREVENT LOOPS)
     // We now only sync once during login (reconcileCarts) to avoid "again and again" calls.
     // Items added during the session are kept in local state and synchronized on the next login or manual refresh.
 
@@ -181,25 +211,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const debouncedPushToServer = useCallback((cartData: { restaurantId: string; restaurantName: string; items: CartItem[] }) => {
         if (!isLoggedIn) return;
         if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
-        syncDebounceRef.current = setTimeout(() => {
-            const itemsPayload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; }[] = cartData.items.map(i => {
-                const payload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; } = {
-                    menuItemId: i.menuItemId || i.id,
-                    name: i.name,
-                    unitPrice: i.price,
-                    quantity: i.quantity,
-                };
-                // Only include optional fields if they have content — server rejects empty strings
-                if (i.description && i.description !== "") payload.options = i.description;
-                if (i.customizations && i.customizations !== "") payload.specialInstructions = i.customizations;
-                return payload;
-            });
+        syncDebounceRef.current = setTimeout(async () => {
+            try {
+                const itemsPayload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; }[] = cartData.items.map(i => {
+                    const payload: { menuItemId: string; name: string; unitPrice: number; quantity: number; options?: string; specialInstructions?: string; } = {
+                        menuItemId: i.menuItemId || i.id,
+                        name: i.name,
+                        unitPrice: i.price,
+                        quantity: i.quantity,
+                    };
+                    if (i.description && i.description !== "") payload.options = i.description;
+                    if (i.customizations && i.customizations !== "") payload.specialInstructions = i.customizations;
+                    return payload;
+                });
 
-            syncCart({
-                restaurantId: cartData.restaurantId,
-                restaurantName: cartData.restaurantName || 'Restaurant',
-                items: itemsPayload
-            }, false).catch(err => console.error("Failed to push cart to server:", err));
+                // Step 1: Clear the server cart so same-restaurant merge doesn't double quantities
+                await clearServerCart();
+
+                // Step 2: POST the full current cart as a fresh state
+                await syncCart({
+                    restaurantId: cartData.restaurantId,
+                    restaurantName: cartData.restaurantName || 'Restaurant',
+                    items: itemsPayload
+                }, true);
+            } catch (err) {
+                console.error("Failed to push cart to server:", err);
+            }
         }, 800);
     }, [isLoggedIn]);
 
@@ -245,7 +282,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, [restaurantId, isLoggedIn, cartItems, debouncedPushToServer]);
 
-    // 🚀 REMOVE
+    //  REMOVE
     const removeFromCart = useCallback((itemId: string) => {
         if (isLoggedIn) {
             // Logged in: update React state directly, skip localStorage
@@ -263,7 +300,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setRestaurantId(currentRestaurantId);
             setRestaurantName(currentRestaurantName);
 
-            if (currentRestaurantId) {
+            if (updatedItems.length === 0) {
+                // Last item removed — cancel debounce and delete cart from server
+                if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+                clearServerCart().catch(err => console.error("Failed to clear server cart:", err));
+            } else if (currentRestaurantId) {
                 debouncedPushToServer({
                     restaurantId: currentRestaurantId,
                     restaurantName: currentRestaurantName || 'Restaurant',
@@ -290,7 +331,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const forceReplaceCart = async () => {
         if (!conflictInfo) return;
         const localCartData = DIContainer.getGetCartUseCase().execute();
-        
+
         try {
             const syncResponse = await syncCart({
                 restaurantId: localCartData.restaurantId!,
@@ -315,11 +356,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     isVeg: true,
                     isAddon: false,
                     customizations: rItem.specialInstructions || undefined,
-                    description: Array.isArray(rItem.options) 
-                        ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+                    description: Array.isArray(rItem.options)
+                        ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
                         : (typeof rItem.options === 'string' ? rItem.options : "")
                 }));
-                
+
                 setCartItems(mergedItems);
                 setRestaurantId(syncResponse.restaurantId);
                 setRestaurantName(syncResponse.restaurantName);
@@ -361,7 +402,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem('customer_token');
-        
+
         localStorage.removeItem('customer_refresh_token');
         localStorage.removeItem('customer_token_expires_at');
         localStorage.removeItem('customer_id');
@@ -376,6 +417,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCartItems([]);
         setRestaurantId(undefined);
         setRestaurantName(undefined);
+        // Clear the reconcile flag so next login runs fresh reconcile
+        sessionStorage.removeItem('cart_reconciled');
         hasSyncedAfterLogin.current = false;
 
         setIsLoggedIn(false);
@@ -451,7 +494,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             refreshLoginStatus
         }}>
             {children}
-            <SessionWarningPopup 
+            <SessionWarningPopup
                 isOpen={isSessionWarningOpen}
                 onClose={() => setIsSessionWarningOpen(false)}
                 onLogout={handleLogout}
@@ -467,17 +510,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         <div className="p-8 text-center">
                             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <svg className="w-10 h-10 text-[#FF4732]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </div>
                             <h3 className="text-2xl font-black text-gray-900 mb-3">Restaurant Conflict</h3>
                             <p className="text-gray-500 leading-relaxed font-medium">
-                                Your existing cart has items from <span className="text-gray-900 font-bold">"{conflictInfo.name}"</span>. 
+                                Your existing cart has items from <span className="text-gray-900 font-bold">"{conflictInfo.name}"</span>.
                                 Would you like to clear it and start fresh with your current items?
                             </p>
                         </div>
                         <div className="flex border-t border-gray-100">
-                            <button 
+                            <button
                                 onClick={() => {
                                     setConflictInfo(null);
                                     // Optionally pull existing cart here if they "Keep"
@@ -492,8 +535,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                                 isVeg: true,
                                                 isAddon: false,
                                                 customizations: rItem.specialInstructions || undefined,
-                                                description: Array.isArray(rItem.options) 
-                                                    ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ") 
+                                                description: Array.isArray(rItem.options)
+                                                    ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
                                                     : (typeof rItem.options === 'string' ? rItem.options : "")
                                             }));
                                             setCartItems(convertedItems);
@@ -506,7 +549,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             >
                                 Keep Existing
                             </button>
-                            <button 
+                            <button
                                 onClick={forceReplaceCart}
                                 className="flex-1 px-6 py-5 text-[#FF4732] font-extrabold hover:bg-red-50 transition-colors"
                             >

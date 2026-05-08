@@ -322,7 +322,7 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         cuisines: cuisines,
         rating: 4.2, // Default rating as API lacks it
         deliveryTime: `${avgPrepTime}-${avgPrepTime + 10} min`,
-        distance: "2.5 km", // Dummy distance
+        distance: "-- km", // Calculated at display time using real coordinates
         costForTwo: "₹400", // Dummy cost
         imageUrl: apiRes.img || (apiRes.name.toLowerCase().includes('good luck')
             ? "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800"
@@ -331,6 +331,8 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         isVeg: allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true,
         categories: categories,
         addressLine: apiRes.addressLine || "Address not available",
+        latitude: apiRes.latitude,
+        longitude: apiRes.longitude,
         menu: allItems.map(item => ({
             id: item.id,
             name: item.name,

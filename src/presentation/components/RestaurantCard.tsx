@@ -1,6 +1,8 @@
 import React from 'react';
 import { Star, Clock, MapPin, Heart } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
+import { useUserLocation } from '../context/LocationContext';
+import { haversineKm, formatDistance } from '../../utils/distanceUtils';
 
 export interface Restaurant {
     id: string;
@@ -13,6 +15,8 @@ export interface Restaurant {
     imageUrl: string;
     promoted?: boolean;
     discount?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 interface RestaurantCardProps {
@@ -22,7 +26,17 @@ interface RestaurantCardProps {
 
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onClick }) => {
     const { toggleFavorite, isFavorite } = useFavorites();
+    const { selectedLocation } = useUserLocation();
     const isFav = isFavorite(restaurant.id);
+
+    const displayDistance = (() => {
+        const uLat = selectedLocation?.latitude;
+        const uLng = selectedLocation?.longitude;
+        if (uLat != null && uLng != null && restaurant.latitude != null && restaurant.longitude != null) {
+            return formatDistance(haversineKm(uLat, uLng, restaurant.latitude, restaurant.longitude));
+        }
+        return restaurant.distance;
+    })();
 
     return (
         <div
@@ -90,7 +104,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
 
                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{restaurant.distance}</span>
+                        <span className="font-medium">{displayDistance}</span>
                     </div>
 
                     <div className="w-1 h-1 bg-gray-300 rounded-full flex-shrink-0 hidden min-[360px]:block"></div>

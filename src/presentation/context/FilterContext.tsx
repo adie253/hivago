@@ -27,6 +27,8 @@ export interface Restaurant {
     categories: string[];
     menu: FoodItem[];
     addressLine?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 interface FilterContextType {

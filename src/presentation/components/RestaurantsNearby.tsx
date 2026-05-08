@@ -1,13 +1,38 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Star, Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
+import { useUserLocation } from '../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
+import { Restaurant } from '../context/FilterContext';
+import { haversineKm, formatDistance } from '../../utils/distanceUtils';
 
 export const RestaurantsNearby: React.FC = () => {
     const { allRestaurants, isLoading } = useFilters();
+    const { selectedLocation } = useUserLocation();
     const navigate = useNavigate();
 
-    if (isLoading) return null; // Or show skeleton
+    // Compute distance for each restaurant, then sort nearest first
+    const sortedRestaurants = useMemo(() => {
+        const userLat = selectedLocation?.latitude;
+        const userLng = selectedLocation?.longitude;
+
+        return [...allRestaurants]
+            .map(r => {
+                const distKm =
+                    userLat != null && userLng != null && r.latitude != null && r.longitude != null
+                        ? haversineKm(userLat, userLng, r.latitude, r.longitude)
+                        : null;
+                return { restaurant: r, distKm };
+            })
+            .sort((a, b) => {
+                if (a.distKm == null && b.distKm == null) return 0;
+                if (a.distKm == null) return 1;
+                if (b.distKm == null) return -1;
+                return a.distKm - b.distKm;
+            });
+    }, [allRestaurants, selectedLocation]);
+
+    if (isLoading) return null;
 
     return (
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
@@ -22,13 +47,13 @@ export const RestaurantsNearby: React.FC = () => {
 
             {/* Horizontal Scroll Container */}
             <div className="flex overflow-x-auto gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {allRestaurants.slice(0, 6).map((restaurant) => (
+                {sortedRestaurants.slice(0, 6).map(({ restaurant, distKm }) => (
                     <div
                         key={restaurant.id}
                         onClick={() => navigate(`/restaurant/${restaurant.id}`)}
                         className="flex flex-col min-w-[280px] md:min-w-[320px] bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                     >
-                        {/* Image Container - Light Gray Background */}
+                        {/* Image Container */}
                         <div className="relative aspect-[4/3] w-full bg-[#F5F5F5] rounded-[24px] overflow-hidden mb-4 flex items-center justify-center">
                             <img
                                 src={restaurant.imageUrl}
@@ -73,7 +98,11 @@ export const RestaurantsNearby: React.FC = () => {
 
                                 <div className="flex items-center gap-1.5">
                                     <MapPin className="w-4 h-4 opacity-70" />
-                                    <span>{restaurant.distance}</span>
+                                    <span>
+                                        {distKm != null
+                                            ? formatDistance(distKm)
+                                            : restaurant.distance}
+                                    </span>
                                 </div>
 
                                 <div className="text-gray-700 font-bold">

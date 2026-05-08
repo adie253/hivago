@@ -2,12 +2,24 @@ import React from 'react';
 import { Star, Clock, MapPin, Heart, Zap } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useFilters } from '../context/FilterContext';
+import { useUserLocation } from '../context/LocationContext';
+import { haversineKm, formatDistance } from '../../utils/distanceUtils';
 import { useNavigate } from 'react-router-dom';
 
 export const RecommendedRestaurants: React.FC = () => {
     const { toggleFavorite, isFavorite } = useFavorites();
     const { allRestaurants, isLoading } = useFilters();
+    const { selectedLocation } = useUserLocation();
     const navigate = useNavigate();
+
+    const getDistance = (lat?: number, lng?: number): string => {
+        const uLat = selectedLocation?.latitude;
+        const uLng = selectedLocation?.longitude;
+        if (uLat != null && uLng != null && lat != null && lng != null) {
+            return formatDistance(haversineKm(uLat, uLng, lat, lng));
+        }
+        return '-- km';
+    };
 
     if (isLoading) return null;
 
@@ -76,7 +88,7 @@ export const RecommendedRestaurants: React.FC = () => {
 
                                     <div className="flex items-center gap-1.5">
                                         <MapPin className="w-4 h-4 opacity-70" />
-                                        <span>{restaurant.distance}</span>
+                                        <span>{getDistance(restaurant.latitude, restaurant.longitude)}</span>
                                     </div>
 
                                     <div className="text-gray-700 font-bold whitespace-nowrap">
