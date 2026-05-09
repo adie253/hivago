@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress, checkDeliveryAvailability, isTokenValid } from '../../../data/api';
+import { sendOtp, verifyOtp, addAddress, isTokenValid, getDeliveryQuote, fetchRestaurantById } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
@@ -35,7 +35,7 @@ export type DetailsFlowOverlayProps = {
 type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
-    const { restaurantId } = useCart();
+    const { restaurantId, cartTotal } = useCart();
     const [step, setStep] = useState<Step>(isTokenValid() ? 'addresses' : 'phone');
     const [phone, setPhone] = useState(() => localStorage.getItem('customer_phone') || '');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -66,15 +66,26 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         setDeliveryStatus(null);
         setDeliveryError(null);
         try {
-            const result = await checkDeliveryAvailability(restaurantId, lat, lng);
-            if (result) {
-                setDeliveryDistance(result.distanceKm);
-                if (result.canDeliver) {
-                    setDeliveryStatus('success');
-                } else {
-                    setDeliveryStatus('error');
-                    setDeliveryError(`This restaurant only delivers up to ${result.maxDistanceKm} km. You are ${result.distanceKm} km away.`);
-                }
+            const restaurant = await fetchRestaurantById(restaurantId);
+
+            if (!restaurant?.latitude || !restaurant?.longitude) {
+                setDeliveryStatus('warning');
+                setIsCheckingDelivery(false);
+                return;
+            }
+
+            const quote = await getDeliveryQuote({
+                restaurantId,
+                pickupLatitude: restaurant.latitude,
+                pickupLongitude: restaurant.longitude,
+                dropLatitude: lat,
+                dropLongitude: lng,
+                orderAmount: cartTotal || 100
+            });
+
+            if (quote) {
+                setDeliveryDistance(quote.distanceKm);
+                setDeliveryStatus('success');
             } else {
                 setDeliveryStatus('warning');
             }

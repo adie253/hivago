@@ -55,6 +55,50 @@ export const authFetch = async (endpoint: string, options: RequestInit = {}): Pr
     return fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 };
 
+export interface ReverseGeocodeResult {
+    city?: string;
+    pincode?: string;
+    addressLine?: string;
+    suburb?: string;
+    state?: string;
+}
+
+export const reverseGeocode = async (lat: number, lng: number): Promise<ReverseGeocodeResult | null> => {
+    try {
+        const response = await authFetch(`/geocode/reverse?lat=${lat}&lng=${lng}`);
+        if (!response.ok) return null;
+        const data = await response.json();
+        // Log raw response so we can see the exact field names returned by this backend
+        console.log('[reverseGeocode] raw response:', JSON.stringify(data));
+        // Resolve city through many possible field names, then fall back to suburb/district/state
+        const city =
+            data.city ||
+            data.town ||
+            data.municipality ||
+            data.district ||
+            data.locality ||
+            data.area ||
+            data.village ||
+            data.county ||
+            data.suburb ||
+            data.neighbourhood ||
+            data.state ||
+            data.region ||
+            '';
+        return {
+            city,
+            pincode: data.pincode || data.postcode || data.postalCode || data.postal_code || '',
+            addressLine: data.addressLine || data.display_name || data.formattedAddress || '',
+            suburb: data.suburb || data.neighbourhood || '',
+            state: data.state || data.region || '',
+        };
+    } catch (e) {
+        console.error('Error in reverseGeocode:', e);
+        return null;
+    }
+};
+
+
 export const addAddress = async (addressData: any): Promise<any> => {
     try {
         const response = await authFetch('/customers/addresses', {
@@ -214,6 +258,49 @@ export interface ApiRestaurant {
     img?: string;
 }
 
+export interface DeliveryQuoteRequest {
+    restaurantId: string;
+    pickupLatitude: number;
+    pickupLongitude: number;
+    dropLatitude: number;
+    dropLongitude: number;
+    orderAmount: number;
+    // Optional — backend reverse-geocodes from lat/lng if omitted
+    pickupPincode?: string | null;
+    dropPincode?: string | null;
+    city?: string | null;
+}
+
+export interface DeliveryQuoteResponse {
+    id: string;
+    deliveryFee: number;
+    distanceKm: number;
+    estimatedMinutes: number;
+    surgeMultiplier: number;
+    surgeReason: string | null;
+    expiresAt: string;
+    breakdown: {
+        name: string;
+        description: string;
+        amount: number;
+    }[];
+}
+
+export const getDeliveryQuote = async (request: DeliveryQuoteRequest): Promise<DeliveryQuoteResponse | null> => {
+    // No auth required for this endpoint
+    const response = await fetch(`${BASE_URL}/delivery/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        // Throw with the backend's detail message so callers can inspect it
+        throw new Error(err.detail ?? err.message ?? `Failed to get delivery quote: ${response.statusText}`);
+    }
+    return await response.json();
+};
+
 export interface ApiMenuItem {
     id: string;
     name: string;
@@ -333,6 +420,8 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         addressLine: apiRes.addressLine || "Address not available",
         latitude: apiRes.latitude,
         longitude: apiRes.longitude,
+        pincode: apiRes.pincode,
+        city: "Mumbai", // Default or map if available in apiRes
         menu: allItems.map(item => ({
             id: item.id,
             name: item.name,

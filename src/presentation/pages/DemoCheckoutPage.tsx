@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, checkDeliveryAvailability } from '../../data/api';
+import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, getDeliveryQuote, DeliveryQuoteResponse, reverseGeocode } from '../../data/api';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
@@ -15,7 +15,7 @@ import addressIcon from '../../assets/stepper_icons/address_gray.svg';
 import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
 
 const StepperIcon = ({ src, active }: { src: string, active?: boolean }) => (
-    <div 
+    <div
         className={`w-[18px] h-[18px] ${active ? 'bg-[#FF4732]' : 'bg-[#00A050]'}`}
         style={{
             WebkitMaskImage: `url(${src})`,
@@ -48,7 +48,8 @@ export const DemoCheckoutPage: React.FC = () => {
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
     const [restaurantDetails, setRestaurantDetails] = useState<ApiRestaurant | null>(null);
-    const deliveryFee = cartTotal > 0 ? 0 : 0; // Set to 0 to match "FREE" in image
+    const [deliveryQuote, setDeliveryQuote] = useState<DeliveryQuoteResponse | null>(null);
+    const deliveryFee = deliveryQuote?.deliveryFee || 0; // Dynamic delivery fee from API
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
@@ -56,36 +57,57 @@ export const DemoCheckoutPage: React.FC = () => {
     const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
     const [deliveryError, setDeliveryError] = useState<string | null>(null);
     const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
+    const [deliveryQuoteId, setDeliveryQuoteId] = useState<string>('');
 
     useEffect(() => {
-        if (selectedLocation?.latitude && restaurantId) {
+        if (selectedLocation?.latitude && restaurantId && restaurantDetails) {
+            // Skip quote if restaurant has no valid coordinates
+            if (!restaurantDetails.latitude || !restaurantDetails.longitude) {
+                setDeliveryStatus('warning');
+                setDeliveryError("Delivery estimate unavailable for this restaurant.");
+                return;
+            }
+            let cancelled = false; // cancellation flag to prevent stale responses overwriting newer ones
             const check = async () => {
                 setIsCheckingDelivery(true);
                 setDeliveryError(null);
                 setDeliveryStatus(null);
                 try {
-                    const result = await checkDeliveryAvailability(restaurantId, selectedLocation.latitude, selectedLocation.longitude);
-                    if (result) {
-                        if (result.canDeliver) {
-                            setDeliveryStatus('success');
-                        } else {
-                            setDeliveryStatus('error');
-                            setDeliveryError(`Sorry, this restaurant doesn't deliver to your location. You're ${result.distanceKm} km away — they only deliver up to ${result.maxDistanceKm} km.`);
-                        }
+                    const quote = await getDeliveryQuote({
+                        restaurantId,
+                        pickupLatitude: restaurantDetails.latitude!,
+                        pickupLongitude: restaurantDetails.longitude!,
+                        dropLatitude: selectedLocation.latitude,
+                        dropLongitude: selectedLocation.longitude,
+                        orderAmount: cartTotal
+                    });
+                    if (cancelled) return; // discard stale result
+                    if (quote) {
+                        setDeliveryQuote(quote);
+                        setDeliveryQuoteId(quote.id);
+                        setDeliveryStatus('success');
                     } else {
                         setDeliveryStatus('warning');
                         setDeliveryError("Couldn't verify delivery to this address.");
                     }
-                } catch (e) {
-                    setDeliveryStatus('warning');
-                    setDeliveryError("Couldn't verify delivery to this address.");
+                } catch (e: any) {
+                    if (cancelled) return; // discard stale error
+                    const msg: string = e?.message || '';
+                    if (msg.toLowerCase().includes('no delivery options')) {
+                        setDeliveryStatus('error');
+                        setDeliveryError("Sorry, we don't deliver to this location yet.");
+                    } else {
+                        setDeliveryStatus('warning');
+                        setDeliveryError("Couldn't verify delivery to this address.");
+                    }
                 } finally {
-                    setIsCheckingDelivery(false);
+                    if (!cancelled) setIsCheckingDelivery(false);
                 }
             };
             check();
+            return () => { cancelled = true; }; // cancel on re-run
         }
-    }, [selectedLocation, restaurantId]);
+    }, [selectedLocation, restaurantId, restaurantDetails, cartTotal]);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
@@ -162,21 +184,35 @@ export const DemoCheckoutPage: React.FC = () => {
             }
             const customerPhone = localStorage.getItem('customer_phone') || "0000000000";
 
-              const payload = {
+            // Resolve real pincode/city for the order — required by the orders API
+            const [pickupGeo, dropGeo] = await Promise.all([
+                restaurantDetails?.latitude && restaurantDetails?.longitude
+                    ? reverseGeocode(restaurantDetails.latitude, restaurantDetails.longitude)
+                    : Promise.resolve(null),
+                selectedLocation?.latitude && selectedLocation?.longitude
+                    ? reverseGeocode(selectedLocation.latitude, selectedLocation.longitude)
+                    : Promise.resolve(null)
+            ]);
+
+            const resolvedPickupPincode = restaurantDetails?.pincode || pickupGeo?.pincode || '';
+            const resolvedDropCity = selectedLocation?.city || dropGeo?.city || '';
+            const resolvedDropPincode = selectedLocation?.pincode || dropGeo?.pincode || '';
+
+            const payload = {
                 paymentId: selectedPaymentMethod || "CASH",
                 paymentTransactionId: "",
-                deliveryQuoteId: "",
+                deliveryQuoteId: deliveryQuoteId,
                 restaurantId: restaurantId,
                 restaurantName: restaurantName || restaurantDetails?.name || "Unknown Restaurant",
                 restaurantPhone: restaurantDetails?.phone || "0000000000",
-                pickupLatitude: restaurantDetails?.latitude || 19.0760,
-                pickupLongitude: restaurantDetails?.longitude || 72.8777,
-                pickupPincode: restaurantDetails?.pincode || "400001",
-                pickupAddress: restaurantDetails?.addressLine || "Restaurant Address",
+                pickupLatitude: restaurantDetails?.latitude || 0,
+                pickupLongitude: restaurantDetails?.longitude || 0,
+                pickupPincode: resolvedPickupPincode,
+                pickupAddress: restaurantDetails?.addressLine || "",
                 deliveryAddress: {
-                    street: selectedLocation?.addressLine || "Unknown Street",
-                    city: "Unknown City",
-                    pincode: "000000",
+                    street: selectedLocation?.addressLine || "",
+                    city: resolvedDropCity,
+                    pincode: resolvedDropPincode,
                     latitude: selectedLocation?.latitude || 0,
                     longitude: selectedLocation?.longitude || 0,
                     landmark: selectedLocation?.label || "",
@@ -239,7 +275,7 @@ export const DemoCheckoutPage: React.FC = () => {
                 </div>
 
                 <div className="w-full max-w-[480px] lg:max-w-[900px] bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 p-6 sm:p-10 flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
-                    
+
                     {/* Left Column: Success Animation & Illustration */}
                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                         {/* Success Animation Circle */}
@@ -423,19 +459,20 @@ export const DemoCheckoutPage: React.FC = () => {
                                         <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
                                     </div>
                                 )}
-                                
+
                                 {deliveryStatus && (
-                                    <div className={`max-w-[150px] absolute bottom-4 left-4 right-4 p-3 rounded-xl shadow-lg border flex items-start gap-3 z-20 animate-in slide-in-from-bottom-2 duration-300 ${
-                                        deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : 
-                                        deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 
-                                        'bg-amber-50 border-amber-100 text-amber-700'
-                                    }`}>
-                                        {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : 
-                                         deliveryStatus === 'error' ? <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" /> : 
-                                         <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
+                                    <div className={`max-w-[150px] absolute bottom-4 left-4 right-4 p-3 rounded-xl shadow-lg border flex items-start gap-3 z-20 animate-in slide-in-from-bottom-2 duration-300 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' :
+                                            deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' :
+                                                'bg-amber-50 border-amber-100 text-amber-700'
+                                        }`}>
+                                        {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
+                                            deliveryStatus === 'error' ? <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
+                                                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
                                         <div className="flex flex-col ">
                                             <span className="text-[13px] font-medium leading-snug">
-                                                {deliveryStatus === 'success' ? `Deliverable` : deliveryError}
+                                                {deliveryStatus === 'success'
+                                                    ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins`
+                                                    : deliveryError}
                                             </span>
                                             {deliveryStatus === 'error' && (
                                                 <span className="text-[11px] font-medium opacity-80 mt-1 w-[200px]">Try a different address or pick a closer restaurant.</span>
@@ -582,13 +619,35 @@ export const DemoCheckoutPage: React.FC = () => {
 
                                 <div className="border-t border-dashed border-gray-100"></div>
 
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium">Delivery Fee for x kms</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-gray-300 line-through text-xs font-bold">20</span>
-                                        <span className="text-[#64C27B] font-bold">FREE</span>
+                                {isCheckingDelivery ? (
+                                    // Skeleton while fetching delivery quote
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="h-3.5 w-24 bg-gray-100 rounded-full animate-pulse" />
+                                            <div className="h-2.5 w-16 bg-gray-100 rounded-full animate-pulse" />
+                                        </div>
+                                        <div className="h-4 w-12 bg-gray-100 rounded-full animate-pulse" />
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="flex justify-between items-center text-sm">
+                                        <div className="flex flex-col">
+                                            <span className="text-gray-400 font-medium">
+                                                Delivery Fee
+                                                {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
+                                            </span>
+                                            {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
+                                                <span className="text-xs text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {deliveryFee > 0 ? (
+                                                <span className="text-gray-700 font-bold">₹{deliveryFee.toFixed(0)}</span>
+                                            ) : (
+                                                <span className="text-[#64C27B] font-bold">FREE</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-400 font-medium">Delivery Tip</span>
@@ -602,7 +661,11 @@ export const DemoCheckoutPage: React.FC = () => {
 
                                 <div className="flex justify-between items-center pt-1">
                                     <span className="text-[#FF4732] font-bold">To Pay</span>
-                                    <span className="text-[#FF4732] font-bold">{grandTotal.toFixed(0)}</span>
+                                    {isCheckingDelivery ? (
+                                        <div className="h-5 w-16 bg-red-100 rounded-full animate-pulse" />
+                                    ) : (
+                                        <span className="text-[#FF4732] font-bold">₹{grandTotal.toFixed(0)}</span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -635,10 +698,10 @@ export const DemoCheckoutPage: React.FC = () => {
                         ) : (
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={isPlacingOrder || !agreedToTerms || deliveryStatus === 'error'}
+                                disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error'}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Proceed to checkout'}
+                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to checkout'}
                             </button>
                         )}
                     </div>
@@ -655,10 +718,10 @@ export const DemoCheckoutPage: React.FC = () => {
                     ) : (
                         <button
                             onClick={handlePlaceOrder}
-                            disabled={isPlacingOrder || !agreedToTerms || deliveryStatus === 'error'}
+                            disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error'}
                             className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                         >
-                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Proceed to checkout'}
+                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to checkout'}
                         </button>
                     )}
                 </div>

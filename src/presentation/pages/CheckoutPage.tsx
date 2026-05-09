@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { checkDeliveryAvailability } from '../../data/api';
+import { getDeliveryQuote, DeliveryQuoteResponse } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
@@ -62,7 +62,8 @@ export const CheckoutPage: React.FC = () => {
 
 
 
-    const deliveryFee = 0; // Match FREE delivery shown in UI
+    const [deliveryQuote, setDeliveryQuote] = React.useState<DeliveryQuoteResponse | null>(null);
+    const deliveryFee = deliveryQuote?.deliveryFee || 0; // Dynamic delivery fee from API
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
@@ -103,33 +104,57 @@ export const CheckoutPage: React.FC = () => {
 
     React.useEffect(() => {
         if (selectedLocation?.latitude && restaurantId) {
+            let cancelled = false;
             const check = async () => {
                 setIsCheckingDelivery(true);
                 setDeliveryError(null);
                 setDeliveryStatus(null);
                 try {
-                    const result = await checkDeliveryAvailability(restaurantId, selectedLocation.latitude, selectedLocation.longitude);
-                    if (result) {
-                        if (result.canDeliver) {
-                            setDeliveryStatus('success');
-                        } else {
-                            setDeliveryStatus('error');
-                            setDeliveryError(`Not deliverable: ${result.distanceKm} km away (max ${result.maxDistanceKm} km)`);
-                        }
+                    const restaurant = await fetchRestaurantById(restaurantId);
+                    if (cancelled) return;
+
+                    // Skip quote if restaurant has no valid coordinates
+                    if (!restaurant?.latitude || !restaurant?.longitude) {
+                        setDeliveryStatus('warning');
+                        setDeliveryError("Delivery estimate unavailable for this restaurant.");
+                        return;
+                    }
+
+                    const quote = await getDeliveryQuote({
+                        restaurantId,
+                        pickupLatitude: restaurant.latitude,
+                        pickupLongitude: restaurant.longitude,
+                        dropLatitude: selectedLocation.latitude,
+                        dropLongitude: selectedLocation.longitude,
+                        orderAmount: cartTotal
+                    });
+                    if (cancelled) return;
+
+                    if (quote) {
+                        setDeliveryQuote(quote);
+                        setDeliveryStatus('success');
                     } else {
                         setDeliveryStatus('warning');
                         setDeliveryError("Couldn't verify delivery");
                     }
-                } catch (e) {
-                    setDeliveryStatus('warning');
-                    setDeliveryError("Couldn't verify delivery");
+                } catch (e: any) {
+                    if (cancelled) return;
+                    const msg: string = e?.message || '';
+                    if (msg.toLowerCase().includes('no delivery options')) {
+                        setDeliveryStatus('error');
+                        setDeliveryError("Sorry, we don't deliver to this location yet.");
+                    } else {
+                        setDeliveryStatus('warning');
+                        setDeliveryError("Couldn't verify delivery");
+                    }
                 } finally {
-                    setIsCheckingDelivery(false);
+                    if (!cancelled) setIsCheckingDelivery(false);
                 }
             };
             check();
+            return () => { cancelled = true; };
         }
-    }, [selectedLocation, restaurantId]);
+    }, [selectedLocation, restaurantId, cartTotal]);
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) return;
@@ -415,7 +440,9 @@ export const CheckoutPage: React.FC = () => {
                                         'text-amber-600'
                                     }`}>
                                         {deliveryStatus === 'success' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                                        {deliveryStatus === 'success' ? `Delivers here` : deliveryError}
+                                        {deliveryStatus === 'success' 
+                                            ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins` 
+                                            : deliveryError}
                                     </div>
                                 )}
 
@@ -517,13 +544,34 @@ export const CheckoutPage: React.FC = () => {
 
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
 
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="text-[#555] text-[14px]">Delivery Fee for x kms</span>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="text-gray-400 line-through text-[14px]">20</span>
-                                                <span className="text-[#64C27B] text-[14px] font-medium">FREE</span>
+                                        {isCheckingDelivery ? (
+                                            <div className="flex justify-between items-center mb-3 w-full">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
+                                                    <div className="h-2 w-12 bg-gray-100 rounded animate-pulse" />
+                                                </div>
+                                                <div className="h-4 w-10 bg-gray-100 rounded animate-pulse" />
                                             </div>
-                                        </div>
+                                        ) : (
+                                            <div className="flex justify-between items-center mb-3">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[#555] text-[14px]">
+                                                        Delivery Fee
+                                                        {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
+                                                    </span>
+                                                    {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
+                                                        <span className="text-[10px] text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    {deliveryFee > 0 ? (
+                                                        <span className="text-[#333] text-[14px] font-bold">₹{deliveryFee.toFixed(2)}</span>
+                                                    ) : (
+                                                        <span className="text-[#64C27B] text-[14px] font-medium">FREE</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div className="flex justify-between items-center mb-3">
                                             <span className="text-[#555] text-[14px]">Delivery Tip</span>
@@ -539,7 +587,11 @@ export const CheckoutPage: React.FC = () => {
 
                                         <div className="flex justify-between items-center">
                                             <span className="text-[#444] text-[15px] font-bold">To Pay</span>
-                                            <span className="text-[#333] text-[15px] font-bold">₹{grandTotal.toFixed(2)}</span>
+                                            {isCheckingDelivery ? (
+                                                <div className="h-5 w-16 bg-red-100 rounded animate-pulse" />
+                                            ) : (
+                                                <span className="text-[#333] text-[15px] font-bold">₹{grandTotal.toFixed(2)}</span>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -548,10 +600,10 @@ export const CheckoutPage: React.FC = () => {
                             {/* Desktop Checkout Button */}
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || deliveryStatus === 'error'}
+                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || isCheckingDelivery || deliveryStatus === 'error'}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isLoggedIn ? (deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
+                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
                             </button>
 
                         </div>
@@ -562,10 +614,10 @@ export const CheckoutPage: React.FC = () => {
                         <div className="max-w-md mx-auto">
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || deliveryStatus === 'error'}
+                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || isCheckingDelivery || deliveryStatus === 'error'}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {isLoggedIn ? (deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
+                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
                             </button>
                         </div>
                     </div>

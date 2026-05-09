@@ -9,6 +9,8 @@ interface Address {
     isDefault: boolean;
     latitude: number;
     longitude: number;
+    pincode?: string;
+    city?: string;
 }
 
 interface LocationContextType {

@@ -29,6 +29,8 @@ export interface Restaurant {
     addressLine?: string;
     latitude?: number;
     longitude?: number;
+    pincode?: string;
+    city?: string;
 }
 
 interface FilterContextType {
