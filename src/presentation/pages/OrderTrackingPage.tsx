@@ -378,12 +378,7 @@ export const OrderTrackingPage: React.FC = () => {
                                                 </div>
                                             </div>
                                             
-                                            {/* Dynamic Illustration for Active Phase (Mobile Only now!) */}
-                                            {isActive && (
-                                                <div className="absolute left-[36px] top-[50%] -translate-y-[50%] h-32 w-full lg:hidden flex items-center justify-end animate-in slide-in-from-right duration-700 pointer-events-none opacity-80 z-[-1] pr-4 mix-blend-multiply">
-                                                    <img src={stage.image} alt={stage.label} className="h-full max-w-[140px] object-contain drop-shadow-lg" />
-                                                </div>
-                                            )}
+                                            {/* Dynamic Illustration for Active Phase removed on mobile as per request */}
                                         </div>
                                     );
                                 })}

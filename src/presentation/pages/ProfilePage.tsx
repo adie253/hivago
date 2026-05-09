@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, ChevronRight, User, Trash2, CreditCard, Bell, HelpCircle } from 'lucide-react';
-import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid } from '../../data/api';
+import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid, getMyOrders } from '../../data/api';
 import { useCart } from '../../presentation/context/CartContext';
 
 export const ProfilePage: React.FC = () => {
@@ -9,6 +9,7 @@ export const ProfilePage: React.FC = () => {
     const [profilePhone, setProfilePhone] = useState(() => isTokenValid() ? (localStorage.getItem('customer_phone') || "") : "");
     const [profileName, setProfileName] = useState(() => isTokenValid() ? (localStorage.getItem('customer_name') || "User") : "User");
     const [addresses, setAddresses] = useState<any[]>([]);
+    const [totalOrders, setTotalOrders] = useState(0);
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const { refreshLoginStatus } = useCart();
     
@@ -32,6 +33,15 @@ export const ProfilePage: React.FC = () => {
                     setIsLoadingAddresses(true);
                     const adds = await getAddresses();
                     setAddresses(adds || []);
+
+                    const ordersData = await getMyOrders(0, 1);
+                    if (ordersData && typeof ordersData.totalCount !== 'undefined') {
+                        setTotalOrders(ordersData.totalCount);
+                    } else if (Array.isArray(ordersData)) {
+                        setTotalOrders(ordersData.length);
+                    } else if (ordersData && Array.isArray(ordersData.orders)) {
+                        setTotalOrders(ordersData.totalCount || ordersData.orders.length);
+                    }
                 } catch (e) {
                     console.error("Could not load profile/addresses from backend", e);
                 } finally {
@@ -116,7 +126,7 @@ export const ProfilePage: React.FC = () => {
                                 <Clock className="w-4 h-4" />
                                 <span className="text-[13px] font-medium">Total Orders</span>
                             </div>
-                            <span className="text-[28px] font-bold text-[#111] mt-2 leading-none">{isTokenValid() ? 4 : 0}</span>
+                            <span className="text-[28px] font-bold text-[#111] mt-2 leading-none">{isTokenValid() ? totalOrders : 0}</span>
                         </div>
                         
                         <div className="bg-white rounded-[24px] p-5 py-6 shadow-sm border border-gray-50 flex-1 flex flex-col justify-between h-[120px]">
