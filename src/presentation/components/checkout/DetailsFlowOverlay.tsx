@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress, checkDeliveryAvailability } from '../../../data/api';
+import { sendOtp, verifyOtp, addAddress, checkDeliveryAvailability, isTokenValid } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
@@ -36,8 +36,8 @@ type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
     const { restaurantId } = useCart();
-    const [step, setStep] = useState<Step>('phone');
-    const [phone, setPhone] = useState('');
+    const [step, setStep] = useState<Step>(isTokenValid() ? 'addresses' : 'phone');
+    const [phone, setPhone] = useState(() => localStorage.getItem('customer_phone') || '');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -104,6 +104,12 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             setDeliveryStatus(null);
         }
     }, [selectedAddressId, step, restaurantId, addresses]);
+
+    useEffect(() => {
+        if (isTokenValid() && step === 'phone') {
+            setStep('addresses');
+        }
+    }, []);
 
     const renderStepper = () => {
         return (
