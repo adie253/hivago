@@ -9,26 +9,7 @@ import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
-import menuIcon from '../../assets/stepper_icons/menu_gray.svg';
-import cartIcon from '../../assets/stepper_icons/cart_gray.svg';
-import addressIcon from '../../assets/stepper_icons/address_gray.svg';
-import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
-
-const StepperIcon = ({ src, active }: { src: string, active?: boolean }) => (
-    <div
-        className={`w-[18px] h-[18px] ${active ? 'bg-[#FF4732]' : 'bg-[#00A050]'}`}
-        style={{
-            WebkitMaskImage: `url(${src})`,
-            WebkitMaskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
-            maskImage: `url(${src})`,
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-        }}
-    />
-);
+import { StepperIcon } from '../components/checkout/StepperIcon';
 
 export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
@@ -395,7 +376,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Menu Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                            <StepperIcon src={menuIcon} />
+                            <StepperIcon type="menu" className="text-[#00A050]" />
                         </div>
                         <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                     </div>
@@ -408,7 +389,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Cart Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                            <StepperIcon src={cartIcon} />
+                            <StepperIcon type="cart" className="text-[#00A050]" />
                         </div>
                         <span className="text-[10px] font-bold text-[#00A050]">Cart</span>
                     </div>
@@ -421,7 +402,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Details Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                            <StepperIcon src={addressIcon} />
+                            <StepperIcon type="address" className="text-[#00A050]" />
                         </div>
                         <span className="text-[10px] font-bold text-[#00A050]">Details</span>
                     </div>
@@ -434,7 +415,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     {/* Checkout Step - active */}
                     <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                            <StepperIcon src={checkoutIcon} active />
+                            <StepperIcon type="checkout" className="text-[#FF4732]" />
                         </div>
                         <span className="text-[10px] font-bold text-[#FF4732]">Checkout</span>
                     </div>

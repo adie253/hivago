@@ -6,26 +6,7 @@ import { useUserLocation } from '../../context/LocationContext';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
-import menuIcon from '../../../assets/stepper_icons/menu_gray.svg';
-import cartIcon from '../../../assets/stepper_icons/cart_gray.svg';
-import addressIcon from '../../../assets/stepper_icons/address_gray.svg';
-import checkoutIcon from '../../../assets/stepper_icons/checkout_gray.svg';
-
-const StepperIcon = ({ src, className }: { src: string, className?: string }) => (
-    <div 
-        className={`w-[18px] h-[18px] ${className || 'bg-[#00A050]'}`}
-        style={{
-            WebkitMaskImage: `url(${src})`,
-            WebkitMaskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
-            maskImage: `url(${src})`,
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-        }}
-    />
-);
+import { StepperIcon } from './StepperIcon';
 
 export type DetailsFlowOverlayProps = {
     onClose: () => void;
@@ -127,7 +108,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm">
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                        <StepperIcon src={menuIcon} className="bg-[#00A050]" />
+                        <StepperIcon type="menu" className="text-[#00A050]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                 </div>
@@ -136,7 +117,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                        <StepperIcon src={cartIcon} className="bg-[#00A050]" />
+                        <StepperIcon type="cart" className="text-[#00A050]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Cart</span>
                 </div>
@@ -145,7 +126,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                        <StepperIcon src={addressIcon} className="bg-[#FF4732]" />
+                        <StepperIcon type="address" className="text-[#FF4732]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#FF4732]">Details</span>
                 </div>
@@ -154,7 +135,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                        <StepperIcon src={checkoutIcon} className="bg-gray-300" />
+                        <StepperIcon type="checkout" className="text-gray-300" />
                     </div>
                     <span className="text-[10px] font-medium text-gray-500">Checkout</span>
                 </div>

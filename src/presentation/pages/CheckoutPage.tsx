@@ -1,36 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getDeliveryQuote, DeliveryQuoteResponse } from '../../data/api';
+import { getDeliveryQuote, DeliveryQuoteResponse, isTokenValid, fetchRestaurantById } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
-import { isTokenValid } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
-import menuIcon from '../../assets/stepper_icons/menu_gray.svg';
-import cartIcon from '../../assets/stepper_icons/cart_gray.svg';
-import addressIcon from '../../assets/stepper_icons/address_gray.svg';
-import checkoutIcon from '../../assets/stepper_icons/checkout_gray.svg';
-import { fetchRestaurantById } from '../../data/api';
-import { Plus } from 'lucide-react';
-
-const StepperIcon = ({ src, className }: { src: string, className?: string }) => (
-    <div 
-        className={`w-[18px] h-[18px] ${className || 'bg-[#00A050]'}`}
-        style={{
-            WebkitMaskImage: `url(${src})`,
-            WebkitMaskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
-            maskImage: `url(${src})`,
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-        }}
-    />
-);
+import { StepperIcon } from '../components/checkout/StepperIcon';
 
 // Mock frequently bought items removed - now fetching dynamic ones
 interface SuggestedItem {
@@ -209,10 +187,9 @@ export const CheckoutPage: React.FC = () => {
 
                             {/* Stepper */}
                             <div className="bg-white lg:rounded-2xl px-6 py-4 border-b lg:border border-gray-100 flex items-center justify-between shadow-sm -mx-4 lg:mx-0 mb-1 lg:mb-0">
-                                {/* Menu Step - done */}
                                 <div className="flex flex-col items-center flex-shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
-                                        <StepperIcon src={menuIcon} className="bg-[#00A050]" />
+                                        <StepperIcon type="menu" className="text-[#00A050]" />
                                     </div>
                                     <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                                 </div>
@@ -225,7 +202,7 @@ export const CheckoutPage: React.FC = () => {
                                 {/* Cart Step - active */}
                                 <div className="flex flex-col items-center flex-shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                                        <StepperIcon src={cartIcon} className="bg-[#FF4732]" />
+                                        <StepperIcon type="cart" className="text-[#FF4732]" />
                                     </div>
                                     <span className="text-[10px] font-bold text-[#FF4732]">Cart</span>
                                 </div>
@@ -240,7 +217,7 @@ export const CheckoutPage: React.FC = () => {
                                         {/* Details Step - pending */}
                                         <div className="flex flex-col items-center flex-shrink-0">
                                             <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                                                <StepperIcon src={addressIcon} className="bg-gray-300" />
+                                                <StepperIcon type="address" className="text-gray-300" />
                                             </div>
                                             <span className="text-[10px] font-bold text-gray-500">Details</span>
                                         </div>
@@ -255,7 +232,7 @@ export const CheckoutPage: React.FC = () => {
                                 {/* Checkout Step - pending */}
                                 <div className="flex flex-col items-center flex-shrink-0">
                                     <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
-                                        <StepperIcon src={checkoutIcon} className="bg-gray-300" />
+                                        <StepperIcon type="checkout" className="text-gray-300" />
                                     </div>
                                     <span className="text-[10px] font-medium text-gray-500">Checkout</span>
                                 </div>
