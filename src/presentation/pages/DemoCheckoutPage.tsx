@@ -13,7 +13,13 @@ import { StepperIcon } from '../components/checkout/StepperIcon';
 
 export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, cartTotal, clearCart, restaurantName, restaurantId } = useCart();
+    const { 
+        cartItems, cartTotal, clearCart, restaurantName, restaurantId,
+        deliveryQuote, setDeliveryQuote,
+        deliveryStatus, setDeliveryStatus,
+        deliveryError, setDeliveryError,
+        isCheckingDelivery, setIsCheckingDelivery
+    } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isOrdered, setIsOrdered] = useState(false);
@@ -29,66 +35,13 @@ export const DemoCheckoutPage: React.FC = () => {
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
     const [restaurantDetails, setRestaurantDetails] = useState<ApiRestaurant | null>(null);
-    const [deliveryQuote, setDeliveryQuote] = useState<DeliveryQuoteResponse | null>(null);
-    const deliveryFee = deliveryQuote?.deliveryFee || 0; // Dynamic delivery fee from API
+    const deliveryQuoteId = deliveryQuote?.id || '';
+    const deliveryFee = deliveryQuote?.deliveryFee || 0;
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
 
-    const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
-    const [deliveryError, setDeliveryError] = useState<string | null>(null);
-    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
-    const [deliveryQuoteId, setDeliveryQuoteId] = useState<string>('');
 
-    useEffect(() => {
-        if (selectedLocation?.latitude && restaurantId && restaurantDetails) {
-            // Skip quote if restaurant has no valid coordinates
-            if (!restaurantDetails.latitude || !restaurantDetails.longitude) {
-                setDeliveryStatus('warning');
-                setDeliveryError("Delivery estimate unavailable for this restaurant.");
-                return;
-            }
-            let cancelled = false; // cancellation flag to prevent stale responses overwriting newer ones
-            const check = async () => {
-                setIsCheckingDelivery(true);
-                setDeliveryError(null);
-                setDeliveryStatus(null);
-                try {
-                    const quote = await getDeliveryQuote({
-                        restaurantId,
-                        pickupLatitude: restaurantDetails.latitude!,
-                        pickupLongitude: restaurantDetails.longitude!,
-                        dropLatitude: selectedLocation.latitude,
-                        dropLongitude: selectedLocation.longitude,
-                        orderAmount: cartTotal
-                    });
-                    if (cancelled) return; // discard stale result
-                    if (quote) {
-                        setDeliveryQuote(quote);
-                        setDeliveryQuoteId(quote.id);
-                        setDeliveryStatus('success');
-                    } else {
-                        setDeliveryStatus('warning');
-                        setDeliveryError("Couldn't verify delivery to this address.");
-                    }
-                } catch (e: any) {
-                    if (cancelled) return; // discard stale error
-                    const msg: string = e?.message || '';
-                    if (msg.toLowerCase().includes('no delivery options')) {
-                        setDeliveryStatus('error');
-                        setDeliveryError("Sorry, we don't deliver to this location yet.");
-                    } else {
-                        setDeliveryStatus('warning');
-                        setDeliveryError("Couldn't verify delivery to this address.");
-                    }
-                } finally {
-                    if (!cancelled) setIsCheckingDelivery(false);
-                }
-            };
-            check();
-            return () => { cancelled = true; }; // cancel on re-run
-        }
-    }, [selectedLocation, restaurantId, restaurantDetails, cartTotal]);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
@@ -623,6 +576,8 @@ export const DemoCheckoutPage: React.FC = () => {
                                         <div className="flex items-center gap-2">
                                             {deliveryFee > 0 ? (
                                                 <span className="text-gray-700 font-bold">₹{deliveryFee.toFixed(0)}</span>
+                                            ) : deliveryStatus === 'error' ? (
+                                                <span className="text-gray-400 font-bold">Not available</span>
                                             ) : (
                                                 <span className="text-[#64C27B] font-bold">FREE</span>
                                             )}
@@ -644,6 +599,8 @@ export const DemoCheckoutPage: React.FC = () => {
                                     <span className="text-[#FF4732] font-bold">To Pay</span>
                                     {isCheckingDelivery ? (
                                         <div className="h-5 w-16 bg-red-100 rounded-full animate-pulse" />
+                                    ) : deliveryStatus === 'error' ? (
+                                        <span className="text-gray-400 font-bold">--</span>
                                     ) : (
                                         <span className="text-[#FF4732] font-bold">₹{grandTotal.toFixed(0)}</span>
                                     )}

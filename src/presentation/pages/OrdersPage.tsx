@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Store, Bike, Loader } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiOrder, getMyOrders } from '../../data/api';
+import { useCart } from '../context/CartContext';
 
 export const OrdersPage: React.FC = () => {
     const navigate = useNavigate();
+    const { addToCart, clearCart } = useCart();
     const [activeTab, setActiveTab] = useState<'active' | 'past'>('active');
     const [orders, setOrders] = useState<ApiOrder[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +65,27 @@ export const OrdersPage: React.FC = () => {
         if (['DELIVERED', 'PICKED_UP'].includes(status)) return 'bg-[#E6F9EA] text-[#00A32A]';
         if (['CANCELLED', 'REJECTED'].includes(status)) return 'bg-red-50 text-red-600';
         return 'bg-blue-50 text-blue-600'; // Default for pending/active
+    };
+
+    const handleReorder = (order: ApiOrder) => {
+        if (!order.items || order.items.length === 0) return;
+        
+        clearCart();
+        
+        order.items.forEach(item => {
+            addToCart({
+                id: item.menuItemId,
+                menuItemId: item.menuItemId,
+                name: item.name,
+                price: item.unitPrice,
+                isVeg: true,
+                isAddon: false,
+                description: item.options || "",
+                customizations: item.specialInstructions || ""
+            }, order.restaurantId, order.restaurantName);
+        });
+        
+        navigate('/checkout');
     };
 
     return (
@@ -161,12 +184,15 @@ export const OrdersPage: React.FC = () => {
                                         {/* Action Buttons */}
                                         <div className="flex items-center gap-3 mt-1">
                                             <button 
-                                                onClick={() => activeTab === 'active' ? navigate(`/track-order?orderId=${order.id}`) : null}
+                                                onClick={() => navigate(`/track-order?orderId=${order.id}`)}
                                                 className="flex-1 bg-[#F3F4F6] hover:bg-gray-200 text-gray-900 font-bold py-2.5 rounded-[10px] text-[14px] transition-colors"
                                             >
                                                 View Details
                                             </button>
-                                            <button className="flex-1 bg-[#00B21A] hover:bg-green-600 text-white font-bold py-2.5 rounded-[10px] text-[14px] transition-colors">
+                                            <button 
+                                                onClick={() => handleReorder(order)}
+                                                className="flex-1 bg-[#00B21A] hover:bg-green-600 text-white font-bold py-2.5 rounded-[10px] text-[14px] transition-colors"
+                                            >
                                                 Reorder
                                             </button>
                                         </div>

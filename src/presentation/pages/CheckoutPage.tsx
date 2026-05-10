@@ -27,7 +27,13 @@ interface SuggestedItem {
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName } = useCart();
+    const { 
+        cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName, 
+        deliveryQuote, setDeliveryQuote, 
+        deliveryStatus, setDeliveryStatus, 
+        deliveryError, setDeliveryError, 
+        isCheckingDelivery, setIsCheckingDelivery 
+    } = useCart();
     const [cutlery, setCutlery] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
@@ -40,15 +46,13 @@ export const CheckoutPage: React.FC = () => {
 
 
 
-    const [deliveryQuote, setDeliveryQuote] = React.useState<DeliveryQuoteResponse | null>(null);
+
     const deliveryFee = deliveryQuote?.deliveryFee || 0; // Dynamic delivery fee from API
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
 
-    const [isCheckingDelivery, setIsCheckingDelivery] = React.useState(false);
-    const [deliveryError, setDeliveryError] = React.useState<string | null>(null);
-    const [deliveryStatus, setDeliveryStatus] = React.useState<'success' | 'error' | 'warning' | null>(null);
+
 
     React.useEffect(() => {
         if (restaurantId) {
@@ -111,20 +115,12 @@ export const CheckoutPage: React.FC = () => {
                     if (quote) {
                         setDeliveryQuote(quote);
                         setDeliveryStatus('success');
-                    } else {
-                        setDeliveryStatus('warning');
-                        setDeliveryError("Couldn't verify delivery");
                     }
                 } catch (e: any) {
                     if (cancelled) return;
-                    const msg: string = e?.message || '';
-                    if (msg.toLowerCase().includes('no delivery options')) {
-                        setDeliveryStatus('error');
-                        setDeliveryError("Sorry, we don't deliver to this location yet.");
-                    } else {
-                        setDeliveryStatus('warning');
-                        setDeliveryError("Couldn't verify delivery");
-                    }
+                    console.error("Delivery quote API failed:", e?.message);
+                    setDeliveryError(e?.message || 'Delivery not available for this location');
+                    setDeliveryStatus('error');
                 } finally {
                     if (!cancelled) setIsCheckingDelivery(false);
                 }
@@ -543,6 +539,8 @@ export const CheckoutPage: React.FC = () => {
                                                 <div className="flex items-center gap-1.5">
                                                     {deliveryFee > 0 ? (
                                                         <span className="text-[#333] text-[14px] font-bold">₹{deliveryFee.toFixed(2)}</span>
+                                                    ) : deliveryStatus === 'error' ? (
+                                                        <span className="text-gray-400 text-[14px] font-medium">Not available</span>
                                                     ) : (
                                                         <span className="text-[#64C27B] text-[14px] font-medium">FREE</span>
                                                     )}
@@ -566,6 +564,8 @@ export const CheckoutPage: React.FC = () => {
                                             <span className="text-[#444] text-[15px] font-bold">To Pay</span>
                                             {isCheckingDelivery ? (
                                                 <div className="h-5 w-16 bg-red-100 rounded animate-pulse" />
+                                            ) : deliveryStatus === 'error' ? (
+                                                <span className="text-gray-400 text-[15px] font-bold">--</span>
                                             ) : (
                                                 <span className="text-[#333] text-[15px] font-bold">₹{grandTotal.toFixed(2)}</span>
                                             )}

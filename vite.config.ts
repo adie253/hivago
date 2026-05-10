@@ -25,7 +25,12 @@ export default defineConfig({
       '/api': {
         target: 'https://rally-production-2004.up.railway.app',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/api/, '/api') // Keep /api prefix as required by backend
+        rewrite: (path) => path.replace(/api/, '/api')
+      },
+      '/hubs': {
+        target: 'https://rally-production-2004.up.railway.app',
+        changeOrigin: true,
+        ws: true // Enable WebSocket proxying for SignalR
       }
     }
   }

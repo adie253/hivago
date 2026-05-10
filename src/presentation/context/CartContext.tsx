@@ -14,6 +14,14 @@ interface CartContextType {
     refreshCartFromServer: () => Promise<void>;
     cartTotal: number;
     refreshLoginStatus: () => void;
+    deliveryQuote: any | null;
+    setDeliveryQuote: (quote: any | null) => void;
+    deliveryStatus: 'success' | 'error' | 'warning' | null;
+    setDeliveryStatus: (status: 'success' | 'error' | 'warning' | null) => void;
+    deliveryError: string | null;
+    setDeliveryError: (error: string | null) => void;
+    isCheckingDelivery: boolean;
+    setIsCheckingDelivery: (isChecking: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -23,6 +31,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [restaurantId, setRestaurantId] = useState<string | undefined>(undefined);
     const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
     const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
+    const [deliveryQuote, setDeliveryQuote] = useState<any | null>(null);
+    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
+    const [deliveryError, setDeliveryError] = useState<string | null>(null);
+    const [isCheckingDelivery, setIsCheckingDelivery] = useState<boolean>(false);
 
     const hasSyncedAfterLogin = useRef(false);
     const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -491,7 +503,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             clearCart,
             refreshCartFromServer,
             cartTotal,
-            refreshLoginStatus
+            refreshLoginStatus,
+            deliveryQuote,
+            setDeliveryQuote,
+            deliveryStatus,
+            setDeliveryStatus,
+            deliveryError,
+            setDeliveryError,
+            isCheckingDelivery,
+            setIsCheckingDelivery
         }}>
             {children}
             <SessionWarningPopup
