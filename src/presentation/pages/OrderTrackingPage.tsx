@@ -22,7 +22,7 @@ export const OrderTrackingPage: React.FC = () => {
     const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered' | 'cancelled' | 'rejected'>('placed');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { lastStatusUpdate } = useNotifications();
-    const { clearCart, addToCart, reorder } = useCart();
+    const { reorder } = useCart();
 
     // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
@@ -371,32 +371,8 @@ export const OrderTrackingPage: React.FC = () => {
                 </button> */}
             </div>
 
-            <div className="max-w-md lg:max-w-[1000px] mx-auto px-4 pt-6 flex flex-col gap-6">
-                {(status === 'cancelled' || status === 'rejected') && (
-                    <div className="w-full bg-[#FFF0EF] border border-[#FFCCCB] rounded-[24px] p-5 lg:p-6 flex items-center gap-4 lg:gap-6 animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
-                        <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
-                            <AlertCircle className="w-6 h-6 lg:w-7 lg:h-7 text-[#FF4732]" />
-                        </div>
-                        <div className="flex flex-col flex-1">
-                            <h2 className="text-[17px] lg:text-[19px] font-bold text-gray-900 leading-tight"> 
-                                {status === 'rejected' ? 'Order Rejected' : 'Order Cancelled'}
-                            </h2>
-                            <p className="text-[13px] lg:text-[14px] text-gray-600 font-medium mt-1">
-                                {order?.rejectionReason || order?.cancellationReason || (status === 'rejected' ? 'The restaurant is unable to fulfill your order right now.' : "Your order was cancelled.")}
-                            </p>
-                            <p className="text-[12px] lg:text-[13px] text-gray-400 font-medium mt-1">
-                                We're processing your refund. Usually reflects in 5–7 days.
-                            </p>
-                        </div>
-                        <button 
-                            onClick={() => navigate('/')} 
-                            className="bg-white text-gray-700 px-4 py-2 lg:px-6 lg:py-2.5 rounded-xl text-xs lg:text-sm font-bold shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors whitespace-nowrap"
-                        >
-                            Back Home
-                        </button>
-                    </div>
-                )}
 
+            <div className="max-w-md lg:max-w-[1000px] mx-auto px-4 pt-6 flex flex-col gap-6">
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 w-full items-start pb-10">
                
                {/* --- Left Column --- */}

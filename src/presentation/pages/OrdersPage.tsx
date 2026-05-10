@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 
 export const OrdersPage: React.FC = () => {
     const navigate = useNavigate();
-    const { addToCart, clearCart, reorder } = useCart();
+    const { reorder } = useCart();
     const [activeTab, setActiveTab] = useState<'active' | 'past'>('active');
     const [orders, setOrders] = useState<ApiOrder[]>([]);
     const [isLoading, setIsLoading] = useState(true);
