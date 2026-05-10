@@ -22,6 +22,7 @@ interface CartContextType {
     setDeliveryError: (error: string | null) => void;
     isCheckingDelivery: boolean;
     setIsCheckingDelivery: (isChecking: boolean) => void;
+    reorder: (items: CartItem[], restaurantId: string, restaurantName: string) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -256,18 +257,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
         if (!rId) return;
 
-        // Prevent multi-restaurant cart
-        if (restaurantId && restaurantId !== rId) {
-            DIContainer.getClearCartUseCase().execute();
-        }
+        setCartItems(prev => {
+            // Prevent multi-restaurant cart
+            let existingItems = [...prev];
+            if (restaurantId && restaurantId !== rId) {
+                DIContainer.getClearCartUseCase().execute();
+                existingItems = [];
+            }
 
-        if (isLoggedIn) {
-            // Logged in: update React state directly, skip localStorage
-            const existingItems = [...cartItems];
             const key = `${item.menuItemId || item.id}-${item.customizations || ''}`;
             const existingIndex = existingItems.findIndex(
                 i => `${i.menuItemId || i.id}-${i.customizations || ''}` === key
             );
+
             let updatedItems: CartItem[];
             if (existingIndex >= 0) {
                 updatedItems = existingItems.map((i, idx) =>
@@ -276,23 +278,61 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
                 updatedItems = [...existingItems, { ...item, quantity: 1 }];
             }
-            setCartItems(updatedItems);
+
+            if (isLoggedIn) {
+                debouncedPushToServer({
+                    restaurantId: rId,
+                    restaurantName: rName || 'Restaurant',
+                    items: updatedItems
+                });
+            } else {
+                DIContainer.getAddToCartUseCase().execute(item, rId, rName);
+            }
+
             setRestaurantId(rId);
             setRestaurantName(rName);
+            return updatedItems;
+        });
+    }, [restaurantId, isLoggedIn, debouncedPushToServer]);
 
-            debouncedPushToServer({
-                restaurantId: rId,
-                restaurantName: rName || 'Restaurant',
-                items: updatedItems
-            });
+    // 🚀 REORDER
+    const reorder = useCallback(async (items: CartItem[], rId: string, rName: string) => {
+        // 1. Update UI state immediately
+        setCartItems(items);
+        setRestaurantId(rId);
+        setRestaurantName(rName);
+
+        // 2. Clear local storage for guests, or push to server for logged-in users
+        if (isLoggedIn) {
+            // For reorder, we push immediately instead of debouncing to ensure it's ready for checkout
+            try {
+                const itemsPayload = items.map(i => ({
+                    menuItemId: i.menuItemId || i.id,
+                    name: i.name,
+                    unitPrice: i.price,
+                    quantity: i.quantity,
+                    options: i.description,
+                    specialInstructions: i.customizations
+                }));
+
+                await clearServerCart();
+                await syncCart({
+                    restaurantId: rId,
+                    restaurantName: rName,
+                    items: itemsPayload
+                }, true);
+            } catch (err) {
+                console.error("Reorder sync failed:", err);
+            }
         } else {
-            // Guest: use DI use case which writes to localStorage
-            const updatedCartData = DIContainer.getAddToCartUseCase().execute(item, rId, rName);
-            setCartItems([...updatedCartData.items]);
-            setRestaurantId(updatedCartData.restaurantId);
-            setRestaurantName(updatedCartData.restaurantName);
+            // For guest, we manually sync with repository
+            DIContainer.getCartRepository().saveCart({
+                restaurantId: rId,
+                restaurantName: rName,
+                items: items
+            });
         }
-    }, [restaurantId, isLoggedIn, cartItems, debouncedPushToServer]);
+    }, [isLoggedIn]);
 
     //  REMOVE
     const removeFromCart = useCallback((itemId: string) => {
@@ -511,7 +551,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             deliveryError,
             setDeliveryError,
             isCheckingDelivery,
-            setIsCheckingDelivery
+            setIsCheckingDelivery,
+            reorder
         }}>
             {children}
             <SessionWarningPopup

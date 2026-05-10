@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Store, Bike, Loader } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ApiOrder, getMyOrders } from '../../data/api';
+import { ApiOrder, getMyOrders, getOrderById } from '../../data/api';
 import { useCart } from '../context/CartContext';
 
 export const OrdersPage: React.FC = () => {
     const navigate = useNavigate();
-    const { addToCart, clearCart } = useCart();
+    const { addToCart, clearCart, reorder } = useCart();
     const [activeTab, setActiveTab] = useState<'active' | 'past'>('active');
     const [orders, setOrders] = useState<ApiOrder[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -67,25 +67,49 @@ export const OrdersPage: React.FC = () => {
         return 'bg-blue-50 text-blue-600'; // Default for pending/active
     };
 
-    const handleReorder = (order: ApiOrder) => {
-        if (!order.items || order.items.length === 0) return;
+    const handleReorder = async (order: ApiOrder) => {
+        let fullOrder = order;
         
-        clearCart();
+        // If items are missing (common in list views), fetch full details
+        if (!fullOrder.items || fullOrder.items.length === 0) {
+            console.log("[OrdersPage] Items missing in list view, fetching full order details for:", order.id);
+            try {
+                const fetchedOrder = await getOrderById(order.id);
+                if (fetchedOrder && fetchedOrder.items && fetchedOrder.items.length > 0) {
+                    fullOrder = fetchedOrder;
+                } else {
+                    console.warn("[OrdersPage] Fetched order still has no items", fetchedOrder);
+                }
+            } catch (err) {
+                console.error("[OrdersPage] Failed to fetch full order details", err);
+            }
+        }
+
+        if (!fullOrder || !fullOrder.items || fullOrder.items.length === 0) {
+            console.warn("[OrdersPage] Cannot reorder: Order has no items", fullOrder);
+            return;
+        }
         
-        order.items.forEach(item => {
-            addToCart({
-                id: item.menuItemId,
-                menuItemId: item.menuItemId,
-                name: item.name,
-                price: item.unitPrice,
+        try {
+            const reorderItems = fullOrder.items.map(item => ({
+                id: item.menuItemId || (item as any).id,
+                menuItemId: item.menuItemId || (item as any).id,
+                name: item.name || (item as any).itemName || "Item",
+                price: item.unitPrice || (item as any).price || 0,
+                quantity: item.quantity || 1,
                 isVeg: true,
                 isAddon: false,
-                description: item.options || "",
+                description: item.options || (item as any).itemDescription || "",
                 customizations: item.specialInstructions || ""
-            }, order.restaurantId, order.restaurantName);
-        });
-        
-        navigate('/checkout');
+            }));
+            
+            console.log("[OrdersPage] Reordering items:", reorderItems);
+            await reorder(reorderItems, fullOrder.restaurantId, fullOrder.restaurantName);
+            navigate('/checkout');
+        } catch (error) {
+            console.error("[OrdersPage] Reorder failed:", error);
+            navigate('/checkout');
+        }
     };
 
     return (

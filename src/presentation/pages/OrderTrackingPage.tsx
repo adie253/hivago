@@ -10,7 +10,8 @@ import deliveryImg from '../../assets/checkout/delivery.png';
 import deliveredImg from '../../assets/checkout/delivered.png';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { useNotifications } from '../context/NotificationContext';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCcw } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 export const OrderTrackingPage: React.FC = () => {
     const navigate = useNavigate();
@@ -18,8 +19,10 @@ export const OrderTrackingPage: React.FC = () => {
     const orderId = searchParams.get('orderId');
     const [order, setOrder] = useState<ApiOrder | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered' | 'cancelled'>('placed');
+    const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered' | 'cancelled' | 'rejected'>('placed');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { lastStatusUpdate } = useNotifications();
+    const { clearCart, addToCart, reorder } = useCart();
 
     // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
@@ -32,7 +35,9 @@ export const OrderTrackingPage: React.FC = () => {
                 setStatus('delivery');
             } else if (['PREPARING', 'READY', 'READY FOR PICKUP', 'READY_FOR_PICKUP'].includes(apiStatus) || statusDisplay === 'READY FOR PICKUP') {
                 setStatus('preparing');
-            } else if (['CANCELLED', 'REJECTED'].includes(apiStatus) || statusDisplay === 'CANCELLED' || statusDisplay === 'REJECTED') {
+            } else if (['REJECTED', 'REFUNDING', 'REFUNDED'].includes(apiStatus) || statusDisplay === 'REJECTED' || statusDisplay === 'REFUND IN PROGRESS') {
+                setStatus('rejected');
+            } else if (apiStatus === 'CANCELLED' || statusDisplay === 'CANCELLED') {
                 setStatus('cancelled');
             } else {
                 setStatus('placed'); // PENDING, PAID, CONFIRMED
@@ -40,7 +45,7 @@ export const OrderTrackingPage: React.FC = () => {
         }
     }, [order]);
 
-    const { lastStatusUpdate } = useNotifications();
+
 
     const fetchOrder = async (isInitial = false) => {
         if (isInitial) setIsLoading(true);
@@ -68,6 +73,30 @@ export const OrderTrackingPage: React.FC = () => {
         return () => clearInterval(interval);
     }, [orderId]);
 
+    const handleReorder = async () => {
+        if (!order || !order.items || order.items.length === 0) return;
+        
+        try {
+            // Map order items to CartItems with robust property fallback
+            const reorderItems = order.items.map(item => ({
+                id: item.menuItemId || (item as any).id,
+                menuItemId: item.menuItemId || (item as any).id,
+                name: item.name || (item as any).itemName || "Item",
+                price: item.unitPrice || (item as any).price || 0,
+                quantity: item.quantity || 1,
+                isVeg: true,
+                description: item.options || (item as any).itemDescription || "",
+                customizations: item.specialInstructions || ""
+            }));
+            
+            await reorder(reorderItems, order.restaurantId, order.restaurantName);
+            navigate('/checkout');
+        } catch (error) {
+            console.error("[OrderTracking] Reorder failed:", error);
+            navigate('/checkout');
+        }
+    };
+
     // Handle real-time SignalR updates
     useEffect(() => {
         if (lastStatusUpdate && (lastStatusUpdate.orderId === orderId || (!orderId && order))) {
@@ -80,9 +109,11 @@ export const OrderTrackingPage: React.FC = () => {
         { 
             id: 'placed', 
             label: 'Order Placed', 
-            subtext: (order?.status?.toUpperCase() === 'PAID') 
-                ? 'Waiting for restaurant to accept' 
-                : 'Your order has been placed successfully', 
+            subtext: (status === 'rejected' || status === 'cancelled') 
+                ? (order?.rejectionReason || order?.cancellationReason || 'Order unsuccessful')
+                : (order?.status?.toUpperCase() === 'PAID') 
+                    ? 'Waiting for restaurant to accept' 
+                    : 'Your order has been placed successfully', 
             icon: CheckCircle, 
             image: orderPlacedImg 
         },
@@ -109,7 +140,7 @@ export const OrderTrackingPage: React.FC = () => {
         }
     ];
 
-    const currentStageIndex = Math.max(0, stages.findIndex(s => s.id === status));
+    const currentStageIndex = status === 'cancelled' || status === 'rejected' ? 0 : Math.max(0, stages.findIndex(s => s.id === status));
 
     // Robust parsing functions to handle varying backend serialization formats
     const getAddressDisplay = (o: any) => {
@@ -191,6 +222,140 @@ export const OrderTrackingPage: React.FC = () => {
         );
     }
 
+    if (status === 'rejected' || status === 'cancelled') {
+        return (
+            <div className="min-h-[100dvh] bg-[#F8F9FA] font-sans pb-20">
+                {/* Navbar */}
+                <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => navigate('/')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
+                            <ArrowLeft className="w-5 h-5 text-gray-800" />
+                        </button>
+                        <h1 className="text-lg font-bold text-gray-900">Order Status</h1>
+                    </div>
+                </div>
+
+                <div className="max-w-[850px] mx-auto px-4 pt-8 lg:pt-12">
+                    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+                        
+                        {/* Left Column: Status & Illustration */}
+                        <div className="flex flex-col items-center lg:items-start lg:flex-1 lg:max-w-[340px] w-full text-center lg:text-left">
+                            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-[#FFF0EF] rounded-2xl flex items-center justify-center mb-5 border-4 border-white shadow-sm relative shrink-0">
+                                <AlertCircle className="w-8 h-8 lg:w-10 lg:h-10 text-[#FF4732]" />
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center shadow-md">
+                                    <ShoppingBag className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-gray-400" />
+                                </div>
+                            </div>
+
+                            <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                                {status === 'rejected' ? 'Order Rejected' : 'Order Cancelled'}
+                            </h2>
+                            
+                            <p className="text-gray-500 font-bold text-base lg:text-lg mb-6 leading-relaxed">
+                                {order?.rejectionReason || order?.cancellationReason || (status === 'rejected' ? 'The restaurant is unable to fulfill your order right now.' : "Your order was cancelled.")}
+                            </p>
+
+                            {/* Actions - Desktop Only inside left col */}
+                            <div className="hidden lg:flex flex-col gap-2.5 w-full max-w-[280px]">
+                                <button 
+                                    onClick={handleReorder}
+                                    className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-red-100 hover:bg-[#E5483B] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                >
+                                    <RefreshCcw className="w-4 h-4" />
+                                    Reorder Now
+                                </button>
+                                <button 
+                                    onClick={() => navigate('/')}
+                                    className="w-full bg-white text-gray-500 font-bold text-[15px] py-4 rounded-xl border border-gray-100 hover:bg-gray-50 active:scale-[0.98] transition-all"
+                                >
+                                    Back to Home
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Right Column: Cards */}
+                        <div className="flex flex-col gap-5 lg:flex-1 w-full">
+                            {/* Refund Info Card */}
+                            <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col gap-5 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                                
+                                <div className="relative z-10 flex flex-col gap-5">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Amount</span>
+                                        <span className="text-[#FF4732] font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Status</span>
+                                        <div className="flex items-center gap-1.5 px-3 py-1 bg-[#E6F5EC] text-[#00A050] rounded-full text-[11px] font-extrabold shadow-sm border border-[#D1EEDB]">
+                                            <CheckCircle className="w-3 h-3" />
+                                            <span>INITIATED</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr className="border-gray-50" />
+                                    
+                                    <div className="flex items-start gap-3 bg-[#F8FAFC] p-4 rounded-xl border border-blue-50/50">
+                                        <Clock className="w-5 h-5 text-[#8B96A5] shrink-0 mt-0.5" />
+                                        <p className="text-[13px] text-gray-500 leading-relaxed font-medium">
+                                            Refunds typically take <span className="text-gray-900 font-bold">5-7 business days</span> to reflect in your account once processed by PayU.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Order Summary (Minimized) */}
+                            <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
+                                        <ShoppingBag className="w-4 h-4 text-[#FF4732]" />
+                                        Order Details
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase bg-gray-50 px-2.5 py-0.5 rounded-full">#{order.orderNumber.slice(-5)}</span>
+                                </div>
+                                
+                                <div className="flex flex-col gap-4">
+                                    {order?.items.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between items-start text-[14px]">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-gray-800 font-bold">{item.name || (item as any).itemName}</span>
+                                                <span className="text-gray-400 text-xs font-bold uppercase tracking-tighter">Qty: {item.quantity}</span>
+                                            </div>
+                                            <span className="text-gray-900 font-extrabold">₹{(item.unitPrice || 0) * (item.quantity || 1)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <div className="mt-6 pt-6 border-t border-dashed border-gray-100 flex justify-between items-center">
+                                    <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Total Paid</span>
+                                    <span className="text-gray-900 font-black text-xl tracking-tight">₹{getOrderTotal(order)}</span>
+                                </div>
+                            </div>
+
+                            {/* Actions - Mobile Only stacked */}
+                            <div className="flex lg:hidden flex-col gap-3 w-full mt-2">
+                                <button 
+                                    onClick={handleReorder}
+                                    className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-red-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                >
+                                    <RefreshCcw className="w-4 h-4" />
+                                    Reorder Now
+                                </button>
+                                <button 
+                                    onClick={() => navigate('/')}
+                                    className="w-full bg-white text-gray-500 font-bold text-[15px] py-4 rounded-xl border border-gray-100 active:scale-[0.98] transition-all"
+                                >
+                                    Back to Home
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#F8F9FA] font-sans pb-24">
             {/* Navbar */}
@@ -207,15 +372,20 @@ export const OrderTrackingPage: React.FC = () => {
             </div>
 
             <div className="max-w-md lg:max-w-[1000px] mx-auto px-4 pt-6 flex flex-col gap-6">
-                {status === 'cancelled' && (
+                {(status === 'cancelled' || status === 'rejected') && (
                     <div className="w-full bg-[#FFF0EF] border border-[#FFCCCB] rounded-[24px] p-5 lg:p-6 flex items-center gap-4 lg:gap-6 animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
                         <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
                             <AlertCircle className="w-6 h-6 lg:w-7 lg:h-7 text-[#FF4732]" />
                         </div>
                         <div className="flex flex-col flex-1">
-                            <h2 className="text-[17px] lg:text-[19px] font-bold text-gray-900 leading-tight"> Order Cancelled</h2>
-                            <p className="text-[13px] lg:text-[14px] text-gray-600 font-medium">
-                                We're processing your refund. The firm 5–7 day window once PayU confirms.
+                            <h2 className="text-[17px] lg:text-[19px] font-bold text-gray-900 leading-tight"> 
+                                {status === 'rejected' ? 'Order Rejected' : 'Order Cancelled'}
+                            </h2>
+                            <p className="text-[13px] lg:text-[14px] text-gray-600 font-medium mt-1">
+                                {order?.rejectionReason || order?.cancellationReason || (status === 'rejected' ? 'The restaurant is unable to fulfill your order right now.' : "Your order was cancelled.")}
+                            </p>
+                            <p className="text-[12px] lg:text-[13px] text-gray-400 font-medium mt-1">
+                                We're processing your refund. Usually reflects in 5–7 days.
                             </p>
                         </div>
                         <button 

@@ -582,7 +582,10 @@ export interface ApiOrder {
     customerId: string;
     restaurantId: string;
     restaurantName: string;
-    status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | string;
+    status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | 'REFUNDING' | 'REFUNDED' | string;
+    statusDisplay?: string;
+    rejectionReason?: string;
+    cancellationReason?: string;
     totalAmount: number;
     total?: number;
     pricing?: {
