@@ -15,10 +15,10 @@ export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
     const { 
         cartItems, cartTotal, clearCart, restaurantName, restaurantId,
-        deliveryQuote, setDeliveryQuote,
-        deliveryStatus, setDeliveryStatus,
-        deliveryError, setDeliveryError,
-        isCheckingDelivery, setIsCheckingDelivery
+        deliveryQuote,
+        deliveryStatus,
+        deliveryError,
+        isCheckingDelivery
     } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getDeliveryQuote, DeliveryQuoteResponse, isTokenValid, fetchRestaurantById } from '../../data/api';
+import { getDeliveryQuote, isTokenValid, fetchRestaurantById } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
