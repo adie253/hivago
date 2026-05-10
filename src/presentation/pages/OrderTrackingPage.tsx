@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Loader2 } from 'lucide-react';
-import { getOrderById, getActiveOrders, ApiOrder } from '../../data/api';
+import { ApiOrder, getActiveOrders, getOrderById, getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 
 // Using the assets we moved/generated
 import orderPlacedImg from '../../assets/checkout/order_placed.svg';
@@ -23,6 +23,7 @@ export const OrderTrackingPage: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { lastStatusUpdate } = useNotifications();
     const { reorder } = useCart();
+    const [quoteEstimatedMinutes, setQuoteEstimatedMinutes] = useState<number | null>(null);
 
     // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
@@ -97,6 +98,46 @@ export const OrderTrackingPage: React.FC = () => {
         }
     };
 
+    // Fetch delivery quote if estimatedMinutes is missing
+    useEffect(() => {
+        if (order && !order.estimatedMinutes && ['placed', 'preparing', 'delivery'].includes(status)) {
+            const fetchQuote = async () => {
+                try {
+                    const restaurant = await fetchRestaurantById(order.restaurantId);
+                    
+                    // Parse delivery coordinates
+                    let dropLat = (order.deliveryInfo?.deliveryAddress as any)?.latitude;
+                    let dropLng = (order.deliveryInfo?.deliveryAddress as any)?.longitude;
+                    
+                    // Fallback to address search if lat/lng missing
+                    if (!dropLat || !dropLng) {
+                        console.log("[OrderTracking] Delivery coordinates missing, skipping quote fetch");
+                        return;
+                    }
+
+                    if (restaurant && restaurant.latitude && restaurant.longitude) {
+                        const quote = await getDeliveryQuote({
+                            restaurantId: order.restaurantId,
+                            pickupLatitude: restaurant.latitude,
+                            pickupLongitude: restaurant.longitude,
+                            dropLatitude: dropLat,
+                            dropLongitude: dropLng,
+                            orderAmount: order.totalAmount || order.pricing?.total || 0
+                        });
+                        
+                        if (quote && quote.estimatedMinutes) {
+                            console.log("[OrderTracking] Received fresh quote estimation:", quote.estimatedMinutes);
+                            setQuoteEstimatedMinutes(quote.estimatedMinutes);
+                        }
+                    }
+                } catch (err) {
+                    console.error("[OrderTracking] Failed to fetch delivery quote:", err);
+                }
+            };
+            fetchQuote();
+        }
+    }, [order, status]);
+
     // Handle real-time SignalR updates
     useEffect(() => {
         if (lastStatusUpdate && (lastStatusUpdate.orderId === orderId || (!orderId && order))) {
@@ -170,6 +211,21 @@ export const OrderTrackingPage: React.FC = () => {
         return o.deliveryInfo?.deliveryAddress?.formattedAddress || 'Pune, India';
     };
 
+    const getEstimatedTime = (o: ApiOrder | null) => {
+        if (!o) return '30-40 min';
+        
+        // If already delivered, show "Delivered"
+        if (status === 'delivered') return 'Delivered';
+        if (status === 'rejected' || status === 'cancelled') return '--';
+
+        // 1. Use the explicit display string if backend provided one
+        if (o.estimatedTimeDisplay) return o.estimatedTimeDisplay;
+
+        // 2. Use the minutes duration (favoring fresh quote if available)
+        const mins = quoteEstimatedMinutes || o.estimatedMinutes || 'Calculating';
+        return `${mins} min`;
+    };
+
     const getOrderTotal = (o: any) => {
         if (!o) return 370;
         
@@ -228,7 +284,7 @@ export const OrderTrackingPage: React.FC = () => {
                 {/* Navbar */}
                 <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => navigate('/')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
+                        <button onClick={() => navigate('/orders')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
                             <ArrowLeft className="w-5 h-5 text-gray-800" />
                         </button>
                         <h1 className="text-lg font-bold text-gray-900">Order Status</h1>
@@ -361,7 +417,7 @@ export const OrderTrackingPage: React.FC = () => {
             {/* Navbar */}
             <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate('/')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
+                    <button onClick={() => navigate('/orders')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
                         <ArrowLeft className="w-5 h-5 text-gray-800" />
                     </button>
                     <h1 className="text-lg font-bold text-gray-900">Track Order</h1>
@@ -390,7 +446,9 @@ export const OrderTrackingPage: React.FC = () => {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-gray-900 text-[18px] font-bold leading-none mb-2 tracking-tight">Estimated Delivery Time</span>
-                                        <span className="text-[#FF4732] font-bold text-[22px]">{(order as any).estimatedTimeDisplay || '30-40 min'}</span>
+                                        <span className="text-[#FF4732] font-bold text-[22px] uppercase">
+                                            {status === 'delivered' ? 'Delivered' : getEstimatedTime(order)}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -479,7 +537,9 @@ export const OrderTrackingPage: React.FC = () => {
                                     <span className="text-gray-400 text-[13px] font-medium leading-none mb-1.5">Estimated Delivery Time</span>
                                     <div className="flex items-center gap-1.5">
                                         <Clock className="w-4 h-4 text-[#FF4732]" />
-                                        <span className="text-[#FF4732] font-bold text-[17px]">{(order as any).estimatedTimeDisplay || '30-40 min'}</span>
+                                        <span className="text-[#FF4732] font-bold text-[17px]">
+                                            {status === 'delivered' ? 'Delivered' : getEstimatedTime(order)}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

@@ -586,6 +586,8 @@ export interface ApiOrder {
     statusDisplay?: string;
     rejectionReason?: string;
     cancellationReason?: string;
+    estimatedMinutes?: number;
+    estimatedTimeDisplay?: string;
     totalAmount: number;
     total?: number;
     pricing?: {
