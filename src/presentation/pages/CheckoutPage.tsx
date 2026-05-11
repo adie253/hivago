@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus, Package } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getDeliveryQuote, isTokenValid, fetchRestaurantById } from '../../data/api';
+import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
@@ -34,7 +34,7 @@ export const CheckoutPage: React.FC = () => {
         deliveryError, setDeliveryError, 
         isCheckingDelivery, setIsCheckingDelivery,
         isLoggedIn,
-        fulfillmentType, setFulfillmentType,
+        fulfillmentType,
         includeCutlery, setIncludeCutlery
     } = useCart();
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, ChevronRight, User, Trash2, CreditCard, Bell, HelpCircle } from 'lucide-react';
+import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle } from 'lucide-react';
 import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid, getMyOrders } from '../../data/api';
 import { useCart } from '../../presentation/context/CartContext';
 

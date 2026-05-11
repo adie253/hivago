@@ -178,7 +178,7 @@ export const OrdersPage: React.FC = () => {
                         <div className="flex flex-col gap-4">
                             {currentOrdersList.map((order) => {
                                 // Default to delivery if empty or null
-                                const typeStr = order.orderType ? order.orderType.toLowerCase() : 'delivery';
+                                const typeStr = order.fulfillmentType ? order.fulfillmentType.toLowerCase() : 'delivery';
                                 const itemsCount = Array.isArray(order.items) ? order.items.reduce((acc: any, item: any) => acc + item.quantity, 0) : (order.totalItems || 0);
                                 
                                 return (
