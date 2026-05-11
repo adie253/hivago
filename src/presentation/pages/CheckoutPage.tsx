@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
+import { SuggestedItemSkeleton } from '../components/Skeletons';
 import { useCart } from '../context/CartContext';
 import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
@@ -44,6 +45,7 @@ export const CheckoutPage: React.FC = () => {
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
 
 
@@ -58,27 +60,32 @@ export const CheckoutPage: React.FC = () => {
     React.useEffect(() => {
         if (restaurantId) {
             const loadSuggestions = async () => {
-                const restaurant = await fetchRestaurantById(restaurantId);
-                if (restaurant && restaurant.menu) {
-                    // Filter items NOT already in cart
-                    const cartItemIds = new Set(cartItems.map(i => i.menuItemId || i.id));
-                    const otherItems = restaurant.menu
-                        .filter(i => !cartItemIds.has(i.id))
-                        .slice(0, 2) // Top 2 items
-                        .map(i => ({
-                            id: i.id,
-                            name: i.name,
-                            restaurant: restaurantName || "Restaurant",
-                            time: "20-30 min",
-                            distance: "1.2 km",
-                            priceForTwo: "₹400 for two",
-                            price: i.price,
-                            originalPrice: i.price * 1.2,
-                            discount: "20% OFF",
-                            image: i.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&dpr=2&q=80',
-                            isVeg: i.type === 'Veg'
-                        }));
-                    setSuggestedItems(otherItems);
+                setIsLoadingSuggestions(true);
+                try {
+                    const restaurant = await fetchRestaurantById(restaurantId);
+                    if (restaurant && restaurant.menu) {
+                        // Filter items NOT already in cart
+                        const cartItemIds = new Set(cartItems.map(i => i.menuItemId || i.id));
+                        const otherItems = restaurant.menu
+                            .filter(i => !cartItemIds.has(i.id))
+                            .slice(0, 4) // Top 4 items
+                            .map(i => ({
+                                id: i.id,
+                                name: i.name,
+                                restaurant: restaurantName || "Restaurant",
+                                time: "20-30 min",
+                                distance: "1.2 km",
+                                priceForTwo: "₹400 for two",
+                                price: i.price,
+                                originalPrice: i.price * 1.2,
+                                discount: "20% OFF",
+                                image: i.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&dpr=2&q=80',
+                                isVeg: i.type === 'Veg'
+                            }));
+                        setSuggestedItems(otherItems);
+                    }
+                } finally {
+                    setIsLoadingSuggestions(false);
                 }
             };
             loadSuggestions();
@@ -297,47 +304,54 @@ export const CheckoutPage: React.FC = () => {
                                 </div>
 
                                 <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-4 snap-x">
-                                    {suggestedItems.map(item => (
-                                        <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col relative group">
-                                            <div className="h-32 w-full overflow-hidden relative">
-                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                                <button 
-                                                    onClick={() => addToCart({
-                                                        id: item.id,
-                                                        menuItemId: item.id,
-                                                        name: item.name,
-                                                        price: item.price,
-                                                        isVeg: item.isVeg
-                                                    }, restaurantId, restaurantName)}
-                                                    className="absolute bottom-2 right-2 bg-white text-[#FF4732] p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors active:scale-90"
-                                                >
-                                                    <Plus className="w-5 h-5" strokeWidth={3} />
-                                                </button>
-                                            </div>
-                                            <div className="px-3 py-3 flex flex-col flex-1">
-                                                <h4 className="font-bold text-[15px] text-[#222] truncate">{item.name}</h4>
-                                                <p className="text-gray-500 text-xs mt-0.5">{item.restaurant}</p>
-
-                                                <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-500 font-medium">
-                                                    <span className="flex items-center"><span className="w-3 h-3 mr-1 opacity-60"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg></span>{item.time}</span>
-                                                    <span className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" />{item.distance}</span>
-                                                    <span>{item.priceForTwo}</span>
+                                    {isLoadingSuggestions ? (
+                                        <>
+                                            <SuggestedItemSkeleton />
+                                            <SuggestedItemSkeleton />
+                                            <SuggestedItemSkeleton />
+                                        </>
+                                    ) : suggestedItems.length > 0 ? (
+                                        suggestedItems.map(item => (
+                                            <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col relative group">
+                                                <div className="h-32 w-full overflow-hidden relative">
+                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                    <button 
+                                                        onClick={() => addToCart({
+                                                            id: item.id,
+                                                            menuItemId: item.id,
+                                                            name: item.name,
+                                                            price: item.price,
+                                                            isVeg: item.isVeg
+                                                        }, restaurantId, restaurantName)}
+                                                        className="absolute bottom-2 right-2 bg-white text-[#FF4732] p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors active:scale-90"
+                                                    >
+                                                        <Plus className="w-5 h-5" strokeWidth={3} />
+                                                    </button>
                                                 </div>
+                                                <div className="px-3 py-3 flex flex-col flex-1">
+                                                    <h4 className="font-bold text-[15px] text-[#222] truncate">{item.name}</h4>
+                                                    <p className="text-gray-500 text-xs mt-0.5">{item.restaurant}</p>
 
-                                                <div className="flex items-center justify-between mt-auto pt-3">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <span className="text-[#00A050] font-bold text-sm">Rs.{item.price.toFixed(2)}</span>
-                                                        <span className="text-gray-400 line-through text-[11px]">Rs.{item.originalPrice.toFixed(2)}</span>
+                                                    <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-500 font-medium">
+                                                        <span className="flex items-center"><span className="w-3 h-3 mr-1 opacity-60"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg></span>{item.time}</span>
+                                                        <span className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" />{item.distance}</span>
+                                                        <span>{item.priceForTwo}</span>
                                                     </div>
-                                                    <div className="bg-[#E6F5EC] text-[#00A050] flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold">
-                                                        <Ticket className="w-2.5 h-2.5" />
-                                                        {item.discount}
+
+                                                    <div className="flex items-center justify-between mt-auto pt-3">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="text-[#00A050] font-bold text-sm">Rs.{item.price.toFixed(2)}</span>
+                                                            <span className="text-gray-400 line-through text-[11px]">Rs.{item.originalPrice.toFixed(2)}</span>
+                                                        </div>
+                                                        <div className="bg-[#E6F5EC] text-[#00A050] flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                                                            <Ticket className="w-2.5 h-2.5" />
+                                                            {item.discount}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                    {suggestedItems.length === 0 && (
+                                        ))
+                                    ) : (
                                         <div className="p-8 text-center text-gray-400 w-full text-sm">No suggestions available</div>
                                     )}
                                 </div>
@@ -551,7 +565,7 @@ export const CheckoutPage: React.FC = () => {
 
                                         <div className="flex justify-between items-center mb-3">
                                             <span className="text-[#555] text-[14px]">Delivery Tip</span>
-                                            <span className="text-[#333] text-[14px]">00.00</span>
+                                            <span className="text-[#333] text-[14px]">₹0.00</span>
                                         </div>
 
                                         <div className="flex justify-between items-center mb-4">

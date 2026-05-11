@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Loader2 } from 'lucide-react';
+import { OrderTrackingSkeleton } from '../components/Skeletons';
 import { ApiOrder, getActiveOrders, getOrderById, getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 
 // Using the assets we moved/generated
@@ -199,7 +200,7 @@ export const OrderTrackingPage: React.FC = () => {
 
     // Robust parsing functions to handle varying backend serialization formats
     const getAddressDisplay = (o: any) => {
-        if (!o) return 'Plot No.7, Arenja Chambers, Navi Mumbai';
+        if (!o) return '--';
 
         const cleanAddress = (addrStr: string) => {
             return addrStr.replace(/,?\s*000000\b/g, '').trim().replace(/,\s*$/, '');
@@ -250,7 +251,7 @@ export const OrderTrackingPage: React.FC = () => {
     };
 
     const getOrderTotal = (o: any) => {
-        if (!o) return 370;
+        if (!o) return 0;
 
         const itemsTotal = Array.isArray(o.items) ? o.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
         const backendTotal = o.pricing?.total || o.total || o.totalAmount;
@@ -273,12 +274,7 @@ export const OrderTrackingPage: React.FC = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center font-sans">
-                <Loader2 className="w-10 h-10 animate-spin text-[#00A050]" />
-                <p className="mt-4 text-gray-500 font-medium">Fetching order details...</p>
-            </div>
-        );
+        return <OrderTrackingSkeleton />;
     }
 
     if (!order) {
@@ -525,12 +521,9 @@ export const OrderTrackingPage: React.FC = () => {
 
                                 {/* Order Details */}
                                 <div className="flex flex-col gap-4 mt-2">
-                                    <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
+                                    <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Order Details • {order?.restaurantName || ''}</h2>
                                     <div className="flex flex-col gap-4">
-                                        {(order?.items || [
-                                            { name: 'Margherita Pizza', quantity: 1, unitPrice: 250 },
-                                            { name: 'Garlic Breadsticks', quantity: 1, unitPrice: 120 }
-                                        ]).map((item, idx, arr) => (
+                                        {(order?.items || []).map((item, idx, arr) => (
                                             <div key={idx} className={`flex justify-between items-center text-[16px] ${idx !== arr.length - 1 ? 'pb-5 border-b border-gray-100' : ''}`}>
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-3.5 h-3.5 rounded-full border-[3px] border-[#00A050] bg-white shadow-sm"></div>
@@ -679,12 +672,9 @@ export const OrderTrackingPage: React.FC = () => {
 
                         {/* Order Details Summary */}
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1">Order Details • {order?.restaurantName || 'Hotel Sandeep'}</h2>
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">Order Details • {order?.restaurantName || ''}</h2>
                             <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-50 flex flex-col gap-4">
-                                {(order?.items || [
-                                    { name: 'Margherita Pizza', quantity: 1, unitPrice: 250 },
-                                    { name: 'Garlic Breadsticks', quantity: 1, unitPrice: 120 }
-                                ]).map((item, idx, arr) => (
+                                {(order?.items || []).map((item, idx, arr) => (
                                     <div key={idx} className={`flex justify-between items-center text-sm ${idx !== arr.length - 1 ? 'pb-2 border-b border-dashed border-gray-100' : ''}`}>
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-[#00A050]"></div>

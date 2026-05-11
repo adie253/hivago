@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
+import { MenuPageSkeleton } from '../components/Skeletons';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
 import { ItemDetailOverlay } from '../components/ItemDetailOverlay';
 import { useFilters, Restaurant } from '../context/FilterContext';
@@ -64,14 +65,7 @@ export const RestaurantMenuPage: React.FC = () => {
     }, [categories, activeTab, restaurant]);
 
     if (isLocalLoading || (filtersLoading && !restaurant)) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white font-sans">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-[#FF4732] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-gray-500 font-bold animate-pulse">Fetching delicious menu...</p>
-                </div>
-            </div>
-        );
+        return <MenuPageSkeleton />;
     }
 
     if (!restaurant) {
@@ -158,7 +152,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <div className="flex items-center gap-1.5">
                                 <span>{selectedLocation && restaurant?.latitude && restaurant?.longitude 
                                     ? `${calculateDistance(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude)} km` 
-                                    : '2.5 km'}</span>
+                                    : '-- km'}</span>
                             </div>
                             <span className="text-gray-300">•</span>
                             <div className="flex items-center gap-1.5">
@@ -329,7 +323,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                     <span className="text-base font-bold">
                                         {selectedLocation && restaurant?.latitude && restaurant?.longitude 
                                             ? `${calculateDistance(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude)} km` 
-                                            : '2.5 km'}
+                                            : '-- km'}
                                     </span>
                                 </div>
                             </div>

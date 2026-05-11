@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Store, Bike, Loader } from 'lucide-react';
+import { OrdersPageSkeleton } from '../components/Skeletons';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiOrder, getMyOrders, getOrderById } from '../../data/api';
 import { useCart } from '../context/CartContext';
@@ -146,10 +147,7 @@ export const OrdersPage: React.FC = () => {
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto px-5 py-6">
                     {isLoading ? (
-                        <div className="flex flex-col items-center justify-center mt-20">
-                            <Loader className="w-8 h-8 text-[#FF4732] animate-spin" />
-                            <p className="text-gray-500 mt-4 text-sm">Loading orders...</p>
-                        </div>
+                        <OrdersPageSkeleton />
                     ) : currentOrdersList.length === 0 ? (
                         <div className="flex flex-col items-center justify-center mt-12">
                             <div className="w-full max-w-[280px] aspect-[4/3] bg-gradient-to-t from-red-50 to-red-100 rounded-xl flex items-center justify-center mb-8 relative border border-red-50">
