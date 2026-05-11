@@ -602,7 +602,7 @@ export interface ApiOrder {
         currency?: string;
     };
     totalItems?: number;
-    orderType: 'DELIVERY' | 'PICKUP';
+    fulfillmentType: 'Delivery' | 'Pickup';
     items: ApiOrderItem[];
     deliveryAddress?: any;
     deliveryInfo?: {
@@ -665,6 +665,7 @@ export interface ApiPlaceOrderRequest {
      paymentId: string;
     paymentTransactionId: string;
     deliveryQuoteId: string;
+    fulfillmentType: 'Delivery' | 'Pickup';
     restaurantId: string;
     restaurantName: string;
     restaurantPhone: string;

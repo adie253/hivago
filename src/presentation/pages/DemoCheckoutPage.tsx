@@ -18,7 +18,9 @@ export const DemoCheckoutPage: React.FC = () => {
         deliveryQuote,
         deliveryStatus,
         deliveryError,
-        isCheckingDelivery
+        isCheckingDelivery,
+        fulfillmentType,
+        includeCutlery
     } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -36,7 +38,7 @@ export const DemoCheckoutPage: React.FC = () => {
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
     const [restaurantDetails, setRestaurantDetails] = useState<ApiRestaurant | null>(null);
     const deliveryQuoteId = deliveryQuote?.id || '';
-    const deliveryFee = deliveryQuote?.deliveryFee || 0;
+    const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0);
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
@@ -136,6 +138,7 @@ export const DemoCheckoutPage: React.FC = () => {
                 paymentId: selectedPaymentMethod || "CASH",
                 paymentTransactionId: "",
                 deliveryQuoteId: deliveryQuoteId,
+                fulfillmentType: fulfillmentType,
                 restaurantId: restaurantId,
                 restaurantName: restaurantName || restaurantDetails?.name || "Unknown Restaurant",
                 restaurantPhone: restaurantDetails?.phone || "0000000000",
@@ -175,7 +178,9 @@ export const DemoCheckoutPage: React.FC = () => {
                     discountCode: "",
                     discountDescription: ""
                 },
-                specialInstructions: instructions
+                specialInstructions: includeCutlery 
+                    ? `Please include cutlery. ${instructions}`.trim()
+                    : instructions
             };
 
             const order = await placeOrder(payload);

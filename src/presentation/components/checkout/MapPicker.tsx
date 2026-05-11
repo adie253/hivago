@@ -35,7 +35,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
 
   const [center, setCenter] = useState<Position>(defaultCenter);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
 
   // Get current location on first load
   useEffect(() => {
@@ -71,13 +71,16 @@ export const MapPicker: React.FC<MapPickerProps> = ({
     if (!mapRef.current || !window.google) return;
 
     if (markerRef.current) {
-      markerRef.current.map = null;
+      // Just move the existing marker instead of recreating it
+      markerRef.current.setPosition(center);
+    } else {
+      // Create it the first time
+      markerRef.current = new google.maps.Marker({
+        map: mapRef.current,
+        position: center,
+        animation: google.maps.Animation.DROP
+      });
     }
-
-    markerRef.current = new google.maps.marker.AdvancedMarkerElement({
-      map: mapRef.current,
-      position: center
-    });
   }, [center]);
 
   // 🖱️ Click to change location
@@ -114,7 +117,6 @@ export const MapPicker: React.FC<MapPickerProps> = ({
         mapRef.current = map;
       }}
       options={{
-        mapId: "YOUR_MAP_ID", //for advance makrer 
         disableDefaultUI: true,
         zoomControl: true
       }}

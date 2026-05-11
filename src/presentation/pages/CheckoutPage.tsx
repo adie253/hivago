@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { getDeliveryQuote, isTokenValid, fetchRestaurantById } from '../../data/api';
 import { CouponOverlay } from '../components/CouponOverlay';
@@ -32,9 +32,11 @@ export const CheckoutPage: React.FC = () => {
         deliveryQuote, setDeliveryQuote, 
         deliveryStatus, setDeliveryStatus, 
         deliveryError, setDeliveryError, 
-        isCheckingDelivery, setIsCheckingDelivery 
+        isCheckingDelivery, setIsCheckingDelivery,
+        isLoggedIn,
+        fulfillmentType, setFulfillmentType,
+        includeCutlery, setIncludeCutlery
     } = useCart();
-    const [cutlery, setCutlery] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
     const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
@@ -42,12 +44,11 @@ export const CheckoutPage: React.FC = () => {
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
-    const isLoggedIn = isTokenValid();
 
 
 
 
-    const deliveryFee = deliveryQuote?.deliveryFee || 0; // Dynamic delivery fee from API
+    const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0); 
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
@@ -180,7 +181,7 @@ export const CheckoutPage: React.FC = () => {
 
                         {/* Left Column for Desktop */}
                         <div className="flex flex-col gap-4 flex-1 w-full">
-
+                            
                             {/* Stepper */}
                             <div className="bg-white lg:rounded-2xl px-6 py-4 border-b lg:border border-gray-100 flex items-center justify-between shadow-sm -mx-4 lg:mx-0 mb-1 lg:mb-0">
                                 <div className="flex flex-col items-center flex-shrink-0">
@@ -356,10 +357,10 @@ export const CheckoutPage: React.FC = () => {
                                         <h3 className="font-bold text-[17px] text-[#222]">Cutlery</h3>
                                         {/* Simple Toggle Switch */}
                                         <div
-                                            onClick={() => setCutlery(!cutlery)}
-                                            className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors flex items-center ${cutlery ? 'bg-[#FF4732]' : 'bg-gray-200'}`}
+                                            onClick={() => setIncludeCutlery(!includeCutlery)}
+                                            className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors flex items-center ${includeCutlery ? 'bg-[#FF4732]' : 'bg-gray-200'}`}
                                         >
-                                            <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${cutlery ? 'translate-x-[20px]' : 'translate-x-0'}`}></div>
+                                            <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${includeCutlery ? 'translate-x-[20px]' : 'translate-x-0'}`}></div>
                                         </div>
                                     </div>
                                     <p className="text-gray-400 text-[13px] leading-tight font-medium w-[80%]">
@@ -388,7 +389,7 @@ export const CheckoutPage: React.FC = () => {
                                         <div className="flex items-center gap-1.5 text-[15px]">
                                             <span className="font-medium text-gray-600">Deliver to</span>
                                             <span className="text-gray-900 font-bold">-&gt;</span>
-                                            <span className="font-bold text-gray-900">{selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Home')}</span>
+                                            <span className="font-bold text-gray-900">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Home'))}</span>
                                         </div>
                                     </div>
                                     {isLoggedIn && (
@@ -396,17 +397,17 @@ export const CheckoutPage: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
-                                    {selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability')}
+                                    {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName || 'the restaurant'}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
                                 </div>
                                 
-                                {isCheckingDelivery && (
+                                {fulfillmentType === 'Delivery' && isCheckingDelivery && (
                                     <div className="pl-11 mt-1 flex items-center gap-2 text-[11px] text-gray-400">
                                         <Loader2 className="w-3 h-3 animate-spin" />
                                         Checking delivery availability...
                                     </div>
                                 )}
                                 
-                                {!isCheckingDelivery && deliveryStatus && (
+                                {fulfillmentType === 'Delivery' && !isCheckingDelivery && deliveryStatus && (
                                     <div className={`pl-11 mt-1 flex items-center gap-1.5 text-[11px] font-bold ${
                                         deliveryStatus === 'success' ? 'text-[#00A050]' : 
                                         deliveryStatus === 'error' ? 'text-[#FF4732]' : 
@@ -575,12 +576,12 @@ export const CheckoutPage: React.FC = () => {
                             </div>
 
                             {/* Desktop Checkout Button */}
-                            <button
+                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || isCheckingDelivery || deliveryStatus === 'error'}
+                                disabled={cartItems.length === 0 || (fulfillmentType === 'Delivery' && isLoggedIn && !selectedLocation) || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
+                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
                             </button>
 
                         </div>
@@ -589,12 +590,12 @@ export const CheckoutPage: React.FC = () => {
                     {/* Bottom Fixed Button - Mobile Only */}
                     <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
                         <div className="max-w-md mx-auto">
-                            <button
+                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || (isLoggedIn && !selectedLocation) || isCheckingDelivery || deliveryStatus === 'error'}
+                                disabled={cartItems.length === 0 || (fulfillmentType === 'Delivery' && isLoggedIn && !selectedLocation) || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : deliveryStatus === 'error' ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
+                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
                             </button>
                         </div>
                     </div>

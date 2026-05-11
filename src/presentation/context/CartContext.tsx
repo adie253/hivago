@@ -23,6 +23,11 @@ interface CartContextType {
     isCheckingDelivery: boolean;
     setIsCheckingDelivery: (isChecking: boolean) => void;
     reorder: (items: CartItem[], restaurantId: string, restaurantName: string) => Promise<void>;
+    isLoggedIn: boolean;
+    fulfillmentType: 'Delivery' | 'Pickup';
+    setFulfillmentType: (type: 'Delivery' | 'Pickup') => void;
+    includeCutlery: boolean;
+    setIncludeCutlery: (include: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -36,6 +41,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
     const [deliveryError, setDeliveryError] = useState<string | null>(null);
     const [isCheckingDelivery, setIsCheckingDelivery] = useState<boolean>(false);
+    const [fulfillmentType, setFulfillmentType] = useState<'Delivery' | 'Pickup'>('Delivery');
+    const [includeCutlery, setIncludeCutlery] = useState<boolean>(false);
 
     const hasSyncedAfterLogin = useRef(false);
     const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -552,7 +559,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setDeliveryError,
             isCheckingDelivery,
             setIsCheckingDelivery,
-            reorder
+            reorder,
+            isLoggedIn,
+            fulfillmentType,
+            setFulfillmentType,
+            includeCutlery,
+            setIncludeCutlery
         }}>
             {children}
             <SessionWarningPopup

@@ -4,20 +4,37 @@ import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
 import { ItemDetailOverlay } from '../components/ItemDetailOverlay';
 import { useFilters, Restaurant } from '../context/FilterContext';
+import { useCart } from '../context/CartContext';
 import DIContainer from '../../di/container';
 import deliveryBoy from '../../assets/delivery_pickup/delivery.svg';
 import pickupBoy from '../../assets/delivery_pickup/pickup.svg';
+import { useUserLocation } from '../context/LocationContext';
+
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return d.toFixed(1);
+};
 
 export const RestaurantMenuPage: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { isLoading: filtersLoading } = useFilters();
+    const { selectedLocation } = useUserLocation();
 
+    const { fulfillmentType, setFulfillmentType } = useCart();
     const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
     const [isLocalLoading, setIsLocalLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('All');
-    const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+    const [menuSearchQuery, setMenuSearchQuery] = useState('');
     useEffect(() => {
         const fetchRestaurant = async () => {
             if (!id) return;
@@ -73,9 +90,12 @@ export const RestaurantMenuPage: React.FC = () => {
         );
     }
 
-    const filteredMenu = activeTab === 'All'
-        ? restaurant.menu
-        : restaurant.menu.filter(item => item.category === activeTab);
+    const filteredMenu = restaurant?.menu.filter(item => {
+        const matchesTab = activeTab === 'All' || item.category === activeTab;
+        const matchesSearch = item.name.toLowerCase().includes(menuSearchQuery.toLowerCase()) || 
+                             (item.description || '').toLowerCase().includes(menuSearchQuery.toLowerCase());
+        return matchesTab && matchesSearch;
+    }) || [];
 
     const menuItems: MenuItem[] = filteredMenu.map(item => ({
         id: item.id,
@@ -136,7 +156,9 @@ export const RestaurantMenuPage: React.FC = () => {
                             </div>
                             <span className="text-gray-300">•</span>
                             <div className="flex items-center gap-1.5">
-                                <span>2.5 km</span>
+                                <span>{selectedLocation && restaurant?.latitude && restaurant?.longitude 
+                                    ? `${calculateDistance(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude)} km` 
+                                    : '2.5 km'}</span>
                             </div>
                             <span className="text-gray-300">•</span>
                             <div className="flex items-center gap-1.5">
@@ -159,26 +181,26 @@ export const RestaurantMenuPage: React.FC = () => {
                         <div className="flex items-center gap-2 pl-2 md:pl-2 ">
                             <div className="flex -space-x-1 ">
                                 <button 
-                                    onClick={() => setDeliveryMode('delivery')}
-                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    onClick={() => setFulfillmentType('Delivery')}
+                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${fulfillmentType === 'Delivery' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
                                 >
-                                    <div className={`p-4 px-6 rounded-full ${deliveryMode === 'delivery' ? 'border border-[#B02421]' : ''}`}>
+                                    <div className={`p-4 px-6 rounded-full ${fulfillmentType === 'Delivery' ? 'border border-[#B02421]' : ''}`}>
                                         <img src={deliveryBoy} alt="delivery" className="w-8 h-8" />
                                     </div>
                                 </button>
                                 <button 
-                                    onClick={() => setDeliveryMode('pickup')}
-                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${deliveryMode === 'pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    onClick={() => setFulfillmentType('Pickup')}
+                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${fulfillmentType === 'Pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
                                 >
-                                    <div className={`p-4 px-6 rounded-full ${deliveryMode === 'pickup' ? 'border border-[#B02421]' : ''}`}>
+                                    <div className={`p-4 px-6 rounded-full ${fulfillmentType === 'Pickup' ? 'border border-[#B02421]' : ''}`}>
                                         <img src={pickupBoy} alt="pickup" className="w-8 h-8" />
                                     </div>
                                 </button>
                             </div>
                             <div className="pl-2">
-                                <p className="text-[#B02421] font-bold text-lg leading-tight capitalize">{deliveryMode}</p>
+                                <p className="text-[#B02421] font-bold text-lg leading-tight capitalize">{fulfillmentType}</p>
                                 <p className="text-gray-500 text-xs font-bold">
-                                    {deliveryMode === 'delivery' ? '30 - 35 min' : '15 - 20 min'}
+                                    {fulfillmentType === 'Delivery' ? '30 - 35 min' : '15 - 20 min'}
                                 </p>
                             </div>
                         </div>
@@ -193,7 +215,9 @@ export const RestaurantMenuPage: React.FC = () => {
                         </div>
                         <input
                             type="text"
-                            placeholder="Search for restaurants or dishes"
+                            placeholder="Search for dishes"
+                            value={menuSearchQuery}
+                            onChange={(e) => setMenuSearchQuery(e.target.value)}
                             className="block w-full pl-12 pr-12 py-4 bg-white border border-gray-100 shadow-sm rounded-2xl text-[13px] font-bold text-gray-900 placeholder-gray-400 focus:ring-0 transition-all"
                         />
                         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -223,17 +247,25 @@ export const RestaurantMenuPage: React.FC = () => {
                 {/* Menu Header & Grid (Mobile) */}
                 <div className="px-5 mt-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-6">{activeTab}</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        {menuItems.map(item => (
-                            <MenuItemCard 
-                                key={item.id} 
-                                item={item} 
-                                restaurantId={restaurant.id}
-                                restaurantName={restaurant.name}
-                                onClick={() => setSelectedItem(item)}
-                            />
-                        ))}
-                    </div>
+                    {menuItems.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-4">
+                            {menuItems.map(item => (
+                                <MenuItemCard 
+                                    key={item.id} 
+                                    item={item} 
+                                    restaurantId={restaurant.id}
+                                    restaurantName={restaurant.name}
+                                    onClick={() => setSelectedItem(item)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-3xl p-10 text-center border border-gray-50 flex flex-col items-center gap-3">
+                            <div className="text-4xl">🍽️</div>
+                            <p className="text-gray-900 font-bold">No dishes found</p>
+                            <p className="text-gray-500 text-xs">Try searching for something else or clearing filters.</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -254,7 +286,9 @@ export const RestaurantMenuPage: React.FC = () => {
                         </div>
                         <input
                             type="text"
-                            placeholder="Search for restaurants or dishes"
+                            placeholder="Search for dishes"
+                            value={menuSearchQuery}
+                            onChange={(e) => setMenuSearchQuery(e.target.value)}
                             className="block w-full pl-12 pr-12 py-3 bg-[#EEF2F6] border-none rounded-xl text-sm font-medium text-gray-900 placeholder-gray-500 focus:ring-0 transition-all"
                         />
                         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -292,7 +326,11 @@ export const RestaurantMenuPage: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-500">
                                     <MapPin className="w-5 h-5" />
-                                    <span className="text-base font-bold">2.5 km</span>
+                                    <span className="text-base font-bold">
+                                        {selectedLocation && restaurant?.latitude && restaurant?.longitude 
+                                            ? `${calculateDistance(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude)} km` 
+                                            : '2.5 km'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -302,22 +340,22 @@ export const RestaurantMenuPage: React.FC = () => {
                             <div className="bg-white rounded-full border border-gray-100 shadow-sm p-1.5 flex items-center gap-4">
                                 <div className="flex">
                                     <button 
-                                        onClick={() => setDeliveryMode('delivery')}
-                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        onClick={() => setFulfillmentType('Delivery')}
+                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${fulfillmentType === 'Delivery' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
                                     >
                                         <img src={deliveryBoy} alt="delivery" className="w-[60%] h-[60%]" />
                                     </button>
                                     <button 
-                                        onClick={() => setDeliveryMode('pickup')}
-                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${deliveryMode === 'pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        onClick={() => setFulfillmentType('Pickup')}
+                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${fulfillmentType === 'Pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
                                     >
                                         <img src={pickupBoy} alt="pickup" className="w-[60%] h-[60%]" />
                                     </button>
                                 </div>
                                 <div className="pr-4">
-                                    <p className="text-[#B02421] font-bold text-lg leading-none capitalize">{deliveryMode}</p>
+                                    <p className="text-[#B02421] font-bold text-lg leading-none capitalize">{fulfillmentType}</p>
                                     <p className="text-gray-500 text-xs font-bold mt-0.5">
-                                        {deliveryMode === 'delivery' ? '30 - 35 min' : '15 - 20 min'}
+                                        {fulfillmentType === 'Delivery' ? '30 - 35 min' : '15 - 20 min'}
                                     </p>
                                 </div>
                             </div>
@@ -377,17 +415,31 @@ export const RestaurantMenuPage: React.FC = () => {
                         <h2 className="text-2xl font-bold text-gray-900">{activeTab}</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {menuItems.map(item => (
-                            <MenuItemCard 
-                                key={item.id} 
-                                item={item} 
-                                restaurantId={restaurant.id}
-                                restaurantName={restaurant.name}
-                                onClick={() => setSelectedItem(item)}
-                            />
-                        ))}
-                    </div>
+                    {menuItems.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {menuItems.map(item => (
+                                <MenuItemCard 
+                                    key={item.id} 
+                                    item={item} 
+                                    restaurantId={restaurant.id}
+                                    restaurantName={restaurant.name}
+                                    onClick={() => setSelectedItem(item)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-[32px] p-20 text-center border border-gray-100 flex flex-col items-center gap-4 shadow-sm">
+                            <div className="text-6xl">🥘</div>
+                            <h3 className="text-xl font-bold text-gray-900">No dishes found matching your search</h3>
+                            <p className="text-gray-500 max-w-xs mx-auto">We couldn't find any items in this category. Try adjusting your search or category selection.</p>
+                            <button 
+                                onClick={() => {setMenuSearchQuery(''); setActiveTab('All');}}
+                                className="mt-2 text-[#FF4732] font-bold hover:underline"
+                            >
+                                Clear all filters
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 

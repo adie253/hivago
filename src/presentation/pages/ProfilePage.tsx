@@ -180,13 +180,13 @@ export const ProfilePage: React.FC = () => {
                         <h3 className="font-bold text-[17px] text-[#111] mb-3 px-1">Settings</h3>
                         
                         <div className="bg-white rounded-[24px] shadow-sm border border-gray-50 flex flex-col p-2">
-                            <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-t-xl transition-colors">
+                            {/* <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-t-xl transition-colors">
                                 <div className="flex items-center gap-3">
                                     <CreditCard className="w-5 h-5 text-gray-500 stroke-[1.5]" />
                                     <span className="font-semibold text-[#222] text-[15px]">Payment Methods</span>
                                 </div>
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
-                            </button>
+                            </button> */}
                             
                             <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center gap-3">
