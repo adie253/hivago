@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star } from 'lucide-react';
 import { OrderTrackingSkeleton } from '../components/Skeletons';
 import { ApiOrder, getActiveOrders, getOrderById, getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 

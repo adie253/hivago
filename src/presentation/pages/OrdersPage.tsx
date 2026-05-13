@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Store, Bike, Loader } from 'lucide-react';
+import { Store, Bike } from 'lucide-react';
 import { OrdersPageSkeleton } from '../components/Skeletons';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiOrder, getMyOrders, getOrderById } from '../../data/api';

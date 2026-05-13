@@ -8,8 +8,6 @@ import { RestaurantGrid } from '../components/RestaurantGrid';
 import { RestaurantsNearby } from '../components/RestaurantsNearby';
 import { DishesDiscount } from '../components/DishesDiscount';
 import { RecommendedRestaurants } from '../components/RecommendedRestaurants';
-import { OfferBanners } from '../components/OfferBanners';
-import { PromoBanners } from '../components/PromoBanners';
 import { DeliveryFeatures } from '../components/DeliveryFeatures';
 import { useFilters } from '../context/FilterContext';
 

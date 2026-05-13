@@ -31,12 +31,6 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
 
     if (!isOpen) return null;
 
-    const getIcon = (label: string) => {
-        const lowerLabel = label.toLowerCase();
-        if (lowerLabel.includes('home')) return <Home className="w-5 h-5 text-gray-700" />;
-        if (lowerLabel.includes('work') || lowerLabel.includes('office')) return <Building2 className="w-5 h-5 text-gray-700" />;
-        return <Send className="w-5 h-5 text-gray-700" />;
-    };
     const filteredAddresses = addresses.filter(addr => 
         addr.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
         addr.addressLine.toLowerCase().includes(searchQuery.toLowerCase())

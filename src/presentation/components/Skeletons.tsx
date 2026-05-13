@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const SuggestedItemSkeleton = () => (
   <div className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col animate-pulse">
     <div className="h-32 w-full bg-gray-100" />

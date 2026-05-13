@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle, Check, Edit2, Plus, Home, Briefcase } from 'lucide-react';
-import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid, getMyOrders, setDefaultAddress, updateCustomerProfile } from '../../data/api';
+import { getCustomerProfile, deleteAddress, isTokenValid, getMyOrders, setDefaultAddress, updateCustomerProfile } from '../../data/api';
 import { useCart } from '../../presentation/context/CartContext';
 import { useUserLocation } from '../../presentation/context/LocationContext';
 import { AddAddressOverlay } from '../components/AddAddressOverlay';
