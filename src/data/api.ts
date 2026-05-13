@@ -308,6 +308,10 @@ export interface ApiRestaurant {
     latitude?: number;
     longitude?: number;
     pincode?: string;
+    logoUrl?: string | null;
+    cuisineTypes?: string[];
+    isPureVeg?: boolean;
+    avgPrepTimeMins?: number;
     img?: string;
 }
 
@@ -449,26 +453,23 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
             .filter(m => (m.items || []).some((i: any) => i.isAvailable !== false))
             .map(m => m.name) // Categories from ApiMenu structure
         : Array.from(new Set(allItems.map(i => i.category || 'General'))); // Categories from items
-
-    // In a real app, these would come from the API or be calculated
-    const cuisines = categories.length > 0 ? categories : ['Fast Food', 'Indian'];
-    const avgPrepTime = allItems.length > 0
-        ? Math.round(allItems.reduce((sum, item) => sum + item.preparationTimeMinutes, 0) / allItems.length)
-        : 30;
-
+    // Priority: Use live API fields, fall back to calculated defaults
+    const cuisines = apiRes.cuisineTypes && apiRes.cuisineTypes.length > 0 ? apiRes.cuisineTypes : (categories.length > 0 ? categories : ['Fast Food', 'Indian']);
+    const prepTime = apiRes.avgPrepTimeMins || avgPrepTime;
+    
     return {
         id: apiRes.id,
         name: apiRes.name,
         cuisines: cuisines,
         rating: 4.2, // Default rating as API lacks it
-        deliveryTime: `${avgPrepTime}-${avgPrepTime + 10} min`,
+        deliveryTime: `${prepTime}-${prepTime + 10} min`,
         distance: "-- km", // Calculated at display time using real coordinates
         costForTwo: "₹400", // Dummy cost
-        imageUrl: apiRes.img || (apiRes.name.toLowerCase().includes('good luck')
+        imageUrl: apiRes.logoUrl || apiRes.img || (apiRes.name.toLowerCase().includes('good luck')
             ? "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800"
             : (allItems.find(i => i.imageUrl)?.imageUrl || getFallbackImage(apiRes.name, categories[0]))),
         promoted: false,
-        isVeg: allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true,
+        isVeg: apiRes.isPureVeg !== undefined ? apiRes.isPureVeg : (allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true),
         categories: categories,
         addressLine: apiRes.addressLine || "Address not available",
         latitude: apiRes.latitude,
@@ -493,7 +494,8 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
         if (!response.ok) {
             throw new Error(`Failed to fetch restaurants: ${response.statusText}`);
         }
-        const apiRestaurants: ApiRestaurant[] = await response.json();
+        const data = await response.json();
+        const apiRestaurants: ApiRestaurant[] = Array.isArray(data) ? data : (data.items || []);
 
         // For each restaurant, we might need to fetch its menu to get full details
         // In a real production app, we'd optimize this (e.g., fetch menus only when needed)
@@ -538,7 +540,8 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
         if (!response.ok) {
             throw new Error(`Search failed: ${response.statusText}`);
         }
-        const apiItems: ApiSearchItem[] = await response.json();
+        const data = await response.json();
+        const apiItems: ApiSearchItem[] = Array.isArray(data) ? data : (data.items || []);
         return apiItems.map(item => ({
             id: item.itemId,
             name: item.itemName,
@@ -557,10 +560,18 @@ export const fetchRestaurantById = async (id: string): Promise<Restaurant | null
         const response = await fetch(`${BASE_URL}/catalog/restaurants`);
         if (!response.ok) return null;
 
-        const apiRestaurants: ApiRestaurant[] = await response.json();
+        const data = await response.json();
+        const apiRestaurants: ApiRestaurant[] = Array.isArray(data) ? data : (data.items || []);
         const apiRes = apiRestaurants.find(r => r.id === id);
 
-        if (!apiRes) return null;
+        if (!apiRes) {
+            // Fallback: try fetching specifically if not found in list
+            const singleRes = await fetch(`${BASE_URL}/catalog/restaurants/${id}`);
+            if (singleRes.ok) {
+                return mapRestaurant(await singleRes.json());
+            }
+            return null;
+        }
 
         const menuResponse = await fetch(`${BASE_URL}/catalog/restaurants/${id}/menu`);
         let menus = [];
@@ -677,7 +688,8 @@ export const getMyOrders = async (page: number = 0, pageSize: number = 50): Prom
         if (!response.ok) {
             throw new Error(`Failed to fetch orders: ${response.statusText}`);
         }
-        return await response.json();
+        const data = await response.json();
+        return Array.isArray(data) ? data : (data.items || data.orders || data.content || []);
     } catch (error) {
         console.error('Error in getMyOrders:', error);
         return [];
