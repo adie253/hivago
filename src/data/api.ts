@@ -455,7 +455,12 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         : Array.from(new Set(allItems.map(i => i.category || 'General'))); // Categories from items
     // Priority: Use live API fields, fall back to calculated defaults
     const cuisines = apiRes.cuisineTypes && apiRes.cuisineTypes.length > 0 ? apiRes.cuisineTypes : (categories.length > 0 ? categories : ['Fast Food', 'Indian']);
-    const prepTime = apiRes.avgPrepTimeMins || avgPrepTime;
+    
+    const calculatedAvgPrepTime = allItems.length > 0
+        ? Math.round(allItems.reduce((sum, item) => sum + item.preparationTimeMinutes, 0) / allItems.length)
+        : 30;
+        
+    const prepTime = apiRes.avgPrepTimeMins || calculatedAvgPrepTime;
     
     return {
         id: apiRes.id,
