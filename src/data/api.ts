@@ -314,6 +314,7 @@ export interface ApiRestaurant {
     isPureVeg?: boolean;
     avgPrepTimeMins?: number;
     img?: string;
+    acceptsPickup?: boolean;
 }
 
 export interface DeliveryQuoteRequest {
