@@ -43,7 +43,7 @@ export const DishesDiscount: React.FC = () => {
                 // Randomly decide if this item has a discount for our "Offers" section
                 // In a real app, this would come from the backend
                 // Using a semi-stable "random" based on item ID
-                const hash = item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const hash = item.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
                 const hasDiscount = hash % 3 === 0; // 1/3 of items have discounts
                 
                 if (hasDiscount) {

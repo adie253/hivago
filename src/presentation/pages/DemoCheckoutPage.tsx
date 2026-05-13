@@ -21,6 +21,7 @@ export const DemoCheckoutPage: React.FC = () => {
         deliveryError,
         isCheckingDelivery,
         fulfillmentType,
+        setFulfillmentType,
         includeCutlery
     } = useCart();
     const { selectedLocation } = useUserLocation();
@@ -99,6 +100,11 @@ export const DemoCheckoutPage: React.FC = () => {
                 try {
                     const details = await fetchRestaurantById(restaurantId);
                     setRestaurantDetails(details);
+                    
+                    // Force 'Delivery' if restaurant doesn't accept pickup
+                    if (details && !details.acceptsPickup && fulfillmentType === 'Pickup') {
+                        setFulfillmentType('Delivery');
+                    }
                 } catch (error) {
                     console.error("Failed to fetch restaurant details:", error);
                 }
@@ -205,9 +211,16 @@ export const DemoCheckoutPage: React.FC = () => {
                 setCurrentOrderId(order.id);
                 setIsPaymentPopupOpen(true);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to place order:', error);
-            alert('Something went wrong. Please try again.');
+            
+            const errorType = error.response?.data?.type;
+            if (errorType === 'Order.RestaurantDoesNotAcceptPickup') {
+                alert("This restaurant doesn't offer pickup. We've switched you to Delivery.");
+                setFulfillmentType('Delivery');
+            } else {
+                alert('Something went wrong. Please try again.');
+            }
         } finally {
             setIsPlacingOrder(false);
         }

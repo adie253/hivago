@@ -15,6 +15,7 @@ export interface Restaurant {
     imageUrl: string;
     promoted?: boolean;
     discount?: string;
+    acceptsPickup?: boolean;
     latitude?: number;
     longitude?: number;
 }
@@ -62,6 +63,11 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                         {restaurant.discount && (
                             <span className="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow-sm w-max">
                                 {restaurant.discount}
+                            </span>
+                        )}
+                        {restaurant.acceptsPickup && (
+                            <span className="bg-white text-[#FF4732] text-[10px] font-extrabold px-2 py-1 rounded shadow-sm w-max uppercase border border-red-50">
+                                Pickup Available
                             </span>
                         )}
                     </div>

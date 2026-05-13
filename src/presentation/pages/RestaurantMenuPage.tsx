@@ -54,6 +54,13 @@ export const RestaurantMenuPage: React.FC = () => {
         fetchRestaurant();
     }, [id]);
 
+    // Force 'Delivery' if restaurant doesn't accept pickup
+    useEffect(() => {
+        if (restaurant && !restaurant.acceptsPickup && fulfillmentType === 'Pickup') {
+            setFulfillmentType('Delivery');
+        }
+    }, [restaurant, fulfillmentType, setFulfillmentType]);
+
     const categories = React.useMemo(() => restaurant
         ? ['All', ...Array.from(new Set(restaurant.menu.map(item => item.category)))]
         : ['All'], [restaurant]);
@@ -186,14 +193,16 @@ export const RestaurantMenuPage: React.FC = () => {
                                         <img src={deliveryBoy} alt="delivery" className="w-8 h-8" />
                                     </div>
                                 </button>
-                                <button 
-                                    onClick={() => setFulfillmentType('Pickup')}
-                                    className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${fulfillmentType === 'Pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
-                                >
-                                    <div className={`p-4 px-6 rounded-full ${fulfillmentType === 'Pickup' ? 'border border-[#B02421]' : ''}`}>
-                                        <img src={pickupBoy} alt="pickup" className="w-8 h-8" />
-                                    </div>
-                                </button>
+                                {restaurant.acceptsPickup && (
+                                    <button 
+                                        onClick={() => setFulfillmentType('Pickup')}
+                                        className={`w-25 h-20 rounded-full flex items-center justify-center border-[3px] border-white transition-all shadow-md ${fulfillmentType === 'Pickup' ? 'bg-red-50 ring-2 ring-gray-100' : 'bg-gray-50 opacity-40'}`}
+                                    >
+                                        <div className={`p-4 px-6 rounded-full ${fulfillmentType === 'Pickup' ? 'border border-[#B02421]' : ''}`}>
+                                            <img src={pickupBoy} alt="pickup" className="w-8 h-8" />
+                                        </div>
+                                    </button>
+                                )}
                             </div>
                             <div className="pl-2">
                                 <p className="text-[#B02421] font-bold text-lg leading-tight capitalize">{fulfillmentType}</p>
@@ -343,12 +352,14 @@ export const RestaurantMenuPage: React.FC = () => {
                                     >
                                         <img src={deliveryBoy} alt="delivery" className="w-[60%] h-[60%]" />
                                     </button>
-                                    <button 
-                                        onClick={() => setFulfillmentType('Pickup')}
-                                        className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${fulfillmentType === 'Pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
-                                    >
-                                        <img src={pickupBoy} alt="pickup" className="w-[60%] h-[60%]" />
-                                    </button>
+                                    {restaurant.acceptsPickup && (
+                                        <button 
+                                            onClick={() => setFulfillmentType('Pickup')}
+                                            className={`w-20 h-15 rounded-full flex items-center justify-center border-2 border-white transition-all shadow-sm ${fulfillmentType === 'Pickup' ? 'bg-red-50 z-10 scale-110' : 'bg-gray-50 opacity-40 hover:opacity-100'}`}
+                                        >
+                                            <img src={pickupBoy} alt="pickup" className="w-[60%] h-[60%]" />
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="pr-4">
                                     <p className="text-[#B02421] font-bold text-lg leading-none capitalize">{fulfillmentType}</p>

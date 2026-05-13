@@ -5,6 +5,16 @@ import { useUserLocation } from './LocationContext';
 import { getFallbackImage } from '../../utils/imageUtils';
 
 // Standardized frontend interface to keep existing components working
+export interface FoodItem {
+    id: string;
+    name: string;
+    price: number;
+    imageUrl: string;
+    description: string;
+    isVeg: boolean;
+    category: string;
+}
+
 export interface Restaurant {
     id: string;
     name: string;
@@ -18,6 +28,7 @@ export interface Restaurant {
     discount?: string;
     isVeg: boolean;
     categories: string[];
+    acceptsPickup: boolean;
     menu: any[]; // Menu details are fetched separately on detail page now
     addressLine?: string;
     latitude?: number;
@@ -166,7 +177,8 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             promoted: false,
             discount: item.distanceKm != null && item.distanceKm < 3 ? "FREE Delivery" : undefined,
             isVeg: item.isPureVeg,
-            categories: item.cuisineTypes,
+            categories: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
+            acceptsPickup: item.acceptsPickup,
             menu: [],
             addressLine: item.addressLine,
             latitude: item.latitude,

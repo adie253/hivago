@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     SlidersHorizontal,
     ChevronDown,
-    Timer,
     Store,
     Footprints,
     Leaf,
@@ -18,7 +17,7 @@ export const FilterChips: React.FC = () => {
     const {
         isVegOnly, setIsVegOnly,
         isOpenNow, setIsOpenNow,
-        maxPrepTime, setMaxPrepTime,
+        maxPrepTime,
         fulfillmentType, setFulfillmentType,
         sortBy, setSortBy,
         isNewlyAdded, setIsNewlyAdded,
@@ -42,7 +41,6 @@ export const FilterChips: React.FC = () => {
     ].filter(Boolean).length;
 
     const brandRed = "#FF4732";
-    const activeClass = `bg-[${brandRed}] border-[${brandRed}] text-white shadow-lg shadow-red-100`;
     const inactiveClass = "bg-white border-gray-200 text-gray-700 hover:bg-gray-50";
 
     return (
