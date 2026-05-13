@@ -141,8 +141,10 @@ export const CheckoutPage: React.FC = () => {
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) return;
 
-        if (!isLoggedIn) {
+        if (!isLoggedIn || addresses.length === 0) {
             setIsDetailsFlowOpen(true);
+        } else if (fulfillmentType === 'Delivery' && !selectedLocation) {
+            setIsAddressDropdownOpen(true);
         } else {
             navigate('/demo-checkout');
         }
@@ -150,7 +152,9 @@ export const CheckoutPage: React.FC = () => {
 
     const handleDetailsComplete = async (address: any) => {
         setIsDetailsFlowOpen(false);
-        selectLocation(address);
+        if (address) {
+            selectLocation(address);
+        }
         navigate('/demo-checkout');
     };
 
@@ -592,10 +596,15 @@ export const CheckoutPage: React.FC = () => {
                             {/* Desktop Checkout Button */}
                              <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || (fulfillmentType === 'Delivery' && isLoggedIn && !selectedLocation) || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
+                                {!isLoggedIn ? "Add phone and address details" : 
+                                 addresses.length === 0 ? "Add Address" :
+                                 !selectedLocation ? "Select Address" :
+                                 isCheckingDelivery ? "Checking delivery..." : 
+                                 (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : 
+                                 "Proceed to pay"}
                             </button>
 
                         </div>
@@ -606,10 +615,15 @@ export const CheckoutPage: React.FC = () => {
                         <div className="max-w-md mx-auto">
                              <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || (fulfillmentType === 'Delivery' && isLoggedIn && !selectedLocation) || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {isLoggedIn ? (isCheckingDelivery ? "Checking delivery..." : (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : "Proceed to pay") : "Add phone and address details"}
+                                {!isLoggedIn ? "Add phone and address details" : 
+                                 addresses.length === 0 ? "Add Address" :
+                                 !selectedLocation ? "Select Address" :
+                                 isCheckingDelivery ? "Checking delivery..." : 
+                                 (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : 
+                                 "Proceed to pay"}
                             </button>
                         </div>
                     </div>

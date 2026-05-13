@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Search, Navigation2, Plus, Home, Building2, Send, ChevronDown, Check, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, Navigation2, Plus, Home, Briefcase, MapPin, ChevronDown, Check, X, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
 import { AddAddressOverlay } from './AddAddressOverlay';
 
@@ -160,27 +160,25 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                         </div>
                     ) : (
                         filteredAddresses.map((addr, index) => (
-                            <div key={addr.id}>
-                                <div 
-                                    onClick={() => {
-                                        selectLocation(addr);
-                                        onClose();
-                                    }}
-                                    className="flex items-start gap-4 p-5 hover:bg-gray-50 cursor-pointer transition-colors group"
-                                >
-                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 group-hover:bg-white transition-colors">
-                                        {getIcon(addr.label)}
+                            <div key={addr.id} onClick={() => { selectLocation(addr); onClose(); }}>
+                                <div className="flex items-start gap-4 p-5 hover:bg-gray-50 transition-colors cursor-pointer">
+                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-brand-primary shrink-0">
+                                        {addr.label?.toLowerCase() === 'home' ? <Home className="w-5 h-5" /> : 
+                                         addr.label?.toLowerCase() === 'work' ? <Briefcase className="w-5 h-5" /> : 
+                                         <MapPin className="w-5 h-5" />}
                                     </div>
-                                    <div className="flex-1 pt-1">
-                                        <div className="flex items-center gap-3 mb-0.5">
-                                            <h3 className="font-bold text-gray-900">{addr.label}</h3>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h4 className="font-bold text-gray-900 uppercase tracking-tight">
+                                                {addr.label || 'Other'}
+                                            </h4>
                                             {selectedLocation?.id === addr.id && (
-                                                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
-                                                    SELECTED
+                                                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase">
+                                                    Selected
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-sm text-gray-400 font-medium">{addr.addressLine}</p>
+                                        <p className="text-sm text-gray-500 font-medium line-clamp-1">{addr.addressLine}</p>
                                     </div>
                                     {selectedLocation?.id === addr.id && (
                                         <div className="self-center">

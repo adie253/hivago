@@ -116,8 +116,16 @@ export const DemoCheckoutPage: React.FC = () => {
         try {
             if (!restaurantId) {
                 alert("Restaurant information is missing. Please try re-adding items to your cart.");
+                setIsPlacingOrder(false);
                 return;
             }
+
+            if (fulfillmentType === 'Delivery' && !selectedLocation) {
+                alert("Please select a delivery address.");
+                setIsPlacingOrder(false);
+                return;
+            }
+
             const customerPhone = localStorage.getItem('customer_phone') || "0000000000";
 
             // Resolve real pincode/city for the order — required by the orders API

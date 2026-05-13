@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users } from 'lucide-react';
+import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users, Home, Briefcase } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import homeIcon from "../../assets/icons/home_icon.png";
@@ -94,7 +94,13 @@ export const Navbar: React.FC = () => {
                 onClick={() => setIsLocationSelectorOpen(true)}
                 className="sm:hidden flex items-center gap-3 px-4 py-[9px] border-b border-gray-200 bg-white cursor-pointer"
             >
-                <MapPin className="text-brand-primary w-5 h-5 flex-shrink-0" />
+                {selectedLocation?.label?.toLowerCase().includes('home') ? (
+                    <Home className="text-[#FF4732] w-5 h-5 shrink-0" />
+                ) : selectedLocation?.label?.toLowerCase().includes('work') ? (
+                    <Briefcase className="text-[#FF4732] w-5 h-5 shrink-0" />
+                ) : (
+                    <MapPin className="text-[#FF4732] w-5 h-5 shrink-0" />
+                )}
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-500 font-medium tracking-wide">Your Location</span>
                     <div className="flex items-center gap-1">

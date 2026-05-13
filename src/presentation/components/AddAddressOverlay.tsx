@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Search, Navigation2, MapPin, Loader2 } from 'lucide-react';
-import { getPlacesAutocomplete, getPlaceDetails, addAddress } from '../../data/api';
+import { ArrowLeft, Search, Navigation2, MapPin, Loader2, Check } from 'lucide-react';
+import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setDefaultAddress } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
 import { MapPicker } from './checkout/MapPicker';
+import toast from 'react-hot-toast';
 
 interface AddAddressOverlayProps {
     isOpen: boolean;
     onClose: () => void;
     initialStep?: Step;
     initialLocation?: { lat: number; lng: number };
+    addressToEdit?: any;
 }
 
 type Step = 'search' | 'details';
 
-export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, onClose, initialStep, initialLocation }) => {
+export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, onClose, initialStep, initialLocation, addressToEdit }) => {
     const { refreshAddresses } = useUserLocation();
 
     // Search Step States
@@ -41,32 +43,41 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
-            // Reset state on open
-            if (initialStep && initialLocation) {
+            if (addressToEdit) {
+                setStep('details');
+                setLatitude(addressToEdit.latitude);
+                setLongitude(addressToEdit.longitude);
+                setSelectedAddressText(addressToEdit.addressLine);
+                setAddressLine(addressToEdit.addressLine);
+                setLandmark(addressToEdit.landmark || '');
+                setLabel(addressToEdit.label || 'Home');
+                setIsDefault(addressToEdit.isDefault);
+            } else if (initialStep && initialLocation) {
                 setStep(initialStep);
                 setLatitude(initialLocation.lat);
                 setLongitude(initialLocation.lng);
                 setSelectedAddressText('Current Location');
+                setAddressLine('');
+                setLandmark('');
+                setLabel('Home');
+                setIsDefault(true);
             } else {
                 setStep('search');
                 setLatitude(0);
                 setLongitude(0);
                 setSelectedAddressText('');
+                setAddressLine('');
+                setLandmark('');
+                setLabel('Home');
+                setIsDefault(true);
             }
             setSearchQuery('');
             setPredictions([]);
-            setAddressLine('');
-            setLandmark('');
-            setLabel('Home');
-            setIsDefault(true);
             setErrorMsg('');
         } else {
             document.body.style.overflow = 'unset';
         }
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, [isOpen]);
+    }, [isOpen, addressToEdit]);
 
     useEffect(() => {
         if (searchQuery.length < 3) {
@@ -140,7 +151,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
         setIsSaving(true);
         setErrorMsg('');
         try {
-            await addAddress({
+            const payload = {
                 addressLine,
                 landmark,
                 latitude,
@@ -148,7 +159,26 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 label,
                 isDefault,
                 placeId: selectedPlaceId
-            });
+            };
+
+            let savedAddressId = addressToEdit?.id;
+
+            if (addressToEdit) {
+                const res = await updateAddress(addressToEdit.id, payload);
+                if (res && res.message) toast.success(res.message);
+                else toast.success("Address updated");
+            } else {
+                const res = await addAddress(payload);
+                if (res && res.message) toast.success(res.message);
+                else toast.success("Address added");
+                savedAddressId = res.id;
+            }
+
+            // If "Set as default" is checked, call the separate default API
+            if (isDefault && savedAddressId) {
+                await setDefaultAddress(savedAddressId);
+            }
+            
             await refreshAddresses();
             onClose(); // Close this overlay on success
         } catch (e: any) {
@@ -331,17 +361,17 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between bg-[#FAFAFA] p-5 rounded-2xl border border-gray-100 mt-2">
+                                <div 
+                                    onClick={() => setIsDefault(!isDefault)}
+                                    className="flex items-center justify-between bg-[#FAFAFA] p-5 rounded-2xl border border-gray-100 mt-2 cursor-pointer transition-all hover:bg-gray-50"
+                                >
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[15px] font-bold text-gray-900">Set as default</span>
                                         <span className="text-xs text-gray-500 font-medium leading-[1.3] max-w-[200px]">We'll automatically deliver here next time</span>
                                     </div>
-                                    <button
-                                        onClick={() => setIsDefault(!isDefault)}
-                                        className={`w-14 h-7 rounded-full relative transition-colors shadow-inner ${isDefault ? 'bg-[#ff5a4c]' : 'bg-gray-200'}`}
-                                    >
-                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-md ${isDefault ? 'left-[30px]' : 'left-1'}`}></div>
-                                    </button>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200 bg-white'}`}>
+                                        {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
+                                    </div>
                                 </div>
 
                                 {errorMsg && (

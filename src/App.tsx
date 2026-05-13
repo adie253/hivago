@@ -56,8 +56,8 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   return (
     <FavoritesProvider>
-      <LocationProvider>
-        <CartProvider>
+      <CartProvider>
+        <LocationProvider>
           <FilterProvider>
             <NotificationProvider>
               <BrowserRouter>
@@ -69,8 +69,8 @@ function App() {
               </BrowserRouter>
             </NotificationProvider>
           </FilterProvider>
-        </CartProvider>
-      </LocationProvider>
+        </LocationProvider>
+      </CartProvider>
     </FavoritesProvider>
   );
 }

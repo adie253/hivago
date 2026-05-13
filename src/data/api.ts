@@ -10,7 +10,8 @@ export const sendOtp = async (phoneNumber: string): Promise<any> => {
             body: JSON.stringify({ phoneNumber })
         });
         if (!response.ok) {
-            throw new Error(`Failed to send OTP: ${response.statusText}`);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || `Failed to send OTP: ${response.statusText}`);
         }
         return await response.text().then(text => text ? JSON.parse(text) : {});
     } catch (error) {
@@ -27,7 +28,8 @@ export const verifyOtp = async (phoneNumber: string, otp: string): Promise<any> 
             body: JSON.stringify({ phoneNumber, otp })
         });
         if (!response.ok) {
-            throw new Error(`Failed to verify OTP: ${response.statusText}`);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || `Failed to verify OTP: ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {
@@ -140,6 +142,24 @@ export const getAddresses = async (): Promise<any[]> => {
     } catch (error) {
         console.error('Error in getAddresses:', error);
         return [];
+    }
+};
+
+export const updateAddress = async (id: string, data: any): Promise<any> => {
+    try {
+        const response = await authFetch(`/customers/addresses/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || `Failed to update address: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in updateAddress:', error);
+        throw error;
     }
 };
 

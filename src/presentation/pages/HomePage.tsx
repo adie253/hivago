@@ -50,14 +50,14 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Promo Banners Section */}
-                <PromoBanners />
+                {/* <PromoBanners /> */}
 
                 <FilterChips />
                 {/* Popular This Week Section */}
                 <RestaurantsNearby />
                 <DishesDiscount />
                 <RecommendedRestaurants />
-                <OfferBanners />
+                {/* <OfferBanners /> */}
             </div>
 
             {/* Delivery Features Section - Full Width Dark Background */}

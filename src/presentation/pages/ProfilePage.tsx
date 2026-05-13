@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle } from 'lucide-react';
+import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle, Check, Edit2, Plus, Home, Briefcase } from 'lucide-react';
 import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid, getMyOrders, setDefaultAddress, updateCustomerProfile } from '../../data/api';
 import { useCart } from '../../presentation/context/CartContext';
+import { useUserLocation } from '../../presentation/context/LocationContext';
+import { AddAddressOverlay } from '../components/AddAddressOverlay';
 import toast from 'react-hot-toast';
 
 export const ProfilePage: React.FC = () => {
@@ -10,14 +12,16 @@ export const ProfilePage: React.FC = () => {
     const [profilePhone, setProfilePhone] = useState(() => isTokenValid() ? (localStorage.getItem('customer_phone') || "") : "");
     const [profileName, setProfileName] = useState(() => isTokenValid() ? (localStorage.getItem('customer_name') || "User") : "User");
     const [profileEmail, setProfileEmail] = useState("");
-    const [addresses, setAddresses] = useState<any[]>([]);
     const [totalOrders, setTotalOrders] = useState(0);
-    const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState("");
     const [editEmail, setEditEmail] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+    const [isAddressOverlayOpen, setIsAddressOverlayOpen] = useState(false);
+    const [addressToEdit, setAddressToEdit] = useState<any>(null);
+    const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
     const { refreshLoginStatus } = useCart();
+    const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -39,10 +43,6 @@ export const ProfilePage: React.FC = () => {
                             localStorage.setItem('customer_email', profileData.email);
                         }
                     }
-
-                    setIsLoadingAddresses(true);
-                    const adds = await getAddresses();
-                    setAddresses(adds || []);
 
                     const ordersData = await getMyOrders(0, 1);
                     if (ordersData && typeof ordersData.totalCount !== 'undefined') {
@@ -75,33 +75,50 @@ export const ProfilePage: React.FC = () => {
         navigate('/');
     };
 
-    const handleDeleteAddress = async (id: string) => {
-        if (window.confirm("Are you sure you want to delete this address?")) {
-            const success = await deleteAddress(id);
+    const handleDeleteAddress = (id: string) => {
+        setAddressToDelete(id);
+    };
+
+    const confirmDeleteAddress = async () => {
+        if (!addressToDelete) return;
+        
+        try {
+            const success = await deleteAddress(addressToDelete);
             if (success) {
-                setAddresses(addresses.filter(a => a.id !== id));
+                toast.success("Address deleted successfully");
+                refreshAddresses();
+            } else {
+                toast.error("Failed to delete address");
             }
+        } catch (error) {
+            toast.error("An error occurred while deleting");
+        } finally {
+            setAddressToDelete(null);
         }
     };
 
     const handleToggleDefault = async (address: any) => {
         try {
-            // Optimistic update
-            const updatedAddresses = addresses.map(a => ({
-                ...a,
-                isDefault: a.id === address.id ? true : false
-            }));
-            setAddresses(updatedAddresses);
-
-            await setDefaultAddress(address.id);
-            
-            const adds = await getAddresses();
-            setAddresses(adds || []);
-        } catch (error) {
+            const res = await setDefaultAddress(address.id);
+            if (res && res.message) {
+                toast.success(res.message);
+            }
+            refreshAddresses();
+        } catch (error: any) {
             console.error("Failed to update default address", error);
-            const adds = await getAddresses();
-            setAddresses(adds || []);
+            toast.error(error.message || "Failed to update default address");
+            refreshAddresses();
         }
+    };
+
+    const handleEditAddress = (address: any) => {
+        setAddressToEdit(address);
+        setIsAddressOverlayOpen(true);
+    };
+
+    const handleAddNewAddress = () => {
+        setAddressToEdit(null);
+        setIsAddressOverlayOpen(true);
     };
 
     const handleSaveProfile = async () => {
@@ -212,7 +229,16 @@ export const ProfilePage: React.FC = () => {
 
                     {/* Saved Addresses Section */}
                     <div className="mt-2">
-                        <h3 className="font-bold text-[17px] text-[#111] mb-3 px-1">Saved Addresses</h3>
+                        <div className="flex items-center justify-between mb-3 px-1">
+                            <h3 className="font-bold text-[17px] text-[#111]">Saved Addresses</h3>
+                            <button 
+                                onClick={handleAddNewAddress}
+                                className="flex items-center gap-1.5 text-[#FF4732] font-bold text-sm bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
+                            >
+                                <Plus className="w-4 h-4" />
+                                <span>Add New</span>
+                            </button>
+                        </div>
 
                         <div className="bg-white rounded-[24px] shadow-sm border border-gray-50 flex flex-col p-2 gap-2">
                             {isLoadingAddresses ? (
@@ -222,33 +248,47 @@ export const ProfilePage: React.FC = () => {
                             ) : (
                                 addresses.map(add => (
                                     <div key={add.id} className="p-4 border border-gray-100 rounded-[20px] bg-[#FAFAFA]">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <span className="text-[11px] font-bold text-[#FF8A00] bg-[#FFF3E0] px-2 py-0.5 rounded uppercase tracking-wide">
-                                                {add.type || 'HOME'}
-                                            </span>
-                                            <button
-                                                onClick={() => handleDeleteAddress(add.id)}
-                                                className="p-1 text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#FF4732]">
+                                                    {add.label?.toLowerCase() === 'home' ? <Home className="w-5 h-5" /> : 
+                                                     add.label?.toLowerCase() === 'work' ? <Briefcase className="w-5 h-5" /> : 
+                                                     <MapPin className="w-5 h-5" />}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[15px] font-bold text-[#111]  tracking-tight">
+                                                        {add.addressLine}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleEditAddress(add)}
+                                                    className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteAddress(add.id)}
+                                                    className="p-1.5 text-gray-400 hover:text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col mt-2">
-                                            <h4 className="font-bold text-[15px] text-[#222]">
-                                                {add.addressLine || 'Address'}
-                                            </h4>
-                                            <p className="text-gray-500 text-[13px] mt-1 leading-[1.4]">
-                                                {add.pincode && add.pincode !== '000000' && <span>{add.pincode}</span>}
+                                        {/* <div className="flex flex-col pl-[52px]">
+                                            <p className="text-gray-500 text-[13px] font-medium leading-[1.4]">
+                                                {add.addressLine}
                                             </p>
-                                        </div>
-                                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-                                            <span className="text-[12px] font-medium text-gray-500">Set as Default</span>
-                                            <button
-                                                onClick={() => handleToggleDefault(add)}
-                                                className={`w-10 h-5 rounded-full relative transition-colors ${add.isDefault ? 'bg-[#00A859]' : 'bg-gray-200'}`}
-                                            >
-                                                <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all ${add.isDefault ? 'right-[3px]' : 'left-[3px]'}`}></div>
-                                            </button>
+                                        </div> */}
+                                        <div 
+                                            onClick={() => handleToggleDefault(add)}
+                                            className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 cursor-pointer group"
+                                        >
+                                            <span className="text-[12px] font-medium text-gray-500 group-hover:text-gray-700 transition-colors">Set as Default</span>
+                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${add.isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200'}`}>
+                                                {add.isDefault && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                            </div>
                                         </div>
                                     </div>
                                 ))
@@ -353,6 +393,43 @@ export const ProfilePage: React.FC = () => {
                                 {isUpdatingProfile ? (
                                     <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                 ) : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <AddAddressOverlay 
+                isOpen={isAddressOverlayOpen}
+                onClose={() => setIsAddressOverlayOpen(false)}
+                addressToEdit={addressToEdit}
+            />
+
+            {/* Custom Delete Confirmation Modal */}
+            {addressToDelete && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[32px] w-full max-w-[340px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-[#FF4732] mb-5">
+                            <Trash2 className="w-8 h-8" />
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-[#111] mb-2">Delete Address?</h3>
+                        <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                            Are you sure you want to delete this address? This action cannot be undone.
+                        </p>
+
+                        <div className="flex flex-col w-full gap-3">
+                            <button
+                                onClick={confirmDeleteAddress}
+                                className="w-full bg-[#FF4732] text-white font-bold py-4 rounded-2xl hover:bg-[#E53935] transition-all shadow-lg shadow-red-100 active:scale-[0.98]"
+                            >
+                                Yes, Delete
+                            </button>
+                            <button
+                                onClick={() => setAddressToDelete(null)}
+                                className="w-full bg-gray-50 text-gray-500 font-bold py-4 rounded-2xl hover:bg-gray-100 transition-all active:scale-[0.98]"
+                            >
+                                Cancel
                             </button>
                         </div>
                     </div>

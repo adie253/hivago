@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress, isTokenValid, getDeliveryQuote, fetchRestaurantById } from '../../../data/api';
+import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle, Check, Edit2, Home, Briefcase } from 'lucide-react';
+import { sendOtp, verifyOtp, addAddress, isTokenValid, getDeliveryQuote, fetchRestaurantById, updateAddress, setDefaultAddress } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
+import toast from 'react-hot-toast';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
@@ -33,9 +34,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
     // Delivery check states
     const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
-    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
+    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | 'pending' | null>(null);
     const [deliveryDistance, setDeliveryDistance] = useState<number | null>(null);
     const [deliveryError, setDeliveryError] = useState<string | null>(null);
+    const [addressToEdit, setAddressToEdit] = useState<any>(null);
 
     const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
     const { refreshLoginStatus } = useCart();
@@ -364,22 +366,52 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                 onClick={() => setSelectedAddressId(add.id)}
                                 className={`bg-white rounded-2xl p-4 border transition-all ${selectedAddressId === add.id ? 'border-[#FF4732] bg-red-50/10' : 'border-gray-100'} flex items-start justify-between cursor-pointer`}
                             >
-                                <div className="flex flex-col gap-1.5 flex-1 pr-4">
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="font-bold text-[15px] text-[#222]">{add.label || 'Other'}</h4>
-                                        {add.isDefault && <span className="text-[10px] font-bold text-[#00A050] bg-[#E6F5EC] px-1.5 py-0.5 rounded">DEFAULT</span>}
+                                <div className="flex items-start gap-3 flex-1 pr-4">
+                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#FF4732] shrink-0">
+                                        {add.label?.toLowerCase() === 'home' ? <Home className="w-5 h-5" /> : 
+                                         add.label?.toLowerCase() === 'work' ? <Briefcase className="w-5 h-5" /> : 
+                                         <MapPin className="w-5 h-5" />}
                                     </div>
-                                    <p className="text-gray-500 text-[13px] leading-relaxed line-clamp-2">{add.addressLine}</p>
-                                    {add.landmark && <p className="text-gray-400 text-[11px]">Landmark: {add.landmark}</p>}
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="font-bold text-[15px] text-[#222] uppercase tracking-tight">{add.label || 'Other'}</h4>
+                                            {add.isDefault && <span className="text-[10px] font-bold text-[#00A050] bg-[#E6F5EC] px-1.5 py-0.5 rounded">DEFAULT</span>}
+                                        </div>
+                                        <p className="text-gray-500 text-[13px] leading-relaxed line-clamp-2">{add.addressLine}</p>
+                                    </div>
                                 </div>
-                                <div className={`w-5 h-5 rounded-full border-[1.5px] mt-1 flex items-center justify-center ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-300'}`}>
-                                    {selectedAddressId === add.id && <div className="w-2.5 h-2.5 bg-[#FF4732] rounded-full"></div>}
+                                <div className="flex flex-col items-end gap-2 shrink-0">
+                                    <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-300'}`}>
+                                        {selectedAddressId === add.id && <div className="w-2.5 h-2.5 bg-[#FF4732] rounded-full"></div>}
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setAddressToEdit(add);
+                                            setAddressLine(add.addressLine);
+                                            setLandmark(add.landmark || '');
+                                            setLabel(add.label || 'Home');
+                                            setIsDefault(add.isDefault);
+                                            setMapCoordinates({lat: add.latitude, lng: add.longitude});
+                                            setStep('addAddress');
+                                        }}
+                                        className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+                                    >
+                                        <Edit2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
                         ))
                     )}
                     <button
-                        onClick={() => setStep('addAddress')}
+                        onClick={() => {
+                            setAddressToEdit(null);
+                            setAddressLine('');
+                            setLandmark('');
+                            setLabel('Home');
+                            setIsDefault(true);
+                            setStep('addAddress');
+                        }}
                         className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF4732] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
                     >
                         <span>+</span>
@@ -390,7 +422,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     <div className={`mt-4 p-3 rounded-xl border flex items-start gap-3 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
                         {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
                         <div className="flex flex-col">
-                            <span className="text-[12px] font-bold leading-tight">{deliveryStatus === 'success' ? `Restaurant delivers here (~${deliveryDistance} km)` : deliveryStatus === 'error' ? deliveryError : "Couldn't verify delivery distance"}</span>
+                            <span className="text-[12px] font-bold leading-tight">{deliveryStatus === 'success' ? `Restaurant delivers here (~${deliveryDistance} km)` : deliveryStatus === 'error' ? deliveryError : "Can't deliver here"}</span>
                         </div>
                     </div>
                 )}
@@ -416,16 +448,34 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         }
         setIsSavingAddress(true);
         try {
-            await addAddress({
+            const payload = {
                 addressLine,
                 landmark,
                 latitude: mapCoordinates?.lat || 19.033,
                 longitude: mapCoordinates?.lng || 73.029,
                 label,
                 isDefault
-            });
+            };
+
+            let savedAddress;
+            if (addressToEdit) {
+                const res = await updateAddress(addressToEdit.id, payload);
+                if (res && res.message) toast.success(res.message);
+                savedAddress = res;
+            } else {
+                const res = await addAddress(payload);
+                if (res && res.message) toast.success(res.message);
+                savedAddress = res;
+            }
+
+            // If "Set as default" is checked, call the separate default API
+            if (isDefault && savedAddress?.id) {
+                await setDefaultAddress(savedAddress.id);
+            }
+            
+            await refreshAddresses();
+            onComplete(savedAddress);
             setStep('addresses');
-            refreshAddresses();
             setAddressLine('');
             setLandmark('');
             setLabel('Home');
@@ -455,7 +505,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     {deliveryStatus && (
                         <div className={`mt-2 p-2.5 rounded-lg border flex items-center gap-2 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
                             {deliveryStatus === 'success' ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-                            <span className="text-[11px] font-bold">{deliveryStatus === 'success' ? `Delivers in ~${deliveryDistance} km` : deliveryStatus === 'error' ? deliveryError : "Couldn't verify delivery"}</span>
+                            <span className="text-[11px] font-bold">{deliveryStatus === 'success' ? `Delivers here` : deliveryStatus === 'error' ? deliveryError : "Can't deliver here"}</span>
                         </div>
                     )}
                 </div>
@@ -493,17 +543,17 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         ))}
                     </div>
                 </div>
-                <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-2">
+                <div 
+                    onClick={() => setIsDefault(!isDefault)}
+                    className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-2 cursor-pointer transition-all hover:bg-gray-50"
+                >
                     <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-800">Set as default address</span>
                         <span className="text-[11px] text-gray-400 font-medium">Use this address for all future orders</span>
                     </div>
-                    <button
-                        onClick={() => setIsDefault(!isDefault)}
-                        className={`w-12 h-6 rounded-full relative transition-colors ${isDefault ? 'bg-[#00A859]' : 'bg-gray-200'}`}
-                    >
-                        <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${isDefault ? 'right-1' : 'left-1'}`}></div>
-                    </button>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200 bg-gray-50'}`}>
+                        {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
+                    </div>
                 </div>
                 {errorMsg && <p className="text-red-500 text-xs font-bold mt-2 ml-1">{errorMsg}</p>}
                 <button
