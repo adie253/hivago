@@ -29,7 +29,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   onPositionChange
 }) => {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBeHLIfaSLrwJVda6u0tivw-DjpAbG4cc4",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
     libraries: LIBRARIES
   });
 

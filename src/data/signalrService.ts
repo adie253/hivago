@@ -1,8 +1,6 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
-const BASE_URL = import.meta.env.MODE === 'production'
-    ? 'https://rally-production-2004.up.railway.app'
-    : '';
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const HUB_URL = `${BASE_URL}/hubs/notifications`;
 

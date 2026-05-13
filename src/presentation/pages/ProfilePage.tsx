@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle } from 'lucide-react';
-import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid, getMyOrders } from '../../data/api';
+import { getCustomerProfile, getAddresses, deleteAddress, isTokenValid, getMyOrders, setDefaultAddress, updateCustomerProfile } from '../../data/api';
 import { useCart } from '../../presentation/context/CartContext';
+import toast from 'react-hot-toast';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const [profilePhone, setProfilePhone] = useState(() => isTokenValid() ? (localStorage.getItem('customer_phone') || "") : "");
     const [profileName, setProfileName] = useState(() => isTokenValid() ? (localStorage.getItem('customer_name') || "User") : "User");
+    const [profileEmail, setProfileEmail] = useState("");
     const [addresses, setAddresses] = useState<any[]>([]);
     const [totalOrders, setTotalOrders] = useState(0);
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState("");
+    const [editEmail, setEditEmail] = useState("");
+    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const { refreshLoginStatus } = useCart();
-    
+
     useEffect(() => {
         const fetchUserData = async () => {
             if (isTokenValid()) {
@@ -28,8 +34,12 @@ export const ProfilePage: React.FC = () => {
                             setProfileName(profileData.name);
                             localStorage.setItem('customer_name', profileData.name);
                         }
+                        if (profileData.email) {
+                            setProfileEmail(profileData.email);
+                            localStorage.setItem('customer_email', profileData.email);
+                        }
                     }
-                    
+
                     setIsLoadingAddresses(true);
                     const adds = await getAddresses();
                     setAddresses(adds || []);
@@ -58,6 +68,7 @@ export const ProfilePage: React.FC = () => {
         localStorage.removeItem('customer_id');
         localStorage.removeItem('customer_phone');
         localStorage.removeItem('customer_name');
+        localStorage.removeItem('customer_email');
         localStorage.removeItem('hivago_cart_v2');
         localStorage.removeItem('customer_refresh_token');
         refreshLoginStatus();
@@ -73,9 +84,66 @@ export const ProfilePage: React.FC = () => {
         }
     };
 
+    const handleToggleDefault = async (address: any) => {
+        try {
+            // Optimistic update
+            const updatedAddresses = addresses.map(a => ({
+                ...a,
+                isDefault: a.id === address.id ? true : false
+            }));
+            setAddresses(updatedAddresses);
+
+            await setDefaultAddress(address.id);
+            
+            const adds = await getAddresses();
+            setAddresses(adds || []);
+        } catch (error) {
+            console.error("Failed to update default address", error);
+            const adds = await getAddresses();
+            setAddresses(adds || []);
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        if (!editName.trim()) return;
+        setIsUpdatingProfile(true);
+        try {
+            const response = await updateCustomerProfile({ name: editName, email: editEmail });
+            setProfileName(editName);
+            setProfileEmail(editEmail);
+            localStorage.setItem('customer_name', editName);
+            localStorage.setItem('customer_email', editEmail);
+            setIsEditing(false);
+            
+            // Show success toast from API response
+            if (response && response.message) {
+                toast.success(response.message, {
+                    style: { borderRadius: '16px', fontWeight: '600' }
+                });
+            } else {
+                toast.success("Profile updated", {
+                    style: { borderRadius: '16px', fontWeight: '600' }
+                });
+            }
+        } catch (e: any) {
+            console.error("Failed to update profile", e);
+            toast.error(e.message || "Failed to update profile", {
+                style: { borderRadius: '16px', fontWeight: '600' }
+            });
+        } finally {
+            setIsUpdatingProfile(false);
+        }
+    };
+
+    const openEditModal = () => {
+        setEditName(profileName);
+        setEditEmail(profileEmail);
+        setIsEditing(true);
+    };
+
     return (
         <div className="w-full bg-[#FAFAFA] min-h-screen pb-20 font-sans flex flex-col items-center">
-            
+
             <div className="w-full mt-10 max-w-md bg-[#FAFAFA] min-h-screen flex flex-col">
                 {/* Header Navbar */}
                 {/* <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm border-b border-gray-100">
@@ -86,7 +154,7 @@ export const ProfilePage: React.FC = () => {
                         <Menu className="w-6 h-6" />
                     </button>
                 </div> */}
-                
+
                 {/* Location Selector */}
                 {/* <div className="bg-white px-4 py-3 border-b border-gray-100 mb-4">
                     <div className="flex items-center gap-3">
@@ -102,7 +170,7 @@ export const ProfilePage: React.FC = () => {
                 </div> */}
 
                 <div className="px-4 flex flex-col gap-4">
-                    
+
                     {/* User Info Card */}
                     <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-50 flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -112,9 +180,13 @@ export const ProfilePage: React.FC = () => {
                             <div className="flex flex-col">
                                 <h2 className="text-[18px] font-bold text-[#111]">{profileName || "User"}</h2>
                                 <p className="text-[13px] text-gray-500 font-medium mt-0.5">{profilePhone || "No Phone Number"}</p>
+                                {profileEmail && <p className="text-[12px] text-gray-400 mt-0.5 font-medium">{profileEmail}</p>}
                             </div>
                         </div>
-                        <button className="text-gray-400 font-medium text-sm px-2">
+                        <button 
+                            onClick={openEditModal}
+                            className="text-gray-400 font-medium text-sm px-2"
+                        >
                             Edit
                         </button>
                     </div>
@@ -128,7 +200,7 @@ export const ProfilePage: React.FC = () => {
                             </div>
                             <span className="text-[28px] font-bold text-[#111] mt-2 leading-none">{isTokenValid() ? totalOrders : 0}</span>
                         </div>
-                        
+
                         <div className="bg-white rounded-[24px] p-5 py-6 shadow-sm border border-gray-50 flex-1 flex flex-col justify-between h-[120px]">
                             <div className="flex items-center gap-2 text-gray-500">
                                 <MapPin className="w-4 h-4" />
@@ -141,7 +213,7 @@ export const ProfilePage: React.FC = () => {
                     {/* Saved Addresses Section */}
                     <div className="mt-2">
                         <h3 className="font-bold text-[17px] text-[#111] mb-3 px-1">Saved Addresses</h3>
-                        
+
                         <div className="bg-white rounded-[24px] shadow-sm border border-gray-50 flex flex-col p-2 gap-2">
                             {isLoadingAddresses ? (
                                 <p className="text-center py-4 text-gray-400 text-sm">Loading addresses...</p>
@@ -154,7 +226,7 @@ export const ProfilePage: React.FC = () => {
                                             <span className="text-[11px] font-bold text-[#FF8A00] bg-[#FFF3E0] px-2 py-0.5 rounded uppercase tracking-wide">
                                                 {add.type || 'HOME'}
                                             </span>
-                                            <button 
+                                            <button
                                                 onClick={() => handleDeleteAddress(add.id)}
                                                 className="p-1 text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors"
                                             >
@@ -169,6 +241,15 @@ export const ProfilePage: React.FC = () => {
                                                 {add.pincode && add.pincode !== '000000' && <span>{add.pincode}</span>}
                                             </p>
                                         </div>
+                                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                                            <span className="text-[12px] font-medium text-gray-500">Set as Default</span>
+                                            <button
+                                                onClick={() => handleToggleDefault(add)}
+                                                className={`w-10 h-5 rounded-full relative transition-colors ${add.isDefault ? 'bg-[#00A859]' : 'bg-gray-200'}`}
+                                            >
+                                                <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all ${add.isDefault ? 'right-[3px]' : 'left-[3px]'}`}></div>
+                                            </button>
+                                        </div>
                                     </div>
                                 ))
                             )}
@@ -178,7 +259,7 @@ export const ProfilePage: React.FC = () => {
                     {/* Settings Section */}
                     <div className="mt-2">
                         <h3 className="font-bold text-[17px] text-[#111] mb-3 px-1">Settings</h3>
-                        
+
                         <div className="bg-white rounded-[24px] shadow-sm border border-gray-50 flex flex-col p-2">
                             {/* <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-t-xl transition-colors">
                                 <div className="flex items-center gap-3">
@@ -187,7 +268,7 @@ export const ProfilePage: React.FC = () => {
                                 </div>
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
                             </button> */}
-                            
+
                             <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center gap-3">
                                     <Bell className="w-5 h-5 text-gray-500 stroke-[1.5]" />
@@ -195,7 +276,7 @@ export const ProfilePage: React.FC = () => {
                                 </div>
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
                             </button>
-                            
+
                             <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-b-xl transition-colors">
                                 <div className="flex items-center gap-3">
                                     <HelpCircle className="w-5 h-5 text-gray-500 stroke-[1.5]" />
@@ -209,9 +290,9 @@ export const ProfilePage: React.FC = () => {
                     {/* Danger Zone */}
                     <div className="mt-2 mb-8">
                         <h3 className="font-bold text-[17px] text-[#E53935] mb-3 px-1">Danger Zone</h3>
-                        
+
                         <div className="bg-white rounded-[24px] shadow-sm border border-gray-50 flex flex-col p-5 items-center">
-                            <button 
+                            <button
                                 onClick={handleLogout}
                                 className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] text-[#E53935] font-bold text-[15px] py-4 rounded-[16px] hover:bg-[#ffe5e4] transition-colors"
                             >
@@ -226,6 +307,57 @@ export const ProfilePage: React.FC = () => {
 
                 </div>
             </div>
+
+            {/* Edit Profile Modal */}
+            {isEditing && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold text-[#111]">Edit Profile</h3>
+                            <button 
+                                onClick={() => setIsEditing(false)}
+                                className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={e => setEditName(e.target.value)}
+                                    placeholder="Enter your name"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={e => setEditEmail(e.target.value)}
+                                    placeholder="Enter your email"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                />
+                            </div>
+
+                            <button
+                                onClick={handleSaveProfile}
+                                disabled={isUpdatingProfile || !editName.trim()}
+                                className={`w-full mt-2 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center ${isUpdatingProfile || !editName.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                            >
+                                {isUpdatingProfile ? (
+                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                ) : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

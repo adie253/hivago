@@ -1,8 +1,6 @@
 import { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 
-const BASE_URL = import.meta.env.MODE === 'production'
-    ? 'https://rally-production-2004.up.railway.app/api'
-    : '/api';
+const BASE_URL = (import.meta.env.VITE_API_URL || '') + '/api';
 
 export const sendOtp = async (phoneNumber: string): Promise<any> => {
     try {
@@ -116,6 +114,24 @@ export const addAddress = async (addressData: any): Promise<any> => {
     }
 };
 
+export const setDefaultAddress = async (id: string): Promise<any> => {
+    try {
+        const response = await authFetch(`/customers/addresses/${id}/default`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to set default address: ${response.statusText}`);
+        }
+        // It might return empty 200 OK, so handle text/empty json safely
+        const text = await response.text();
+        return text ? JSON.parse(text) : {};
+    } catch (error) {
+        console.error('Error in setDefaultAddress:', error);
+        throw error;
+    }
+};
+
 export const getAddresses = async (): Promise<any[]> => {
     try {
         const response = await authFetch('/customers/addresses');
@@ -144,6 +160,23 @@ export const getCustomerProfile = async (): Promise<any> => {
         return await response.json();
     } catch (error) {
         console.error('Error fetching profile:', error);
+        throw error;
+    }
+};
+
+export const updateCustomerProfile = async (profileData: { name: string; email: string }): Promise<any> => {
+    try {
+        const response = await authFetch('/customers/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profileData)
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to update profile: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in updateCustomerProfile:', error);
         throw error;
     }
 };

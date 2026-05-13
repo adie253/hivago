@@ -62,7 +62,7 @@ function App() {
             <NotificationProvider>
               <BrowserRouter>
                 <ScrollToTop />
-                <Toaster position="top-center" reverseOrder={false} />
+                <Toaster position="bottom-right" reverseOrder={false} />
                 <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
                   <MainContent />
                 </div>
