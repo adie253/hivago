@@ -1,17 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import restaurantsData from '../../data/restaurants.json';
-import DIContainer from '../../di/container';
+import React, { createContext, useContext, useState, useMemo } from 'react';
+import { useRestaurants } from '../../hooks/useRestaurants';
+import { RestaurantFilters, RestaurantListItem, RestaurantSort } from '../../types/api';
+import { useUserLocation } from './LocationContext';
+import { getFallbackImage } from '../../utils/imageUtils';
 
-export interface FoodItem {
-    id: string;
-    name: string;
-    type: 'Veg' | 'Non-Veg';
-    price: number;
-    category: string;
-    description?: string;
-    imageUrl?: string;
-}
-
+// Standardized frontend interface to keep existing components working
 export interface Restaurant {
     id: string;
     name: string;
@@ -25,7 +18,7 @@ export interface Restaurant {
     discount?: string;
     isVeg: boolean;
     categories: string[];
-    menu: FoodItem[];
+    menu: any[]; // Menu details are fetched separately on detail page now
     addressLine?: string;
     latitude?: number;
     longitude?: number;
@@ -35,107 +28,153 @@ export interface Restaurant {
 }
 
 interface FilterContextType {
+    // UI State
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     activeCategory: string;
     setActiveCategory: (category: string) => void;
     isVegOnly: boolean;
     setIsVegOnly: (value: boolean) => void;
-    minRating: number;
-    setMinRating: (rating: number) => void;
     sortBy: string;
     setSortBy: (sort: string) => void;
+    
+    // Additional filters from documentation
+    isVeganFriendly: boolean;
+    setIsVeganFriendly: (value: boolean) => void;
+    isJainOptions: boolean;
+    setIsJainOptions: (value: boolean) => void;
+    isOpenNow: boolean;
+    setIsOpenNow: (value: boolean) => void;
+    maxPrepTime: number | null;
+    setMaxPrepTime: (time: number | null) => void;
+    priceRange: [number, number] | null;
+    setPriceRange: (range: [number, number] | null) => void;
+    fulfillmentType: 'Delivery' | 'Pickup' | 'Both';
+    setFulfillmentType: (type: 'Delivery' | 'Pickup' | 'Both') => void;
+    isNewlyAdded: boolean;
+    setIsNewlyAdded: (value: boolean) => void;
+    minRating: number;
+    setMinRating: (value: number) => void;
+    isPopular: boolean;
+    setIsPopular: (value: boolean) => void;
+
+    // Results & Pagination
     filteredRestaurants: Restaurant[];
     allRestaurants: Restaurant[];
+    totalCount: number;
+    currentPage: number;
+    setCurrentPage: (page: number) => void;
+    pageSize: number;
+    setPageSize: (size: number) => void;
+    
     isLoading: boolean;
-    error: string | null;
+    error: any;
     refreshData: () => void;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
 
 export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
+    const { selectedLocation } = useUserLocation();
+    
+    // UI states
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
     const [isVegOnly, setIsVegOnly] = useState(false);
-    const [minRating, setMinRating] = useState(0);
+    const [isVeganFriendly, setIsVeganFriendly] = useState(false);
+    const [isJainOptions, setIsJainOptions] = useState(false);
+    const [isOpenNow, setIsOpenNow] = useState(false);
+    const [maxPrepTime, setMaxPrepTime] = useState<number | null>(null);
+    const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
+    const [fulfillmentType, setFulfillmentType] = useState<'Delivery' | 'Pickup' | 'Both'>('Both');
     const [sortBy, setSortBy] = useState('Relevance');
-    const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [isNewlyAdded, setIsNewlyAdded] = useState(false);
+    const [minRating, setMinRating] = useState(0);
+    const [isPopular, setIsPopular] = useState(false);
+    
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
 
-    const loadData = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const getRestaurantsUseCase = DIContainer.getGetRestaurantsUseCase();
-            const data = await getRestaurantsUseCase.execute();
-            setAllRestaurants(data);
-            setFilteredRestaurants(data);
-        } catch (err) {
-            setError('Failed to load restaurants. Please try again later.');
-            console.error(err);
-            // Fallback to local data if API fails to show something
-            const fallbackData = (restaurantsData.restaurants as Restaurant[]);
-            setAllRestaurants(fallbackData);
-            setFilteredRestaurants(fallbackData);
-        } finally {
-            setIsLoading(false);
+    // Map UI sorting to API sort values
+    const mapSortValue = (uiSort: string): RestaurantSort | undefined => {
+        if (isNewlyAdded) return 'newest';
+        switch (uiSort) {
+            case 'Rating': return undefined; // API doesn't have rating sort yet
+            case 'Low to high': return 'cost_asc';
+            case 'High to low': return 'cost_desc';
+            case 'Fastest Delivery': return 'prep_time';
+            case 'Relevance': return searchQuery ? 'relevance' : undefined;
+            default: return undefined;
         }
     };
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    // Construct filters object for the hook
+    const filters: RestaurantFilters = useMemo(() => ({
+        lat: selectedLocation?.latitude,
+        lng: selectedLocation?.longitude,
+        search: searchQuery || undefined,
+        cuisines: activeCategory !== 'All' ? [activeCategory] : undefined,
+        pureVeg: isVegOnly || undefined,
+        veganFriendly: isVeganFriendly || undefined,
+        jainOptions: isJainOptions || undefined,
+        // Fallbacks for potential backend naming variations
+        hasJainOptions: isJainOptions || undefined,
+        isVeganFriendly: isVeganFriendly || undefined,
+        isPureVeg: isVegOnly || undefined,
+        openNow: isOpenNow || undefined,
+        maxPrepTimeMins: maxPrepTime || undefined,
+        minPrice: priceRange?.[0],
+        maxPrice: priceRange?.[1],
+        supportsPickup: fulfillmentType === 'Pickup' ? true : undefined,
+        acceptsPickup: fulfillmentType === 'Pickup' ? true : undefined,
+        sort: mapSortValue(sortBy),
+        page: currentPage,
+        pageSize: pageSize
+    }), [
+        selectedLocation?.latitude, 
+        selectedLocation?.longitude, 
+        searchQuery, 
+        activeCategory, 
+        isVegOnly, 
+        isVeganFriendly, 
+        isJainOptions, 
+        isOpenNow, 
+        maxPrepTime, 
+        priceRange, 
+        fulfillmentType, 
+        sortBy, 
+        currentPage, 
+        pageSize
+    ]);
 
-    useEffect(() => {
-        let results = [...allRestaurants];
+    // Use the React Query hook
+    const { data, isLoading, error, refetch } = useRestaurants(filters);
 
-        // Apply Veg Only filter
-        if (isVegOnly) {
-            results = results.filter(r => r.isVeg);
-        }
+    // Normalize data to frontend interface
+    const filteredRestaurants: Restaurant[] = useMemo(() => {
+        if (!data?.items) return [];
+        return data.items.map((item: RestaurantListItem) => ({
+            id: item.id,
+            name: item.name,
+            cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
+            rating: 4.2, // API currently missing rating
+            deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
+            distance: item.distanceKm != null ? `${item.distanceKm.toFixed(1)} km` : "-- km",
+            costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
+            imageUrl: item.logoUrl || getFallbackImage(item.name, item.cuisineTypes[0] || 'General'),
+            promoted: false,
+            discount: item.distanceKm != null && item.distanceKm < 3 ? "FREE Delivery" : undefined,
+            isVeg: item.isPureVeg,
+            categories: item.cuisineTypes,
+            menu: [],
+            addressLine: item.addressLine,
+            latitude: item.latitude,
+            longitude: item.longitude
+        }));
+    }, [data]);
 
-        // Apply Rating filter
-        if (minRating > 0) {
-            results = results.filter(r => r.rating >= minRating);
-        }
-
-        // Apply Category filter
-        if (activeCategory !== 'All') {
-            results = results.filter(r => r.categories.includes(activeCategory));
-        }
-
-        // Apply Search query
-        if (searchQuery.trim() !== '') {
-            const query = searchQuery.toLowerCase();
-            results = results.filter(r =>
-                r.name.toLowerCase().includes(query) ||
-                r.cuisines.some(c => c.toLowerCase().includes(query)) ||
-                r.menu.some(m => m.name.toLowerCase().includes(query))
-            );
-        }
-
-        // Apply Sorting
-        if (sortBy === 'Low to high') {
-            results.sort((a, b) => {
-                const priceA = parseInt(a.costForTwo.replace(/[^\d]/g, ''));
-                const priceB = parseInt(b.costForTwo.replace(/[^\d]/g, ''));
-                return priceA - priceB;
-            });
-        } else if (sortBy === 'High to low') {
-            results.sort((a, b) => {
-                const priceA = parseInt(a.costForTwo.replace(/[^\d]/g, ''));
-                const priceB = parseInt(b.costForTwo.replace(/[^\d]/g, ''));
-                return priceB - priceA;
-            });
-        } else if (sortBy === 'Rating') {
-            results.sort((a, b) => b.rating - a.rating);
-        }
-
-        setFilteredRestaurants(results);
-    }, [searchQuery, activeCategory, isVegOnly, minRating, sortBy, allRestaurants]);
+    const totalCount = data?.totalCount || 0;
 
     return (
         <FilterContext.Provider value={{
@@ -145,15 +184,36 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setActiveCategory,
             isVegOnly,
             setIsVegOnly,
-            minRating,
-            setMinRating,
+            isVeganFriendly,
+            setIsVeganFriendly,
+            isJainOptions,
+            setIsJainOptions,
+            isOpenNow,
+            setIsOpenNow,
+            maxPrepTime,
+            setMaxPrepTime,
+            priceRange,
+            setPriceRange,
+            fulfillmentType,
+            setFulfillmentType,
             sortBy,
             setSortBy,
+            isNewlyAdded,
+            setIsNewlyAdded,
+            minRating,
+            setMinRating,
+            isPopular,
+            setIsPopular,
             filteredRestaurants,
-            allRestaurants,
+            allRestaurants: filteredRestaurants,
+            totalCount,
+            currentPage,
+            setCurrentPage,
+            pageSize,
+            setPageSize,
             isLoading,
             error,
-            refreshData: loadData
+            refreshData: refetch
         }}>
             {children}
         </FilterContext.Provider>

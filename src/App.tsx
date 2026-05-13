@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navbar } from './presentation/components/Navbar';
 import { HomePage } from './presentation/pages/HomePage';
 import { RestaurantMenuPage } from './presentation/pages/RestaurantMenuPage';
@@ -53,9 +54,12 @@ const MainContent = () => {
 import { NotificationProvider } from './presentation/context/NotificationContext';
 import { Toaster } from 'react-hot-toast';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <FavoritesProvider>
+    <QueryClientProvider client={queryClient}>
+      <FavoritesProvider>
       <CartProvider>
         <LocationProvider>
           <FilterProvider>
@@ -71,7 +75,8 @@ function App() {
           </FilterProvider>
         </LocationProvider>
       </CartProvider>
-    </FavoritesProvider>
+      </FavoritesProvider>
+    </QueryClientProvider>
   );
 }
 

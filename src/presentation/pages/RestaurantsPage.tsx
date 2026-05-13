@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
 import { RestaurantGrid } from '../components/RestaurantGrid';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryCarousel } from '../components/CategoryCarousel';
@@ -9,9 +10,20 @@ import restaurantBanner from '../../assets/restaurant_page/restaurant_banner.svg
 
 export const RestaurantsPage: React.FC = () => {
     const navigate = useNavigate();
-    const { filteredRestaurants, isLoading, error, refreshData } = useFilters();
+    const { 
+        filteredRestaurants, 
+        totalCount, 
+        currentPage, 
+        setCurrentPage, 
+        pageSize,
+        isLoading, 
+        error, 
+        refreshData 
+    } = useFilters();
 
-    if (isLoading) {
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    if (isLoading && filteredRestaurants.length === 0) {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center">
                 <div className="w-16 h-16 border-4 border-red-200 border-t-[#FF4732] rounded-full animate-spin mb-4"></div>
@@ -25,7 +37,7 @@ export const RestaurantsPage: React.FC = () => {
             <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
                 <div className="bg-red-50 p-8 rounded-3xl mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h2>
-                    <p className="text-gray-600 mb-6 max-w-sm">{error}</p>
+                    <p className="text-gray-600 mb-6 max-w-sm">{error.message || 'Failed to load restaurants'}</p>
                     <button
                         onClick={refreshData}
                         className="bg-[#FF4732] text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
@@ -57,27 +69,84 @@ export const RestaurantsPage: React.FC = () => {
                         <div>
                             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">All Restaurants</h2>
                             <p className="text-gray-500 font-medium text-sm mt-1">
-                                {error ? (
-                                    <span className="text-amber-600">⚠ Showing offline data (Live API is currently unavailable)</span>
+                                {totalCount === 0 && !isLoading ? (
+                                    "No restaurants found matching your criteria"
                                 ) : (
-                                    `Showing ${filteredRestaurants.length} results`
+                                    `Showing ${filteredRestaurants.length} of ${totalCount} results`
                                 )}
                             </p>
                         </div>
-                        {error && (
-                            <button
-                                onClick={refreshData}
-                                className="text-[#FF4732] font-bold text-sm hover:underline"
-                            >
-                                Retry Sync
-                            </button>
-                        )}
                     </div>
 
-                    <RestaurantGrid
-                        restaurants={filteredRestaurants}
-                        onRestaurantClick={(id) => navigate(`/restaurant/${id}`)}
-                    />
+                    {filteredRestaurants.length === 0 && !isLoading ? (
+                        <div className="py-20 flex flex-col items-center justify-center text-center">
+                            <div className="bg-gray-50 p-10 rounded-full mb-6">
+                                <SearchX className="w-16 h-16 text-gray-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">No results found</h3>
+                            <p className="text-gray-500 max-w-xs">We couldn't find any restaurants matching your filters. Try clearing some filters or searching for something else.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className={isLoading ? "opacity-50 pointer-events-none transition-opacity" : "transition-opacity"}>
+                                <RestaurantGrid
+                                    restaurants={filteredRestaurants}
+                                    onRestaurantClick={(id) => navigate(`/restaurant/${id}`)}
+                                />
+                            </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <div className="mt-16 flex items-center justify-center gap-4">
+                                    <button
+                                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                        disabled={currentPage === 1 || isLoading}
+                                        className="p-3 rounded-xl border border-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        {[...Array(totalPages)].map((_, i) => {
+                                            const pageNum = i + 1;
+                                            // Only show a few page numbers around current page
+                                            if (
+                                                pageNum === 1 || 
+                                                pageNum === totalPages || 
+                                                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                            ) {
+                                                return (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => setCurrentPage(pageNum)}
+                                                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
+                                                            currentPage === pageNum 
+                                                                ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100' 
+                                                                : 'text-gray-500 hover:bg-gray-50'
+                                                        }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            }
+                                            if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                                return <span key={pageNum} className="text-gray-300">...</span>;
+                                            }
+                                            return null;
+                                        })}
+                                    </div>
+
+                                    <button
+                                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                        disabled={currentPage === totalPages || isLoading}
+                                        className="p-3 rounded-xl border border-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                    >
+                                        <ChevronRight className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
         </div>

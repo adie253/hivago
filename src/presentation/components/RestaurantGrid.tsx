@@ -13,10 +13,13 @@ export const RestaurantGrid: React.FC<RestaurantGridProps> = ({
     onRestaurantClick,
     scrollable = false
 }) => {
+    const prevIdsRef = useRef<string>("");
     const gridRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (restaurants.length > 0 && gridRef.current) {
+        const currentIds = restaurants.map(r => r.id).join(',');
+        if (restaurants.length > 0 && gridRef.current && prevIdsRef.current !== currentIds) {
+            prevIdsRef.current = currentIds;
             gsap.fromTo(
                 gridRef.current.children,
                 { opacity: 0, y: 40 },

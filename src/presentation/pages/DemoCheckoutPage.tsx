@@ -271,8 +271,8 @@ export const DemoCheckoutPage: React.FC = () => {
                                         <Package className="w-6 h-6 text-[#FF584A]" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider mb-0.5">Order ID</span>
-                                        <span className="text-gray-900 font-bold text-lg tracking-tight truncate w-[180px] sm:w-auto" title={currentOrderId || "1771138859799"}>
+                                        <span className=" font-bold text-md uppercase tracking-wider mb-0.5">Order ID</span>
+                                        <span className="text-gray-500 font-medium text-sm tracking-tight truncate w-[180px] sm:w-auto" title={currentOrderId || "1771138859799"}>
                                             {currentOrderId || "1771138859799"}
                                         </span>
                                     </div>
