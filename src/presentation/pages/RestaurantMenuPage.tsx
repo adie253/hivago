@@ -207,7 +207,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <div className="pl-2">
                                 <p className="text-[#B02421] font-bold text-lg leading-tight capitalize">{fulfillmentType}</p>
                                 <p className="text-gray-500 text-xs font-bold">
-                                    {fulfillmentType === 'Delivery' ? '30 - 35 min' : '15 - 20 min'}
+                                    {fulfillmentType === 'Delivery' ? restaurant.deliveryTime : '15 - 20 min'}
                                 </p>
                             </div>
                         </div>
@@ -364,7 +364,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 <div className="pr-4">
                                     <p className="text-[#B02421] font-bold text-lg leading-none capitalize">{fulfillmentType}</p>
                                     <p className="text-gray-500 text-xs font-bold mt-0.5">
-                                        {fulfillmentType === 'Delivery' ? '30 - 35 min' : '15 - 20 min'}
+                                        {fulfillmentType === 'Delivery' ? restaurant.deliveryTime : '15 - 20 min'}
                                     </p>
                                 </div>
                             </div>
@@ -376,7 +376,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                     </div>
                                     <div className="flex flex-col leading-tight">
                                         <span className="text-[10px] font-bold uppercase tracking-wider">Fast Delivery</span>
-                                        <span className="text-[9px] font-bold opacity-80">30 mins</span>
+                                        <span className="text-[9px] font-bold opacity-80">{restaurant.deliveryTime}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-100">
