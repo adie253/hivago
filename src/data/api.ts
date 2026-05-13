@@ -481,6 +481,7 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         longitude: apiRes.longitude,
         pincode: apiRes.pincode,
         city: "Mumbai", // Default or map if available in apiRes
+        phone: apiRes.phone,
         menu: allItems.map(item => ({
             id: item.id,
             name: item.name,

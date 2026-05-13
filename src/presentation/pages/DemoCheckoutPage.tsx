@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRawRestaurantById, ApiRestaurant, reverseGeocode } from '../../data/api';
+import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode } from '../../data/api';
+import { Restaurant } from '../context/FilterContext';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import { MapPicker } from '../components/checkout/MapPicker';
@@ -36,7 +37,7 @@ export const DemoCheckoutPage: React.FC = () => {
     const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
-    const [restaurantDetails, setRestaurantDetails] = useState<ApiRestaurant | null>(null);
+    const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
     const deliveryQuoteId = deliveryQuote?.id || '';
     const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0);
     const platformFee = cartTotal > 0 ? 5 : 0;
@@ -96,7 +97,7 @@ export const DemoCheckoutPage: React.FC = () => {
         const loadRestaurantDetails = async () => {
             if (restaurantId) {
                 try {
-                    const details = await fetchRawRestaurantById(restaurantId);
+                    const details = await fetchRestaurantById(restaurantId);
                     setRestaurantDetails(details);
                 } catch (error) {
                     console.error("Failed to fetch restaurant details:", error);
@@ -138,9 +139,9 @@ export const DemoCheckoutPage: React.FC = () => {
                     : Promise.resolve(null)
             ]);
 
-            const resolvedPickupPincode = restaurantDetails?.pincode || pickupGeo?.pincode || '';
-            const resolvedDropCity = selectedLocation?.city || dropGeo?.city || '';
-            const resolvedDropPincode = selectedLocation?.pincode || dropGeo?.pincode || '';
+            const resolvedPickupPincode = restaurantDetails?.pincode || pickupGeo?.pincode || '411001'; // Fallback to a default if both fail
+            const resolvedDropCity = selectedLocation?.city || dropGeo?.city || 'Pune';
+            const resolvedDropPincode = selectedLocation?.pincode || dropGeo?.pincode || '411001';
 
             const payload = {
                 paymentId: selectedPaymentMethod || "CASH",

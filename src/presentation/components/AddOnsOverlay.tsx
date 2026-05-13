@@ -46,7 +46,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         if (originalItem) {
             loadItemDetails();
         }
-    }, [originalItem]);
+    }, [originalItem?.id]);
 
     const toggleOption = (id: string) => {
         const newSet = new Set(selectedOptions);

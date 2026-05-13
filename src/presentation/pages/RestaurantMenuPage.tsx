@@ -54,9 +54,28 @@ export const RestaurantMenuPage: React.FC = () => {
         fetchRestaurant();
     }, [id]);
 
-    const categories = restaurant
+    const categories = React.useMemo(() => restaurant
         ? ['All', ...Array.from(new Set(restaurant.menu.map(item => item.category)))]
-        : ['All'];
+        : ['All'], [restaurant]);
+
+    const filteredMenu = React.useMemo(() => {
+        return restaurant?.menu.filter(item => {
+            const matchesTab = activeTab === 'All' || item.category === activeTab;
+            const matchesSearch = item.name.toLowerCase().includes(menuSearchQuery.toLowerCase()) || 
+                                 (item.description || '').toLowerCase().includes(menuSearchQuery.toLowerCase());
+            return matchesTab && matchesSearch;
+        }) || [];
+    }, [restaurant?.menu, activeTab, menuSearchQuery]);
+
+    const menuItems: MenuItem[] = React.useMemo(() => filteredMenu.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        isVeg: item.type === 'Veg',
+        bestseller: false, // API doesn't return this yet
+        description: item.description || '',
+        imageUrl: item.imageUrl || ''
+    })), [filteredMenu]);
 
     useEffect(() => {
         if (restaurant && categories.length > 0 && !categories.includes(activeTab)) {
@@ -84,22 +103,7 @@ export const RestaurantMenuPage: React.FC = () => {
         );
     }
 
-    const filteredMenu = restaurant?.menu.filter(item => {
-        const matchesTab = activeTab === 'All' || item.category === activeTab;
-        const matchesSearch = item.name.toLowerCase().includes(menuSearchQuery.toLowerCase()) || 
-                             (item.description || '').toLowerCase().includes(menuSearchQuery.toLowerCase());
-        return matchesTab && matchesSearch;
-    }) || [];
 
-    const menuItems: MenuItem[] = filteredMenu.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        isVeg: item.type === 'Veg',
-        bestseller: false, // API doesn't return this yet
-        description: item.description || '',
-        imageUrl: item.imageUrl || ''
-    }));
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] md:bg-[#F4F6F8] font-sans pb-20">

@@ -31,6 +31,7 @@ export interface Restaurant {
     longitude?: number;
     pincode?: string;
     city?: string;
+    phone?: string;
 }
 
 interface FilterContextType {
