@@ -54,8 +54,6 @@ export const ProfilePage: React.FC = () => {
                     }
                 } catch (e) {
                     console.error("Could not load profile/addresses from backend", e);
-                } finally {
-                    setIsLoadingAddresses(false);
                 }
             }
         };
