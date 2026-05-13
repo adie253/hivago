@@ -40,7 +40,6 @@ export const FilterChips: React.FC = () => {
         isPopular
     ].filter(Boolean).length;
 
-    const brandRed = "#FF4732";
     const inactiveClass = "bg-white border-gray-200 text-gray-700 hover:bg-gray-50";
 
     return (

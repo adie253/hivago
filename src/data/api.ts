@@ -426,6 +426,7 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         promoted: false,
         isVeg: apiRes.isPureVeg !== undefined ? apiRes.isPureVeg : (allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true),
         categories: categories,
+        acceptsPickup: apiRes.acceptsPickup || false,
         addressLine: apiRes.addressLine || "Address not available",
         latitude: apiRes.latitude,
         longitude: apiRes.longitude,
@@ -503,7 +504,10 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
             name: item.itemName,
             type: item.isVegetarian ? 'Veg' : 'Non-Veg',
             price: item.basePrice,
-            category: 'Search Result' // API search doesn't return category directly
+            category: 'Search Result',
+            imageUrl: item.imageUrl || "",
+            description: item.description || "",
+            isVeg: item.isVegetarian
         }));
     } catch (error) {
         console.error('Error in searchDishes:', error);
