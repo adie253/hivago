@@ -325,8 +325,11 @@ export const CheckoutPage: React.FC = () => {
                             </div>
 
                             {/* Add more items */}
-                            <div className="bg-white rounded-2xl p-4 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors border border-gray-50 justify-center">
-                                <div className="text-gray-600 font-medium text-[15px] flex items-center gap-1.5 w-full">
+                            <div 
+                                onClick={() => restaurantId ? navigate(`/restaurant/${restaurantId}`) : navigate('/')}
+                                className="bg-white rounded-2xl p-4 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors border border-gray-50 justify-center"
+                            >
+                                <div className="text-gray-600 font-medium text-[15px] flex items-center gap-1.5 w-full justify-center">
                                     <span>+</span>
                                     <span>Add more items</span>
                                 </div>
