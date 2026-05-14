@@ -76,6 +76,39 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     }, []);
 
+    // Auto-ask for location on app start if no location is selected
+    useEffect(() => {
+        const hasAsked = sessionStorage.getItem('location_asked');
+        if (hasAsked) return;
+
+        // Give logged-in sync a moment to load saved addresses first
+        const timer = setTimeout(() => {
+            if (!selectedLocationRef.current) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setSelectedLocation({
+                            id: 'current-location',
+                            label: 'Current Location',
+                            addressLine: 'Using your GPS location',
+                            isDefault: false,
+                            latitude,
+                            longitude
+                        });
+                        sessionStorage.setItem('location_asked', 'true');
+                    },
+                    (error) => {
+                        console.error("Location permission denied or failed:", error);
+                        sessionStorage.setItem('location_asked', 'true');
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     useEffect(() => {
         if (!isLoggedIn) {
             setAddresses([]);
