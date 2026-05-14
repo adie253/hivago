@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useToast } from './ToastContext';
 import { getAddresses, isTokenValid } from '../../data/api';
 import { useCart } from './CartContext';
 
@@ -30,6 +31,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [selectedLocation, setSelectedLocation] = useState<Address | null>(null);
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const { isLoggedIn } = useCart();
+    const { showToast } = useToast();
     
     // Use a ref to track selection without triggering re-renders in callbacks
     const selectedLocationRef = React.useRef<Address | null>(null);
@@ -85,6 +87,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const selectLocation = (address: Address) => {
         setSelectedLocation(address);
+        showToast(`Delivery address: ${address.label}`, "success");
     };
 
     const clearLocationData = () => {

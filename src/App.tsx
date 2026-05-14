@@ -52,13 +52,14 @@ const MainContent = () => {
 };
 
 import { NotificationProvider } from './presentation/context/NotificationContext';
-import { Toaster } from 'react-hot-toast';
+import { ToastProvider } from './presentation/context/ToastContext';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ToastProvider>
       <FavoritesProvider>
       <CartProvider>
         <LocationProvider>
@@ -66,7 +67,6 @@ function App() {
             <NotificationProvider>
               <BrowserRouter>
                 <ScrollToTop />
-                <Toaster position="bottom-right" reverseOrder={false} />
                 <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
                   <MainContent />
                 </div>
@@ -76,6 +76,7 @@ function App() {
         </LocationProvider>
       </CartProvider>
       </FavoritesProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

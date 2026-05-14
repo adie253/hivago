@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -14,6 +15,7 @@ import { StepperIcon } from '../components/checkout/StepperIcon';
 
 export const DemoCheckoutPage: React.FC = () => {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const { 
         cartItems, cartTotal, clearCart, restaurantName, restaurantId,
         deliveryQuote,
@@ -22,7 +24,9 @@ export const DemoCheckoutPage: React.FC = () => {
         isCheckingDelivery,
         fulfillmentType,
         setFulfillmentType,
-        includeCutlery
+        includeCutlery,
+        addToCart,
+        removeFromCart
     } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -72,7 +76,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     setIsPaymentPopupOpen(false);
                     closePayUPopupWindow();
 
-                    alert("Payment failed or was cancelled.");
+                    showToast("Payment failed or was cancelled.", "error");
                 }
             }, 3000);
         }
@@ -122,13 +126,13 @@ export const DemoCheckoutPage: React.FC = () => {
         setIsPlacingOrder(true);
         try {
             if (!restaurantId) {
-                alert("Restaurant information is missing. Please try re-adding items to your cart.");
+                showToast("Restaurant information is missing. Please re-add items.", "error");
                 setIsPlacingOrder(false);
                 return;
             }
 
             if (fulfillmentType === 'Delivery' && !selectedLocation) {
-                alert("Please select a delivery address.");
+                showToast("Please select a delivery address.", "warning");
                 setIsPlacingOrder(false);
                 return;
             }
@@ -211,15 +215,16 @@ export const DemoCheckoutPage: React.FC = () => {
                 setCurrentOrderId(order.id);
                 setIsPaymentPopupOpen(true);
             }
+            showToast("Order initiated successfully!", "success");
         } catch (error: any) {
             console.error('Failed to place order:', error);
             
             const errorType = error.response?.data?.type;
             if (errorType === 'Order.RestaurantDoesNotAcceptPickup') {
-                alert("This restaurant doesn't offer pickup. We've switched you to Delivery.");
+                showToast("Pickup unavailable. Switched to Delivery.", "warning");
                 setFulfillmentType('Delivery');
             } else {
-                alert('Something went wrong. Please try again.');
+                showToast(error.message || 'Something went wrong. Please try again.', "error");
             }
         } finally {
             setIsPlacingOrder(false);
@@ -516,8 +521,20 @@ export const DemoCheckoutPage: React.FC = () => {
                                                 </div>
                                             </div>
                                             {!item.isAddon ? (
-                                                <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm px-3 py-1">
-                                                    <span className="font-bold text-xs">Qty: {item.quantity}</span>
+                                                <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-[34px]">
+                                                    <button 
+                                                        onClick={() => removeFromCart(item.id)} 
+                                                        className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span className="font-bold w-4 text-center text-[13px]">{item.quantity}</span>
+                                                    <button 
+                                                        onClick={() => addToCart({ ...item }, restaurantId, restaurantName)} 
+                                                        className="w-8 h-full flex items-center justify-center text-gray-800 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                                                    >
+                                                        +
+                                                    </button>
                                                 </div>
                                             ) : (
                                                 <div className="w-5 h-5 rounded-md bg-[#00A050] flex items-center justify-center mr-1">

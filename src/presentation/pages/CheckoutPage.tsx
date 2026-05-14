@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Restaurant } from '../components/RestaurantCard';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
 import { SuggestedItemSkeleton } from '../components/Skeletons';
@@ -46,6 +47,8 @@ export const CheckoutPage: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+    const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
+    const { setFulfillmentType } = useCart();
 
 
 
@@ -68,7 +71,7 @@ export const CheckoutPage: React.FC = () => {
                         const cartItemIds = new Set(cartItems.map(i => i.menuItemId || i.id));
                         const otherItems = restaurant.menu
                             .filter(i => !cartItemIds.has(i.id))
-                            .slice(0, 4) // Top 4 items
+                            .slice(0, 2) // Top 2 items
                             .map(i => ({
                                 id: i.id,
                                 name: i.name,
@@ -102,8 +105,15 @@ export const CheckoutPage: React.FC = () => {
                 try {
                     const restaurant = await fetchRestaurantById(restaurantId);
                     if (cancelled) return;
+                    setRestaurantDetails(restaurant);
 
-                    // Skip quote if restaurant has no valid coordinates
+                    // Skip quote if restaurant has no valid coordinates or if it's pickup mode
+                    if (fulfillmentType === 'Pickup') {
+                        setIsCheckingDelivery(false);
+                        setDeliveryStatus('success');
+                        return;
+                    }
+
                     if (!restaurant?.latitude || !restaurant?.longitude) {
                         setDeliveryStatus('warning');
                         setDeliveryError("Delivery estimate unavailable for this restaurant.");
@@ -136,7 +146,7 @@ export const CheckoutPage: React.FC = () => {
             check();
             return () => { cancelled = true; };
         }
-    }, [selectedLocation, restaurantId, cartTotal]);
+    }, [selectedLocation, restaurantId, cartTotal, fulfillmentType]);
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) return;
@@ -312,7 +322,6 @@ export const CheckoutPage: React.FC = () => {
                                         <>
                                             <SuggestedItemSkeleton />
                                             <SuggestedItemSkeleton />
-                                            <SuggestedItemSkeleton />
                                         </>
                                     ) : suggestedItems.length > 0 ? (
                                         suggestedItems.map(item => (
@@ -417,6 +426,26 @@ export const CheckoutPage: React.FC = () => {
                                 <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
                                     {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName || 'the restaurant'}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
                                 </div>
+
+                                {/* Fulfillment Mode Toggle - Only shown if restaurant accepts pickup */}
+                                {restaurantDetails?.acceptsPickup && (
+                                    <div className="pl-11 mt-4">
+                                        <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setFulfillmentType('Delivery'); }}
+                                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${fulfillmentType === 'Delivery' ? 'bg-white text-[#FF4732] shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                Delivery
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setFulfillmentType('Pickup'); }}
+                                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${fulfillmentType === 'Pickup' ? 'bg-white text-[#FF4732] shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                Pickup
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                                 
                                 {fulfillmentType === 'Delivery' && isCheckingDelivery && (
                                     <div className="pl-11 mt-1 flex items-center gap-2 text-[11px] text-gray-400">
@@ -537,7 +566,7 @@ export const CheckoutPage: React.FC = () => {
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
 
                                         {isCheckingDelivery ? (
-                                            <div className="flex justify-between items-center mb-3 w-full">
+                                                <div className="flex justify-between items-center mb-3 w-full">
                                                 <div className="flex flex-col gap-1">
                                                     <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
                                                     <div className="h-2 w-12 bg-gray-100 rounded animate-pulse" />

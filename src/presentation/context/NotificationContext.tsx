@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { signalRService } from '../../data/signalrService';
-import toast from 'react-hot-toast';
+import { useToast } from './ToastContext';
 
 interface OrderStatusPayload {
     orderId: string;
@@ -16,6 +16,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [lastStatusUpdate, setLastStatusUpdate] = useState<OrderStatusPayload | null>(null);
+    const { showToast } = useToast();
 
     useEffect(() => {
         // Start SignalR connection
@@ -27,79 +28,32 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
             switch (payload.status) {
                 case "Preparing":
-                    toast.success("Your order is being prepared!", {
-                        icon: '👨‍🍳',
-                        style: { borderRadius: '16px', fontWeight: '600' },
-                    });
+                    showToast("Your order is being prepared!", "success");
                     break;
 
                 case "ReadyForPickup":
-                    toast("Order is ready — rider is on the way.", {
-                        icon: '📦',
-                        style: { borderRadius: '16px', fontWeight: '600' },
-                    });
+                    showToast("Order is ready — rider is on the way.", "info");
                     break;
 
                 case "PickedUp":
-                    toast.success("Rider collected your order! Heading your way.", {
-                        icon: '🛵',
-                        style: { borderRadius: '16px', fontWeight: '600' },
-                    });
+                    showToast("Rider collected your order! Heading your way.", "success");
                     break;
 
                 case "Delivered":
-                    toast.success("Enjoy your meal!", {
-                        icon: '🎉',
-                        duration: 6000,
-                        style: { borderRadius: '16px', fontWeight: '600' },
-                    });
+                    showToast("Enjoy your meal!", "success");
                     break;
 
                 case "Cancelled":
                 case "Rejected":
-                    // Neutral toast for initial cancellation/rejection
-                    // Spec: Do not show "refund initiated" here. Wait for RefundInitiated event.
-                    toast(payload.message, {
-                        icon: 'ℹ️',
-                        duration: 4000,
-                        style: {
-                            borderRadius: '16px',
-                            background: '#F8FAFC',
-                            color: '#475569',
-                            fontWeight: '600',
-                            border: '1px solid #E2E8F0'
-                        },
-                    });
+                    showToast(payload.message, "info");
                     break;
                 
                 case "RefundInitiated":
-                    // Green toast for successful refund initiation
-                    toast.success(payload.message, {
-                        icon: '✅',
-                        duration: 5000,
-                        style: {
-                            borderRadius: '16px',
-                            background: '#F0FDF4',
-                            color: '#166534',
-                            fontWeight: '600',
-                            border: '1px solid #DCFCE7'
-                        },
-                    });
+                    showToast(payload.message, "success");
                     break;
 
                 case "RefundFailed":
-                    // Amber toast for refund failure
-                    toast.error(payload.message, {
-                        icon: '⚠️',
-                        duration: 6000,
-                        style: {
-                            borderRadius: '16px',
-                            background: '#FFFBEB',
-                            color: '#92400E',
-                            fontWeight: '600',
-                            border: '1px solid #FEF3C7'
-                        },
-                    });
+                    showToast(payload.message, "error");
                     break;
 
                 default:

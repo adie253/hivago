@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
 import { MenuPageSkeleton } from '../components/Skeletons';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
@@ -27,6 +27,8 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 export const RestaurantMenuPage: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const highlightedId = searchParams.get('highlight');
     const { isLoading: filtersLoading } = useFilters();
     const { selectedLocation } = useUserLocation();
 
@@ -60,6 +62,18 @@ export const RestaurantMenuPage: React.FC = () => {
             setFulfillmentType('Delivery');
         }
     }, [restaurant, fulfillmentType, setFulfillmentType]);
+
+    useEffect(() => {
+        if (restaurant && highlightedId) {
+            // Give a small delay to ensure DOM is rendered
+            setTimeout(() => {
+                const element = document.getElementById(`item-${highlightedId}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 800);
+        }
+    }, [restaurant, highlightedId]);
 
     const categories = React.useMemo(() => restaurant
         ? ['All', ...Array.from(new Set(restaurant.menu.map(item => item.category)))]
@@ -263,6 +277,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                     restaurantId={restaurant.id}
                                     restaurantName={restaurant.name}
                                     onClick={() => setSelectedItem(item)}
+                                    isHighlighted={highlightedId === item.id}
                                 />
                             ))}
                         </div>
@@ -433,6 +448,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                     restaurantId={restaurant.id}
                                     restaurantName={restaurant.name}
                                     onClick={() => setSelectedItem(item)}
+                                    isHighlighted={highlightedId === item.id}
                                 />
                             ))}
                         </div>

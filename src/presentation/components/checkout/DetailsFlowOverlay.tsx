@@ -3,7 +3,7 @@ import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle,
 import { sendOtp, verifyOtp, addAddress, isTokenValid, getDeliveryQuote, fetchRestaurantById, updateAddress, setDefaultAddress } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
-import toast from 'react-hot-toast';
+import { useToast } from '../../context/ToastContext';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
@@ -18,6 +18,7 @@ type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
     const { restaurantId, cartTotal } = useCart();
+    const { showToast } = useToast();
     const [step, setStep] = useState<Step>(isTokenValid() ? 'addresses' : 'phone');
     const [phone, setPhone] = useState(() => localStorage.getItem('customer_phone') || '');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -460,11 +461,11 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             let savedAddress;
             if (addressToEdit) {
                 const res = await updateAddress(addressToEdit.id, payload);
-                if (res && res.message) toast.success(res.message);
+                if (res && res.message) showToast(res.message, "success");
                 savedAddress = res;
             } else {
                 const res = await addAddress(payload);
-                if (res && res.message) toast.success(res.message);
+                if (res && res.message) showToast(res.message, "success");
                 savedAddress = res;
             }
 

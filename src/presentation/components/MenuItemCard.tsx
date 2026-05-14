@@ -19,9 +19,10 @@ interface MenuItemCardProps {
     restaurantId?: string;
     restaurantName?: string;
     onClick?: () => void;
+    isHighlighted?: boolean;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, restaurantName, onClick }) => {
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, restaurantName, onClick, isHighlighted }) => {
     const { cartItems, addToCart, removeFromCart } = useCart();
     const [showCustomize, setShowCustomize] = useState(false);
     const [isCheckingOptions, setIsCheckingOptions] = useState(false);
@@ -79,9 +80,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                 id: addon.id,
                 name: addon.name,
                 price: addon.price,
-                isVeg: true, // Assuming addons are mostly veg or inherit? Let's assume true for simplicity or if we had more metadata
+                isVeg: true,
                 isAddon: true
-            }, restaurantId, restaurantName);
+            }, restaurantId, restaurantName, true);
         });
 
         console.log("Instructions for", itemToAdd.name, ":", instructions);
@@ -98,7 +99,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
 
     return (
         <div
-            className={`bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col h-full border border-gray-100`}
+            id={`item-${item.id}`}
+            className={`bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-700 group flex flex-col h-full border ${isHighlighted ? 'border-[#FF4732] ring-2 ring-[#FF4732]/20 scale-[1.02] bg-red-50/10' : 'border-gray-100'}`}
         >
             {/* Image Section */}
             <div

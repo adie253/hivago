@@ -13,6 +13,8 @@ export interface FoodItem {
     description: string;
     isVeg: boolean;
     category: string;
+    restaurantId?: string;
+    restaurantName?: string;
 }
 
 export interface Restaurant {

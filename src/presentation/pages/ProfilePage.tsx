@@ -5,7 +5,7 @@ import { getCustomerProfile, deleteAddress, isTokenValid, getMyOrders, setDefaul
 import { useCart } from '../../presentation/context/CartContext';
 import { useUserLocation } from '../../presentation/context/LocationContext';
 import { AddAddressOverlay } from '../components/AddAddressOverlay';
-import toast from 'react-hot-toast';
+import { useToast } from '../context/ToastContext';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
@@ -22,6 +22,7 @@ export const ProfilePage: React.FC = () => {
     const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
     const { refreshLoginStatus } = useCart();
     const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
+    const { showToast } = useToast();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -83,13 +84,13 @@ export const ProfilePage: React.FC = () => {
         try {
             const success = await deleteAddress(addressToDelete);
             if (success) {
-                toast.success("Address deleted successfully");
+                showToast("Address deleted successfully", "success");
                 refreshAddresses();
             } else {
-                toast.error("Failed to delete address");
+                showToast("Failed to delete address", "error");
             }
         } catch (error) {
-            toast.error("An error occurred while deleting");
+            showToast("An error occurred while deleting", "error");
         } finally {
             setAddressToDelete(null);
         }
@@ -99,12 +100,12 @@ export const ProfilePage: React.FC = () => {
         try {
             const res = await setDefaultAddress(address.id);
             if (res && res.message) {
-                toast.success(res.message);
+                showToast(res.message, "success");
             }
             refreshAddresses();
         } catch (error: any) {
             console.error("Failed to update default address", error);
-            toast.error(error.message || "Failed to update default address");
+            showToast(error.message || "Failed to update default address", "error");
             refreshAddresses();
         }
     };
@@ -132,19 +133,13 @@ export const ProfilePage: React.FC = () => {
             
             // Show success toast from API response
             if (response && response.message) {
-                toast.success(response.message, {
-                    style: { borderRadius: '16px', fontWeight: '600' }
-                });
+                showToast(response.message, "success");
             } else {
-                toast.success("Profile updated", {
-                    style: { borderRadius: '16px', fontWeight: '600' }
-                });
+                showToast("Profile updated", "success");
             }
         } catch (e: any) {
             console.error("Failed to update profile", e);
-            toast.error(e.message || "Failed to update profile", {
-                style: { borderRadius: '16px', fontWeight: '600' }
-            });
+            showToast(e.message || "Failed to update profile", "error");
         } finally {
             setIsUpdatingProfile(false);
         }

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useToast } from './ToastContext';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
 import { syncCart, isTokenValid, getCart, refreshToken, clearServerCart } from '../../data/api';
@@ -8,8 +9,8 @@ interface CartContextType {
     cartItems: CartItem[];
     restaurantId?: string;
     restaurantName?: string;
-    addToCart: (item: Omit<CartItem, 'quantity'>, restaurantId?: string, restaurantName?: string) => void;
-    removeFromCart: (itemId: string) => void;
+    addToCart: (item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string, silent?: boolean) => void;
+    removeFromCart: (itemId: string, silent?: boolean) => void;
     clearCart: () => void;
     refreshCartFromServer: () => Promise<void>;
     cartTotal: number;
@@ -33,6 +34,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { showToast } = useToast();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [restaurantId, setRestaurantId] = useState<string | undefined>(undefined);
     const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
@@ -41,7 +43,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
     const [deliveryError, setDeliveryError] = useState<string | null>(null);
     const [isCheckingDelivery, setIsCheckingDelivery] = useState<boolean>(false);
-    const [fulfillmentType, setFulfillmentType] = useState<'Delivery' | 'Pickup'>('Delivery');
+    const [fulfillmentType, setFulfillmentTypeState] = useState<'Delivery' | 'Pickup'>('Delivery');
+
+    const setFulfillmentType = (type: 'Delivery' | 'Pickup') => {
+        setFulfillmentTypeState(type);
+        showToast(`Switched to ${type} mode`, "success");
+    };
     const [includeCutlery, setIncludeCutlery] = useState<boolean>(false);
 
     const hasSyncedAfterLogin = useRef(false);
@@ -223,10 +230,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         init();
     }, [isLoggedIn, reconcileCarts]);
 
-    //  SYNC CART (REMOVED CONTINUOUS SYNC TO PREVENT LOOPS)
-    // We now only sync once during login (reconcileCarts) to avoid "again and again" calls.
-    // Items added during the session are kept in local state and synchronized on the next login or manual refresh.
-
     // Shared debounced push — batches rapid +/- taps into a single API call
     const debouncedPushToServer = useCallback((cartData: { restaurantId: string; restaurantName: string; items: CartItem[] }) => {
         if (!isLoggedIn) return;
@@ -261,15 +264,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [isLoggedIn]);
 
     // 🚀 ADD TO CART
-    const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string) => {
-        if (!rId) return;
+    const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string, silent: boolean = false) => {
+        let isExisting = false;
+        setCartItems(existingItems => {
+            const currentRestaurantId = existingItems.length > 0 ? restaurantId : undefined;
 
-        setCartItems(prev => {
-            // Prevent multi-restaurant cart
-            let existingItems = [...prev];
-            if (restaurantId && restaurantId !== rId) {
-                DIContainer.getClearCartUseCase().execute();
-                existingItems = [];
+            if (currentRestaurantId && rId && currentRestaurantId !== rId) {
+                setConflictInfo({ id: rId, name: rName || 'Restaurant' });
+                return existingItems;
             }
 
             const key = `${item.menuItemId || item.id}-${item.customizations || ''}`;
@@ -277,30 +279,38 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 i => `${i.menuItemId || i.id}-${i.customizations || ''}` === key
             );
 
+            isExisting = existingIndex >= 0;
             let updatedItems: CartItem[];
-            if (existingIndex >= 0) {
+            if (isExisting) {
                 updatedItems = existingItems.map((i, idx) =>
                     idx === existingIndex ? { ...i, quantity: i.quantity + 1 } : i
                 );
             } else {
-                updatedItems = [...existingItems, { ...item, quantity: 1 }];
+                updatedItems = [...existingItems, { ...item, quantity: 1 } as CartItem];
             }
 
             if (isLoggedIn) {
                 debouncedPushToServer({
-                    restaurantId: rId,
-                    restaurantName: rName || 'Restaurant',
+                    restaurantId: rId || currentRestaurantId!,
+                    restaurantName: rName || restaurantName || 'Restaurant',
                     items: updatedItems
                 });
             } else {
-                DIContainer.getAddToCartUseCase().execute(item, rId, rName);
+                DIContainer.getAddToCartUseCase().execute(item, rId || currentRestaurantId!, rName || restaurantName!);
             }
 
-            setRestaurantId(rId);
-            setRestaurantName(rName);
+            setRestaurantName(rName || restaurantName);
             return updatedItems;
         });
-    }, [restaurantId, isLoggedIn, debouncedPushToServer]);
+
+        if (!silent) {
+            if (isExisting) {
+                showToast(`Updated ${item.name} quantity`, "success");
+            } else {
+                showToast(`Added ${item.name} to cart`, "success");
+            }
+        }
+    }, [restaurantId, restaurantName, isLoggedIn, debouncedPushToServer, showToast]);
 
     // 🚀 REORDER
     const reorder = useCallback(async (items: CartItem[], rId: string, rName: string) => {
@@ -330,6 +340,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }, true);
             } catch (err) {
                 console.error("Reorder sync failed:", err);
+                showToast("Failed to reorder items", "error");
             }
         } else {
             // For guest, we manually sync with repository
@@ -339,36 +350,43 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 items: items
             });
         }
-    }, [isLoggedIn]);
+        showToast(`Reordered items from ${rName}`, "success");
+    }, [isLoggedIn, showToast]);
 
     //  REMOVE
-    const removeFromCart = useCallback((itemId: string) => {
+    const removeFromCart = useCallback((itemId: string, silent: boolean = false) => {
         if (isLoggedIn) {
             // Logged in: update React state directly, skip localStorage
-            const updatedItems = cartItems
-                .map(i => i.id === itemId || i.menuItemId === itemId
-                    ? { ...i, quantity: i.quantity - 1 }
-                    : i
-                )
-                .filter(i => i.quantity > 0);
+            setCartItems(prev => {
+                const updatedItems = prev
+                    .map(i => i.id === itemId || i.menuItemId === itemId
+                        ? { ...i, quantity: i.quantity - 1 }
+                        : i
+                    )
+                    .filter(i => i.quantity > 0);
 
-            const currentRestaurantId = updatedItems.length > 0 ? restaurantId : undefined;
-            const currentRestaurantName = updatedItems.length > 0 ? restaurantName : undefined;
+                const currentRestaurantId = updatedItems.length > 0 ? restaurantId : undefined;
+                const currentRestaurantName = updatedItems.length > 0 ? restaurantName : undefined;
 
-            setCartItems(updatedItems);
-            setRestaurantId(currentRestaurantId);
-            setRestaurantName(currentRestaurantName);
+                setRestaurantId(currentRestaurantId);
+                setRestaurantName(currentRestaurantName);
 
-            if (updatedItems.length === 0) {
-                // Last item removed — cancel debounce and delete cart from server
-                if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
-                clearServerCart().catch(err => console.error("Failed to clear server cart:", err));
-            } else if (currentRestaurantId) {
-                debouncedPushToServer({
-                    restaurantId: currentRestaurantId,
-                    restaurantName: currentRestaurantName || 'Restaurant',
-                    items: updatedItems
-                });
+                if (updatedItems.length === 0) {
+                    // Last item removed — cancel debounce and delete cart from server
+                    if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+                    clearServerCart().catch(err => console.error("Failed to clear server cart:", err));
+                } else if (currentRestaurantId) {
+                    debouncedPushToServer({
+                        restaurantId: currentRestaurantId,
+                        restaurantName: currentRestaurantName || 'Restaurant',
+                        items: updatedItems
+                    });
+                }
+                return updatedItems;
+            });
+            
+            if (!silent) {
+                showToast("Removed from cart", "success");
             }
         } else {
             // Guest: use DI use case which writes to localStorage
@@ -376,8 +394,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setCartItems([...updatedCartData.items]);
             setRestaurantId(updatedCartData.restaurantId);
             setRestaurantName(updatedCartData.restaurantName);
+            if (!silent) {
+                showToast("Removed from cart", "success");
+            }
         }
-    }, [isLoggedIn, cartItems, restaurantId, restaurantName, debouncedPushToServer]);
+    }, [isLoggedIn, restaurantId, restaurantName, debouncedPushToServer, showToast]);
 
     // 🚀 CLEAR
     const clearCart = useCallback(() => {
@@ -385,7 +406,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCartItems([]);
         setRestaurantId(undefined);
         setRestaurantName(undefined);
-    }, []);
+        
+        if (isLoggedIn) {
+            clearServerCart().catch(err => console.error("Failed to clear server cart:", err));
+        }
+        showToast("Cart cleared", "success");
+    }, [isLoggedIn, showToast]);
 
     const forceReplaceCart = async () => {
         if (!conflictInfo) return;

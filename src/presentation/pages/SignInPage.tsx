@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useToast } from '../context/ToastContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { sendOtp, verifyOtp } from '../../data/api';
@@ -11,6 +12,7 @@ export const SignInPage: React.FC = () => {
     const location = useLocation();
     const { refreshLoginStatus } = useCart();
     const { refreshAddresses } = useUserLocation();
+    const { showToast } = useToast();
 
     // Check if we were redirected here or just came directly
     const from = (location.state as any)?.from?.pathname || '/';
@@ -33,10 +35,13 @@ export const SignInPage: React.FC = () => {
         setIsSendingOtp(true);
         try {
             await sendOtp(phone);
+            showToast("OTP sent successfully!", "success");
             setStep('otp');
             setOtp(['', '', '', '', '', '']);
         } catch (e: any) {
-            setErrorMsg(e.message || 'Failed to send OTP');
+            const msg = e.message || 'Failed to send OTP';
+            setErrorMsg(msg);
+            showToast(msg, "error");
         } finally {
             setIsSendingOtp(false);
         }
@@ -62,12 +67,15 @@ export const SignInPage: React.FC = () => {
 
                 refreshLoginStatus();
                 refreshAddresses();
+                showToast("Signed in successfully!", "success");
 
                 // Redirect back to where they came from
                 navigate(from, { replace: true });
             }
         } catch (e: any) {
-            setErrorMsg(e.message || 'Invalid OTP');
+            const msg = e.message || 'Invalid OTP';
+            setErrorMsg(msg);
+            showToast(msg, "error");
         } finally {
             setIsVerifyingOtp(false);
         }

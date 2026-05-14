@@ -16,8 +16,9 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
     const [results, setResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
-    const handleItemClick = (id: string) => {
-        navigate(`/restaurant/${id}`);
+    const handleItemClick = (restaurantId: string, dishId?: string) => {
+        setSearchQuery('');
+        navigate(`/restaurant/${restaurantId}${dishId ? `?highlight=${dishId}` : ''}`);
         onClose();
     };
 
@@ -60,15 +61,13 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                 const apiDishes = await searchDishesUseCase.execute(query);
 
                 apiDishes.forEach(item => {
-                    // Try to find the restaurant this dish belongs to if possible
-                    const restaurant = allRestaurants.find(r => r.menu.some(m => m.id === item.id));
-
                     searchResults.push({
-                        id: restaurant?.id || item.id, // Redirect to restaurant
+                        id: item.restaurantId || item.id,
+                        dishId: item.id,
                         name: item.name,
                         type: 'Dish',
-                        restaurantName: restaurant?.name || 'Restaurant', // API doesn't return restaurant name
-                        image: restaurant?.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400",
+                        restaurantName: item.restaurantName || 'Restaurant',
+                        image: item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400",
                         price: item.price
                     });
                 });
@@ -159,8 +158,8 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                     <div className="mt-2 space-y-4">
                         {results.map((item) => (
                             <div
-                                key={item.id}
-                                onClick={() => handleItemClick(item.id)}
+                                key={item.dishId ? `${item.id}-${item.dishId}` : item.id}
+                                onClick={() => handleItemClick(item.id, item.dishId)}
                                 className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-1 rounded-xl transition-colors"
                             >
                                 <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover" />

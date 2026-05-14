@@ -4,7 +4,7 @@ import { ArrowLeft, Search, Navigation2, MapPin, Loader2, Check } from 'lucide-r
 import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setDefaultAddress } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
 import { MapPicker } from './checkout/MapPicker';
-import toast from 'react-hot-toast';
+import { useToast } from '../context/ToastContext';
 
 interface AddAddressOverlayProps {
     isOpen: boolean;
@@ -18,6 +18,7 @@ type Step = 'search' | 'details';
 
 export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, onClose, initialStep, initialLocation, addressToEdit }) => {
     const { refreshAddresses } = useUserLocation();
+    const { showToast } = useToast();
 
     // Search Step States
     const [step, setStep] = useState<Step>('search');
@@ -165,12 +166,12 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
             if (addressToEdit) {
                 const res = await updateAddress(addressToEdit.id, payload);
-                if (res && res.message) toast.success(res.message);
-                else toast.success("Address updated");
+                if (res && res.message) showToast(res.message, "success");
+                else showToast("Address updated", "success");
             } else {
                 const res = await addAddress(payload);
-                if (res && res.message) toast.success(res.message);
-                else toast.success("Address added");
+                if (res && res.message) showToast(res.message, "success");
+                else showToast("Address added", "success");
                 savedAddressId = res.id;
             }
 

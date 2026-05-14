@@ -508,7 +508,9 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
             category: 'Search Result',
             imageUrl: item.imageUrl || "",
             description: item.description || "",
-            isVeg: item.isVegetarian
+            isVeg: item.isVegetarian,
+            restaurantId: item.restaurantId,
+            restaurantName: item.restaurantName
         }));
     } catch (error) {
         console.error('Error in searchDishes:', error);
