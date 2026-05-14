@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
 import { MenuPageSkeleton } from '../components/Skeletons';
@@ -95,7 +96,9 @@ export const RestaurantMenuPage: React.FC = () => {
         isVeg: item.type === 'Veg',
         bestseller: false, // API doesn't return this yet
         description: item.description || '',
-        imageUrl: item.imageUrl || ''
+        imageUrl: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com')) 
+            ? item.imageUrl 
+            : getFallbackImage(item.name, item.category)
     })), [filteredMenu]);
 
     useEffect(() => {
@@ -136,6 +139,12 @@ export const RestaurantMenuPage: React.FC = () => {
                         src={restaurant.imageUrl} 
                         alt={restaurant.name} 
                         className="w-full h-full object-cover" 
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (!target.src.includes('fallback')) {
+                                target.src = getFallbackImage(restaurant.name, restaurant.cuisines[0], 'restaurant');
+                            }
+                        }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
                     
@@ -412,6 +421,12 @@ export const RestaurantMenuPage: React.FC = () => {
                                 src={restaurant.imageUrl}
                                 alt={restaurant.name}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes('fallback')) {
+                                        target.src = getFallbackImage(restaurant.name, restaurant.cuisines[0], 'restaurant');
+                                    }
+                                }}
                             />
                         </div>
                     </div>

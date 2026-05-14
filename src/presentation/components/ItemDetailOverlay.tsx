@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { createPortal } from 'react-dom';
 import { X, Star, Plus, Minus } from 'lucide-react';
 import { MenuItem } from './MenuItemCard';
@@ -84,6 +85,12 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                         src={item.imageUrl}
                         alt={item.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (!target.src.includes('unsplash')) {
+                                target.src = getFallbackImage(item.name);
+                            }
+                        }}
                     />
                     <button
                         onClick={onClose}

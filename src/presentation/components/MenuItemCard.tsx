@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { Plus, Minus, Star, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { AddOnsOverlay } from './AddOnsOverlay';
@@ -108,26 +109,20 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                 onClick={onClick}
             >
                 <img
-                    src={item.imageUrl}
+                    src={item.imageUrl || getFallbackImage(item.name)}
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        // Prevent infinite loop if fallback also fails
+                        if (!target.src.includes('fallback')) {
+                            target.src = getFallbackImage(item.name);
+                        }
+                    }}
                 />
 
-                {/* Discount Tag */}
-                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-[#4CAF50] text-white px-2 py-0.5 rounded-md shadow-sm text-[9px] font-bold">
-                    <div className="w-2.5 h-2.5 rounded-full bg-white flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 bg-[#4CAF50] rounded-full" />
-                    </div>
-                    <span>20% off</span>
-                </div>
-
-                {/* Bestseller / Legend Badge */}
+                {/* Bestseller Badge */}
                 <div className="absolute bottom-3 right-3 flex flex-col gap-2 items-end">
-                    <div className="bg-[#B02421] p-1.5 rounded-md shadow-md">
-                        <div className="w-3 h-3 bg-white/20 rounded-full flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full translate-y-[-1px]" />
-                        </div>
-                    </div>
                     {item.bestseller && (
                         <div className="bg-[#4CAF50] text-white px-2 py-0.5 rounded-md text-[9px] font-bold flex items-center gap-1 shadow-sm">
                             <Star className="w-2.5 h-2.5 fill-white" />

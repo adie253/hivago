@@ -1,4 +1,5 @@
 import React from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { Star, Clock, MapPin, Heart, Zap } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useFilters } from '../context/FilterContext';
@@ -42,6 +43,12 @@ export const RecommendedRestaurants: React.FC = () => {
                                     src={restaurant.imageUrl}
                                     alt={restaurant.name}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        if (!target.src.includes('fallback')) {
+                                            target.src = getFallbackImage(restaurant.name, restaurant.cuisines[0], 'restaurant');
+                                        }
+                                    }}
                                 />
 
                                 {/* Overlay Badges */}

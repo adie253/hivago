@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { Star, Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -58,6 +59,12 @@ export const RestaurantsNearby: React.FC = () => {
                                 src={restaurant.imageUrl}
                                 alt={restaurant.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes('fallback')) {
+                                        target.src = getFallbackImage(restaurant.name, restaurant.cuisines[0], 'restaurant');
+                                    }
+                                }}
                             />
 
                             {/* Bottom Left Rating Pill */}

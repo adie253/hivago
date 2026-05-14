@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { Restaurant } from '../components/RestaurantCard';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
@@ -82,7 +83,7 @@ export const CheckoutPage: React.FC = () => {
                                 price: i.price,
                                 originalPrice: i.price * 1.2,
                                 discount: "20% OFF",
-                                image: i.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&dpr=2&q=80',
+                                image: i.imageUrl || getFallbackImage(i.name),
                                 isVeg: i.type === 'Veg'
                             }));
                         setSuggestedItems(otherItems);
@@ -258,13 +259,13 @@ export const CheckoutPage: React.FC = () => {
 
                             {/* Cart Items List */}
                             <div className="flex flex-col gap-3 lg:mt-2">
-                                {cartItems.map((item, index) => (
+                                {cartItems.map((item) => (
                                     <div key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-50">
                                         <div className="flex gap-4 items-center w-full">
                                             {/* Item Image */}
                                             {!item.isAddon && (
                                                 <div className="w-16 h-16 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden relative">
-                                                    <img src={`https://images.unsplash.com/photo-${index % 2 === 0 ? '1544025162-831514eb3176' : '1552611052-33e04de081de'}?w=150&dpr=2&q=80`} alt={item.name} className="w-full h-full object-cover" />
+                                                    <img src={item.imageUrl || getFallbackImage(item.name)} alt={item.name} className="w-full h-full object-cover" />
                                                     <div className="absolute bottom-1 left-1 bg-white p-[2px] rounded-sm">
                                                         <div className={`w-2 h-2 rounded-sm border flex items-center justify-center ${item.isVeg ? 'border-emerald-600' : 'border-red-600'}`}>
                                                             <div className={`w-1 h-1 rounded-full ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'}`}></div>

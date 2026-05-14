@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
@@ -181,7 +182,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     menuItemId: item.menuItemId || item.id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     itemName: item.name,
                     itemDescription: item.description || "Description",
-                    imageUrl: item.imageUrl || "https://example.com/image.jpg",
+                    imageUrl: item.imageUrl || getFallbackImage(item.name),
                     unitPrice: item.price,
                     quantity: item.quantity,
                     specialInstructions: item.customizations || ""
@@ -500,12 +501,12 @@ export const DemoCheckoutPage: React.FC = () => {
                         <div className="hidden lg:flex flex-col gap-3">
                             <h2 className="text-sm font-bold text-gray-900 ml-1">Cart Items</h2>
                             <div className="flex flex-col gap-3">
-                                {cartItems.map((item, index) => (
+                                {cartItems.map(item => (
                                     <div key={`dc-${item.id}`} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-100">
                                         <div className="flex gap-4 items-center w-full">
                                             {!item.isAddon && (
                                                 <div className="w-14 h-14 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden relative">
-                                                    <img src={`https://images.unsplash.com/photo-${index % 2 === 0 ? '1544025162-831514eb3176' : '1552611052-33e04de081de'}?w=150&dpr=2&q=80`} alt={item.name} className="w-full h-full object-cover" />
+                                                    <img src={item.imageUrl || getFallbackImage(item.name)} alt={item.name} className="w-full h-full object-cover" />
                                                 </div>
                                             )}
                                             <div className="flex-1">

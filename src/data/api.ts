@@ -424,7 +424,7 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         costForTwo: "₹400", // Dummy cost
         imageUrl: apiRes.logoUrl || apiRes.img || (apiRes.name.toLowerCase().includes('good luck')
             ? "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800"
-            : (allItems.find(i => i.imageUrl)?.imageUrl || getFallbackImage(apiRes.name, categories[0]))),
+            : (allItems.find(i => i.imageUrl)?.imageUrl || getFallbackImage(apiRes.name, categories[0], 'restaurant'))),
         promoted: false,
         isVeg: apiRes.isPureVeg !== undefined ? apiRes.isPureVeg : (allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true),
         categories: categories,
@@ -443,7 +443,9 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
             price: item.basePrice,
             category: item.category || safeMenus.find(m => m.items?.some((i: any) => i.id === item.id))?.name || 'General',
             description: item.description,
-            imageUrl: item.imageUrl || getFallbackImage(item.name, item.category)
+            imageUrl: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com'))
+                ? item.imageUrl
+                : getFallbackImage(item.name, item.category)
         }))
     };
 };
@@ -512,7 +514,7 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
                 type: item.isVegetarian ? 'Veg' : 'Non-Veg',
                 price: item.basePrice,
                 category: 'Search Result',
-                imageUrl: item.imageUrl || "",
+                imageUrl: item.imageUrl || getFallbackImage(item.itemName, 'Search Result'),
                 description: item.description || "",
                 isVeg: item.isVegetarian,
                 restaurantId: item.restaurantId,
@@ -526,27 +528,34 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
 
 export const fetchRestaurantById = async (id: string): Promise<Restaurant | null> => {
     try {
-        const response = await fetch(`${BASE_URL}/catalog/restaurants`);
-        if (!response.ok) return null;
-
-        const data = await response.json();
-        const apiRestaurants: ApiRestaurant[] = Array.isArray(data) ? data : (data.items || []);
-        const apiRes = apiRestaurants.find(r => r.id === id);
-
-        if (!apiRes) {
-            // Fallback: try fetching specifically if not found in list
-            const singleRes = await fetch(`${BASE_URL}/catalog/restaurants/${id}`);
-            if (singleRes.ok) {
-                return mapRestaurant(await singleRes.json());
+        // 1. Fetch restaurant details directly
+        const response = await fetch(`${BASE_URL}/catalog/restaurants/${id}`);
+        let apiRes: ApiRestaurant | null = null;
+        
+        if (response.ok) {
+            apiRes = await response.json();
+        } else {
+            // Fallback: search in list if direct ID doesn't work (some backends only support list)
+            const listResponse = await fetch(`${BASE_URL}/catalog/restaurants`);
+            if (listResponse.ok) {
+                const data = await listResponse.json();
+                const apiRestaurants: ApiRestaurant[] = Array.isArray(data) ? data : (data.items || []);
+                apiRes = apiRestaurants.find(r => r.id === id) || null;
             }
-            return null;
         }
 
-        const menuResponse = await fetch(`${BASE_URL}/catalog/restaurants/${id}/menu`);
+        if (!apiRes) return null;
+
+        // 2. Always try to fetch the menu for full details
         let menus = [];
-        if (menuResponse.ok) {
-            const menuData = await menuResponse.json();
-            menus = Array.isArray(menuData.menus) ? menuData.menus : [];
+        try {
+            const menuResponse = await fetch(`${BASE_URL}/catalog/restaurants/${id}/menu`);
+            if (menuResponse.ok) {
+                const menuData = await menuResponse.json();
+                menus = Array.isArray(menuData.menus) ? menuData.menus : (Array.isArray(menuData) ? menuData : []);
+            }
+        } catch (e) {
+            console.error(`Failed to fetch menu for restaurant ${id}`, e);
         }
 
         return mapRestaurant(apiRes, menus);

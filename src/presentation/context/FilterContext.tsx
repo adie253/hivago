@@ -179,7 +179,9 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
                 distance: item.distanceKm != null ? `${item.distanceKm.toFixed(1)} km` : "-- km",
                 costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
-                imageUrl: item.logoUrl || getFallbackImage(item.name, item.cuisineTypes[0] || 'General'),
+                imageUrl: (item.logoUrl && item.logoUrl !== 'null' && item.logoUrl !== 'undefined' && !item.logoUrl.includes('example.com'))
+                    ? item.logoUrl
+                    : getFallbackImage(item.name, item.cuisineTypes[0] || 'General', 'restaurant'),
                 promoted: false,
                 discount: item.distanceKm != null && item.distanceKm < 3 ? "FREE Delivery" : undefined,
                 isVeg: item.isPureVeg,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Search, Mic, ArrowLeft, X, RotateCcw } from 'lucide-react';
@@ -67,7 +68,9 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                         name: item.name,
                         type: 'Dish',
                         restaurantName: item.restaurantName || 'Restaurant',
-                        image: item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400",
+                        image: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com'))
+                            ? item.imageUrl
+                            : getFallbackImage(item.name),
                         price: item.price
                     });
                 });
@@ -162,7 +165,17 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                                 onClick={() => handleItemClick(item.id, item.dishId)}
                                 className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-1 rounded-xl transition-colors"
                             >
-                                <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover" />
+                                <img 
+                                    src={item.image} 
+                                    alt={item.name} 
+                                    className="w-16 h-16 rounded-xl object-cover" 
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        if (!target.src.includes('fallback')) {
+                                            target.src = getFallbackImage(item.name);
+                                        }
+                                    }}
+                                />
                                 <div className="flex flex-col flex-1">
                                     <div className="flex items-center gap-1">
                                         <span className="font-bold text-gray-900">{item.name.split(new RegExp(`(${searchQuery})`, 'gi')).map((part: string, i: number) =>

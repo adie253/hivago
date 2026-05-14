@@ -15,7 +15,7 @@ const LIBRARIES: ("marker")[] = ["marker"];
 
 const containerStyle = {
   width: "100%",
-  height: "250px",
+  height: "100%",
   borderRadius: "16px"
 };
 
@@ -101,7 +101,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
 
   if (!isLoaded) {
     return (
-      <div className="h-[250px] flex items-center justify-center text-gray-400">
+      <div className="h-full min-h-[250px] flex items-center justify-center text-gray-400">
         Loading map...
       </div>
     );

@@ -299,6 +299,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 DIContainer.getAddToCartUseCase().execute(item, rId || currentRestaurantId!, rName || restaurantName!);
             }
 
+            setRestaurantId(rId || currentRestaurantId);
             setRestaurantName(rName || restaurantName);
             return updatedItems;
         });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { Star, Clock, MapPin, Heart } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -50,6 +51,12 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                     src={restaurant.imageUrl}
                     alt={restaurant.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (!target.src.includes('fallback')) {
+                            target.src = getFallbackImage(restaurant.name, restaurant.cuisines[0], 'restaurant');
+                        }
+                    }}
                 />
 
                 {/* Top Badges */}

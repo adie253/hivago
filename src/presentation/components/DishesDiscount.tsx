@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
 import { Clock, MapPin, Tag, ChevronRight, Percent } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/FilterContext';
@@ -61,7 +62,7 @@ export const DishesDiscount: React.FC = () => {
                         discount: `${discountPercent}% off`,
                         deliveryTime: restaurant.deliveryTime,
                         distance: distStr,
-                        imageUrl: item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400'
+                        imageUrl: item.imageUrl || getFallbackImage(item.name, item.category)
                     });
                 }
             });
@@ -99,7 +100,13 @@ export const DishesDiscount: React.FC = () => {
                             <img
                                 src={dish.imageUrl}
                                 alt={dish.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes('unsplash')) {
+                                        target.src = getFallbackImage(dish.name);
+                                    }
+                                }}
                             />
                         </div>
 

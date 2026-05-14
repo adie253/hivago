@@ -190,7 +190,8 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[10000] bg-[#FAFAFA] flex flex-col font-sans animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed inset-0 z-[10000] bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 md:p-6 font-sans">
+            <div className="w-full h-full md:max-w-6xl md:h-[90vh] md:max-h-[850px] bg-[#FAFAFA] flex flex-col relative animate-in slide-in-from-bottom-4 duration-300 md:rounded-[40px] md:overflow-hidden md:shadow-2xl">
             {/* Header */}
             <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm shrink-0">
                 <button 
@@ -207,9 +208,9 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 <div className="w-9 h-9"></div> {/* Balancer for flex-between */}
             </div>
 
-            <div className="flex-1 overflow-y-auto w-full">
+            <div className="flex-1 overflow-y-auto w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {step === 'search' ? (
-                    <div className="p-4 md:p-6 flex flex-col h-full bg-white">
+                    <div className="p-4 md:p-12 flex flex-col h-full bg-white max-w-4xl mx-auto w-full">
                         <div className="relative flex items-center mb-6">
                             <Search className="absolute left-4 w-5 h-5 text-[#FF4732]" />
                             <input
@@ -261,7 +262,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                             </button>
                         </div>
 
-                        <div className="flex-1 flex flex-col gap-1 overflow-y-auto">
+                        <div className="flex-1 flex flex-col gap-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {isSearching ? (
                                 <div className="py-10 flex flex-col items-center justify-center gap-3">
                                     <Loader2 className="w-6 h-6 animate-spin text-[#FF4732]" />
@@ -299,31 +300,55 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col bg-[#FAFAFA] min-h-full">
-                        {/* Map stub or location pin snippet */}
-                        <div className="bg-[#FFF4F2] px-6 py-5 border-b border-red-50 flex items-start gap-3">
-                            <MapPin className="w-6 h-6 text-[#FF4732] shrink-0 mt-0.5" />
-                            <div className="flex flex-col">
-                                <span className="text-[15px] font-bold text-[#111] leading-tight mb-1">Delivering to</span>
-                                <span className="text-sm font-medium text-gray-500 leading-snug">{selectedAddressText}</span>
+                    <div className="flex flex-col md:flex-row bg-[#FAFAFA] h-full overflow-hidden">
+                        {/* Desktop: Left side map */}
+                        <div className="hidden md:flex flex-col flex-1 relative bg-white border-r border-gray-100">
+                            <div className="flex-1">
+                                <MapPicker 
+                                    position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
+                                    onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                />
+                            </div>
+                            <div className="p-6 bg-white border-t border-gray-50">
+                                <div className="flex items-start gap-3">
+                                    <MapPin className="w-6 h-6 text-[#FF4732] shrink-0 mt-0.5" />
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-bold text-gray-900 leading-tight mb-1">Exact Location</span>
+                                        <span className="text-xs font-medium text-gray-500 leading-snug">{selectedAddressText}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {isLoadingDetails ? (
-                            <div className="py-20 flex flex-col items-center justify-center gap-3">
-                                <Loader2 className="w-8 h-8 animate-spin text-[#FF4732]" />
-                                <p className="text-gray-400 text-sm font-medium">Fetching exact coordinates...</p>
-                            </div>
-                        ) : (
-                            <div className="px-5 py-6 flex flex-col gap-6 flex-1 bg-white mx-3 mt-4 rounded-3xl shadow-sm border border-gray-100 relative">
-                                <div className="flex flex-col gap-2 relative z-0">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Confirm exact location</label>
-                                    <MapPicker 
-                                        position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
-                                        onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
-                                    />
-                                    <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>
+                        {/* Right side form */}
+                        <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            {/* Mobile-only map info */}
+                            <div className="md:hidden bg-[#FFF4F2] px-6 py-5 border-b border-red-50 flex items-start gap-3">
+                                <MapPin className="w-6 h-6 text-[#FF4732] shrink-0 mt-0.5" />
+                                <div className="flex flex-col">
+                                    <span className="text-[15px] font-bold text-[#111] leading-tight mb-1">Delivering to</span>
+                                    <span className="text-sm font-medium text-gray-500 leading-snug">{selectedAddressText}</span>
                                 </div>
+                            </div>
+
+                            {isLoadingDetails ? (
+                                <div className="py-20 flex flex-col items-center justify-center gap-3">
+                                    <Loader2 className="w-8 h-8 animate-spin text-[#FF4732]" />
+                                    <p className="text-gray-400 text-sm font-medium">Fetching exact coordinates...</p>
+                                </div>
+                            ) : (
+                                <div className="px-5 py-6 md:px-10 md:py-10 flex flex-col gap-6">
+                                    {/* Mobile-only map picker */}
+                                    <div className="md:hidden flex flex-col gap-2">
+                                        <label className="text-sm font-bold text-gray-700 ml-1">Confirm exact location</label>
+                                        <div className="h-[250px]">
+                                            <MapPicker 
+                                                position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
+                                                onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                            />
+                                        </div>
+                                        <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>
+                                    </div>
 
                                 <div className="flex flex-col gap-2 relative z-20">
                                     <label className="text-sm font-bold text-gray-800 ml-1">Flat / House No. / Floor / Building <span className="text-[#FF4732]">*</span></label>
@@ -375,26 +400,28 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                     </div>
                                 </div>
 
-                                {errorMsg && (
-                                    <div className="bg-red-50 text-red-600 text-sm font-bold p-4 rounded-xl text-center border border-red-100 mb-1">
-                                        {errorMsg}
+                                    {errorMsg && (
+                                        <div className="bg-red-50 text-red-600 text-sm font-bold p-4 rounded-xl text-center border border-red-100 mb-1">
+                                            {errorMsg}
+                                        </div>
+                                    )}
+
+                                    <div className="mt-4 md:mt-8 pb-6 bg-transparent shrink-0">
+                                        <button
+                                            onClick={handleSaveAddress}
+                                            disabled={isSaving || !addressLine.trim() || isLoadingDetails}
+                                            className={`w-full text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
+                                                ${isSaving || !addressLine.trim() || isLoadingDetails ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
+                                        >
+                                            {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Save Address'}
+                                        </button>
                                     </div>
-                                )}
-                            </div>
-                        )}
-                        
-                        <div className="mt-auto px-4 pb-6 pt-4 bg-transparent shrink-0">
-                            <button
-                                onClick={handleSaveAddress}
-                                disabled={isSaving || !addressLine.trim() || isLoadingDetails}
-                                className={`w-full text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
-                                    ${isSaving || !addressLine.trim() || isLoadingDetails ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
-                            >
-                                {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Save Address'}
-                            </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
+            </div>
             </div>
         </div>,
         document.body
