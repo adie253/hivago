@@ -28,7 +28,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 export const RestaurantMenuPage: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const highlightedId = searchParams.get('highlight');
     const { isLoading: filtersLoading } = useFilters();
     const { selectedLocation } = useUserLocation();
@@ -39,6 +39,18 @@ export const RestaurantMenuPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('All');
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
     const [menuSearchQuery, setMenuSearchQuery] = useState('');
+
+    // Clear highlight param after 5 seconds
+    useEffect(() => {
+        if (highlightedId) {
+            const timer = setTimeout(() => {
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('highlight');
+                setSearchParams(newParams, { replace: true });
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [highlightedId, searchParams, setSearchParams]);
     useEffect(() => {
         const fetchRestaurant = async () => {
             if (!id) return;
