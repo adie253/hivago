@@ -29,6 +29,7 @@ interface CartContextType {
     setFulfillmentType: (type: 'Delivery' | 'Pickup') => void;
     includeCutlery: boolean;
     setIncludeCutlery: (include: boolean) => void;
+    updateItemAddon: (itemId: string, addonId: string, action: 'add' | 'remove') => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -400,6 +401,61 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         }
     }, [isLoggedIn, restaurantId, restaurantName, debouncedPushToServer, showToast]);
+    
+    // 🚀 UPDATE ADDON
+    const updateItemAddon = useCallback((itemId: string, addonId: string, action: 'add' | 'remove') => {
+        setCartItems(prev => {
+            const updatedItems = prev.map(item => {
+                if (item.id !== itemId) return item;
+
+                if (!item.selectedAddons) return item;
+
+                let newAddons = [...item.selectedAddons];
+                let priceAdjustment = 0;
+
+                if (action === 'remove') {
+                    const addonToRemove = newAddons.find(a => a.id === addonId);
+                    if (addonToRemove) {
+                        priceAdjustment = -addonToRemove.price;
+                        newAddons = newAddons.filter(a => a.id !== addonId);
+                    }
+                } else {
+                    // Logic to add back an addon could be here if we keep a master list, 
+                    // but for now we only support removal in cart as requested.
+                }
+
+                // Update customizations string too for backend compatibility
+                const newCustomizations = newAddons.map(a => a.name).join(", ");
+                const finalCustomizations = item.customizations?.includes('|') 
+                    ? `${newCustomizations} | ${item.customizations.split('|')[1].trim()}`
+                    : `Selected: ${newCustomizations}`;
+
+                return {
+                    ...item,
+                    price: item.price + priceAdjustment,
+                    selectedAddons: newAddons,
+                    customizations: newAddons.length > 0 ? finalCustomizations : (item.customizations?.split('|')[1]?.trim() || undefined)
+                };
+            });
+
+            // Sync with server/localStorage
+            if (isLoggedIn && restaurantId) {
+                debouncedPushToServer({
+                    restaurantId,
+                    restaurantName: restaurantName || 'Restaurant',
+                    items: updatedItems
+                });
+            } else {
+                DIContainer.getCartRepository().saveCart({
+                    restaurantId,
+                    restaurantName,
+                    items: updatedItems
+                });
+            }
+
+            return updatedItems;
+        });
+    }, [isLoggedIn, restaurantId, restaurantName, debouncedPushToServer]);
 
     // 🚀 CLEAR
     const clearCart = useCallback(() => {
@@ -591,7 +647,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fulfillmentType,
             setFulfillmentType,
             includeCutlery,
-            setIncludeCutlery
+            setIncludeCutlery,
+            updateItemAddon
         }}>
             {children}
             <SessionWarningPopup

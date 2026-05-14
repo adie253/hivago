@@ -38,7 +38,8 @@ export const CheckoutPage: React.FC = () => {
         isCheckingDelivery, setIsCheckingDelivery,
         isLoggedIn,
         fulfillmentType,
-        includeCutlery, setIncludeCutlery
+        includeCutlery, setIncludeCutlery,
+        updateItemAddon
     } = useCart();
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
@@ -276,11 +277,31 @@ export const CheckoutPage: React.FC = () => {
 
                                             <div className="flex-1">
                                                 <h4 className="font-bold text-[15px] text-[#2D2D2D]">{item.name}</h4>
-                                                {item.customizations && (
-                                                    <p className="text-xs text-gray-500 mt-0.5 leading-snug line-clamp-2">
+                                                {item.selectedAddons && item.selectedAddons.length > 0 ? (
+                                                    <div className="mt-2 space-y-1.5">
+                                                        {item.selectedAddons.map((addon) => (
+                                                            <div key={addon.id} className="flex items-center gap-2 group">
+                                                                <div 
+                                                                    onClick={() => updateItemAddon(item.id, addon.id, 'remove')}
+                                                                    className="w-4 h-4 rounded border border-emerald-500 bg-emerald-500 flex items-center justify-center cursor-pointer hover:bg-emerald-600 transition-colors"
+                                                                >
+                                                                    <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                                                                </div>
+                                                                <span className="text-[11px] font-bold text-gray-500 flex-1">{addon.name}</span>
+                                                                <span className="text-[10px] font-bold text-gray-400">Rs. {addon.price.toFixed(2)}</span>
+                                                            </div>
+                                                        ))}
+                                                        {item.customizations?.includes('|') && (
+                                                            <p className="text-[10px] text-gray-400 italic mt-1 font-medium">
+                                                                Note: {item.customizations.split('|')[1].trim()}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ) : item.customizations ? (
+                                                    <p className="text-xs text-gray-500 mt-1 leading-snug">
                                                         <span className="font-bold text-gray-600">Note:</span> {item.customizations}
                                                     </p>
-                                                )}
+                                                ) : null}
                                                 <div className="flex items-center gap-2 mt-1">
                                                     {!item.isAddon && <span className="text-gray-400 line-through text-sm font-medium">Rs. {Math.round(item.price * 1.1).toFixed(2)}</span>}
                                                     <span className={`${item.isAddon ? 'text-gray-500 text-sm' : 'text-[#FF4732] font-bold text-[15px]'}`}>Rs. {item.price.toFixed(2)}</span>

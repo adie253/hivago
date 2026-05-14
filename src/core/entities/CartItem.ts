@@ -1,3 +1,9 @@
+export interface SelectedAddon {
+    id: string;
+    name: string;
+    price: number;
+}
+
 export interface CartItem {
     id: string; // Unique identifier for the cart entry (may include customization hash)
     menuItemId?: string; // The original backend menu item ID
@@ -9,4 +15,5 @@ export interface CartItem {
     description?: string;
     imageUrl?: string;
     customizations?: string;
+    selectedAddons?: SelectedAddon[];
 }

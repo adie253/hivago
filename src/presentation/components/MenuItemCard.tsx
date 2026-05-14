@@ -72,19 +72,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
             name: itemToAdd.name,
             price: mainItemPrice,
             isVeg: itemToAdd.isVeg,
-            customizations: instructions || undefined
+            customizations: instructions || undefined,
+            selectedAddons: selectedAddons
         }, restaurantId, restaurantName);
-
-        // Add each addon as a separate item with isAddon flag
-        selectedAddons.forEach(addon => {
-            addToCart({
-                id: addon.id,
-                name: addon.name,
-                price: addon.price,
-                isVeg: true,
-                isAddon: true
-            }, restaurantId, restaurantName, true);
-        });
 
         console.log("Instructions for", itemToAdd.name, ":", instructions);
         setShowCustomize(false);

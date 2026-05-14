@@ -214,9 +214,16 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                 {/* Bottom Action Bar */}
                 <div className="bg-white p-4 sm:p-6 border-t border-gray-100 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-20">
                      <button
-                         onClick={() => onConfirmAdd({
-                             ...originalItem,
-                         }, mainItemPrice, finalInstructions, [])}
+                         onClick={() => {
+                             const addons = apiItem?.options
+                                 ? apiItem.options
+                                     .filter(opt => selectedOptions.has(opt.id))
+                                     .map(opt => ({ id: opt.id, name: opt.name, price: opt.additionalPrice || 0 }))
+                                 : [];
+                             onConfirmAdd({
+                                 ...originalItem,
+                             }, mainItemPrice, finalInstructions, addons);
+                         }}
                          className="w-full bg-[#D12E27] text-white rounded-2xl py-4 px-6 flex items-center justify-between shadow-lg hover:bg-[#B52721] active:scale-[0.98] transition-all group"
                          disabled={isLoading}
                      >
