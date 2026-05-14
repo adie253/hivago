@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star } from 'lucide-react';
 import { OrderTrackingSkeleton } from '../components/Skeletons';
-import { ApiOrder, getActiveOrders, getOrderById, getDeliveryQuote, fetchRestaurantById } from '../../data/api';
+import { ApiOrder, getActiveOrders, getOrderById, getDeliveryQuote, fetchRestaurantById, fetchDeliveryCodes } from '../../data/api';
 
 // Using the assets we moved/generated
 import orderPlacedImg from '../../assets/checkout/order_placed.svg';
@@ -27,6 +27,7 @@ export const OrderTrackingPage: React.FC = () => {
     const [quoteEstimatedMinutes, setQuoteEstimatedMinutes] = useState<number | null>(null);
     const [useFallbackTime, setUseFallbackTime] = useState(false);
     const [restaurantData, setRestaurantData] = useState<any | null>(null);
+    const [deliveryCodes, setDeliveryCodes] = useState<{ pickupCode: string | null, dropCode: string | null } | null>(null);
 
     // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
@@ -160,6 +161,42 @@ export const OrderTrackingPage: React.FC = () => {
             fetchOrder(false);
         }
     }, [lastStatusUpdate]);
+    
+    // Fetch delivery codes when rider is assigned
+    useEffect(() => {
+        const loadCodes = async () => {
+            if (!order || !orderId) return;
+
+            const rawStatus = (order.status || '').toUpperCase();
+            // Statuses where a rider is involved
+            const hasRider = [
+                'ASSIGNED3PL', 
+                'RIDERASSIGNED', 
+                'RIDERENROUTEPICKUP', 
+                'RIDERARRIVEDPICKUP', 
+                'PICKEDUP', 
+                'RIDERENROUTEDROP', 
+                'RIDERARRIVEDDROP', 
+                'WAITINGFORCUSTOMER'
+            ].includes(rawStatus);
+
+            // Is the order still active?
+            const isClosed = ['DELIVERED', 'CANCELLED', 'REJECTED', 'FAILED', 'COMPLETED'].includes(rawStatus);
+
+            if (hasRider && !isClosed) {
+                try {
+                    const codes = await fetchDeliveryCodes(orderId);
+                    setDeliveryCodes(codes);
+                } catch (err) {
+                    console.error("[OrderTracking] Failed to fetch delivery codes:", err);
+                }
+            } else {
+                setDeliveryCodes(null);
+            }
+        };
+
+        loadCodes();
+    }, [order, orderId]);
 
     const stages = [
         {
@@ -491,6 +528,26 @@ export const OrderTrackingPage: React.FC = () => {
                                 </div>
 
                                 <hr className="border-gray-50 border-t-2" />
+                                
+                                {/* Delivery Code Card */}
+                                {deliveryCodes?.dropCode && (
+                                    <>
+                                        <div className="flex flex-col items-center py-6 bg-[#F8FAFC] rounded-[28px] border border-blue-50/50 shadow-inner">
+                                            <span className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em] mb-5">Your Delivery Code</span>
+                                            <div className="flex gap-3 mb-5">
+                                                {deliveryCodes.dropCode.split('').map((digit, i) => (
+                                                    <div key={i} className="w-12 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-3xl font-black text-[#111]">
+                                                        {digit}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <p className="text-gray-500 text-[13px] font-bold leading-relaxed text-center max-w-[240px]">
+                                                Read this out to your delivery partner when they arrive.
+                                            </p>
+                                        </div>
+                                        <hr className="border-gray-50 border-t-2" />
+                                    </>
+                                )}
 
                                 {/* Contact Partner */}
                                 {(order as any)?.rider && (
@@ -643,6 +700,23 @@ export const OrderTrackingPage: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-6 lg:hidden w-full">
+                        {/* Mobile Delivery Code Card */}
+                        {deliveryCodes?.dropCode && (
+                            <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-50 flex flex-col items-center text-center gap-5">
+                                <span className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em]">Your Delivery Code</span>
+                                <div className="flex gap-3">
+                                    {deliveryCodes.dropCode.split('').map((digit, i) => (
+                                        <div key={i} className="w-12 h-16 bg-[#F8F9FA] rounded-2xl border border-gray-100 flex items-center justify-center text-3xl font-black text-gray-900 shadow-inner">
+                                            {digit}
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="text-gray-500 text-[13px] font-bold leading-relaxed max-w-[220px]">
+                                    Read this out to your delivery partner when they arrive.
+                                </p>
+                            </div>
+                        )}
+
                         {/* Contact Partner Card */}
                         {(order as any)?.rider && (
                             <div className="flex flex-col gap-3">

@@ -774,6 +774,20 @@ export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<Ap
 };
 
 
+export const fetchDeliveryCodes = async (orderId: string): Promise<{ pickupCode: string | null, dropCode: string | null } | null> => {
+    try {
+        const response = await authFetch(`/delivery/orders/${orderId}/codes`);
+        if (response.status === 404) return null;
+        if (!response.ok) {
+            throw new Error(`Failed to fetch delivery codes: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error in fetchDeliveryCodes:', error);
+        return null; // Don't crash on network error or 404
+    }
+};
+
 // payment apis_____________________________________________________________________________
 
 
