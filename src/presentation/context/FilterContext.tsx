@@ -31,6 +31,7 @@ export interface Restaurant {
     isVeg: boolean;
     categories: string[];
     acceptsPickup: boolean;
+    isAcceptingOrders: boolean;
     menu: any[]; // Menu details are fetched separately on detail page now
     addressLine?: string;
     latitude?: number;
@@ -141,6 +142,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         maxPrice: priceRange?.[1],
         supportsPickup: fulfillmentType === 'Pickup' ? true : undefined,
         acceptsPickup: fulfillmentType === 'Pickup' ? true : undefined,
+        isAcceptingOrders: true,
         sort: mapSortValue(sortBy),
         page: currentPage,
         pageSize: pageSize
@@ -167,25 +169,28 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Normalize data to frontend interface
     const filteredRestaurants: Restaurant[] = useMemo(() => {
         if (!data?.items) return [];
-        return data.items.map((item: RestaurantListItem) => ({
-            id: item.id,
-            name: item.name,
-            cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
-            rating: 4.2, // API currently missing rating
-            deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
-            distance: item.distanceKm != null ? `${item.distanceKm.toFixed(1)} km` : "-- km",
-            costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
-            imageUrl: item.logoUrl || getFallbackImage(item.name, item.cuisineTypes[0] || 'General'),
-            promoted: false,
-            discount: item.distanceKm != null && item.distanceKm < 3 ? "FREE Delivery" : undefined,
-            isVeg: item.isPureVeg,
-            categories: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
-            acceptsPickup: item.acceptsPickup,
-            menu: [],
-            addressLine: item.addressLine,
-            latitude: item.latitude,
-            longitude: item.longitude
-        }));
+        return data.items
+            .filter((item: RestaurantListItem) => item.isAcceptingOrders)
+            .map((item: RestaurantListItem) => ({
+                id: item.id,
+                name: item.name,
+                cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
+                rating: 4.2, // API currently missing rating
+                deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
+                distance: item.distanceKm != null ? `${item.distanceKm.toFixed(1)} km` : "-- km",
+                costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
+                imageUrl: item.logoUrl || getFallbackImage(item.name, item.cuisineTypes[0] || 'General'),
+                promoted: false,
+                discount: item.distanceKm != null && item.distanceKm < 3 ? "FREE Delivery" : undefined,
+                isVeg: item.isPureVeg,
+                categories: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
+                acceptsPickup: item.acceptsPickup,
+                isAcceptingOrders: item.isAcceptingOrders,
+                menu: [],
+                addressLine: item.addressLine,
+                latitude: item.latitude,
+                longitude: item.longitude
+            }));
     }, [data]);
 
     const totalCount = data?.totalCount || 0;

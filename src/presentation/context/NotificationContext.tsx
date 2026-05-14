@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { signalRService } from '../../data/signalrService';
 import { useToast } from './ToastContext';
+import { useCart } from './CartContext';
 
 interface OrderStatusPayload {
     orderId: string;
@@ -17,9 +18,15 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [lastStatusUpdate, setLastStatusUpdate] = useState<OrderStatusPayload | null>(null);
     const { showToast } = useToast();
+    const { isLoggedIn } = useCart();
 
     useEffect(() => {
-        // Start SignalR connection
+        if (!isLoggedIn) {
+            signalRService.stop();
+            return;
+        }
+
+        console.log('[SignalR] User logged in, starting connection...');
         signalRService.start();
 
         // Listen for status updates
@@ -66,7 +73,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             unsubscribe();
             signalRService.stop();
         };
-    }, []);
+    }, [isLoggedIn, showToast]);
 
     return (
         <NotificationContext.Provider value={{ lastStatusUpdate }}>

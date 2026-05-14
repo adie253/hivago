@@ -11,12 +11,17 @@ class SignalRService {
     public async start(): Promise<void> {
         if (this.connection && this.connection.state !== 'Disconnected') return;
 
-        const token = localStorage.getItem('customer_token') || '';
-        const urlWithToken = `${HUB_URL}${HUB_URL.includes('?') ? '&' : '?'}access_token=${token}`;
+        const token = localStorage.getItem('customer_token');
+        if (!token) {
+            console.warn('[SignalR] No customer_token found, skipping connection.');
+            return;
+        }
 
         this.connection = new HubConnectionBuilder()
-            .withUrl(urlWithToken)
-            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+            .withUrl(HUB_URL, {
+                accessTokenFactory: () => localStorage.getItem('customer_token') || ''
+            })
+            .withAutomaticReconnect([2000, 5000, 10000, 30000]) // Removed 0 for immediate retry
             .configureLogging(LogLevel.Warning)
             .build();
 
@@ -28,10 +33,17 @@ class SignalRService {
         try {
             await this.connection.start();
             console.log('[SignalR] Connected successfully');
-        } catch (err) {
+        } catch (err: any) {
             console.error('[SignalR] Connection failed: ', err);
-            // Retry after 5s if initial start fails
-            setTimeout(() => this.start(), 5000);
+            
+            // If it's a 401 Unauthorized, don't retry automatically
+            if (err.statusCode === 401) {
+                console.error('[SignalR] Unauthorized (401). Stopping retries.');
+                return;
+            }
+
+            // Retry after 10s if other initial start fails
+            setTimeout(() => this.start(), 10000);
         }
     }
 

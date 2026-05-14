@@ -51,6 +51,7 @@ export interface RestaurantFilters {
   maxPrice?: number;
   supportsPickup?: boolean;
   acceptsPickup?: boolean;
+  isAcceptingOrders?: boolean;
   sort?: RestaurantSort;
   page?: number;
   pageSize?: number;

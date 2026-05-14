@@ -315,6 +315,7 @@ export interface ApiRestaurant {
     avgPrepTimeMins?: number;
     img?: string;
     acceptsPickup?: boolean;
+    isAcceptingOrders?: boolean;
 }
 
 export interface DeliveryQuoteRequest {
@@ -428,6 +429,7 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         isVeg: apiRes.isPureVeg !== undefined ? apiRes.isPureVeg : (allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true),
         categories: categories,
         acceptsPickup: apiRes.acceptsPickup || false,
+        isAcceptingOrders: apiRes.isAcceptingOrders !== undefined ? apiRes.isAcceptingOrders : true,
         addressLine: apiRes.addressLine || "Address not available",
         latitude: apiRes.latitude,
         longitude: apiRes.longitude,
@@ -490,6 +492,7 @@ export interface ApiSearchItem {
     preparationTimeMinutes: number;
     restaurantId: string;
     restaurantName: string;
+    isAcceptingOrders?: boolean;
 }
 
 export const searchDishes = async (query: string): Promise<FoodItem[]> => {
@@ -500,18 +503,21 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
         }
         const data = await response.json();
         const apiItems: ApiSearchItem[] = Array.isArray(data) ? data : (data.items || []);
-        return apiItems.map(item => ({
-            id: item.itemId,
-            name: item.itemName,
-            type: item.isVegetarian ? 'Veg' : 'Non-Veg',
-            price: item.basePrice,
-            category: 'Search Result',
-            imageUrl: item.imageUrl || "",
-            description: item.description || "",
-            isVeg: item.isVegetarian,
-            restaurantId: item.restaurantId,
-            restaurantName: item.restaurantName
-        }));
+        
+        return apiItems
+            .filter(item => item.isAcceptingOrders !== false) // Only filter out if explicitly false
+            .map(item => ({
+                id: item.itemId,
+                name: item.itemName,
+                type: item.isVegetarian ? 'Veg' : 'Non-Veg',
+                price: item.basePrice,
+                category: 'Search Result',
+                imageUrl: item.imageUrl || "",
+                description: item.description || "",
+                isVeg: item.isVegetarian,
+                restaurantId: item.restaurantId,
+                restaurantName: item.restaurantName
+            }));
     } catch (error) {
         console.error('Error in searchDishes:', error);
         throw error;
