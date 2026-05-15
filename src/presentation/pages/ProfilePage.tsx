@@ -310,13 +310,18 @@ export const ProfilePage: React.FC = () => {
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
                             </button>
 
-                            <button className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-b-xl transition-colors">
+                            <a 
+                                href="https://wa.me/919082220155?text=Need%20HELP!" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-b-xl transition-colors"
+                            >
                                 <div className="flex items-center gap-3">
                                     <HelpCircle className="w-5 h-5 text-gray-500 stroke-[1.5]" />
                                     <span className="font-semibold text-[#222] text-[15px]">Help & Support</span>
                                 </div>
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
-                            </button>
+                            </a>
                         </div>
                     </div>
 

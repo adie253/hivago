@@ -60,14 +60,22 @@ export const Footer: React.FC = () => {
                         </a>
                     </div>
 
-                    {/* Phone */}
+                    {/* Phone / Support */}
                     <div className="flex items-center gap-4 md:gap-3">
                         <div className="bg-white/10 p-2 rounded-lg md:bg-transparent md:p-0">
                             <Phone className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white" />
                         </div>
-                        <a href="tel:+918830644852" className="text-sm md:text-sm font-medium hover:text-white/80 transition-colors opacity-90">
-                            + 91 8830644852
-                        </a>
+                        <div className="flex flex-col">
+                            <a 
+                                href="https://wa.me/919082220155?text=Need%20HELP!" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-sm md:text-sm font-bold hover:text-white/80 transition-colors"
+                            >
+                                Help & Support
+                            </a>
+                            <span className="text-[10px] opacity-70 font-medium">+91 9082220155</span>
+                        </div>
                     </div>
                 </div>
 

@@ -177,11 +177,15 @@ export const Navbar: React.FC = () => {
                                 </div>
                             )}
                             <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
-                                <p className='text-xs'>
-                                    <span className='text-gray-700'>Need help? </span>
-                                    <br />
-                                    <span className='text-gray-500'>call : 1800-123-4567</span>
-                                </p>
+                                <a 
+                                    href="https://wa.me/919082220155?text=Need%20HELP!" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex flex-col group"
+                                >
+                                    <span className='text-xs text-gray-700 font-medium group-hover:text-brand-primary transition-colors'>Need help? </span>
+                                    <span className='text-[10px] text-gray-500 font-bold group-hover:text-brand-primary transition-colors'>WhatsApp: +91 9082220155</span>
+                                </a>
                             </div>
                         </div>
 

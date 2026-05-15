@@ -13,7 +13,7 @@ export const PromoBanners: React.FC = () => {
                     <div className="z-10 w-3/5">
                         <h3 className="text-xl md:text-2xl font-extrabold text-[#113C40] mb-2 leading-tight">10% off food</h3>
                         <p className="text-[10px] md:text-xs text-[#113C40] mb-4 opacity-70">
-                            Orders over Rs.399, the best food in Local countries is automatically applied.
+                            Orders over ₹399, the best food in Local countries is automatically applied.
                         </p>
                         <button onClick={goToRestaurants} className="bg-[#1D99B1] text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-teal-700 transition-colors">
                             Order now!
@@ -52,7 +52,7 @@ export const PromoBanners: React.FC = () => {
                     <div className="z-10 w-full sm:w-4/5">
                         <h3 className="text-xl md:text-2xl font-extrabold text-[#113C40] mb-2 leading-tight">20% off food</h3>
                         <p className="text-[10px] md:text-xs text-[#113C40] mb-4 opacity-70">
-                            Orders over Rs.599, the best food in Local countries is automatically applied.
+                            Orders over ₹599, the best food in Local countries is automatically applied.
                         </p>
                         <button onClick={goToRestaurants} className="bg-[#E67E22] text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-orange-600 transition-colors">
                             Order now!

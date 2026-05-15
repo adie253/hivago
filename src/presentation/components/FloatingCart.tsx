@@ -2,6 +2,7 @@ import React from 'react';
 import { ShoppingCart, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { formatPrice } from '../../utils/formatUtils';
 
 export const FloatingCart: React.FC = () => {
     const { cartItems, cartTotal } = useCart();
@@ -34,7 +35,7 @@ export const FloatingCart: React.FC = () => {
                             {totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'} Added
                         </span>
                         <span className="text-lg font-bold leading-tight">
-                            ₹{cartTotal.toLocaleString('en-IN')}
+                            ₹{formatPrice(cartTotal)}
                         </span>
                     </div>
                 </div>

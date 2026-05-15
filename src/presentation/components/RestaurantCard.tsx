@@ -123,7 +123,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                     <div className="w-1 h-1 bg-gray-300 rounded-full flex-shrink-0 hidden min-[360px]:block"></div>
 
                     <div className="font-medium whitespace-nowrap hidden min-[360px]:block">
-                        {restaurant.costForTwo} for two
+                        {restaurant.costForTwo?.replace(/Rs\.?/i, '₹')} for two
                     </div>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
+import { formatPrice } from '../../utils/formatUtils';
 import { Plus, Minus, Star, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { AddOnsOverlay } from './AddOnsOverlay';
@@ -142,7 +143,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
 
                 <div className="flex items-center justify-between mt-4">
                     <span className="font-bold text-gray-900 text-base">
-                        Rs. {typeof item.price === 'string' ? item.price.replace(/[^0-9.]/g, '') : item.price.toFixed(2)}
+                        ₹ {formatPrice(item.price)}
                     </span>
 
                     <div className="flex items-center">

@@ -33,7 +33,7 @@ export const DemoCheckoutPage: React.FC = () => {
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isOrdered, setIsOrdered] = useState(false);
     const [instructions, setInstructions] = useState('');
-    const [selectedDeliveryOption, setSelectedDeliveryOption] = useState('Leave at Door');
+    const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string | null>(null);
     const [tipAmount, setTipAmount] = useState(0);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [finalAmount, setFinalAmount] = useState(0);
@@ -176,7 +176,7 @@ export const DemoCheckoutPage: React.FC = () => {
                     buildingName: "",
                     floor: "",
                     contactPhone: customerPhone,
-                    instructions: selectedDeliveryOption
+                    instructions: selectedDeliveryOption || ""
                 },
                 items: cartItems.map(item => ({
                     menuItemId: item.menuItemId || item.id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -517,8 +517,8 @@ export const DemoCheckoutPage: React.FC = () => {
                                                     </p>
                                                 )}
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    {!item.isAddon && <span className="text-gray-400 line-through text-xs font-medium">Rs. {Math.round(item.price * 1.1).toFixed(2)}</span>}
-                                                    <span className={`${item.isAddon ? 'text-gray-500 text-xs' : 'text-[#FF4732] font-bold text-[14px]'}`}>Rs. {item.price.toFixed(2)}</span>
+                                                    {!item.isAddon && <span className="text-gray-400 line-through text-xs font-medium">₹ {Math.round(item.price * 1.1).toFixed(2)}</span>}
+                                                    <span className={`${item.isAddon ? 'text-gray-500 text-xs' : 'text-[#FF4732] font-bold text-[14px]'}`}>₹ {item.price.toFixed(2)}</span>
                                                 </div>
                                             </div>
                                             {!item.isAddon ? (

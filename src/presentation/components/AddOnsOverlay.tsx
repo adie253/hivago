@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, ShoppingBag, Loader2, ChevronRight } from 'lucide-react';
+import { formatPrice } from '../../utils/formatUtils';
 import { MenuItem } from './MenuItemCard';
 import { fetchItemDetails, ApiItem } from '../../data/api';
 
@@ -117,7 +118,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                         </h2>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="text-sm font-bold text-gray-500">{apiItem ? apiItem.name : originalItem.name}</span>
-                            <span className="text-sm font-bold text-gray-900">Rs. {basePrice}</span>
+                            <span className="text-sm font-bold text-gray-900">₹ {formatPrice(basePrice)}</span>
                         </div>
                     </div>
                     <button
@@ -161,7 +162,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                                     <div>
                                                         <p className={`text-sm font-bold transition-colors ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{opt.name}</p>
                                                         {optPrice > 0 ? (
-                                                            <p className="text-[11px] font-bold text-gray-400">Rs. {optPrice}</p>
+                                                            <p className="text-[11px] font-bold text-gray-400">₹ {formatPrice(optPrice)}</p>
                                                         ) : (
                                                             <p className="text-[11px] font-bold text-gray-400">Included</p>
                                                         )}
@@ -228,7 +229,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                          disabled={isLoading}
                      >
                          <div className="flex items-center gap-3">
-                              <span className="text-lg font-bold tracking-wide">Rs. {totalPrice.toFixed(2)}</span>
+                              <span className="text-lg font-bold tracking-wide">₹ {formatPrice(totalPrice)}</span>
                          </div>
                          <div className="flex items-center gap-2 bg-white text-[#D12E27] px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-red-50 transition-colors">
                               <ShoppingBag className="w-4 h-4" />

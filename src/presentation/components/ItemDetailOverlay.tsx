@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
+import { formatPrice } from '../../utils/formatUtils';
 import { createPortal } from 'react-dom';
 import { X, Star, Plus, Minus } from 'lucide-react';
 import { MenuItem } from './MenuItemCard';
@@ -126,7 +127,7 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                         </div>
                         <div className="text-right shrink-0">
                             <span className="text-xl font-bold text-gray-900 block">
-                                Rs. {typeof item.price === 'string' ? item.price.replace(/[^0-9.]/g, '') : item.price.toFixed(2)}
+                                ₹ {formatPrice(item.price)}
                             </span>
                         </div>
                     </div>

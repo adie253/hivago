@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
+import { formatPrice } from '../../utils/formatUtils';
 import { Clock, MapPin, Tag, ChevronRight, Percent } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/FilterContext';
@@ -128,8 +129,8 @@ export const DishesDiscount: React.FC = () => {
 
                             <div className="mt-auto pt-3 border-t border-gray-50 flex flex-wrap items-center justify-between gap-2">
                                 <div className="flex items-baseline gap-1.5">
-                                    <span className="text-base font-bold text-emerald-600">Rs.{dish.discountedPrice.toFixed(0)}</span>
-                                    <span className="text-[11px] text-gray-400 line-through">Rs.{dish.originalPrice.toFixed(0)}</span>
+                                    <span className="text-base font-bold text-emerald-600">₹{formatPrice(dish.discountedPrice)}</span>
+                                    <span className="text-[11px] text-gray-400 line-through">₹{formatPrice(dish.originalPrice)}</span>
                                 </div>
 
                                 <div className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm border border-emerald-50">

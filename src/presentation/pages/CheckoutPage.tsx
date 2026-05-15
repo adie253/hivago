@@ -6,6 +6,8 @@ import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, 
 import { SuggestedItemSkeleton } from '../components/Skeletons';
 import { useCart } from '../context/CartContext';
 import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
+import { formatPrice } from '../../utils/formatUtils';
+import { AddAddressOverlay } from '../components/AddAddressOverlay';
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
@@ -288,7 +290,7 @@ export const CheckoutPage: React.FC = () => {
                                                                     <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
                                                                 </div>
                                                                 <span className="text-[11px] font-bold text-gray-500 flex-1">{addon.name}</span>
-                                                                <span className="text-[10px] font-bold text-gray-400">Rs. {addon.price.toFixed(2)}</span>
+                                                                <span className="text-[10px] font-bold text-gray-400">₹ {formatPrice(addon.price)}</span>
                                                             </div>
                                                         ))}
                                                         {item.customizations?.includes('|') && (
@@ -303,8 +305,8 @@ export const CheckoutPage: React.FC = () => {
                                                     </p>
                                                 ) : null}
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    {!item.isAddon && <span className="text-gray-400 line-through text-sm font-medium">Rs. {Math.round(item.price * 1.1).toFixed(2)}</span>}
-                                                    <span className={`${item.isAddon ? 'text-gray-500 text-sm' : 'text-[#FF4732] font-bold text-[15px]'}`}>Rs. {item.price.toFixed(2)}</span>
+                                                    {!item.isAddon && <span className="text-gray-400 line-through text-sm font-medium">₹ {formatPrice(Math.round(item.price * 1.1))}</span>}
+                                                    <span className={`${item.isAddon ? 'text-gray-500 text-sm' : 'text-[#FF4732] font-bold text-[15px]'}`}>₹ {formatPrice(item.price)}</span>
                                                 </div>
                                             </div>
 
@@ -378,8 +380,8 @@ export const CheckoutPage: React.FC = () => {
 
                                                     <div className="flex items-center justify-between mt-auto pt-3">
                                                         <div className="flex items-center gap-1.5">
-                                                            <span className="text-[#00A050] font-bold text-sm">Rs.{item.price.toFixed(2)}</span>
-                                                            <span className="text-gray-400 line-through text-[11px]">Rs.{item.originalPrice.toFixed(2)}</span>
+                                                            <span className="text-[#00A050] font-bold text-sm">₹{formatPrice(item.price)}</span>
+                                                            <span className="text-gray-400 line-through text-[11px]">₹{formatPrice(item.originalPrice)}</span>
                                                         </div>
                                                         <div className="bg-[#E6F5EC] text-[#00A050] flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold">
                                                             <Ticket className="w-2.5 h-2.5" />
@@ -585,7 +587,7 @@ export const CheckoutPage: React.FC = () => {
                                     <div className="px-4 pb-4">
                                         <div className="flex justify-between items-center mb-4">
                                             <span className="text-[#555] text-[14px]">Item Total</span>
-                                            <span className="text-[#333] text-[14px] font-bold">₹{cartTotal.toFixed(2)}</span>
+                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(cartTotal)}</span>
                                         </div>
 
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
@@ -611,7 +613,7 @@ export const CheckoutPage: React.FC = () => {
                                                 </div>
                                                 <div className="flex items-center gap-1.5">
                                                     {deliveryFee > 0 ? (
-                                                        <span className="text-[#333] text-[14px] font-bold">₹{deliveryFee.toFixed(2)}</span>
+                                                        <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(deliveryFee)}</span>
                                                     ) : deliveryStatus === 'error' ? (
                                                         <span className="text-gray-400 text-[14px] font-medium">Not available</span>
                                                     ) : (
@@ -628,7 +630,7 @@ export const CheckoutPage: React.FC = () => {
 
                                         <div className="flex justify-between items-center mb-4">
                                             <span className="text-[#555] text-[14px]">GST and Restaurant Charges</span>
-                                            <span className="text-[#333] text-[14px] font-bold">₹{(gst + platformFee).toFixed(2)}</span>
+                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(gst + platformFee)}</span>
                                         </div>
 
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
@@ -640,7 +642,7 @@ export const CheckoutPage: React.FC = () => {
                                             ) : deliveryStatus === 'error' ? (
                                                 <span className="text-gray-400 text-[15px] font-bold">--</span>
                                             ) : (
-                                                <span className="text-[#333] text-[15px] font-bold">₹{grandTotal.toFixed(2)}</span>
+                                                <span className="text-[#333] text-[15px] font-bold">₹{formatPrice(grandTotal)}</span>
                                             )}
                                         </div>
                                     </div>
