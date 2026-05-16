@@ -28,7 +28,10 @@ const LocationContext = createContext<LocationContextType | undefined>(undefined
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [addresses, setAddresses] = useState<Address[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<Address | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<Address | null>(() => {
+        const saved = localStorage.getItem('selected_location');
+        return saved ? JSON.parse(saved) : null;
+    });
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
     const { isLoggedIn } = useCart();
     const { showToast } = useToast();
@@ -37,6 +40,11 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const selectedLocationRef = React.useRef<Address | null>(null);
     useEffect(() => {
         selectedLocationRef.current = selectedLocation;
+        if (selectedLocation) {
+            localStorage.setItem('selected_location', JSON.stringify(selectedLocation));
+        } else {
+            localStorage.removeItem('selected_location');
+        }
     }, [selectedLocation]);
 
     const refreshAddresses = useCallback(async () => {
@@ -126,6 +134,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const clearLocationData = () => {
         setAddresses([]);
         setSelectedLocation(null);
+        localStorage.removeItem('selected_location');
     };
 
     return (

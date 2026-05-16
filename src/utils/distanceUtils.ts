@@ -19,5 +19,7 @@ export const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: numb
  */
 export const formatDistance = (km: number): string => {
     if (km < 1) return `${Math.round(km * 1000)} m`;
-    return `${km.toFixed(1)} km`;
+    // Only show decimal if needed (e.g. 1.2 km but 1 km)
+    const formatted = Number(km.toFixed(1));
+    return `${formatted} km`;
 };

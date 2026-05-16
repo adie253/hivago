@@ -21,6 +21,7 @@ import { CartProvider } from './presentation/context/CartContext';
 import { FavoritesProvider } from './presentation/context/FavoritesContext';
 import { FilterProvider } from './presentation/context/FilterContext';
 import { LocationProvider } from './presentation/context/LocationContext';
+import { GoogleMapsProvider } from './presentation/context/GoogleMapsContext';
 
 const MainContent = () => {
   const location = useLocation();
@@ -63,6 +64,7 @@ function App() {
       <FavoritesProvider>
       <CartProvider>
         <LocationProvider>
+          <GoogleMapsProvider>
           <FilterProvider>
             <NotificationProvider>
               <BrowserRouter>
@@ -73,6 +75,7 @@ function App() {
               </BrowserRouter>
             </NotificationProvider>
           </FilterProvider>
+          </GoogleMapsProvider>
         </LocationProvider>
       </CartProvider>
       </FavoritesProvider>

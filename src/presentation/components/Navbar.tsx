@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users, Home, Briefcase } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -13,6 +14,7 @@ import { useUserLocation } from '../context/LocationContext';
 import { isTokenValid } from '../../data/api';
 
 export const Navbar: React.FC = () => {
+    const navigate = useNavigate();
     const { cartItems } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,7 +44,13 @@ export const Navbar: React.FC = () => {
 
                 {/* Location - Hidden on small mobile */}
                 <div 
-                    onClick={() => setIsLocationSelectorOpen(true)}
+                    onClick={() => {
+                        if (isTokenValid()) {
+                            setIsLocationSelectorOpen(true);
+                        } else {
+                            navigate('/signin');
+                        }
+                    }}
                     className="hidden sm:flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 md:px-3 md:py-1.5 rounded-lg transition-colors overflow-hidden whitespace-nowrap"
                 >
                     <MapPin className="text-white/70 w-5 h-5 flex-shrink-0" />
@@ -91,7 +99,13 @@ export const Navbar: React.FC = () => {
 
             {/* Mobile Location Bar - Design from Image */}
             <div 
-                onClick={() => setIsLocationSelectorOpen(true)}
+                onClick={() => {
+                    if (isTokenValid()) {
+                        setIsLocationSelectorOpen(true);
+                    } else {
+                        navigate('/signin');
+                    }
+                }}
                 className="sm:hidden flex items-center gap-3 px-4 py-[9px] border-b border-gray-200 bg-white cursor-pointer"
             >
                 {selectedLocation?.label?.toLowerCase().includes('home') ? (

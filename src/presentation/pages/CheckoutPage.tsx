@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { Restaurant } from '../components/RestaurantCard';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +47,18 @@ export const CheckoutPage: React.FC = () => {
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
     const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
+
+    useEffect(() => {
+        if (selectedLocation) {
+            console.log('--- SELECTED ADDRESS ---');
+            console.log('ID:', selectedLocation.id);
+            console.log('Label:', selectedLocation.label);
+            console.log('Address:', selectedLocation.addressLine);
+            console.log('Coordinates:', `${selectedLocation.latitude}, ${selectedLocation.longitude}`);
+            console.log('-------------------------');
+        }
+    }, [selectedLocation]);
+    
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
@@ -149,6 +161,10 @@ export const CheckoutPage: React.FC = () => {
             };
             check();
             return () => { cancelled = true; };
+        } else {
+            setIsCheckingDelivery(false);
+            setDeliveryStatus(null);
+            setDeliveryQuote(null);
         }
     }, [selectedLocation, restaurantId, cartTotal, fulfillmentType]);
 
@@ -169,7 +185,7 @@ export const CheckoutPage: React.FC = () => {
         if (address) {
             selectLocation(address);
         }
-        navigate('/demo-checkout');
+        // User wants to stay on this screen to see the updated delivery availability and total
     };
 
     return (
@@ -443,7 +459,7 @@ export const CheckoutPage: React.FC = () => {
                                         <div className="flex items-center gap-1.5 text-[15px]">
                                             <span className="font-medium text-gray-600">Deliver to</span>
                                             <span className="text-gray-900 font-bold">-&gt;</span>
-                                            <span className="font-bold text-gray-900">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Home'))}</span>
+                                            <span className="font-bold text-gray-900">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Select Location'))}</span>
                                         </div>
                                     </div>
                                     {isLoggedIn && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle, Check, Edit2, Plus, Home, Briefcase } from 'lucide-react';
+import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle, Check, Edit2, Plus, Home, Briefcase, LogOut } from 'lucide-react';
 import { getCustomerProfile, deleteAddress, isTokenValid, getMyOrders, setDefaultAddress, updateCustomerProfile } from '../../data/api';
 import { useCart } from '../../presentation/context/CartContext';
 import { useUserLocation } from '../../presentation/context/LocationContext';
@@ -334,12 +334,12 @@ export const ProfilePage: React.FC = () => {
                                 onClick={handleLogout}
                                 className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] text-[#E53935] font-bold text-[15px] py-4 rounded-[16px] hover:bg-[#ffe5e4] transition-colors"
                             >
-                                <Trash2 className="w-5 h-5" />
-                                <span>Clear All Data</span>
+                                <LogOut className="w-5 h-5" />
+                                <span>Logout</span>
                             </button>
                             <p className="text-gray-400 text-[11px] text-center mt-4 max-w-[80%] leading-[1.4]">
-                                This will delete all your orders, addresses, and preferences
-                            </p>
+                                Logout from this device     
+                                </p>
                         </div>
                     </div>
 

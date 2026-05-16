@@ -19,86 +19,75 @@ type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
     const { restaurantId, cartTotal } = useCart();
     const { showToast } = useToast();
-    const [step, setStep] = useState<Step>(isTokenValid() ? 'addresses' : 'phone');
+    const [step, setStep] = useState<Step>(() => {
+        if (!isTokenValid()) return 'phone';
+        const saved = sessionStorage.getItem('checkout_step');
+        if (saved) return saved as Step;
+        return 'addresses';
+    });
     const [phone, setPhone] = useState(() => localStorage.getItem('customer_phone') || '');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(() => sessionStorage.getItem('selected_address_id'));
     const [isSendingOtp, setIsSendingOtp] = useState(false);
     const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
     const [isSavingAddress, setIsSavingAddress] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
-    const [addressLine, setAddressLine] = useState('');
-    const [landmark, setLandmark] = useState('');
+    const [addressLine, setAddressLine] = useState(() => sessionStorage.getItem('checkout_address_line') || '');
+    const [landmark, setLandmark] = useState(() => sessionStorage.getItem('checkout_landmark') || '');
     const [isDefault, setIsDefault] = useState(true);
-    const [label, setLabel] = useState('Home');
-    const [mapCoordinates, setMapCoordinates] = useState<{lat: number, lng: number} | null>(null);
+    const [label, setLabel] = useState(() => sessionStorage.getItem('checkout_label') || 'Home');
+    const [mapCoordinates, setMapCoordinates] = useState<{lat: number, lng: number} | null>(() => {
+        const saved = sessionStorage.getItem('checkout_map_coords');
+        return saved ? JSON.parse(saved) : null;
+    });
 
     // Delivery check states
-    const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
-    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | 'pending' | null>(null);
-    const [deliveryDistance, setDeliveryDistance] = useState<number | null>(null);
-    const [deliveryError, setDeliveryError] = useState<string | null>(null);
+
     const [addressToEdit, setAddressToEdit] = useState<any>(null);
 
-    const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
+    const { addresses, isLoadingAddresses, refreshAddresses, selectedLocation } = useUserLocation();
     const { refreshLoginStatus } = useCart();
     const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    const performDeliveryCheck = async (lat: number, lng: number) => {
-        if (!restaurantId) return;
-        setIsCheckingDelivery(true);
-        setDeliveryStatus(null);
-        setDeliveryError(null);
-        try {
-            const restaurant = await fetchRestaurantById(restaurantId);
 
-            if (!restaurant?.latitude || !restaurant?.longitude) {
-                setDeliveryStatus('warning');
-                setIsCheckingDelivery(false);
-                return;
-            }
 
-            const quote = await getDeliveryQuote({
-                restaurantId,
-                pickupLatitude: restaurant.latitude,
-                pickupLongitude: restaurant.longitude,
-                dropLatitude: lat,
-                dropLongitude: lng,
-                orderAmount: cartTotal || 100
-            });
 
-            if (quote) {
-                setDeliveryDistance(quote.distanceKm);
-                setDeliveryStatus('success');
-            } else {
-                setDeliveryStatus('warning');
-            }
-        } catch (e) {
-            setDeliveryStatus('warning');
-        } finally {
-            setIsCheckingDelivery(false);
-        }
-    };
 
     useEffect(() => {
-        if (step === 'addAddress' && mapCoordinates) {
-            const timer = setTimeout(() => {
-                performDeliveryCheck(mapCoordinates.lat, mapCoordinates.lng);
-            }, 800);
-            return () => clearTimeout(timer);
-        }
-    }, [mapCoordinates, step, restaurantId]);
+        sessionStorage.setItem('checkout_step', step);
+    }, [step]);
 
     useEffect(() => {
-        if (step === 'addresses' && selectedAddressId) {
+        if (selectedAddressId) {
             const addr = addresses.find(a => a.id === selectedAddressId);
-            if (addr && addr.latitude && addr.longitude) {
-                performDeliveryCheck(addr.latitude, addr.longitude);
+            if (addr) {
+                console.log('--- CHECKOUT SELECTION ---');
+                console.log('ID:', addr.id);
+                console.log('Label:', addr.label);
+                console.log('Address:', addr.addressLine);
+                console.log('---------------------------');
             }
-        } else if (step === 'addresses' && !selectedAddressId) {
-            setDeliveryStatus(null);
         }
-    }, [selectedAddressId, step, restaurantId, addresses]);
+    }, [selectedAddressId, addresses]);
+
+    useEffect(() => {
+        if (selectedAddressId) {
+            sessionStorage.setItem('selected_address_id', selectedAddressId);
+        } else {
+            sessionStorage.removeItem('selected_address_id');
+        }
+    }, [selectedAddressId]);
+
+    useEffect(() => {
+        sessionStorage.setItem('checkout_address_line', addressLine);
+        sessionStorage.setItem('checkout_landmark', landmark);
+        sessionStorage.setItem('checkout_label', label);
+        if (mapCoordinates) {
+            sessionStorage.setItem('checkout_map_coords', JSON.stringify(mapCoordinates));
+        } else {
+            sessionStorage.removeItem('checkout_map_coords');
+        }
+    }, [addressLine, landmark, label, mapCoordinates]);
 
     useEffect(() => {
         if (isTokenValid() && step === 'phone') {
@@ -228,7 +217,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 refreshLoginStatus();
                 refreshAddresses();
             }
-            setStep('location');
+            
+            // Skip location step if already have a location (from GPS or saved)
+            if (selectedLocation) {
+                setStep('addresses');
+            } else {
+                setStep('location');
+            }
         } catch (e: any) {
             setErrorMsg(e.message || 'Invalid OTP');
         } finally {
@@ -375,10 +370,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-[15px] text-[#222] uppercase tracking-tight">{add.label || 'Other'}</h4>
+                                            <h4 className="font-bold text-[15px] text-[#222] line-clamp-1">{add.addressLine}</h4>
                                             {add.isDefault && <span className="text-[10px] font-bold text-[#00A050] bg-[#E6F5EC] px-1.5 py-0.5 rounded">DEFAULT</span>}
                                         </div>
-                                        <p className="text-gray-500 text-[13px] leading-relaxed line-clamp-2">{add.addressLine}</p>
+                                        <p className="text-gray-500 text-[12px] font-bold uppercase tracking-wide">{add.label || 'Other'}</p>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-2 shrink-0">
@@ -419,24 +414,16 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         <span>Add New Address</span>
                     </button>
                 </div>
-                {deliveryStatus && (
-                    <div className={`mt-4 p-3 rounded-xl border flex items-start gap-3 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
-                        {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
-                        <div className="flex flex-col">
-                            <span className="text-[12px] font-bold leading-tight">{deliveryStatus === 'success' ? `Restaurant delivers here (~${deliveryDistance} km)` : deliveryStatus === 'error' ? deliveryError : "Can't deliver here"}</span>
-                        </div>
-                    </div>
-                )}
                 <button
                     onClick={() => {
-                        if (selectedAddressId && deliveryStatus !== 'error') {
+                        if (selectedAddressId) {
                             onComplete(addresses.find(a => a.id === selectedAddressId));
                         }
                     }}
-                    disabled={!selectedAddressId || isLoadingAddresses || isCheckingDelivery || deliveryStatus === 'error'}
-                    className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${selectedAddressId && deliveryStatus !== 'error' ? 'bg-[#FF584A] hover:bg-[#E5483B]' : 'bg-[#FFB7B0]'}`}
+                    disabled={!selectedAddressId || isLoadingAddresses}
+                    className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${selectedAddressId ? 'bg-[#FF584A] hover:bg-[#E5483B]' : 'bg-[#FFB7B0]'}`}
                 >
-                    {isCheckingDelivery ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : deliveryStatus === 'error' ? "Out of Range" : "Apply"}
+                    Apply
                 </button>
             </div>
         );
@@ -477,9 +464,16 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             await refreshAddresses();
             onComplete(savedAddress);
             setStep('addresses');
+            
+            // Clear session storage on success
             setAddressLine('');
             setLandmark('');
             setLabel('Home');
+            setMapCoordinates(null);
+            sessionStorage.removeItem('checkout_address_line');
+            sessionStorage.removeItem('checkout_landmark');
+            sessionStorage.removeItem('checkout_label');
+            sessionStorage.removeItem('checkout_map_coords');
         } catch (e: any) {
             setErrorMsg(e.message || 'Failed to save address');
         } finally {
@@ -497,18 +491,9 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     <label className="text-sm font-bold text-gray-700 ml-1">Pin your exact location</label>
                     <div className="relative">
                         <MapPicker position={mapCoordinates} onPositionChange={setMapCoordinates} />
-                        {isCheckingDelivery && (
-                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center rounded-2xl z-10">
-                                <Loader2 className="w-6 h-6 animate-spin text-[#FF4732]" />
-                            </div>
-                        )}
+
                     </div>
-                    {deliveryStatus && (
-                        <div className={`mt-2 p-2.5 rounded-lg border flex items-center gap-2 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' : deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
-                            {deliveryStatus === 'success' ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-                            <span className="text-[11px] font-bold">{deliveryStatus === 'success' ? `Delivers here` : deliveryStatus === 'error' ? deliveryError : "Can't deliver here"}</span>
-                        </div>
-                    )}
+
                 </div>
                 <div className="flex flex-col gap-2 relative z-20">
                     <label className="text-sm font-bold text-gray-700 ml-1">Flat / House No. / Building / Area</label>
@@ -559,10 +544,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 {errorMsg && <p className="text-red-500 text-xs font-bold mt-2 ml-1">{errorMsg}</p>}
                 <button
                     onClick={handleSaveAddress}
-                    disabled={isSavingAddress || isCheckingDelivery || deliveryStatus === 'error'}
-                    className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() || deliveryStatus === 'error' ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                    disabled={isSavingAddress || !addressLine.trim()}
+                    className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
                 >
-                    {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : deliveryStatus === 'error' ? "Out of Delivery Range" : "Save and Continue"}
+                    {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save and Continue"}
                 </button>
             </div>
         </div>

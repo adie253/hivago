@@ -163,8 +163,8 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="font-bold text-gray-900 uppercase tracking-tight">
-                                                {addr.label || 'Other'}
+                                            <h4 className="font-bold text-gray-900 line-clamp-1">
+                                                {addr.addressLine}
                                             </h4>
                                             {selectedLocation?.id === addr.id && (
                                                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase">
@@ -172,7 +172,7 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-sm text-gray-500 font-medium line-clamp-1">{addr.addressLine}</p>
+                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-wide">{addr.label || 'Other'}</p>
                                     </div>
                                     {selectedLocation?.id === addr.id && (
                                         <div className="self-center">

@@ -11,19 +11,9 @@ import DIContainer from '../../di/container';
 import deliveryBoy from '../../assets/delivery_pickup/delivery.svg';
 import pickupBoy from '../../assets/delivery_pickup/pickup.svg';
 import { useUserLocation } from '../context/LocationContext';
+import { haversineKm, formatDistance } from '../../utils/distanceUtils';
 
-const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of the earth in km
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c; // Distance in km
-    return d.toFixed(1);
-};
+
 
 export const RestaurantMenuPage: React.FC = () => {
     const { id } = useParams();
@@ -197,7 +187,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <span className="text-gray-300">•</span>
                             <div className="flex items-center gap-1.5">
                                 <span>{selectedLocation && restaurant?.latitude && restaurant?.longitude 
-                                    ? `${calculateDistance(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude)} km` 
+                                    ? formatDistance(haversineKm(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude))
                                     : '-- km'}</span>
                             </div>
                             <span className="text-gray-300">•</span>
@@ -371,7 +361,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                     <MapPin className="w-5 h-5" />
                                     <span className="text-base font-bold">
                                         {selectedLocation && restaurant?.latitude && restaurant?.longitude 
-                                            ? `${calculateDistance(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude)} km` 
+                                            ? formatDistance(haversineKm(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude))
                                             : '-- km'}
                                     </span>
                                 </div>

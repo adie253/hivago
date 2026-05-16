@@ -21,7 +21,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     const { showToast } = useToast();
 
     // Search Step States
-    const [step, setStep] = useState<Step>('search');
+    const [step, setStep] = useState<Step>(() => (sessionStorage.getItem('add_addr_step') as Step) || 'search');
     const [searchQuery, setSearchQuery] = useState('');
     const [predictions, setPredictions] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -34,9 +34,9 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
     // Form States
-    const [addressLine, setAddressLine] = useState('');
-    const [landmark, setLandmark] = useState('');
-    const [label, setLabel] = useState('Home');
+    const [addressLine, setAddressLine] = useState(() => sessionStorage.getItem('add_addr_line') || '');
+    const [landmark, setLandmark] = useState(() => sessionStorage.getItem('add_addr_landmark') || '');
+    const [label, setLabel] = useState(() => sessionStorage.getItem('add_addr_label') || 'Home');
     const [isDefault, setIsDefault] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
@@ -54,31 +54,42 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 setLabel(addressToEdit.label || 'Home');
                 setIsDefault(addressToEdit.isDefault);
             } else if (initialStep && initialLocation) {
+                // If provided via props, use them (might be fresh from GPS)
                 setStep(initialStep);
                 setLatitude(initialLocation.lat);
                 setLongitude(initialLocation.lng);
                 setSelectedAddressText('Current Location');
-                setAddressLine('');
-                setLandmark('');
-                setLabel('Home');
-                setIsDefault(true);
             } else {
-                setStep('search');
-                setLatitude(0);
-                setLongitude(0);
-                setSelectedAddressText('');
-                setAddressLine('');
-                setLandmark('');
-                setLabel('Home');
-                setIsDefault(true);
+                // Try loading from session if not editing and no initial props
+                const savedStep = sessionStorage.getItem('add_addr_step') as Step;
+                if (savedStep) setStep(savedStep);
+                
+                const savedLat = sessionStorage.getItem('add_addr_lat');
+                const savedLng = sessionStorage.getItem('add_addr_lng');
+                if (savedLat && savedLng) {
+                    setLatitude(parseFloat(savedLat));
+                    setLongitude(parseFloat(savedLng));
+                }
+                
+                const savedText = sessionStorage.getItem('add_addr_text');
+                if (savedText) setSelectedAddressText(savedText);
             }
-            setSearchQuery('');
-            setPredictions([]);
             setErrorMsg('');
         } else {
             document.body.style.overflow = 'unset';
         }
     }, [isOpen, addressToEdit]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        sessionStorage.setItem('add_addr_step', step);
+        sessionStorage.setItem('add_addr_line', addressLine);
+        sessionStorage.setItem('add_addr_landmark', landmark);
+        sessionStorage.setItem('add_addr_label', label);
+        sessionStorage.setItem('add_addr_lat', latitude.toString());
+        sessionStorage.setItem('add_addr_lng', longitude.toString());
+        sessionStorage.setItem('add_addr_text', selectedAddressText);
+    }, [step, addressLine, landmark, label, latitude, longitude, selectedAddressText, isOpen]);
 
     useEffect(() => {
         if (searchQuery.length < 3) {
@@ -125,6 +136,11 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     const handleSelectPrediction = async (placeId: string, description: string) => {
         setSelectedPlaceId(placeId);
         setSelectedAddressText(description);
+        
+        // Auto-fill address line with the main part of the address
+        const mainText = description.split(',')[0];
+        setAddressLine(mainText);
+        
         setStep('details');
         setIsLoadingDetails(true);
 
@@ -134,14 +150,41 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 // Determine lat/lng from various typical Google API proxy backend formats
                 const lat = details.geometry?.location?.lat || details.latitude || details.lat || 0;
                 const lng = details.geometry?.location?.lng || details.longitude || details.lng || 0;
-                setLatitude(parseFloat(lat));
-                setLongitude(parseFloat(lng));
+                
+                const parsedLat = typeof lat === 'function' ? lat() : parseFloat(lat);
+                const parsedLng = typeof lng === 'function' ? lng() : parseFloat(lng);
+                
+                setLatitude(parsedLat);
+                setLongitude(parsedLng);
+
+                // If the backend provides more details, we can fill them here
+                if (details.formatted_address && !addressLine) {
+                     setAddressLine(details.name || details.formatted_address.split(',')[0]);
+                }
             }
         } catch (e) {
             console.error('Failed to parse place details', e);
         } finally {
             setIsLoadingDetails(false);
         }
+    };
+
+    const clearSessionData = () => {
+        sessionStorage.removeItem('add_addr_step');
+        sessionStorage.removeItem('add_addr_line');
+        sessionStorage.removeItem('add_addr_landmark');
+        sessionStorage.removeItem('add_addr_label');
+        sessionStorage.removeItem('add_addr_lat');
+        sessionStorage.removeItem('add_addr_lng');
+        sessionStorage.removeItem('add_addr_text');
+        
+        setStep('search');
+        setAddressLine('');
+        setLandmark('');
+        setLabel('Home');
+        setLatitude(0);
+        setLongitude(0);
+        setSelectedAddressText('');
     };
 
     const handleSaveAddress = async () => {
@@ -181,6 +224,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
             }
             
             await refreshAddresses();
+            clearSessionData();
             onClose(); // Close this overlay on success
         } catch (e: any) {
             setErrorMsg(e.message || 'Failed to save address');
@@ -307,6 +351,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 <MapPicker 
                                     position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
                                     onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                    allowGeolocation={true}
                                 />
                             </div>
                             <div className="p-6 bg-white border-t border-gray-50">
@@ -345,6 +390,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                             <MapPicker 
                                                 position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
                                                 onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                                allowGeolocation={true}
                                             />
                                         </div>
                                         <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>

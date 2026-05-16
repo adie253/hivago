@@ -528,19 +528,22 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
 
 export const fetchRestaurantById = async (id: string): Promise<Restaurant | null> => {
     try {
-        // 1. Fetch restaurant details directly
-        const response = await fetch(`${BASE_URL}/catalog/restaurants/${id}`);
+        // Fallback: search in list first if direct ID doesn't work (some backends only support list)
+        // We do this to avoid 404 console errors from the browser
         let apiRes: ApiRestaurant | null = null;
         
-        if (response.ok) {
-            apiRes = await response.json();
-        } else {
-            // Fallback: search in list if direct ID doesn't work (some backends only support list)
-            const listResponse = await fetch(`${BASE_URL}/catalog/restaurants`);
-            if (listResponse.ok) {
-                const data = await listResponse.json();
-                const apiRestaurants: ApiRestaurant[] = Array.isArray(data) ? data : (data.items || []);
-                apiRes = apiRestaurants.find(r => r.id === id) || null;
+        const listResponse = await fetch(`${BASE_URL}/catalog/restaurants`);
+        if (listResponse.ok) {
+            const data = await listResponse.json();
+            const apiRestaurants: ApiRestaurant[] = Array.isArray(data) ? data : (data.items || []);
+            apiRes = apiRestaurants.find(r => r.id === id) || null;
+        }
+
+        // If not found in list, try direct ID as a last resort
+        if (!apiRes) {
+            const response = await fetch(`${BASE_URL}/catalog/restaurants/${id}`);
+            if (response.ok) {
+                apiRes = await response.json();
             }
         }
 

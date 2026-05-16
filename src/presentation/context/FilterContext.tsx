@@ -3,6 +3,7 @@ import { useRestaurants } from '../../hooks/useRestaurants';
 import { RestaurantFilters, RestaurantListItem, RestaurantSort } from '../../types/api';
 import { useUserLocation } from './LocationContext';
 import { getFallbackImage } from '../../utils/imageUtils';
+import { formatDistance } from '../../utils/distanceUtils';
 
 // Standardized frontend interface to keep existing components working
 export interface FoodItem {
@@ -177,7 +178,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
                 rating: 4.2, // API currently missing rating
                 deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
-                distance: item.distanceKm != null ? `${item.distanceKm.toFixed(1)} km` : "-- km",
+                distance: item.distanceKm != null ? formatDistance(item.distanceKm) : "-- km",
                 costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
                 imageUrl: (item.logoUrl && item.logoUrl !== 'null' && item.logoUrl !== 'undefined' && !item.logoUrl.includes('example.com'))
                     ? item.logoUrl

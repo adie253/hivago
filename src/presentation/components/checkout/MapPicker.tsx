@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
+import { useGoogleMaps } from "../../context/GoogleMapsContext";
 
 type Position = {
   lat: number;
@@ -9,9 +10,8 @@ type Position = {
 interface MapPickerProps {
   position: Position | null;
   onPositionChange: (pos: Position) => void;
+  allowGeolocation?: boolean;
 }
-
-const LIBRARIES: ("marker")[] = ["marker"];
 
 const containerStyle = {
   width: "100%",
@@ -26,20 +26,20 @@ const defaultCenter: Position = {
 
 export const MapPicker: React.FC<MapPickerProps> = ({
   position,
-  onPositionChange
+  onPositionChange,
+  allowGeolocation = false
 }) => {
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-    libraries: LIBRARIES
-  });
+  const { isLoaded } = useGoogleMaps();
 
-  const [center, setCenter] = useState<Position>(defaultCenter);
+  const [center, setCenter] = useState<Position>(position || defaultCenter);
+  const [hasUserSelected, setHasUserSelected] = useState(!!position);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
 
-  // Get current location on first load
+
+  // Get current location on first load if allowed (only center, don't pin)
   useEffect(() => {
-    if (position) return; // already provided from parent
+    if (position || !allowGeolocation) return; // already provided or not allowed
 
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -50,7 +50,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
           };
 
           setCenter(userLocation);
-          onPositionChange(userLocation);
+          // Notice: we DON'T setHasUserSelected(true) here
         },
         () => {
           console.log("Location permission denied, using default");
@@ -63,15 +63,20 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   useEffect(() => {
     if (position) {
       setCenter(position);
+      setHasUserSelected(true);
     }
   }, [position]);
 
   // Create/update marker
   useEffect(() => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || !window.google || !hasUserSelected) {
+        if (markerRef.current) markerRef.current.setMap(null);
+        return;
+    }
 
     if (markerRef.current) {
       // Just move the existing marker instead of recreating it
+      markerRef.current.setMap(mapRef.current);
       markerRef.current.setPosition(center);
     } else {
       // Create it the first time
@@ -81,7 +86,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
         animation: google.maps.Animation.DROP
       });
     }
-  }, [center]);
+  }, [center, hasUserSelected]);
 
   // 🖱️ Click to change location
   const handleClick = useCallback(
@@ -94,6 +99,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
       };
 
       setCenter(newPos);
+      setHasUserSelected(true);
       onPositionChange(newPos);
     },
     [onPositionChange]
@@ -101,8 +107,28 @@ export const MapPicker: React.FC<MapPickerProps> = ({
 
   if (!isLoaded) {
     return (
-      <div className="h-full min-h-[250px] flex items-center justify-center text-gray-400">
-        Loading map...
+      <div className="h-full min-h-[250px] bg-gray-50 flex items-center justify-center relative overflow-hidden rounded-[16px]">
+        {/* Animated Skeleton Background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-shimmer" style={{ backgroundSize: '200% 100%' }}></div>
+        
+        {/* Mock Map UI elements */}
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm">
+            <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse"></div>
+          </div>
+          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest opacity-50">Initializing Map</span>
+        </div>
+
+        {/* CSS for shimmer */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+          .animate-shimmer {
+            animation: shimmer 2s infinite linear;
+          }
+        `}} />
       </div>
     );
   }
@@ -118,7 +144,8 @@ export const MapPicker: React.FC<MapPickerProps> = ({
       }}
       options={{
         disableDefaultUI: true,
-        zoomControl: true
+        zoomControl: true,
+        gestureHandling: "greedy"
       }}
     />
   );
