@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, AlertCircle, CheckCircle, Check, Edit2, Home, Briefcase } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress, isTokenValid, getDeliveryQuote, fetchRestaurantById, updateAddress, setDefaultAddress } from '../../../data/api';
+import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, Check, Edit2, Home, Briefcase } from 'lucide-react';
+import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefaultAddress } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import { useToast } from '../../context/ToastContext';
@@ -17,7 +17,6 @@ export type DetailsFlowOverlayProps = {
 type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
-    const { restaurantId, cartTotal } = useCart();
     const { showToast } = useToast();
     const [step, setStep] = useState<Step>(() => {
         if (!isTokenValid()) return 'phone';

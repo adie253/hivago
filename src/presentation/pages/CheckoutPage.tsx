@@ -7,7 +7,7 @@ import { SuggestedItemSkeleton } from '../components/Skeletons';
 import { useCart } from '../context/CartContext';
 import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 import { formatPrice } from '../../utils/formatUtils';
-import { AddAddressOverlay } from '../components/AddAddressOverlay';
+
 import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
