@@ -461,8 +461,14 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             }
             
             await refreshAddresses();
-            onComplete(savedAddress);
-            setStep('addresses');
+            
+            // Ensure we pass a complete address object for immediate selection
+            const finalAddress = {
+                ...payload,
+                id: savedAddress?.id || (addressToEdit ? addressToEdit.id : 'temp-id')
+            };
+            
+            onComplete(finalAddress);
             
             // Clear session storage on success
             setAddressLine('');
@@ -488,7 +494,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <div className="px-6 flex flex-col gap-5 flex-1 pb-10">
                 <div className="flex flex-col gap-2 relative z-0">
                     <label className="text-sm font-bold text-gray-700 ml-1">Pin your exact location</label>
-                    <div className="relative">
+                    <div className="relative h-64">
                         <MapPicker position={mapCoordinates} onPositionChange={setMapCoordinates} />
 
                     </div>
