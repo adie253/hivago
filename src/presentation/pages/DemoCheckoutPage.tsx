@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode } from '../../data/api';
+import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode, isPayUPopupClosed } from '../../data/api';
 import { Restaurant } from '../context/FilterContext';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
@@ -70,6 +70,16 @@ export const DemoCheckoutPage: React.FC = () => {
 
         if (isPaymentPopupOpen && currentOrderId) {
             interval = setInterval(async () => {
+                // If user intentionally closed the payment popup window, cancel polling and reset states
+                if (isPayUPopupClosed()) {
+                    clearInterval(interval);
+                    setIsPaymentPopupOpen(false);
+                    sessionStorage.removeItem("txnId");
+                    sessionStorage.removeItem("orderId");
+                    showToast("Payment failed or was cancelled.", "error");
+                    return;
+                }
+
                 const txnId = sessionStorage.getItem("txnId");
                 if (!txnId) return;
 

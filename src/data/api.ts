@@ -856,6 +856,10 @@ export const closePayUPopupWindow = () => {
   }
 };
 
+export const isPayUPopupClosed = () => {
+  return !payuWindowRef || payuWindowRef.closed;
+};
+
 export const startPayment = async (orderId: string) => {
   const params = await initiatePayment(orderId);
 
