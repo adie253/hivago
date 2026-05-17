@@ -94,6 +94,25 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         }
     }, []);
 
+    // Automatically bypass the 'location' step if browser permission is already granted
+    useEffect(() => {
+        if (step === 'location') {
+            if (typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query) {
+                try {
+                    navigator.permissions.query({ name: 'geolocation' as PermissionName }).then((result) => {
+                        if (result.state === 'granted') {
+                            handleAllowLocation();
+                        }
+                    }).catch(err => {
+                        console.error("Error querying location permission:", err);
+                    });
+                } catch (err) {
+                    console.warn("Permissions API query for geolocation is not supported in this browser:", err);
+                }
+            }
+        }
+    }, [step]);
+
     const renderStepper = () => {
         return (
             <div className="bg-white px-6 py-4 mb-3 border-b border-gray-100 flex items-center justify-between shadow-sm">
