@@ -195,9 +195,11 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
         setIsSaving(true);
         setErrorMsg('');
         try {
+            const finalLandmark = (landmark && landmark !== label) ? landmark : null;
+
             const payload = {
                 addressLine,
-                landmark,
+                landmark: finalLandmark,
                 latitude,
                 longitude,
                 label,

@@ -7,7 +7,7 @@ interface Address {
     id: string;
     label: string;
     addressLine: string;
-    landmark?: string;
+    landmark: string | null;
     isDefault: boolean;
     latitude: number;
     longitude: number;
@@ -99,6 +99,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                             id: 'current-location',
                             label: 'Current Location',
                             addressLine: 'Using your GPS location',
+                            landmark: null,
                             isDefault: false,
                             latitude,
                             longitude

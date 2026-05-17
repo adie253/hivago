@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Restaurant } from '../components/RestaurantCard';
+import { Restaurant } from '../context/FilterContext';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
 import { SuggestedItemSkeleton } from '../components/Skeletons';
@@ -65,6 +65,38 @@ export const CheckoutPage: React.FC = () => {
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
     const { setFulfillmentType } = useCart();
+
+    // Ensure restaurant details are always loaded as soon as restaurantId is available, independent of location coordinates
+    React.useEffect(() => {
+        if (restaurantId) {
+            let cancelled = false;
+            const loadDetails = async () => {
+                try {
+                    const details = await fetchRestaurantById(restaurantId);
+                    if (!cancelled && details) {
+                        setRestaurantDetails(details);
+                    }
+                } catch (err) {
+                    console.error("Failed to load restaurant details on mount/restaurantId change:", err);
+                }
+            };
+            loadDetails();
+            return () => { cancelled = true; };
+        }
+    }, [restaurantId]);
+
+    // Enrich cart items dynamically using the fetched restaurant details (menu catalog) to preserve correct isVeg status and imageUrl
+    const enrichedCartItems = React.useMemo(() => {
+        return cartItems.map(item => {
+            if (item.isAddon) return item;
+            const menuItem = restaurantDetails?.menu?.find(m => m.id === (item.menuItemId || item.id));
+            return {
+                ...item,
+                isVeg: menuItem ? (menuItem.type === 'Veg') : item.isVeg,
+                imageUrl: menuItem ? (menuItem.imageUrl || item.imageUrl) : item.imageUrl
+            };
+        });
+    }, [cartItems, restaurantDetails]);
 
 
 
@@ -278,16 +310,16 @@ export const CheckoutPage: React.FC = () => {
 
                             {/* Cart Items List */}
                             <div className="flex flex-col gap-3 lg:mt-2">
-                                {cartItems.map((item) => (
+                                {enrichedCartItems.map((item) => (
                                     <div key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-50">
                                         <div className="flex gap-4 items-center w-full">
                                             {/* Item Image */}
                                             {!item.isAddon && (
                                                 <div className="w-16 h-16 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden relative">
                                                     <img src={item.imageUrl || getFallbackImage(item.name)} alt={item.name} className="w-full h-full object-cover" />
-                                                    <div className="absolute bottom-1 left-1 bg-white p-[2px] rounded-sm">
-                                                        <div className={`w-2 h-2 rounded-sm border flex items-center justify-center ${item.isVeg ? 'border-emerald-600' : 'border-red-600'}`}>
-                                                            <div className={`w-1 h-1 rounded-full ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'}`}></div>
+                                                    <div className="absolute bottom-1 left-1">
+                                                        <div className={`w-4 h-4 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center bg-white p-0.5 shadow-sm`}>
+                                                            <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -371,6 +403,11 @@ export const CheckoutPage: React.FC = () => {
                                             <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col relative group">
                                                 <div className="h-32 w-full overflow-hidden relative">
                                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                    <div className="absolute top-2 left-2">
+                                                        <div className={`w-4 h-4 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center bg-white p-0.5 shadow-sm`}>
+                                                            <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                                                        </div>
+                                                    </div>
                                                     <button 
                                                         onClick={() => addToCart({
                                                             id: item.id,

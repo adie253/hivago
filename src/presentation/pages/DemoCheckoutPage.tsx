@@ -50,6 +50,19 @@ export const DemoCheckoutPage: React.FC = () => {
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
 
+    // Enrich cart items dynamically using the fetched restaurant details (menu catalog) to preserve correct isVeg status and imageUrl
+    const enrichedCartItems = React.useMemo(() => {
+        return cartItems.map(item => {
+            if (item.isAddon) return item;
+            const menuItem = restaurantDetails?.menu?.find(m => m.id === (item.menuItemId || item.id));
+            return {
+                ...item,
+                isVeg: menuItem ? (menuItem.type === 'Veg') : item.isVeg,
+                imageUrl: menuItem ? (menuItem.imageUrl || item.imageUrl) : item.imageUrl
+            };
+        });
+    }, [cartItems, restaurantDetails]);
+
 
 
     useEffect(() => {
@@ -172,13 +185,13 @@ export const DemoCheckoutPage: React.FC = () => {
                     pincode: resolvedDropPincode,
                     latitude: selectedLocation?.latitude || 0,
                     longitude: selectedLocation?.longitude || 0,
-                    landmark: selectedLocation?.label || "",
+                    landmark: (selectedLocation?.landmark && selectedLocation?.landmark !== selectedLocation?.label) ? selectedLocation.landmark : null,
                     buildingName: "",
                     floor: "",
                     contactPhone: customerPhone,
                     instructions: selectedDeliveryOption || ""
                 },
-                items: cartItems.map(item => ({
+                items: enrichedCartItems.map(item => ({
                     menuItemId: item.menuItemId || item.id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     itemName: item.name,
                     itemDescription: item.description || "Description",
@@ -501,12 +514,17 @@ export const DemoCheckoutPage: React.FC = () => {
                         <div className="hidden lg:flex flex-col gap-3">
                             <h2 className="text-sm font-bold text-gray-900 ml-1">Cart Items</h2>
                             <div className="flex flex-col gap-3">
-                                {cartItems.map(item => (
+                                {enrichedCartItems.map(item => (
                                     <div key={`dc-${item.id}`} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-100">
                                         <div className="flex gap-4 items-center w-full">
                                             {!item.isAddon && (
                                                 <div className="w-14 h-14 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden relative">
                                                     <img src={item.imageUrl || getFallbackImage(item.name)} alt={item.name} className="w-full h-full object-cover" />
+                                                    <div className="absolute bottom-1 left-1">
+                                                        <div className={`w-3.5 h-3.5 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center bg-white p-0.5 shadow-sm`}>
+                                                            <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
                                             <div className="flex-1">

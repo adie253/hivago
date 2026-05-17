@@ -725,7 +725,7 @@ export interface ApiPlaceOrderRequest {
         pincode: string;
         latitude: number;
         longitude: number;
-        landmark: string;
+        landmark: string | null;
         buildingName: string;
         floor: string;
         contactPhone: string;

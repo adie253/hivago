@@ -435,9 +435,11 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         }
         setIsSavingAddress(true);
         try {
+            const finalLandmark = (landmark && landmark !== label) ? landmark : null;
+
             const payload = {
                 addressLine,
-                landmark,
+                landmark: finalLandmark,
                 latitude: mapCoordinates?.lat || 19.033,
                 longitude: mapCoordinates?.lng || 73.029,
                 label,
