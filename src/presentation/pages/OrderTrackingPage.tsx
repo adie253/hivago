@@ -28,6 +28,7 @@ export const OrderTrackingPage: React.FC = () => {
     const [useFallbackTime, setUseFallbackTime] = useState(false);
     const [restaurantData, setRestaurantData] = useState<any | null>(null);
     const [deliveryCodes, setDeliveryCodes] = useState<{ pickupCode: string | null, dropCode: string | null } | null>(null);
+    const hasFetchedQuoteRef = React.useRef(false);
 
     // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
@@ -113,6 +114,9 @@ export const OrderTrackingPage: React.FC = () => {
     // Fetch delivery quote if estimatedMinutes is missing
     useEffect(() => {
         if (order && !order.estimatedMinutes && ['placed', 'preparing', 'delivery'].includes(status)) {
+            if (hasFetchedQuoteRef.current) return;
+            hasFetchedQuoteRef.current = true;
+
             const fetchQuote = async () => {
                 try {
                     let restaurant = restaurantData;
@@ -148,6 +152,8 @@ export const OrderTrackingPage: React.FC = () => {
                     }
                 } catch (err) {
                     console.error("[OrderTracking] Failed to fetch delivery quote:", err);
+                    // Reset on error so we can retry on subsequent polls
+                    hasFetchedQuoteRef.current = false;
                 }
             };
             fetchQuote();
