@@ -485,8 +485,8 @@ export const CheckoutPage: React.FC = () => {
 
                             {/* Delivery Address */}
                             <div
-                                onClick={() => isLoggedIn && setIsAddressDropdownOpen(!isAddressDropdownOpen)}
-                                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 cursor-pointer hover:bg-gray-50 transition-all relative"
+                                onClick={() => isLoggedIn && fulfillmentType !== 'Pickup' && setIsAddressDropdownOpen(!isAddressDropdownOpen)}
+                                className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 transition-all relative ${fulfillmentType !== 'Pickup' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -494,12 +494,12 @@ export const CheckoutPage: React.FC = () => {
                                             <MapPin className="w-5 h-5 fill-current" />
                                         </div>
                                         <div className="flex items-center gap-1.5 text-[15px]">
-                                            <span className="font-medium text-gray-600">Deliver to</span>
+                                            <span className="font-medium text-gray-600">{fulfillmentType === 'Pickup' ? 'Fulfillment' : 'Deliver to'}</span>
                                             <span className="text-gray-900 font-bold">-&gt;</span>
                                             <span className="font-bold text-gray-900">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Select Location'))}</span>
                                         </div>
                                     </div>
-                                    {isLoggedIn && (
+                                    {isLoggedIn && fulfillmentType !== 'Pickup' && (
                                         <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isAddressDropdownOpen ? 'rotate-180' : ''}`} />
                                     )}
                                 </div>
@@ -548,7 +548,7 @@ export const CheckoutPage: React.FC = () => {
                                 )}
 
                                 {/* Address Dropdown Overlay/List */}
-                                {isAddressDropdownOpen && isLoggedIn && (
+                                {isAddressDropdownOpen && isLoggedIn && fulfillmentType !== 'Pickup' && (
                                     <div className="absolute top-[105%] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 z-40 overflow-hidden animate-in fade-in slide-in-from-top-2">
                                         <div className="p-2 flex flex-col max-h-[240px] overflow-y-auto">
                                             {addresses.length === 0 ? (
@@ -645,41 +645,45 @@ export const CheckoutPage: React.FC = () => {
 
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
 
-                                        {isCheckingDelivery ? (
-                                                <div className="flex justify-between items-center mb-3 w-full">
-                                                <div className="flex flex-col gap-1">
-                                                    <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
-                                                    <div className="h-2 w-12 bg-gray-100 rounded animate-pulse" />
-                                                </div>
-                                                <div className="h-4 w-10 bg-gray-100 rounded animate-pulse" />
-                                            </div>
-                                        ) : (
-                                            <div className="flex justify-between items-center mb-3">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[#555] text-[14px]">
-                                                        Delivery Fee
-                                                        {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
-                                                    </span>
-                                                    {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
-                                                        <span className="text-[10px] text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-1.5">
-                                                    {deliveryFee > 0 ? (
-                                                        <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(deliveryFee)}</span>
-                                                    ) : deliveryStatus === 'error' ? (
-                                                        <span className="text-gray-400 text-[14px] font-medium">Not available</span>
-                                                    ) : (
-                                                        <span className="text-[#64C27B] text-[14px] font-medium">FREE</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
+                                        {fulfillmentType !== 'Pickup' && (
+                                            <>
+                                                {isCheckingDelivery ? (
+                                                    <div className="flex justify-between items-center mb-3 w-full">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
+                                                            <div className="h-2 w-12 bg-gray-100 rounded animate-pulse" />
+                                                        </div>
+                                                        <div className="h-4 w-10 bg-gray-100 rounded animate-pulse" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex justify-between items-center mb-3">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[#555] text-[14px]">
+                                                                Delivery Fee
+                                                                {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
+                                                            </span>
+                                                            {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
+                                                                <span className="text-[10px] text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            {deliveryFee > 0 ? (
+                                                                <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(deliveryFee)}</span>
+                                                            ) : deliveryStatus === 'error' ? (
+                                                                <span className="text-gray-400 text-[14px] font-medium">Not available</span>
+                                                            ) : (
+                                                                <span className="text-[#64C27B] text-[14px] font-medium">FREE</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
 
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="text-[#555] text-[14px]">Delivery Tip</span>
-                                            <span className="text-[#333] text-[14px]">₹0.00</span>
-                                        </div>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <span className="text-[#555] text-[14px]">Delivery Tip</span>
+                                                    <span className="text-[#333] text-[14px]">₹0.00</span>
+                                                </div>
+                                            </>
+                                        )}
 
                                         <div className="flex justify-between items-center mb-4">
                                             <span className="text-[#555] text-[14px]">GST and Restaurant Charges</span>

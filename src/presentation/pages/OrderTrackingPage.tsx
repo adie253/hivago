@@ -168,41 +168,71 @@ export const OrderTrackingPage: React.FC = () => {
         }
     }, [lastStatusUpdate]);
     
-    // Fetch delivery codes when rider is assigned
+    // Pre-fetch restaurant details to display pickup address if needed
+    useEffect(() => {
+        if (order && !restaurantData) {
+            fetchRestaurantById(order.restaurantId)
+                .then(setRestaurantData)
+                .catch(err => console.error("[OrderTracking] Failed to pre-fetch restaurant details:", err));
+        }
+    }, [order, restaurantData]);
+
+    // Fetch delivery codes when rider is assigned or when pickup is preparing/ready
     useEffect(() => {
         const loadCodes = async () => {
             if (!order || !orderId) return;
 
             const rawStatus = (order.status || '').toUpperCase();
-            // Statuses where a rider is involved
-            const hasRider = [
-                'ASSIGNED3PL', 
-                'RIDERASSIGNED', 
-                'RIDERENROUTEPICKUP', 
-                'RIDERARRIVEDPICKUP', 
-                'PICKEDUP', 
-                'RIDERENROUTEDROP', 
-                'RIDERARRIVEDDROP', 
-                'WAITINGFORCUSTOMER'
-            ].includes(rawStatus);
-
-            // Is the order still active?
             const isClosed = ['DELIVERED', 'CANCELLED', 'REJECTED', 'FAILED', 'COMPLETED'].includes(rawStatus);
+            const isPickupOrder = order?.fulfillmentType?.toLowerCase() === 'pickup';
 
-            if (hasRider && !isClosed) {
-                try {
-                    const codes = await fetchDeliveryCodes(orderId);
-                    setDeliveryCodes(codes);
-                } catch (err) {
-                    console.error("[OrderTracking] Failed to fetch delivery codes:", err);
+            if (isPickupOrder) {
+                const isAccepted = ['PREPARING', 'READY', 'READY FOR PICKUP', 'READY_FOR_PICKUP'].includes(rawStatus);
+                if (isAccepted && !isClosed) {
+                    try {
+                        const codes = await fetchDeliveryCodes(orderId);
+                        setDeliveryCodes(codes);
+                    } catch (err) {
+                        console.error("[OrderTracking] Failed to fetch pickup codes:", err);
+                    }
+                } else {
+                    setDeliveryCodes(null);
                 }
             } else {
-                setDeliveryCodes(null);
+                // Statuses where a rider is involved
+                const hasRider = [
+                    'ASSIGNED3PL', 
+                    'RIDERASSIGNED', 
+                    'RIDERENROUTEPICKUP', 
+                    'RIDERARRIVEDPICKUP', 
+                    'PICKEDUP', 
+                    'RIDERENROUTEDROP', 
+                    'RIDERARRIVEDDROP', 
+                    'WAITINGFORCUSTOMER'
+                ].includes(rawStatus);
+
+                if (hasRider && !isClosed) {
+                    try {
+                        const codes = await fetchDeliveryCodes(orderId);
+                        setDeliveryCodes(codes);
+                    } catch (err) {
+                        console.error("[OrderTracking] Failed to fetch delivery codes:", err);
+                    }
+                } else {
+                    setDeliveryCodes(null);
+                }
             }
         };
 
         loadCodes();
     }, [order, orderId]);
+
+    const isPickup = order?.fulfillmentType?.toLowerCase() === 'pickup';
+    const showCode = isPickup ? deliveryCodes?.pickupCode : deliveryCodes?.dropCode;
+    const codeLabel = isPickup ? 'Your Pickup Code' : 'Your Delivery Code';
+    const codeInstructions = isPickup
+        ? 'Show this code to the restaurant staff to pick up your order.'
+        : 'Read this out to your delivery partner when they arrive.';
 
     const stages = [
         {
@@ -225,16 +255,16 @@ export const OrderTrackingPage: React.FC = () => {
         },
         {
             id: 'delivery',
-            label: 'Out for Delivery',
-            subtext: 'Your food on the way.',
-            icon: Bike,
-            image: deliveryImg
+            label: isPickup ? 'Ready for Pickup' : 'Out for Delivery',
+            subtext: isPickup ? 'Your food is ready at the restaurant.' : 'Your food is on the way.',
+            icon: isPickup ? ShoppingBag : Bike,
+            image: isPickup ? preparingImg : deliveryImg
         },
         {
             id: 'delivered',
-            label: 'Delivered',
-            subtext: 'Your order has been delivered.',
-            icon: ShoppingBag,
+            label: isPickup ? 'Picked Up' : 'Delivered',
+            subtext: isPickup ? 'Your order has been picked up.' : 'Your order has been delivered.',
+            icon: isPickup ? CheckCircle : ShoppingBag,
             image: deliveredImg
         }
     ];
@@ -267,6 +297,14 @@ export const OrderTrackingPage: React.FC = () => {
         }
 
         return o.deliveryInfo?.deliveryAddress?.formattedAddress || 'Pune, India';
+    };
+
+    const getPickupAddressDisplay = (o: any) => {
+        if (!o) return '--';
+        if (o.deliveryInfo?.pickupAddress) return o.deliveryInfo.pickupAddress;
+        if (restaurantData?.addressLine) return restaurantData.addressLine;
+        if (restaurantData?.formattedAddress) return restaurantData.formattedAddress;
+        return 'Pickup from restaurant';
     };
 
     const getEstimatedTime = (o: ApiOrder | null) => {
@@ -504,12 +542,18 @@ export const OrderTrackingPage: React.FC = () => {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-5">
                                         <div className="w-16 h-16 bg-[#FFF0EF] border border-[#FFE0DF] flex items-center justify-center rounded-2xl shrink-0">
-                                            <Bike className="w-8 h-8 text-[#FF4732]" />
+                                            {isPickup ? (
+                                                <ShoppingBag className="w-8 h-8 text-[#FF4732]" />
+                                            ) : (
+                                                <Bike className="w-8 h-8 text-[#FF4732]" />
+                                            )}
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-gray-900 text-[18px] font-bold leading-none mb-2 tracking-tight">Estimated Delivery Time</span>
+                                            <span className="text-gray-900 text-[18px] font-bold leading-none mb-2 tracking-tight">
+                                                {isPickup ? 'Estimated Pickup Time' : 'Estimated Delivery Time'}
+                                            </span>
                                             <span className="text-[#FF4732] font-bold text-[22px] uppercase">
-                                                {status === 'delivered' ? 'Delivered' : getEstimatedTime(order)}
+                                                {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
                                         </div>
                                     </div>
@@ -521,9 +565,11 @@ export const OrderTrackingPage: React.FC = () => {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="flex flex-col">
-                                            <span className="text-gray-900 font-bold text-[18px] mb-2 tracking-tight">Delivery Address</span>
+                                            <span className="text-gray-900 font-bold text-[18px] mb-2 tracking-tight">
+                                                {isPickup ? 'Pickup Address' : 'Delivery Address'}
+                                            </span>
                                             <span className="text-gray-400 text-[15px] font-medium w-[85%] text-pretty leading-relaxed">
-                                                {getAddressDisplay(order)}
+                                                {isPickup ? getPickupAddressDisplay(order) : getAddressDisplay(order)}
                                             </span>
                                         </div>
                                     </div>
@@ -536,19 +582,19 @@ export const OrderTrackingPage: React.FC = () => {
                                 <hr className="border-gray-50 border-t-2" />
                                 
                                 {/* Delivery Code Card */}
-                                {deliveryCodes?.dropCode && (
+                                {showCode && (
                                     <>
                                         <div className="flex flex-col items-center py-6 bg-[#F8FAFC] rounded-[28px] border border-blue-50/50 shadow-inner">
-                                            <span className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em] mb-5">Your Delivery Code</span>
+                                            <span className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em] mb-5">{codeLabel}</span>
                                             <div className="flex gap-3 mb-5">
-                                                {deliveryCodes.dropCode.split('').map((digit, i) => (
+                                                {showCode.split('').map((digit, i) => (
                                                     <div key={i} className="w-12 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-3xl font-black text-[#111]">
                                                         {digit}
                                                     </div>
                                                 ))}
                                             </div>
                                             <p className="text-gray-500 text-[13px] font-bold leading-relaxed text-center max-w-[240px]">
-                                                Read this out to your delivery partner when they arrive.
+                                                {codeInstructions}
                                             </p>
                                         </div>
                                         <hr className="border-gray-50 border-t-2" />
@@ -556,7 +602,7 @@ export const OrderTrackingPage: React.FC = () => {
                                 )}
 
                                 {/* Contact Partner */}
-                                {(order as any)?.rider && (
+                                {!isPickup && (order as any)?.rider && (
                                     <div className="flex flex-col gap-4">
                                         <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Contact Delivery Partner</h2>
                                         <div className="bg-[#FCFCFC] rounded-[24px] p-2.5 border border-gray-100 flex items-center justify-between shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
@@ -595,10 +641,86 @@ export const OrderTrackingPage: React.FC = () => {
                                                 <span className="text-gray-900 font-bold">₹{(item.unitPrice || 0) * (item.quantity || 1)}</span>
                                             </div>
                                         ))}
-                                        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                                            <span className="text-gray-900 font-bold text-[18px]">Total Amount</span>
-                                            <span className="text-gray-900 font-bold text-xl">₹{getOrderTotal(order)}</span>
-                                        </div>
+                                        {/* Dynamic Payment Breakdown */}
+                                        {(() => {
+                                            const itemsTotal = Array.isArray(order?.items) ? order.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
+                                            const pricingSubTotal = order?.pricing?.subTotal || itemsTotal;
+                                            const pricingDeliveryFee = !isPickup ? (order?.pricing?.deliveryFee || 0) : 0;
+                                            const pricingDeliveryTip = !isPickup ? (order?.pricing?.tip || 0) : 0;
+                                            const pricingTax = order?.pricing?.tax || 0;
+                                            const pricingDiscount = order?.pricing?.discount || 0;
+                                            const pricingPackagingFee = order?.pricing?.packagingFee || 0;
+                                            const pricingServiceFee = order?.pricing?.serviceFee || 0;
+                                            const pricingTotal = getOrderTotal(order);
+
+                                            const definedExtras = pricingDeliveryFee + pricingDeliveryTip + pricingTax + pricingPackagingFee + pricingServiceFee - pricingDiscount;
+                                            const remainder = pricingTotal - (pricingSubTotal + definedExtras);
+
+                                            return (
+                                                <div className="flex flex-col gap-2.5 pt-4 border-t border-gray-100 text-[14px]">
+                                                    <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                        <span>Item Total</span>
+                                                        <span>₹{pricingSubTotal}</span>
+                                                    </div>
+                                                    
+                                                    {!isPickup && pricingDeliveryFee > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>Delivery Fee</span>
+                                                            <span>₹{pricingDeliveryFee}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {!isPickup && pricingDeliveryTip > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>Delivery Tip</span>
+                                                            <span>₹{pricingDeliveryTip}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {pricingPackagingFee > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>Packaging Charges</span>
+                                                            <span>₹{pricingPackagingFee}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {pricingServiceFee > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>Platform Charges</span>
+                                                            <span>₹{pricingServiceFee}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {pricingTax > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>GST and Taxes</span>
+                                                            <span>₹{pricingTax}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {pricingDiscount > 0 && (
+                                                        <div className="flex justify-between items-center text-[#64C27B] font-medium">
+                                                            <span>Discount Applied</span>
+                                                            <span>-₹{pricingDiscount}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {remainder > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>Taxes & Charges</span>
+                                                            <span>₹{remainder}</span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="border-t border-dashed border-gray-200 my-1.5"></div>
+
+                                                    <div className="flex justify-between items-center text-gray-900 font-bold text-[18px]">
+                                                        <span>Total Paid</span>
+                                                        <span className="text-xl text-gray-900">₹{pricingTotal}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>
@@ -610,14 +732,20 @@ export const OrderTrackingPage: React.FC = () => {
                             <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-50 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-[#FFF0EF] p-4 rounded-2xl">
-                                        <Bike className="w-6 h-6 text-[#FF4732]" />
+                                        {isPickup ? (
+                                            <ShoppingBag className="w-6 h-6 text-[#FF4732]" />
+                                        ) : (
+                                            <Bike className="w-6 h-6 text-[#FF4732]" />
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-gray-400 text-[13px] font-medium leading-none mb-1.5">Estimated Delivery Time</span>
+                                        <span className="text-gray-400 text-[13px] font-medium leading-none mb-1.5">
+                                            {isPickup ? 'Estimated Pickup Time' : 'Estimated Delivery Time'}
+                                        </span>
                                         <div className="flex items-center gap-1.5">
                                             <Clock className="w-4 h-4 text-[#FF4732]" />
                                             <span className="text-[#FF4732] font-bold text-[17px]">
-                                                {status === 'delivered' ? 'Delivered' : getEstimatedTime(order)}
+                                                {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
                                         </div>
                                     </div>
@@ -631,9 +759,11 @@ export const OrderTrackingPage: React.FC = () => {
                                         <MapPin className="w-6 h-6 text-[#00A050]" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-gray-900 font-bold text-[15px] mb-0.5">Delivery Address</span>
+                                        <span className="text-gray-900 font-bold text-[15px] mb-0.5">
+                                            {isPickup ? 'Pickup Address' : 'Delivery Address'}
+                                        </span>
                                         <span className="text-gray-400 text-[13px] font-medium">
-                                            {getAddressDisplay(order)}
+                                            {isPickup ? getPickupAddressDisplay(order) : getAddressDisplay(order)}
                                         </span>
                                     </div>
                                 </div>
@@ -707,24 +837,24 @@ export const OrderTrackingPage: React.FC = () => {
 
                     <div className="flex flex-col gap-6 lg:hidden w-full">
                         {/* Mobile Delivery Code Card */}
-                        {deliveryCodes?.dropCode && (
+                        {showCode && (
                             <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-50 flex flex-col items-center text-center gap-5">
-                                <span className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em]">Your Delivery Code</span>
+                                <span className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em]">{codeLabel}</span>
                                 <div className="flex gap-3">
-                                    {deliveryCodes.dropCode.split('').map((digit, i) => (
+                                    {showCode.split('').map((digit, i) => (
                                         <div key={i} className="w-12 h-16 bg-[#F8F9FA] rounded-2xl border border-gray-100 flex items-center justify-center text-3xl font-black text-gray-900 shadow-inner">
                                             {digit}
                                         </div>
                                     ))}
                                 </div>
                                 <p className="text-gray-500 text-[13px] font-bold leading-relaxed max-w-[220px]">
-                                    Read this out to your delivery partner when they arrive.
+                                    {codeInstructions}
                                 </p>
                             </div>
                         )}
 
                         {/* Contact Partner Card */}
-                        {(order as any)?.rider && (
+                        {!isPickup && (order as any)?.rider && (
                             <div className="flex flex-col gap-3">
                                 <h2 className="text-sm font-bold text-gray-900 ml-1">Contact Delivery Partner</h2>
                                 <div className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 flex items-center justify-between">
@@ -735,7 +865,7 @@ export const OrderTrackingPage: React.FC = () => {
                                         <div className="flex flex-col gap-0.5">
                                             <span className="text-[15px] font-bold text-gray-900">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
                                             <div className="flex items-center gap-1.5">
-                                                <div className="flex items-center gap-0.5 text-amber-500">
+                                                <div className="flex items-center gap-1.5 text-amber-500">
                                                     <Star className="w-3.5 h-3.5 fill-current" />
                                                     <span className="text-[12px] font-bold">{(order as any)?.rider?.rating || '4.9'}</span>
                                                 </div>
@@ -763,10 +893,86 @@ export const OrderTrackingPage: React.FC = () => {
                                         <span className="text-gray-700 font-bold">₹{(item.unitPrice || 0) * (item.quantity || 1)}</span>
                                     </div>
                                 ))}
-                                <div className="flex justify-between items-center pt-1 border-t border-dashed border-gray-100 mt-1">
-                                    <span className="text-gray-900 font-bold">Total Amount</span>
-                                    <span className="text-gray-900 font-bold text-lg">₹{getOrderTotal(order)}</span>
-                                </div>
+                                {/* Dynamic Payment Breakdown (Mobile) */}
+                                {(() => {
+                                    const itemsTotal = Array.isArray(order?.items) ? order.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
+                                    const pricingSubTotal = order?.pricing?.subTotal || itemsTotal;
+                                    const pricingDeliveryFee = !isPickup ? (order?.pricing?.deliveryFee || 0) : 0;
+                                    const pricingDeliveryTip = !isPickup ? (order?.pricing?.tip || 0) : 0;
+                                    const pricingTax = order?.pricing?.tax || 0;
+                                    const pricingDiscount = order?.pricing?.discount || 0;
+                                    const pricingPackagingFee = order?.pricing?.packagingFee || 0;
+                                    const pricingServiceFee = order?.pricing?.serviceFee || 0;
+                                    const pricingTotal = getOrderTotal(order);
+
+                                    const definedExtras = pricingDeliveryFee + pricingDeliveryTip + pricingTax + pricingPackagingFee + pricingServiceFee - pricingDiscount;
+                                    const remainder = pricingTotal - (pricingSubTotal + definedExtras);
+
+                                    return (
+                                        <div className="flex flex-col gap-2 pt-2 border-t border-dashed border-gray-100 text-xs">
+                                            <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                <span>Item Total</span>
+                                                <span>₹{pricingSubTotal}</span>
+                                            </div>
+                                            
+                                            {!isPickup && pricingDeliveryFee > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>Delivery Fee</span>
+                                                    <span>₹{pricingDeliveryFee}</span>
+                                                </div>
+                                            )}
+
+                                            {!isPickup && pricingDeliveryTip > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>Delivery Tip</span>
+                                                    <span>₹{pricingDeliveryTip}</span>
+                                                </div>
+                                            )}
+
+                                            {pricingPackagingFee > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>Packaging Charges</span>
+                                                    <span>₹{pricingPackagingFee}</span>
+                                                </div>
+                                            )}
+
+                                            {pricingServiceFee > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>Platform Charges</span>
+                                                    <span>₹{pricingServiceFee}</span>
+                                                </div>
+                                            )}
+
+                                            {pricingTax > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>GST and Taxes</span>
+                                                    <span>₹{pricingTax}</span>
+                                                </div>
+                                            )}
+
+                                            {pricingDiscount > 0 && (
+                                                <div className="flex justify-between items-center text-[#64C27B] font-medium">
+                                                    <span>Discount Applied</span>
+                                                    <span>-₹{pricingDiscount}</span>
+                                                </div>
+                                            )}
+
+                                            {remainder > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>Taxes & Charges</span>
+                                                    <span>₹{remainder}</span>
+                                                </div>
+                                            )}
+
+                                            <div className="border-t border-dashed border-gray-100 my-1"></div>
+
+                                            <div className="flex justify-between items-center text-gray-900 font-bold text-sm">
+                                                <span>Total Paid</span>
+                                                <span className="text-gray-900 font-bold text-base">₹{pricingTotal}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
 

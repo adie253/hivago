@@ -431,10 +431,11 @@ export const DemoCheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Two Column Layout for Desktop */}
-                <div className="flex flex-col lg:flex-row gap-6 lg:items-start lg:mt-2">
+                <div className={`flex flex-col lg:flex-row gap-6 lg:items-start lg:mt-2 ${fulfillmentType === 'Pickup' ? 'lg:justify-center' : ''}`}>
 
                     {/* Left Column */}
-                    <div className="flex flex-col gap-6 flex-1 w-full lg:max-w-[48%]">
+                    {fulfillmentType !== 'Pickup' && (
+                        <div className="flex flex-col gap-6 flex-1 w-full lg:max-w-[48%]">
 
                         {/* Address Map */}
                         <div className="hidden lg:flex flex-col gap-2 pt-2">
@@ -515,10 +516,11 @@ export const DemoCheckoutPage: React.FC = () => {
                                 ))}
                             </div>
                         </div>
-                    </div> {/* End Left Column */}
+                        </div>
+                    )} {/* End Left Column */}
 
                     {/* Right Column */}
-                    <div className="flex flex-col gap-6 w-full lg:flex-1 lg:max-w-[50%] lg:bg-white lg:p-6 lg:rounded-[24px] lg:shadow-sm lg:border lg:border-gray-50">
+                    <div className={`flex flex-col gap-6 w-full lg:flex-1 lg:bg-white lg:p-6 lg:rounded-[24px] lg:shadow-sm lg:border lg:border-gray-50 ${fulfillmentType === 'Pickup' ? 'lg:max-w-[600px]' : 'lg:max-w-[50%]'}`}>
 
                         {/* Cart Items */}
                         <div className="hidden lg:flex flex-col gap-3">
@@ -577,25 +579,27 @@ export const DemoCheckoutPage: React.FC = () => {
                         </div>
 
                         {/* Add Tip */}
-                        <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-5 lg:p-0 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
-                            <h2 className="text-sm font-bold text-gray-900">Add Tip for Delivery Partner</h2>
-                            <div className="flex gap-2">
-                                {[
-                                    { label: 'No Tip', value: 0 },
-                                    { label: '₹20', value: 20 },
-                                    { label: '₹30', value: 30 },
-                                    { label: '₹50', value: 50 }
-                                ].map((tip) => (
-                                    <button
-                                        key={tip.label}
-                                        onClick={() => setTipAmount(tip.value)}
-                                        className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${tipAmount === tip.value ? 'bg-[#FF584A] text-white shadow-lg shadow-red-100' : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-100'}`}
-                                    >
-                                        {tip.label}
-                                    </button>
-                                ))}
+                        {fulfillmentType !== 'Pickup' && (
+                            <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-5 lg:p-0 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
+                                <h2 className="text-sm font-bold text-gray-900">Add Tip for Delivery Partner</h2>
+                                <div className="flex gap-2">
+                                    {[
+                                        { label: 'No Tip', value: 0 },
+                                        { label: '₹20', value: 20 },
+                                        { label: '₹30', value: 30 },
+                                        { label: '₹50', value: 50 }
+                                    ].map((tip) => (
+                                        <button
+                                            key={tip.label}
+                                            onClick={() => setTipAmount(tip.value)}
+                                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${tipAmount === tip.value ? 'bg-[#FF584A] text-white shadow-lg shadow-red-100' : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-100'}`}
+                                        >
+                                            {tip.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Add Payment Method Button */}
                         {/* <button
@@ -626,42 +630,46 @@ export const DemoCheckoutPage: React.FC = () => {
 
                                 <div className="border-t border-dashed border-gray-100"></div>
 
-                                {isCheckingDelivery ? (
-                                    // Skeleton while fetching delivery quote
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex flex-col gap-1.5">
-                                            <div className="h-3.5 w-24 bg-gray-100 rounded-full animate-pulse" />
-                                            <div className="h-2.5 w-16 bg-gray-100 rounded-full animate-pulse" />
-                                        </div>
-                                        <div className="h-4 w-12 bg-gray-100 rounded-full animate-pulse" />
-                                    </div>
-                                ) : (
-                                    <div className="flex justify-between items-center text-sm">
-                                        <div className="flex flex-col">
-                                            <span className="text-gray-400 font-medium">
-                                                Delivery Fee
-                                                {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
-                                            </span>
-                                            {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
-                                                <span className="text-xs text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {deliveryFee > 0 ? (
-                                                <span className="text-gray-700 font-bold">₹{deliveryFee.toFixed(0)}</span>
-                                            ) : deliveryStatus === 'error' ? (
-                                                <span className="text-gray-400 font-bold">Not available</span>
-                                            ) : (
-                                                <span className="text-[#64C27B] font-bold">FREE</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                {fulfillmentType !== 'Pickup' && (
+                                    <>
+                                        {isCheckingDelivery ? (
+                                            // Skeleton while fetching delivery quote
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex flex-col gap-1.5">
+                                                    <div className="h-3.5 w-24 bg-gray-100 rounded-full animate-pulse" />
+                                                    <div className="h-2.5 w-16 bg-gray-100 rounded-full animate-pulse" />
+                                                </div>
+                                                <div className="h-4 w-12 bg-gray-100 rounded-full animate-pulse" />
+                                            </div>
+                                        ) : (
+                                            <div className="flex justify-between items-center text-sm">
+                                                <div className="flex flex-col">
+                                                    <span className="text-gray-400 font-medium">
+                                                        Delivery Fee
+                                                        {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
+                                                    </span>
+                                                    {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
+                                                        <span className="text-xs text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {deliveryFee > 0 ? (
+                                                        <span className="text-gray-700 font-bold">₹{deliveryFee.toFixed(0)}</span>
+                                                    ) : deliveryStatus === 'error' ? (
+                                                        <span className="text-gray-400 font-bold">Not available</span>
+                                                    ) : (
+                                                        <span className="text-[#64C27B] font-bold">FREE</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
 
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium">Delivery Tip</span>
-                                    <span className="text-gray-700 font-bold">{tipAmount.toFixed(2).padStart(5, '0')}</span>
-                                </div>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-400 font-medium">Delivery Tip</span>
+                                            <span className="text-gray-700 font-bold">{tipAmount.toFixed(2).padStart(5, '0')}</span>
+                                        </div>
+                                    </>
+                                )}
 
                                 <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
                                     <span className="text-gray-400 font-medium">GST and Restaurant Charges</span>
