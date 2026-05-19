@@ -17,12 +17,26 @@ export const ProfilePage: React.FC = () => {
     const [editName, setEditName] = useState("");
     const [editEmail, setEditEmail] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-    const [isAddressOverlayOpen, setIsAddressOverlayOpen] = useState(false);
-    const [addressToEdit, setAddressToEdit] = useState<any>(null);
+    const [isAddressOverlayOpen, setIsAddressOverlayOpen] = useState(() => {
+        return sessionStorage.getItem('profile_address_overlay_open') === 'true';
+    });
+    const [addressToEdit, setAddressToEdit] = useState<any>(() => {
+        const saved = sessionStorage.getItem('profile_address_to_edit');
+        return saved ? JSON.parse(saved) : null;
+    });
     const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
     const { refreshLoginStatus } = useCart();
     const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
     const { showToast } = useToast();
+
+    useEffect(() => {
+        sessionStorage.setItem('profile_address_overlay_open', isAddressOverlayOpen.toString());
+        if (addressToEdit) {
+            sessionStorage.setItem('profile_address_to_edit', JSON.stringify(addressToEdit));
+        } else {
+            sessionStorage.removeItem('profile_address_to_edit');
+        }
+    }, [isAddressOverlayOpen, addressToEdit]);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -399,7 +413,10 @@ export const ProfilePage: React.FC = () => {
 
             <AddAddressOverlay 
                 isOpen={isAddressOverlayOpen}
-                onClose={() => setIsAddressOverlayOpen(false)}
+                onClose={() => {
+                    setIsAddressOverlayOpen(false);
+                    setAddressToEdit(null);
+                }}
                 addressToEdit={addressToEdit}
             />
 

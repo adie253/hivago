@@ -45,8 +45,22 @@ export const CheckoutPage: React.FC = () => {
     } = useCart();
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
-    const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(false);
+    const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(() => {
+        return sessionStorage.getItem('checkout_details_flow_open') === 'true';
+    });
     const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
+
+    useEffect(() => {
+        sessionStorage.setItem('checkout_details_flow_open', isDetailsFlowOpen.toString());
+        if (!isDetailsFlowOpen) {
+            sessionStorage.removeItem('checkout_details_flow_open');
+            sessionStorage.removeItem('checkout_step');
+            sessionStorage.removeItem('checkout_address_line');
+            sessionStorage.removeItem('checkout_landmark');
+            sessionStorage.removeItem('checkout_label');
+            sessionStorage.removeItem('checkout_map_coords');
+        }
+    }, [isDetailsFlowOpen]);
 
     useEffect(() => {
         if (selectedLocation) {
