@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Home, ChevronRight, ChevronDown, Lock, Shield, FileText, ArrowUpRight, Scale, Users } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Home, ChevronRight, ChevronDown, Lock, Shield, FileText, ArrowUpRight } from 'lucide-react';
 import { policyData } from '../data/policyData';
 
 export const PrivacyPage: React.FC = () => {
-    // Determine active document from URL query search parameters, defaulting to 'privacy'
-    const [selectedDocId, setSelectedDocId] = useState<string>(() => {
-        const params = new URLSearchParams(window.location.search);
-        const docParam = params.get('doc');
-        return (docParam && policyData[docParam]) ? docParam : 'privacy';
-    });
+    const [searchParams, setSearchParams] = useSearchParams();
+    const docParam = searchParams.get('doc');
+    const selectedDocId = (docParam && policyData[docParam]) ? docParam : 'privacy';
+
+    const setSelectedDocId = (id: string) => {
+        setSearchParams({ doc: id });
+    };
 
     const [activeSection, setActiveSection] = useState('preamble');
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -247,13 +248,9 @@ export const PrivacyPage: React.FC = () => {
         return blocks;
     };
 
-    // Keep active doc in URL query parameters without full page reloads
+    // Reset section outline and scroll to top on document query change
     useEffect(() => {
-        const newUrl = `${window.location.pathname}?doc=${selectedDocId}${window.location.hash}`;
-        window.history.replaceState(null, '', newUrl);
         setActiveSection('preamble');
-
-        // Scroll back to top on document change
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [selectedDocId]);
 
@@ -303,18 +300,26 @@ export const PrivacyPage: React.FC = () => {
     const policySidebarItems = [
         { id: 'privacy', label: 'Privacy Policy', icon: Shield, category: 'Core Policies' },
         { id: 'terms', label: 'Terms & Conditions', icon: Lock, category: 'Core Policies' },
-        { id: 'refund', label: 'Refund & Cancellation', icon: FileText, category: 'Core Policies' },
-        { id: 'restaurant', label: 'Restaurant Agreement', icon: Scale, category: 'Partner Agreements' },
-        { id: 'delivery', label: 'Delivery Partner Agreement', icon: Users, category: 'Partner Agreements' }
+        { id: 'refund', label: 'Refund & Cancellation', icon: FileText, category: 'Core Policies' }
     ];
 
 
 
     return (
         <div className="min-h-screen bg-white font-sans text-gray-800">
+            {/* Custom self-contained style for hiding swipable document scrollbars */}
+            <style>{`
+                .scrollbar-none::-webkit-scrollbar {
+                    display: none;
+                }
+                .scrollbar-none {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
 
             {/* Mobile Table of Contents Bar */}
-            <div className="lg:hidden bg-gray-50 border-b border-gray-200 px-6 py-3 sticky top-[116px] md:top-[125px] z-30 flex items-center justify-between">
+            <div className="lg:hidden bg-gray-50 border-b border-gray-200 px-6 py-3 sticky top-[64px] md:top-[72px] z-30 flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Document Sections</span>
                 <button
                     onClick={() => setMobileNavOpen(!mobileNavOpen)}
@@ -327,7 +332,7 @@ export const PrivacyPage: React.FC = () => {
 
             {/* Mobile Dropdown Menu */}
             {mobileNavOpen && (
-                <div className="lg:hidden fixed inset-0 z-20 bg-black/40 backdrop-blur-xs top-[156px]" onClick={() => setMobileNavOpen(false)}>
+                <div className="lg:hidden fixed inset-0 z-20 bg-black/40 backdrop-blur-xs top-[112px] md:top-[120px]" onClick={() => setMobileNavOpen(false)}>
                     <div className="bg-white max-h-[60vh] overflow-y-auto px-6 py-4 shadow-xl flex flex-col gap-2.5 animate-in slide-in-from-top-4 duration-200" onClick={e => e.stopPropagation()}>
                         {docSections.map((sec) => (
                             <button
@@ -350,56 +355,25 @@ export const PrivacyPage: React.FC = () => {
                 <div className="flex flex-col md:flex-row gap-10">
 
                     {/* Left Sidebar - Policy Guidelines Index */}
-                    <aside className="w-full md:w-64 flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-100 md:pb-0 md:pr-6 self-start sticky top-24">
-                        <nav className="flex flex-col gap-5">
-
-                            {/* Core Agreements Category */}
-                            <div>
-                                <h5 className="text-[11px] font-extrabold uppercase tracking-widest text-gray-400 mb-3 px-4">Core Agreements</h5>
-                                <div className="flex flex-col gap-1">
-                                    {policySidebarItems.filter(i => i.category === 'Core Policies').map((item) => {
-                                        const isActive = item.id === selectedDocId;
-                                        const Icon = item.icon;
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                onClick={() => setSelectedDocId(item.id)}
-                                                className={`w-full text-left px-4 py-2.5 text-[13.5px] font-bold rounded-xl transition-all flex items-center gap-2.5 ${isActive
-                                                        ? 'bg-[#FFF4F3] text-[#B02421]'
-                                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                <Icon className={`w-4 h-4 ${isActive ? 'text-[#B02421]' : 'text-gray-400'}`} />
-                                                <span>{item.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Partner Agreements Category */}
-                            <div>
-                                <h5 className="text-[11px] font-extrabold uppercase tracking-widest text-gray-400 mb-3 px-4">Partner Agreements</h5>
-                                <div className="flex flex-col gap-1">
-                                    {policySidebarItems.filter(i => i.category === 'Partner Agreements').map((item) => {
-                                        const isActive = item.id === selectedDocId;
-                                        const Icon = item.icon;
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                onClick={() => setSelectedDocId(item.id)}
-                                                className={`w-full text-left px-4 py-2.5 text-[13.5px] font-bold rounded-xl transition-all flex items-center gap-2.5 ${isActive
-                                                        ? 'bg-[#FFF4F3] text-[#B02421]'
-                                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                <Icon className={`w-4 h-4 ${isActive ? 'text-[#B02421]' : 'text-gray-400'}`} />
-                                                <span>{item.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                    <aside className="hidden md:block w-64 flex-shrink-0 border-r border-gray-100 pr-6 self-start sticky top-24">
+                        <nav className="flex flex-col gap-1.5">
+                            {policySidebarItems.map((item) => {
+                                const isActive = item.id === selectedDocId;
+                                const Icon = item.icon;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => setSelectedDocId(item.id)}
+                                        className={`w-full text-left px-4 py-2.5 text-[13.5px] font-bold rounded-xl transition-all flex items-center gap-2.5 cursor-pointer ${isActive
+                                                ? 'bg-[#FFF4F3] text-[#B02421]'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <Icon className={`w-4 h-4 ${isActive ? 'text-[#B02421]' : 'text-gray-400'}`} />
+                                        <span>{item.label}</span>
+                                    </button>
+                                );
+                            })}
                         </nav>
                     </aside>
 
@@ -415,6 +389,27 @@ export const PrivacyPage: React.FC = () => {
                             <span className="text-gray-400">Legal Portal</span>
                             <ChevronRight className="w-3 h-3" />
                             <span className="text-gray-500">{activeDoc.title}</span>
+                        </div>
+
+                        {/* Mobile Swipeable Document Selection Tabs */}
+                        <div className="md:hidden flex gap-2.5 overflow-x-auto pb-3 mb-6 scrollbar-none border-b border-gray-100 -mx-6 px-6">
+                            {policySidebarItems.map((item) => {
+                                const isActive = item.id === selectedDocId;
+                                const Icon = item.icon;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => setSelectedDocId(item.id)}
+                                        className={`whitespace-nowrap flex items-center gap-1.5 px-4.5 py-2 text-xs font-bold rounded-xl transition-all ${isActive
+                                                ? 'bg-[#FFF4F3] text-[#B02421] shadow-xs'
+                                                : 'text-gray-500 bg-gray-50 hover:bg-gray-100'
+                                            }`}
+                                    >
+                                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#B02421]' : 'text-gray-400'}`} />
+                                        <span>{item.label}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         {/* Title & Badge */}

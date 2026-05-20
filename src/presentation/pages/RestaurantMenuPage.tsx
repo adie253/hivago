@@ -174,9 +174,9 @@ export const RestaurantMenuPage: React.FC = () => {
                             Veg-Non Veg Family Restaurant
                         </p>
 
-                        <div className="flex items-center gap-2 text-gray-600 mt-4">
-                            <MapPin className="w-3.5 h-3.5 text-[#FF4732]" />
-                            <span className="text-[11px] font-bold line-clamp-1">{restaurant.addressLine || 'Pune, India'}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600 mt-3.5">
+                            <MapPin className="w-3.5 h-3.5 text-[#FF4732] flex-shrink-0" />
+                            <span className="text-[11px] font-semibold text-gray-500 line-clamp-1">{restaurant.addressLine || 'Pune, India'}</span>
                         </div>
 
                         <div className="flex items-center justify-center gap-3 mt-4 text-[11px] font-bold text-gray-500">
@@ -342,9 +342,9 @@ export const RestaurantMenuPage: React.FC = () => {
                                 <p className="text-gray-500 font-bold text-sm mb-2 uppercase tracking-tight">
                                     Veg-Non Veg Family Restaurant
                                 </p>
-                                <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                                    <MapPin className="w-4 h-4 text-[#FF4732]" />
-                                    <span className="font-bold">{restaurant.addressLine || 'Pune, India'}</span>
+                                <div className="flex items-start gap-2 text-gray-500 text-sm mt-3 max-w-xl">
+                                    <MapPin className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <span className="font-semibold text-gray-600 leading-relaxed">{restaurant.addressLine || 'Pune, India'}</span>
                                 </div>
                             </div>
 

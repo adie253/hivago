@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, Truck, Heart, Users, Award, Target, ChevronRight, ArrowRight } from 'lucide-react';
+import { 
+    ChefHat, Truck, Heart, Users, Award, Target, ChevronRight, ArrowRight,
+    Building2, Receipt, MapPin, Mail, Shield, Lock, AlertCircle, CreditCard,
+    Utensils, Bike, FileText, CheckCircle
+} from 'lucide-react';
 import { gsap } from 'gsap';
 
 export const AboutUsPage: React.FC = () => {
@@ -204,9 +208,226 @@ export const AboutUsPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
+            {/* Corporate Profile & Regulatory Info */}
             <section 
                 ref={(el) => (sectionRefs.current[5] = el)}
+                className="py-24 bg-slate-50 border-t border-b border-slate-100 px-6"
+            >
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center mb-16">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#B02421]/10 text-[#B02421] text-xs font-extrabold uppercase tracking-wider mb-4">
+                            <Building2 className="w-3.5 h-3.5" />
+                            <span>Corporate Profile</span>
+                        </div>
+                        <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                            Legal & Regulatory Info
+                        </h2>
+                        <p className="text-slate-500 font-bold max-w-xl mx-auto text-sm md:text-base">
+                            Official company credentials, registration details, and regulatory compliance indexes.
+                        </p>
+                    </div>
+
+                    {/* Top 4-Column Grid: Credentials */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                        {/* Company Card */}
+                        <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                    <Building2 className="w-5 h-5" />
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Company Entity</span>
+                            </div>
+                            <h4 className="text-base font-bold text-slate-900 leading-snug">WaradaVinayaka Private Limited</h4>
+                        </div>
+
+                        {/* FSSAI License Card */}
+                        <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                    <CheckCircle className="w-5 h-5" />
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">FSSAI License</span>
+                            </div>
+                            <h4 className="text-base font-bold text-slate-900 leading-snug"><span className="text-xs text-slate-400 font-medium block mt-0.5">(Reference No.)</span>10260408108518842 </h4>
+                        </div>
+
+                        {/* GSTIN Card */}
+                        <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                    <Receipt className="w-5 h-5" />
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">GSTIN Registry</span>
+                            </div>
+                            <h4 className="text-base font-bold text-slate-900 leading-snug">27AAECW3756G1Z3</h4>
+                        </div>
+
+                        {/* Base City Card */}
+                        <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                    <MapPin className="w-5 h-5" />
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Operating City</span>
+                            </div>
+                            <h4 className="text-base font-bold text-slate-900 leading-snug">Airoli, Navi Mumbai, MH</h4>
+                        </div>
+                    </div>
+
+                    {/* Bottom Split Layout: 2-Columns */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                        {/* Left Section (Column Span 7) */}
+                        <div className="lg:col-span-7 space-y-6">
+                            {/* Registered Office address card */}
+                            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                    <MapPin className="w-5 h-5 text-[#FF4732]" />
+                                    <span>Registered Office Address</span>
+                                </h3>
+                                <div className="space-y-4 text-sm font-medium">
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">Full Address</span>
+                                        <span className="text-slate-700 leading-relaxed">AL-5-13/9, Sneh Sagar Apt, Sector – 17, Airoli, Navi Mumbai – 400708</span>
+                                    </div>
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">District</span>
+                                        <span className="text-slate-700">Navi Mumbai, Thane District</span>
+                                    </div>
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">State</span>
+                                        <span className="text-slate-700">Maharashtra, India</span>
+                                    </div>
+                                    <div className="flex">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">PIN Code</span>
+                                        <span className="text-slate-700 font-bold">400708</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Regulatory Registry details card */}
+                            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                    <FileText className="w-5 h-5 text-[#FF4732]" />
+                                    <span>Legal & Regulatory Registry</span>
+                                </h3>
+                                <div className="space-y-4 text-sm font-medium">
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">Entity Name</span>
+                                        <span className="text-slate-700 font-bold">WaradaVinayaka Private Limited</span>
+                                    </div>
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">CIN No</span>
+                                        <span className="text-slate-700">U72900MH2026PTC394857</span>
+                                    </div>
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">Governing Law</span>
+                                        <span className="text-slate-700 leading-snug">Laws of India (Courts at Navi Mumbai / Thane, Maharashtra)</span>
+                                    </div>
+                                    <div className="flex border-b border-slate-50 pb-3">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">Payment Flow</span>
+                                        <span className="text-slate-700 flex items-center gap-1.5">
+                                            <CreditCard className="w-4 h-4 text-slate-400" />
+                                            <span>Secured and Processed by PayU Partners</span>
+                                        </span>
+                                    </div>
+                                    <div className="flex">
+                                        <span className="w-32 text-slate-400 flex-shrink-0">Grievances</span>
+                                        <span className="text-slate-700">
+                                            <a href="mailto:grievance@hivago.in" className="text-[#FF4732] hover:underline font-bold">grievance@hivago.in</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Section (Column Span 5) */}
+                        <div className="lg:col-span-5 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                            <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <Mail className="w-5 h-5 text-[#FF4732]" />
+                                <span>Corporate Contact Directory</span>
+                            </h3>
+                            <div className="grid grid-cols-1 gap-4">
+                                {/* Support Card */}
+                                <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                        <Mail className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">General Support</span>
+                                        <a href="mailto:support@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">support@hivago.in</a>
+                                    </div>
+                                </div>
+
+                                {/* Compliance Card */}
+                                <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                        <Shield className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Legal & Compliance</span>
+                                        <a href="mailto:legal@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">legal@hivago.in</a>
+                                    </div>
+                                </div>
+
+                                {/* Privacy Card */}
+                                <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                        <Lock className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Privacy & Data Security</span>
+                                        <a href="mailto:privacy@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">privacy@hivago.in</a>
+                                    </div>
+                                </div>
+
+                                {/* Grievance Card */}
+                                <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                        <AlertCircle className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Grievance Desk</span>
+                                        <a href="mailto:grievance@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">grievance@hivago.in</a>
+                                    </div>
+                                </div>
+
+                                {/* Restaurant Partner Card */}
+                                <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                        <Utensils className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Restaurant Partners</span>
+                                        <a href="mailto:partner@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">partner@hivago.in</a>
+                                    </div>
+                                </div>
+
+                                {/* Delivery Partner Card */}
+                                <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                        <Bike className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Delivery Partners</span>
+                                        <a href="mailto:partner@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">partner@hivago.in</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Disclaimer Panel */}
+                    <div className="bg-white rounded-[24px] border-l-4 border-[#B02421] p-6 shadow-sm">
+                        <p className="text-slate-500 font-medium text-xs leading-relaxed">
+                            <strong className="text-slate-700">Marketplace Intermediary Disclaimer:</strong> HIVAGO is operated by WaradaVinayaka Private Limited, a company registered under the Companies Act, 2013. HIVAGO operates solely as a technology marketplace intermediary matching consumers with independent neighborhood merchants and delivery agents. HIVAGO is not a food vendor, restaurant operator, or logistics company. All merchant items are prepared, licensed, and packaged by independent Restaurant Partners. Payments are processed by PayU Finance India Private Limited.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section 
+                ref={(el) => (sectionRefs.current[6] = el)}
                 className="py-24 px-6"
             >
                 <div className="max-w-5xl mx-auto bg-gradient-to-r from-[#D03727] to-[#AD2523] rounded-[48px] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-red-200">
