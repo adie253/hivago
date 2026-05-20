@@ -13,6 +13,7 @@ import { OrderTrackingPage } from './presentation/pages/OrderTrackingPage';
 import { OrdersPage } from './presentation/pages/OrdersPage';
 import { PaymentSuccessPage } from './presentation/pages/PaymentSuccessPage';
 import { AboutUsPage } from './presentation/pages/AboutUsPage';
+import { PrivacyPage } from './presentation/pages/PrivacyPage';
 import { ProtectedRoute } from './presentation/components/ProtectedRoute';
 import { Footer } from './presentation/components/Footer';
 import { ScrollToTop } from './presentation/components/ScrollToTop';
@@ -44,6 +45,7 @@ const MainContent = () => {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
         </Routes>
       </div>
       {!isCheckout && <FloatingCart />}

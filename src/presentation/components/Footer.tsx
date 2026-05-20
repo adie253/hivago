@@ -1,94 +1,113 @@
 import React from 'react';
-import { Facebook, Linkedin, Twitter, Youtube, Instagram, MapPin, Mail, Phone, Info } from 'lucide-react';
+import { Facebook, Linkedin, Twitter, Youtube, Instagram, MapPin, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import footerLogo from '../../assets/footer/footer_logo.svg';
-import scooty from '../../assets/footer/scooty.svg';
+
+
 
 export const Footer: React.FC = () => {
+
+    const linkStyle = "text-white/75 hover:text-white transition-colors duration-200 text-sm block py-1 font-normal hover:underline";
+    const headerStyle = "text-xs font-bold tracking-wider text-white mb-4 uppercase";
+
     return (
-        <footer id="main-footer" className="w-full bg-[#B02421] py-12 md:py-20 px-6 md:px-12 lg:px-24 border-t border-white/10 text-white font-sans">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 md:gap-8">
+        <footer id="main-footer" className="w-full bg-[#B02421] pt-16 pb-8 px-6 md:px-12 lg:px-24 border-t border-white/10 text-white font-sans">
+            <div className="max-w-7xl mx-auto">
                 
-                {/* Logo Section - Order 1 on Mobile/Desktop */}
-                <div className="flex-shrink-0 order-1">
-                    <img src={footerLogo} alt="Hivago Logo" className="h-12 md:h-12 w-auto" />
+                {/* Logo and Selectors Section */}
+                <div className="flex justify-between items-center gap-6 mb-12">
+                    <img src={footerLogo} alt="Hivago Logo" className="h-9 w-auto" />
                 </div>
 
-                {/* Scooty Illustration - Mobile Only, Order 2 */}
-                <div className="md:hidden order-2 flex justify-center w-25">
-                    <img src={scooty} alt="Delivery Illustration" className="w-40 h-auto opacity-90" />
-                </div>
-
-                {/* Social Icons - Order 3 on Mobile, Order 3 on Desktop */}
-                <div className="flex items-center gap-6 md:gap-5 order-3 md:order-3">
-                    <a href="#" className="hover:scale-110 transition-transform opacity-90 hover:opacity-100">
-                        <Facebook className="w-5 h-5 md:w-4 md:h-4" />
-                    </a>
-                    <a href="#" className="hover:scale-110 transition-transform opacity-90 hover:opacity-100">
-                        <Linkedin className="w-5 h-5 md:w-4 md:h-4" />
-                    </a>
-                    <a href="#" className="hover:scale-110 transition-transform opacity-90 hover:opacity-100">
-                        <Twitter className="w-5 h-5 md:w-4 md:h-4" />
-                    </a>
-                    <a href="#" className="hover:scale-110 transition-transform opacity-90 hover:opacity-100">
-                        <Youtube className="w-5 h-5 md:w-4 md:h-4" />
-                    </a>
-                    <a href="#" className="hover:scale-110 transition-transform opacity-90 hover:opacity-100">
-                        <Instagram className="w-5 h-5 md:w-4 md:h-4" />
-                    </a>
-                </div>
-
-                {/* Contact Info - Order 4 on Mobile, Order 2 on Desktop (hidden middle on desktop) */}
-                <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-center gap-4 md:gap-12 lg:gap-16 order-4 md:order-2 w-full md:w-auto mt-4 md:mt-0">
-                    {/* Address */}
-                    <div className="flex items-start gap-4 md:gap-3">
-                        <div className="bg-white/10 p-2 rounded-lg md:bg-transparent md:p-0">
-                            <MapPin className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white mt-1" />
-                        </div>
-                        <div className="text-sm md:text-sm font-medium leading-relaxed opacity-90">
-                            Airoli, Mumbai
-                        </div>
+                {/* 5-Column Grid Links Section */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 md:gap-12 lg:gap-8 mb-12">
+                    
+                    {/* Column 1 */}
+                    <div>
+                        <h4 className={headerStyle}>About Hivago</h4>
+                        <nav className="flex flex-col gap-1.5">
+                            <Link to="/about" className={linkStyle}>Who We Are</Link>
+                              <Link to="/about" className={linkStyle}>Contact Us</Link>
+                           
+                        </nav>
                     </div>
 
-                    {/* Email */}
-                    <div className="flex items-center gap-4 md:gap-3">
-                        <div className="bg-white/10 p-2 rounded-lg md:bg-transparent md:p-0">
-                            <Mail className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white" />
-                        </div>
-                        <a href="mailto:info@hivago.com" className="text-sm md:text-sm font-medium hover:text-white/80 transition-colors opacity-90">
-                            info@hivago.com
-                        </a>
+                    {/* Column 2 */}
+                    <div>
+                        <h4 className={headerStyle}>Hivagoverse</h4>
+                        <nav className="flex flex-col gap-1.5">
+                            <Link to="/" className={linkStyle}>Hivago</Link>
+                        </nav>
                     </div>
 
-                    {/* Phone / Support */}
-                    <div className="flex items-center gap-4 md:gap-3">
-                        <div className="bg-white/10 p-2 rounded-lg md:bg-transparent md:p-0">
-                            <Phone className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0 text-white" />
-                        </div>
-                        <div className="flex flex-col">
-                            <a 
-                                href="https://wa.me/919082220155?text=Need%20HELP!" 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-sm md:text-sm font-bold hover:text-white/80 transition-colors"
-                            >
-                                Help & Support
+                    {/* Column 3 */}
+                    <div>
+                        <h4 className={headerStyle}>For Restaurants</h4>
+                        <nav className="flex flex-col gap-1.5">
+                            <a href="https://restaurant.hivago.in" className={linkStyle}>Partner With Us</a>
+                        </nav>
+                    </div>
+
+                    {/* Column 4 */}
+                    <div>
+                        <h4 className={headerStyle}>Learn More</h4>
+                        <nav className="flex flex-col gap-1.5">
+                            <Link to="/privacy?doc=privacy" className={linkStyle}>Privacy</Link>
+                            <Link to="/privacy?doc=refund" className={linkStyle}>Refund Policy</Link>
+                            <Link to="/privacy?doc=terms" className={linkStyle}>Terms</Link>
+                        </nav>
+                    </div>
+
+                    {/* Column 5 */}
+                    <div className="col-span-2 md:col-span-1">
+                        <h4 className={headerStyle}>Social Links</h4>
+                        
+                        {/* Social Icons */}
+                        <div className="flex gap-2.5 mb-6">
+                            <a href="#" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300" aria-label="LinkedIn">
+                                <Linkedin className="w-4 h-4" />
                             </a>
-                            <span className="text-[10px] opacity-70 font-medium">+91 9082220155</span>
+                            <a href="#" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300" aria-label="Instagram">
+                                <Instagram className="w-4 h-4" />
+                            </a>
+                            <a href="#" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300" aria-label="Twitter">
+                                <Twitter className="w-4 h-4" />
+                            </a>
+                            <a href="#" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300" aria-label="YouTube">
+                                <Youtube className="w-4 h-4" />
+                            </a>
+                            <a href="#" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300" aria-label="Facebook">
+                                <Facebook className="w-4 h-4" />
+                            </a>
                         </div>
+
+                        {/* Contact & Support */}
+                        <div className="text-white/75 text-sm space-y-3 font-normal">
+                            <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-white/80 flex-shrink-0" />
+                                <span className="text-white font-semibold">Airoli, Mumbai</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Mail className="w-4 h-4 text-white/80 flex-shrink-0" />
+                                <a href="mailto:info@hivago.in" className="hover:text-white transition-colors hover:underline">info@hivago.in</a>
+                            </div>
+                            <div className="flex items-start gap-2">
+                                <Phone className="w-4 h-4 text-white/80 flex-shrink-0 mt-0.5" />
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-white leading-tight">Help & Support</span>
+                                    <a href="tel:+919082220155" className="text-xs text-white/75 hover:text-white transition-colors hover:underline mt-0.5">+91 9082220155</a>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-                {/* Quick Links */}
-                <div className="flex flex-col md:flex-row gap-4 md:gap-10 order-5 md:order-5 items-center md:items-start text-center md:text-left">
-                    <Link to="/about" className="flex items-center gap-2 text-sm font-bold opacity-90 hover:opacity-100 transition-all hover:translate-x-1">
-                        <Info className="w-4 h-4" />
-                        About Us
-                    </Link>
-                </div>
-
-                {/* Mobile Bottom Line */}
-                <div className="md:hidden order-6 w-3/4 h-[1px] bg-white/20 mt-4 self-center"></div>
+                {/* Bottom Disclaimer & Copyright */}
+                <div className="w-full h-[1px] bg-white/10 my-8"></div>
+                <p className="text-[11px] leading-relaxed text-white/50 font-normal">
+                    By continuing past this page, you agree to our Terms of Service, Cookie Policy, Privacy Policy and Content Policies. All trademarks are properties of their respective owners. 2026 © Hivago™ Ltd. All rights reserved.
+                </p>
 
             </div>
         </footer>
