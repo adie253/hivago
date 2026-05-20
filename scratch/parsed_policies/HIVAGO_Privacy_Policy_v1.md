@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective Date__
 
-__\[DATE\]__
+__20\-May\-26__
 
 __Jurisdiction__
 
@@ -58,7 +58,7 @@ __Contact for Privacy__
 
 privacy@hivago\.in
 
-## __PREAMBLE AND SCOPE__
+## PREAMBLE AND SCOPE
 
 WaradaVinayaka Private Limited \('Company', 'We', 'Us', 'Our'\), a company incorporated under the Companies Act, 2013, operates the HIVAGO food delivery marketplace through its mobile application \(Android and iOS\) and website \('Platform'\)\. We are committed to protecting the privacy and personal data of every individual who interacts with our Platform\.
 
@@ -87,7 +87,7 @@ Where processing is required to fulfil a legal obligation or protect vital inter
 
 You have the right to withdraw consent at any time; however, withdrawal may affect your ability to use certain features of the Platform\.
 
-## __1\.  IDENTITY OF THE DATA FIDUCIARY__
+## 1\.  IDENTITY OF THE DATA FIDUCIARY
 
 For the purposes of the DPDP Act, 2023, the Company acts as the Data Fiduciary in respect of personal data collected through the Platform\. Details of the Data Fiduciary are as follows:
 
@@ -113,17 +113,17 @@ privacy@hivago\.in
 
 __Grievance Officer__
 
-\[GRIEVANCE OFFICER NAME\] — grievance@hivago\.in
+Bhalchandra B Kumbharkar \- grievance@hivago\.in
 
 __Data Protection Officer__
 
 Not currently appointed\. The Company will appoint a DPO upon meeting applicable thresholds under the DPDP Act and rules thereunder\. In the interim, all data principal requests are addressed via privacy@hivago\.in\.
 
-## __2\.  PERSONAL DATA WE COLLECT__
+## 2\.  PERSONAL DATA WE COLLECT
 
 The Company collects personal data through the following channels: user registration, order placement, platform usage, device interactions, and communications with customer support\. The categories of personal data collected are detailed below\.
 
-### __2\.1  Data Collected from Customers / Users__
+### 2\.1  Data Collected from Customers / Users
 
 __Category__
 
@@ -179,7 +179,7 @@ Photographs, written reviews, ratings submitted by you
 
 Display on Platform, service improvement
 
-### __2\.2  Data Collected from Delivery Partners__
+### 2\.2  Data Collected from Delivery Partners
 
 __Category__
 
@@ -223,7 +223,7 @@ Background verification results from third\-party BGV provider
 
 Platform safety and onboarding compliance
 
-### __2\.3  Data Collected from Restaurant Partners__
+### 2\.3  Data Collected from Restaurant Partners
 
 __Category__
 
@@ -255,7 +255,7 @@ Food item descriptions, photographs, pricing, availability
 
 Platform listing and display
 
-### __2\.4  Data Collected Automatically__
+### 2\.4  Data Collected Automatically
 
 When you visit or use the Platform, we automatically collect certain technical data including:
 
@@ -266,7 +266,7 @@ When you visit or use the Platform, we automatically collect certain technical d
 - Referral URLs \(the page or app from which you arrived at our Platform\);
 - Crash logs and performance data collected through third\-party analytics tools \(Firebase Analytics\)\.
 
-### __2\.5  Data We Do NOT Collect__
+### 2\.5  Data We Do NOT Collect
 
 __What HIVAGO Does NOT Collect__
 
@@ -280,11 +280,11 @@ Personal data of children below 18 years — use of the Platform by minors is pr
 
 Alcohol, tobacco, or age\-restricted product order data — HIVAGO does not offer such products\.
 
-## __3\.  HOW WE USE YOUR PERSONAL DATA__
+## 3\.  HOW WE USE YOUR PERSONAL DATA
 
 The Company uses personal data only for the purposes for which it was collected, or for compatible purposes reasonably anticipated by you at the time of collection\. The specific purposes are:
 
-### __3\.1  Core Platform Operations__
+### 3\.1  Core Platform Operations
 
 - Creating and managing your account on the Platform;
 - Processing and confirming Orders placed through the Platform;
@@ -293,13 +293,13 @@ The Company uses personal data only for the purposes for which it was collected,
 - Processing payments through PayU and managing the escrow\-to\-settlement cycle;
 - Deducting TDS on Delivery Partner payments under Section 194C of the Income Tax Act, 1961\.
 
-### __3\.2  Communication and Customer Support__
+### 3\.2  Communication and Customer Support
 
 - Sending transactional communications — Order confirmations, delivery status updates — via SMS and push notification;
 - Responding to queries, complaints, and grievances submitted through the Platform or by email;
 - Sending operational alerts regarding Platform downtime, policy changes, or account security\.
 
-### __3\.3  Platform Safety and Fraud Prevention__
+### 3\.3  Platform Safety and Fraud Prevention
 
 - Verifying user identity during registration and account recovery;
 - Detecting, investigating, and preventing fraudulent transactions, fake accounts, and abuse of promotional offers;
@@ -307,30 +307,30 @@ The Company uses personal data only for the purposes for which it was collected,
 - Ensuring the physical safety of Delivery Partners and Users through location data during active orders;
 - Conducting third\-party background verification of Delivery Partners\.
 
-### __3\.4  Analytics and Platform Improvement__
+### 3\.4  Analytics and Platform Improvement
 
 - Analysing aggregated, anonymised usage data to understand user behaviour and improve Platform features;
 - Monitoring Platform performance, identifying and fixing technical errors and crashes;
 - Conducting internal research to enhance the delivery experience, restaurant discovery, and order accuracy\.
 
-### __3\.5  Legal and Regulatory Compliance__
+### 3\.5  Legal and Regulatory Compliance
 
 - Complying with applicable Indian laws, including GST filing obligations, TDS requirements, and FSSAI\-related compliance;
 - Responding to lawful requests from government authorities, courts, or law enforcement agencies;
 - Enforcing these Terms, the Privacy Policy, and other contractual obligations;
 - Establishing, exercising, or defending legal claims\.
 
-### __3\.6  Marketing Communications \(Consent\-Based Only\)__
+### 3\.6  Marketing Communications \(Consent\-Based Only\)
 
 - Sending promotional offers, new restaurant announcements, and Platform updates — only where you have separately opted into receiving such communications;
 - Displaying Restaurant Partner\-funded offers and sponsored listings on the Platform \(labelled as 'Sponsored'\);
 - You may opt out of marketing communications at any time through your account settings or by emailing privacy@hivago\.in, without affecting your ability to use the Platform\.
 
-## __4\.  SHARING OF PERSONAL DATA__
+## 4\.  SHARING OF PERSONAL DATA
 
 The Company does not sell, rent, or trade your personal data to any third party for commercial purposes\. We share personal data only in the circumstances described below, and only to the extent necessary for the stated purpose\.
 
-### __4\.1  With Restaurant Partners__
+### 4\.1  With Restaurant Partners
 
 __Important — Data Shared with Restaurants__
 
@@ -342,15 +342,15 @@ Restaurant Partners access your data through a password\-protected dashboard pro
 
 If a Restaurant Partner misuses your data, please report this immediately to privacy@hivago\.in\. The Company will investigate and may terminate the Restaurant Partner's access\.
 
-### __4\.2  With Delivery Partners__
+### 4\.2  With Delivery Partners
 
 For the purpose of last\-mile delivery, the Company shares your delivery address and, where operationally necessary, your mobile number with the assigned Delivery Partner\. Delivery Partners are contractually bound to use this information solely for completing the delivery and are prohibited from retaining, copying, or using your data for any other purpose\.
 
-### __4\.3  With Payment Service Provider — PayU__
+### 4\.3  With Payment Service Provider — PayU
 
 Payment processing is handled by PayU \(a product of PayU Finance India Private Limited\)\. When you make a payment, you are subject to PayU's terms of service and privacy policy\. The Company does not receive or store your full payment card details\. PayU provides the Company with tokenised payment references and transaction status data for the purposes of order confirmation and settlement\.
 
-### __4\.4  With Third\-Party Analytics and Technology Providers__
+### 4\.4  With Third\-Party Analytics and Technology Providers
 
 The Company uses third\-party analytics tools, including Firebase Analytics \(Google LLC\), to analyse Platform usage data\. These providers may process certain technical data \(device identifiers, usage events\) on behalf of the Company as data processors\. Such data is processed in aggregated or pseudonymised form where possible\. The Company has executed or relies on standard contractual terms with such providers\.
 
@@ -366,21 +366,21 @@ Cloud Infrastructure Provider — Indian server infrastructure at launch; planne
 
 SMS / Push Notification Gateway — for transactional communication delivery\.
 
-### __4\.5  With Legal and Regulatory Authorities__
+### 4\.5  With Legal and Regulatory Authorities
 
 The Company may disclose your personal data to government bodies, law enforcement agencies, courts, or regulatory authorities where required to do so by law, court order, or in response to a lawful demand\. The Company will, where legally permissible, notify you of such disclosure\.
 
-### __4\.6  In the Event of Business Transfer__
+### 4\.6  In the Event of Business Transfer
 
 In the event of a merger, acquisition, restructuring, or sale of all or substantially all of the Company's assets, your personal data may be transferred to the acquiring entity as part of such transaction\. You will be notified of any such transfer and the privacy practices of the successor entity will be communicated to you\.
 
-### __4\.7  Data NOT Shared__
+### 4\.7  Data NOT Shared
 
 - The Company does not share your personal data with any advertiser, data broker, or marketing agency for the purpose of serving you targeted advertising\.
 - The Company does not share personal data across Restaurant Partners — your data shared with Restaurant A is not accessible to Restaurant B\.
 - The Company does not sell personal data\.
 
-## __5\.  LOCATION DATA — DETAILED DISCLOSURE__
+## 5\.  LOCATION DATA — DETAILED DISCLOSURE
 
 5\.1  The Platform requests access to your device's GPS location data exclusively when you have an active Order session in progress\. Location access is required to:
 
@@ -398,11 +398,11 @@ In the event of a merger, acquisition, restructuring, or sale of all or substant
 
 5\.4  Location data collected during active Order sessions is retained for a period of 90 \(ninety\) days for the purpose of dispute resolution and fraud investigation, after which it is deleted from our active systems\.
 
-## __6\.  COOKIES AND TRACKING TECHNOLOGIES__
+## 6\.  COOKIES AND TRACKING TECHNOLOGIES
 
 6\.1  The HIVAGO website uses cookies and similar tracking technologies to enhance your browsing experience, understand how the website is used, and support our analytics and security functions\.
 
-### __6\.2  Types of Cookies Used__
+### 6\.2  Types of Cookies Used
 
 __Cookie Type__
 
@@ -432,13 +432,13 @@ Yes — via cookie settings
 
 6\.4  Third\-party analytics providers \(such as Firebase / Google Analytics\) may set their own cookies when you use the Platform\. These are governed by those providers' own privacy and cookie policies\.
 
-## __7\.  DATA RETENTION AND DELETION__
+## 7\.  DATA RETENTION AND DELETION
 
-### __7\.1  Retention Principles__
+### 7\.1  Retention Principles
 
 The Company retains personal data only for so long as is reasonably necessary to fulfil the purpose for which it was collected, or as required by Applicable Laws, whichever is longer\. Upon expiry of the applicable retention period, personal data is securely deleted or anonymised\.
 
-### __7\.2  Retention Schedule__
+### 7\.2  Retention Schedule
 
 __Data Category__
 
@@ -482,22 +482,22 @@ Indefinitely
 
 Non\-personal; cannot be used to identify individuals
 
-## __8\.  ACCOUNT DELETION AND RIGHT TO ERASURE__
+## 8\.  ACCOUNT DELETION AND RIGHT TO ERASURE
 
 8\.1  You have the right to request deletion of your HIVAGO account and associated personal data at any time\. This right is exercisable under the DPDP Act, 2023 and is subject to the limitations described in this Section\.
 
-### __8\.2  How to Request Account Deletion__
+### 8\.2  How to Request Account Deletion
 
 - Navigate to: Settings > Account > Delete My Account within the HIVAGO app; OR
 - Send a written request to privacy@hivago\.in from your registered email address with subject line: 'Account Deletion Request — \[Your Registered Mobile Number\]'\.
 
-### __8\.3  Processing Timeline__
+### 8\.3  Processing Timeline
 
 - Upon receipt of a verified deletion request, the Company will acknowledge the request within 48 \(forty\-eight\) hours\.
 - Account deletion and removal of personal data from active systems will be completed within 30 \(thirty\) days of receipt of a valid, verified request\.
 - Data retained in backup systems will be purged within 90 \(ninety\) days\.
 
-### __8\.4  Limitations on Erasure__
+### 8\.4  Limitations on Erasure
 
 The right to erasure is not absolute\. The Company will retain certain data notwithstanding a deletion request where:
 
@@ -508,7 +508,7 @@ The right to erasure is not absolute\. The Company will retain certain data notw
 
 In such cases, the Company will inform you of the specific data retained, the legal basis for retention, and the applicable retention period\.
 
-## __9\.  YOUR RIGHTS AS A DATA PRINCIPAL__
+## 9\.  YOUR RIGHTS AS A DATA PRINCIPAL
 
 Under the Digital Personal Data Protection Act, 2023 and applicable Indian law, you have the following rights in respect of your personal data processed by the Company:
 
@@ -540,11 +540,11 @@ __Right to Nominate__
 
 Under the DPDP Act, you have the right to nominate another individual to exercise your data rights in the event of your death or incapacity\. Contact privacy@hivago\.in to register a nominee\.
 
-## __10\.  DATA SECURITY MEASURES__
+## 10\.  DATA SECURITY MEASURES
 
 10\.1  The Company implements reasonable technical and organisational security measures to protect personal data against unauthorised access, disclosure, alteration, or destruction, consistent with the requirements of the IT Act and SPDI Rules\.
 
-### __10\.2  Measures Implemented Include:__
+### 10\.2  Measures Implemented Include:
 
 - Encryption of data in transit using industry\-standard TLS \(Transport Layer Security\) protocols;
 - Password\-protected, access\-controlled dashboards for Restaurant Partners;
@@ -563,7 +563,7 @@ You are responsible for maintaining the confidentiality of your HIVAGO account c
 
 If you suspect unauthorised access to your account, change your registered mobile number or contact support@hivago\.in immediately\.
 
-## __11\.  DATA STORAGE AND LOCALISATION__
+## 11\.  DATA STORAGE AND LOCALISATION
 
 11\.1  The Company currently stores all personal data on servers physically located within India \('Indian Servers'\)\. This is consistent with applicable data localisation norms under Indian law\.
 
@@ -573,7 +573,7 @@ If you suspect unauthorised access to your account, change your registered mobil
 
 11\.4  Analytics data processed by Firebase \(Google LLC\) may be transmitted to and processed on servers outside India\. The Company relies on Firebase's standard data processing terms and applicable adequacy frameworks for such processing\. Aggregated or pseudonymised analytics data does not constitute personal data subject to localisation requirements\.
 
-## __12\.  CHILDREN'S PRIVACY__
+## 12\.  CHILDREN'S PRIVACY
 
 12\.1  The Platform is intended exclusively for use by individuals aged 18 \(eighteen\) years and above\. The Company does not knowingly collect personal data from any person below the age of 18 years\.
 
@@ -581,29 +581,29 @@ If you suspect unauthorised access to your account, change your registered mobil
 
 12\.3  If you believe that a person below 18 years has registered on or used the Platform, please notify us immediately at privacy@hivago\.in\.
 
-## __13\.  THIRD\-PARTY PLATFORMS AND LINKS__
+## 13\.  THIRD\-PARTY PLATFORMS AND LINKS
 
 13\.1  The Platform may contain links to third\-party websites, payment gateways, or social media platforms\. This Policy does not apply to the privacy practices of those third parties\. The Company has no control over and is not responsible for the content or privacy practices of any third\-party platform\.
 
 13\.2  We encourage you to review the privacy policy of any third\-party service before providing your personal data to it, including PayU's privacy policy at the time of payment\.
 
-## __14\.  CONSENT ARCHITECTURE AND MANAGEMENT__
+## 14\.  CONSENT ARCHITECTURE AND MANAGEMENT
 
-### __14\.1  How We Obtain Consent__
+### 14\.1  How We Obtain Consent
 
 - Registration Consent: By completing registration on the Platform, you provide affirmative consent to this Privacy Policy and the processing of your personal data for core Platform operations \(order processing, delivery, invoicing, support\)\.
 - Location Consent: The Platform requests device\-level location permissions through the operating system's native permission prompt\. Your grant or denial of this permission is your explicit consent for location data collection\.
 - Marketing Consent: Marketing communications consent is collected through a separate, optional opt\-in mechanism during or after registration\. This is not bundled with core service consent\.
 - Cookie Consent: On the HIVAGO website, non\-essential cookie consent is obtained through a cookie banner displayed on first visit\.
 
-### __14\.2  Managing and Withdrawing Consent__
+### 14\.2  Managing and Withdrawing Consent
 
 - You may withdraw consent to marketing communications at any time through Settings > Notifications > Marketing Preferences\.
 - You may revoke location permission through your device's OS\-level settings\.
 - You may withdraw consent to non\-essential cookies through your browser settings or the website's cookie management tool\.
 - Withdrawal of consent for core data processing \(e\.g\., order fulfilment data\) effectively means you cannot use the Platform's ordering services, and you may request account deletion under Section 8\.
 
-## __15\.  CHANGES TO THIS PRIVACY POLICY__
+## 15\.  CHANGES TO THIS PRIVACY POLICY
 
 15\.1  The Company reserves the right to amend this Policy from time to time to reflect changes in law, business practices, or technology\. Material changes to this Policy will be communicated to registered Users via in\-app notification, push notification, or email at least 15 \(fifteen\) days prior to the change taking effect\.
 
@@ -611,7 +611,7 @@ If you suspect unauthorised access to your account, change your registered mobil
 
 15\.3  The version history and effective dates of prior versions of this Policy are maintained and can be requested from privacy@hivago\.in\.
 
-## __16\.  GRIEVANCE OFFICER AND CONTACT DETAILS__
+## 16\.  GRIEVANCE OFFICER AND CONTACT DETAILS
 
 In accordance with the IT Act, SPDI Rules, and the DPDP Act, the Company designates the following Grievance Officer for privacy\-related concerns:
 
@@ -641,11 +641,11 @@ Acknowledgement within 48 hours; resolution within 30 days
 
 If you are unsatisfied with our response to your privacy grievance, you have the right to escalate the matter to the Data Protection Board of India, once it is constituted under the DPDP Act, 2023\.
 
-## __ACKNOWLEDGEMENT__
+## ACKNOWLEDGEMENT
 
 __BY USING THE HIVAGO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY IN ITS ENTIRETY AND CONSENT TO THE COLLECTION, USE, STORAGE, AND PROCESSING OF YOUR PERSONAL DATA AS DESCRIBED HEREIN\. IF YOU DO NOT AGREE TO THIS POLICY, YOU MUST IMMEDIATELY CEASE USING THE PLATFORM AND MAY REQUEST DELETION OF YOUR ACCOUNT\.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20\-May\-26__
 
 Version: 1\.0
 

@@ -317,7 +317,7 @@ export const AboutUsPage: React.FC = () => {
                                     </div>
                                     <div className="flex border-b border-slate-50 pb-3">
                                         <span className="w-32 text-slate-400 flex-shrink-0">CIN No</span>
-                                        <span className="text-slate-700">U72900MH2026PTC394857</span>
+                                        <span className="text-slate-700">U56291MH2026PTC467768</span>
                                     </div>
                                     <div className="flex border-b border-slate-50 pb-3">
                                         <span className="w-32 text-slate-400 flex-shrink-0">Governing Law</span>

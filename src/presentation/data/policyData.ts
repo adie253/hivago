@@ -26,7 +26,7 @@ __1.0__
 
 __Effective Date__
 
-__\[DATE\]__
+__20-May-26__
 
 __Jurisdiction__
 
@@ -36,7 +36,7 @@ __WaradaVinayaka Private Limited__
 
 AL-5-13/9, Sneh Sagar Apt, Sector-17, Airoli, Navi Mumbai – 400708, Maharashtra, India
 
-GSTIN: 27AAECW3756G1Z3  |  privacy@hivago.in
+GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768  |  privacy@hivago.in
 
 __HIVAGO — PRIVACY POLICY__
 
@@ -72,7 +72,7 @@ __Contact for Privacy__
 
 privacy@hivago.in
 
-## __PREAMBLE AND SCOPE__
+## PREAMBLE AND SCOPE
 
 WaradaVinayaka Private Limited ('Company', 'We', 'Us', 'Our'), a company incorporated under the Companies Act, 2013, operates the HIVAGO food delivery marketplace through its mobile application (Android and iOS) and website ('Platform'). We are committed to protecting the privacy and personal data of every individual who interacts with our Platform.
 
@@ -101,7 +101,7 @@ Where processing is required to fulfil a legal obligation or protect vital inter
 
 You have the right to withdraw consent at any time; however, withdrawal may affect your ability to use certain features of the Platform.
 
-## __1.  IDENTITY OF THE DATA FIDUCIARY__
+## 1.  IDENTITY OF THE DATA FIDUCIARY
 
 For the purposes of the DPDP Act, 2023, the Company acts as the Data Fiduciary in respect of personal data collected through the Platform. Details of the Data Fiduciary are as follows:
 
@@ -127,17 +127,17 @@ privacy@hivago.in
 
 __Grievance Officer__
 
-\[GRIEVANCE OFFICER NAME\] — grievance@hivago.in
+Bhalchandra B Kumbharkar - grievance@hivago.in
 
 __Data Protection Officer__
 
 Not currently appointed. The Company will appoint a DPO upon meeting applicable thresholds under the DPDP Act and rules thereunder. In the interim, all data principal requests are addressed via privacy@hivago.in.
 
-## __2.  PERSONAL DATA WE COLLECT__
+## 2.  PERSONAL DATA WE COLLECT
 
 The Company collects personal data through the following channels: user registration, order placement, platform usage, device interactions, and communications with customer support. The categories of personal data collected are detailed below.
 
-### __2.1  Data Collected from Customers / Users__
+### 2.1  Data Collected from Customers / Users
 
 __Category__
 
@@ -193,7 +193,7 @@ Photographs, written reviews, ratings submitted by you
 
 Display on Platform, service improvement
 
-### __2.2  Data Collected from Delivery Partners__
+### 2.2  Data Collected from Delivery Partners
 
 __Category__
 
@@ -237,7 +237,7 @@ Background verification results from third-party BGV provider
 
 Platform safety and onboarding compliance
 
-### __2.3  Data Collected from Restaurant Partners__
+### 2.3  Data Collected from Restaurant Partners
 
 __Category__
 
@@ -269,7 +269,7 @@ Food item descriptions, photographs, pricing, availability
 
 Platform listing and display
 
-### __2.4  Data Collected Automatically__
+### 2.4  Data Collected Automatically
 
 When you visit or use the Platform, we automatically collect certain technical data including:
 
@@ -280,7 +280,7 @@ When you visit or use the Platform, we automatically collect certain technical d
 - Referral URLs (the page or app from which you arrived at our Platform);
 - Crash logs and performance data collected through third-party analytics tools (Firebase Analytics).
 
-### __2.5  Data We Do NOT Collect__
+### 2.5  Data We Do NOT Collect
 
 __What HIVAGO Does NOT Collect__
 
@@ -294,11 +294,11 @@ Personal data of children below 18 years — use of the Platform by minors is pr
 
 Alcohol, tobacco, or age-restricted product order data — HIVAGO does not offer such products.
 
-## __3.  HOW WE USE YOUR PERSONAL DATA__
+## 3.  HOW WE USE YOUR PERSONAL DATA
 
 The Company uses personal data only for the purposes for which it was collected, or for compatible purposes reasonably anticipated by you at the time of collection. The specific purposes are:
 
-### __3.1  Core Platform Operations__
+### 3.1  Core Platform Operations
 
 - Creating and managing your account on the Platform;
 - Processing and confirming Orders placed through the Platform;
@@ -307,13 +307,13 @@ The Company uses personal data only for the purposes for which it was collected,
 - Processing payments through PayU and managing the escrow-to-settlement cycle;
 - Deducting TDS on Delivery Partner payments under Section 194C of the Income Tax Act, 1961.
 
-### __3.2  Communication and Customer Support__
+### 3.2  Communication and Customer Support
 
 - Sending transactional communications — Order confirmations, delivery status updates — via SMS and push notification;
 - Responding to queries, complaints, and grievances submitted through the Platform or by email;
 - Sending operational alerts regarding Platform downtime, policy changes, or account security.
 
-### __3.3  Platform Safety and Fraud Prevention__
+### 3.3  Platform Safety and Fraud Prevention
 
 - Verifying user identity during registration and account recovery;
 - Detecting, investigating, and preventing fraudulent transactions, fake accounts, and abuse of promotional offers;
@@ -321,30 +321,30 @@ The Company uses personal data only for the purposes for which it was collected,
 - Ensuring the physical safety of Delivery Partners and Users through location data during active orders;
 - Conducting third-party background verification of Delivery Partners.
 
-### __3.4  Analytics and Platform Improvement__
+### 3.4  Analytics and Platform Improvement
 
 - Analysing aggregated, anonymised usage data to understand user behaviour and improve Platform features;
 - Monitoring Platform performance, identifying and fixing technical errors and crashes;
 - Conducting internal research to enhance the delivery experience, restaurant discovery, and order accuracy.
 
-### __3.5  Legal and Regulatory Compliance__
+### 3.5  Legal and Regulatory Compliance
 
 - Complying with applicable Indian laws, including GST filing obligations, TDS requirements, and FSSAI-related compliance;
 - Responding to lawful requests from government authorities, courts, or law enforcement agencies;
 - Enforcing these Terms, the Privacy Policy, and other contractual obligations;
 - Establishing, exercising, or defending legal claims.
 
-### __3.6  Marketing Communications (Consent-Based Only)__
+### 3.6  Marketing Communications (Consent-Based Only)
 
 - Sending promotional offers, new restaurant announcements, and Platform updates — only where you have separately opted into receiving such communications;
 - Displaying Restaurant Partner-funded offers and sponsored listings on the Platform (labelled as 'Sponsored');
 - You may opt out of marketing communications at any time through your account settings or by emailing privacy@hivago.in, without affecting your ability to use the Platform.
 
-## __4.  SHARING OF PERSONAL DATA__
+## 4.  SHARING OF PERSONAL DATA
 
 The Company does not sell, rent, or trade your personal data to any third party for commercial purposes. We share personal data only in the circumstances described below, and only to the extent necessary for the stated purpose.
 
-### __4.1  With Restaurant Partners__
+### 4.1  With Restaurant Partners
 
 __Important — Data Shared with Restaurants__
 
@@ -356,15 +356,15 @@ Restaurant Partners access your data through a password-protected dashboard prov
 
 If a Restaurant Partner misuses your data, please report this immediately to privacy@hivago.in. The Company will investigate and may terminate the Restaurant Partner's access.
 
-### __4.2  With Delivery Partners__
+### 4.2  With Delivery Partners
 
 For the purpose of last-mile delivery, the Company shares your delivery address and, where operationally necessary, your mobile number with the assigned Delivery Partner. Delivery Partners are contractually bound to use this information solely for completing the delivery and are prohibited from retaining, copying, or using your data for any other purpose.
 
-### __4.3  With Payment Service Provider — PayU__
+### 4.3  With Payment Service Provider — PayU
 
 Payment processing is handled by PayU (a product of PayU Finance India Private Limited). When you make a payment, you are subject to PayU's terms of service and privacy policy. The Company does not receive or store your full payment card details. PayU provides the Company with tokenised payment references and transaction status data for the purposes of order confirmation and settlement.
 
-### __4.4  With Third-Party Analytics and Technology Providers__
+### 4.4  With Third-Party Analytics and Technology Providers
 
 The Company uses third-party analytics tools, including Firebase Analytics (Google LLC), to analyse Platform usage data. These providers may process certain technical data (device identifiers, usage events) on behalf of the Company as data processors. Such data is processed in aggregated or pseudonymised form where possible. The Company has executed or relies on standard contractual terms with such providers.
 
@@ -380,21 +380,21 @@ Cloud Infrastructure Provider — Indian server infrastructure at launch; planne
 
 SMS / Push Notification Gateway — for transactional communication delivery.
 
-### __4.5  With Legal and Regulatory Authorities__
+### 4.5  With Legal and Regulatory Authorities
 
 The Company may disclose your personal data to government bodies, law enforcement agencies, courts, or regulatory authorities where required to do so by law, court order, or in response to a lawful demand. The Company will, where legally permissible, notify you of such disclosure.
 
-### __4.6  In the Event of Business Transfer__
+### 4.6  In the Event of Business Transfer
 
 In the event of a merger, acquisition, restructuring, or sale of all or substantially all of the Company's assets, your personal data may be transferred to the acquiring entity as part of such transaction. You will be notified of any such transfer and the privacy practices of the successor entity will be communicated to you.
 
-### __4.7  Data NOT Shared__
+### 4.7  Data NOT Shared
 
 - The Company does not share your personal data with any advertiser, data broker, or marketing agency for the purpose of serving you targeted advertising.
 - The Company does not share personal data across Restaurant Partners — your data shared with Restaurant A is not accessible to Restaurant B.
 - The Company does not sell personal data.
 
-## __5.  LOCATION DATA — DETAILED DISCLOSURE__
+## 5.  LOCATION DATA — DETAILED DISCLOSURE
 
 5.1  The Platform requests access to your device's GPS location data exclusively when you have an active Order session in progress. Location access is required to:
 
@@ -412,11 +412,11 @@ In the event of a merger, acquisition, restructuring, or sale of all or substant
 
 5.4  Location data collected during active Order sessions is retained for a period of 90 (ninety) days for the purpose of dispute resolution and fraud investigation, after which it is deleted from our active systems.
 
-## __6.  COOKIES AND TRACKING TECHNOLOGIES__
+## 6.  COOKIES AND TRACKING TECHNOLOGIES
 
 6.1  The HIVAGO website uses cookies and similar tracking technologies to enhance your browsing experience, understand how the website is used, and support our analytics and security functions.
 
-### __6.2  Types of Cookies Used__
+### 6.2  Types of Cookies Used
 
 __Cookie Type__
 
@@ -446,13 +446,13 @@ Yes — via cookie settings
 
 6.4  Third-party analytics providers (such as Firebase / Google Analytics) may set their own cookies when you use the Platform. These are governed by those providers' own privacy and cookie policies.
 
-## __7.  DATA RETENTION AND DELETION__
+## 7.  DATA RETENTION AND DELETION
 
-### __7.1  Retention Principles__
+### 7.1  Retention Principles
 
 The Company retains personal data only for so long as is reasonably necessary to fulfil the purpose for which it was collected, or as required by Applicable Laws, whichever is longer. Upon expiry of the applicable retention period, personal data is securely deleted or anonymised.
 
-### __7.2  Retention Schedule__
+### 7.2  Retention Schedule
 
 __Data Category__
 
@@ -496,22 +496,22 @@ Indefinitely
 
 Non-personal; cannot be used to identify individuals
 
-## __8.  ACCOUNT DELETION AND RIGHT TO ERASURE__
+## 8.  ACCOUNT DELETION AND RIGHT TO ERASURE
 
 8.1  You have the right to request deletion of your HIVAGO account and associated personal data at any time. This right is exercisable under the DPDP Act, 2023 and is subject to the limitations described in this Section.
 
-### __8.2  How to Request Account Deletion__
+### 8.2  How to Request Account Deletion
 
 - Navigate to: Settings > Account > Delete My Account within the HIVAGO app; OR
 - Send a written request to privacy@hivago.in from your registered email address with subject line: 'Account Deletion Request — \[Your Registered Mobile Number\]'.
 
-### __8.3  Processing Timeline__
+### 8.3  Processing Timeline
 
 - Upon receipt of a verified deletion request, the Company will acknowledge the request within 48 (forty-eight) hours.
 - Account deletion and removal of personal data from active systems will be completed within 30 (thirty) days of receipt of a valid, verified request.
 - Data retained in backup systems will be purged within 90 (ninety) days.
 
-### __8.4  Limitations on Erasure__
+### 8.4  Limitations on Erasure
 
 The right to erasure is not absolute. The Company will retain certain data notwithstanding a deletion request where:
 
@@ -522,7 +522,7 @@ The right to erasure is not absolute. The Company will retain certain data notwi
 
 In such cases, the Company will inform you of the specific data retained, the legal basis for retention, and the applicable retention period.
 
-## __9.  YOUR RIGHTS AS A DATA PRINCIPAL__
+## 9.  YOUR RIGHTS AS A DATA PRINCIPAL
 
 Under the Digital Personal Data Protection Act, 2023 and applicable Indian law, you have the following rights in respect of your personal data processed by the Company:
 
@@ -554,11 +554,11 @@ __Right to Nominate__
 
 Under the DPDP Act, you have the right to nominate another individual to exercise your data rights in the event of your death or incapacity. Contact privacy@hivago.in to register a nominee.
 
-## __10.  DATA SECURITY MEASURES__
+## 10.  DATA SECURITY MEASURES
 
 10.1  The Company implements reasonable technical and organisational security measures to protect personal data against unauthorised access, disclosure, alteration, or destruction, consistent with the requirements of the IT Act and SPDI Rules.
 
-### __10.2  Measures Implemented Include:__
+### 10.2  Measures Implemented Include:
 
 - Encryption of data in transit using industry-standard TLS (Transport Layer Security) protocols;
 - Password-protected, access-controlled dashboards for Restaurant Partners;
@@ -577,7 +577,7 @@ You are responsible for maintaining the confidentiality of your HIVAGO account c
 
 If you suspect unauthorised access to your account, change your registered mobile number or contact support@hivago.in immediately.
 
-## __11.  DATA STORAGE AND LOCALISATION__
+## 11.  DATA STORAGE AND LOCALISATION
 
 11.1  The Company currently stores all personal data on servers physically located within India ('Indian Servers'). This is consistent with applicable data localisation norms under Indian law.
 
@@ -587,7 +587,7 @@ If you suspect unauthorised access to your account, change your registered mobil
 
 11.4  Analytics data processed by Firebase (Google LLC) may be transmitted to and processed on servers outside India. The Company relies on Firebase's standard data processing terms and applicable adequacy frameworks for such processing. Aggregated or pseudonymised analytics data does not constitute personal data subject to localisation requirements.
 
-## __12.  CHILDREN'S PRIVACY__
+## 12.  CHILDREN'S PRIVACY
 
 12.1  The Platform is intended exclusively for use by individuals aged 18 (eighteen) years and above. The Company does not knowingly collect personal data from any person below the age of 18 years.
 
@@ -595,29 +595,29 @@ If you suspect unauthorised access to your account, change your registered mobil
 
 12.3  If you believe that a person below 18 years has registered on or used the Platform, please notify us immediately at privacy@hivago.in.
 
-## __13.  THIRD-PARTY PLATFORMS AND LINKS__
+## 13.  THIRD-PARTY PLATFORMS AND LINKS
 
 13.1  The Platform may contain links to third-party websites, payment gateways, or social media platforms. This Policy does not apply to the privacy practices of those third parties. The Company has no control over and is not responsible for the content or privacy practices of any third-party platform.
 
 13.2  We encourage you to review the privacy policy of any third-party service before providing your personal data to it, including PayU's privacy policy at the time of payment.
 
-## __14.  CONSENT ARCHITECTURE AND MANAGEMENT__
+## 14.  CONSENT ARCHITECTURE AND MANAGEMENT
 
-### __14.1  How We Obtain Consent__
+### 14.1  How We Obtain Consent
 
 - Registration Consent: By completing registration on the Platform, you provide affirmative consent to this Privacy Policy and the processing of your personal data for core Platform operations (order processing, delivery, invoicing, support).
 - Location Consent: The Platform requests device-level location permissions through the operating system's native permission prompt. Your grant or denial of this permission is your explicit consent for location data collection.
 - Marketing Consent: Marketing communications consent is collected through a separate, optional opt-in mechanism during or after registration. This is not bundled with core service consent.
 - Cookie Consent: On the HIVAGO website, non-essential cookie consent is obtained through a cookie banner displayed on first visit.
 
-### __14.2  Managing and Withdrawing Consent__
+### 14.2  Managing and Withdrawing Consent
 
 - You may withdraw consent to marketing communications at any time through Settings > Notifications > Marketing Preferences.
 - You may revoke location permission through your device's OS-level settings.
 - You may withdraw consent to non-essential cookies through your browser settings or the website's cookie management tool.
 - Withdrawal of consent for core data processing (e.g., order fulfilment data) effectively means you cannot use the Platform's ordering services, and you may request account deletion under Section 8.
 
-## __15.  CHANGES TO THIS PRIVACY POLICY__
+## 15.  CHANGES TO THIS PRIVACY POLICY
 
 15.1  The Company reserves the right to amend this Policy from time to time to reflect changes in law, business practices, or technology. Material changes to this Policy will be communicated to registered Users via in-app notification, push notification, or email at least 15 (fifteen) days prior to the change taking effect.
 
@@ -625,7 +625,7 @@ If you suspect unauthorised access to your account, change your registered mobil
 
 15.3  The version history and effective dates of prior versions of this Policy are maintained and can be requested from privacy@hivago.in.
 
-## __16.  GRIEVANCE OFFICER AND CONTACT DETAILS__
+## 16.  GRIEVANCE OFFICER AND CONTACT DETAILS
 
 In accordance with the IT Act, SPDI Rules, and the DPDP Act, the Company designates the following Grievance Officer for privacy-related concerns:
 
@@ -655,11 +655,11 @@ Acknowledgement within 48 hours; resolution within 30 days
 
 If you are unsatisfied with our response to your privacy grievance, you have the right to escalate the matter to the Data Protection Board of India, once it is constituted under the DPDP Act, 2023.
 
-## __ACKNOWLEDGEMENT__
+## ACKNOWLEDGEMENT
 
 __BY USING THE HIVAGO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY IN ITS ENTIRETY AND CONSENT TO THE COLLECTION, USE, STORAGE, AND PROCESSING OF YOUR PERSONAL DATA AS DESCRIBED HEREIN. IF YOU DO NOT AGREE TO THIS POLICY, YOU MUST IMMEDIATELY CEASE USING THE PLATFORM AND MAY REQUEST DELETION OF YOUR ACCOUNT.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20-May-26__
 
 Version: 1.0
 
@@ -684,7 +684,7 @@ __1.0__
 
 __Effective Date__
 
-__\[DATE\]__
+__20-May-26__
 
 __Jurisdiction__
 
@@ -694,13 +694,13 @@ __WaradaVinayaka Private Limited__
 
 AL-5-13/9, Sneh Sagar Apt, Sector - 17, Airoli, Navi Mumbai - 400708, Maharashtra, India
 
-__GSTIN: 27AAECW3756G1Z3__
+__GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768__
 
 legal@hivago.in  |  support@hivago.in
 
-# __HIVAGO PLATFORM__
+# HIVAGO PLATFORM
 
-# __TERMS AND CONDITIONS OF USE__
+# TERMS AND CONDITIONS OF USE
 
 __PLEASE READ CAREFULLY BEFORE USING THIS PLATFORM__
 
@@ -708,7 +708,7 @@ These Terms and Conditions ('Terms') constitute a legally binding agreement betw
 
 __Use of this Platform by any person below the age of 18 (eighteen) years is strictly prohibited. By using this Platform, you represent and warrant that you are at least 18 years of age.__
 
-## __2.  DEFINITIONS__
+## 2.  DEFINITIONS
 
 In these Terms, the following expressions have the meanings assigned to them below, unless the context otherwise requires:
 
@@ -724,7 +724,7 @@ The HIVAGO mobile application (Android and iOS) and website operated by WaradaVi
 
 __"Company" / "We" / "Us"__
 
-WaradaVinayaka Private Limited, a company incorporated under the Companies Act, 2013, having its registered office at AL-5-13/9, Sneh Sagar Apt, Sector-17, Airoli, Navi Mumbai – 400708, Maharashtra (GSTIN: 27AAECW3756G1Z3).
+WaradaVinayaka Private Limited, a company incorporated under the Companies Act, 2013, having its registered office at AL-5-13/9, Sneh Sagar Apt, Sector-17, Airoli, Navi Mumbai – 400708, Maharashtra (GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768).
 
 __"User" / "You" / "Customer"__
 
@@ -766,7 +766,7 @@ __"Force Majeure Event"__
 
 Any event beyond the reasonable control of the Company including acts of God, natural disasters, pandemics, governmental actions, internet disruptions, cyberattacks, or civil unrest.
 
-## __1.  ACCEPTANCE OF TERMS__
+## 1.  ACCEPTANCE OF TERMS
 
 1.1  By accessing or using the Platform, you confirm that:
 
@@ -780,7 +780,7 @@ Any event beyond the reasonable control of the Company including acts of God, na
 
 1.3  Your continued use of the Platform following any modification to these Terms constitutes your acceptance of the revised Terms. It is your responsibility to review these Terms periodically.
 
-## __2.  NATURE OF THE PLATFORM — MARKETPLACE INTERMEDIARY STATUS__
+## 2.  NATURE OF THE PLATFORM — MARKETPLACE INTERMEDIARY STATUS
 
 2.1  HIVAGO is a technology-enabled online marketplace platform that facilitates the discovery, ordering, and delivery of food and beverages from Restaurant Partners. The Company operates exclusively as an intermediary between Users and Restaurant Partners and between Users and Delivery Partners.
 
@@ -792,11 +792,7 @@ Any event beyond the reasonable control of the Company including acts of God, na
 
 2.5  The Company shall be entitled to the safe harbour and intermediary protections available under Section 79 of the Information Technology Act, 2000 and the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, in respect of User Content and third-party content hosted on the Platform.
 
-__⚑  Legal Risk: Intermediary Shield__
-
-*Clause 2 establishes HIVAGO's intermediary status under IT Act Section 79. Maintain this protection by: (a) not editing User Content except per due diligence rules; (b) acting expeditiously on takedown notices; (c) not initiating or selecting recipients of third-party content.*
-
-## __3.  USER REGISTRATION AND ACCOUNT SECURITY__
+## 3.  USER REGISTRATION AND ACCOUNT SECURITY
 
 3.1  Mandatory Registration: Access to the Platform's ordering features requires registration. You agree to provide your full name, mobile phone number, email address, and delivery address(es) during registration.
 
@@ -812,7 +808,7 @@ __⚑  Legal Risk: Intermediary Shield__
 
 3.7  Account Suspension and Termination: The Company reserves the right to suspend, restrict, or permanently terminate your account, with or without prior notice, for any violation of these Terms, applicable law, or policies issued by the Company. Upon termination, your right to use the Platform ceases immediately.
 
-## __4.  ORDERING PROCESS, PAYMENT, AND INVOICING__
+## 4.  ORDERING PROCESS, PAYMENT, AND INVOICING
 
 4.1  Order Placement: By placing an Order on the Platform, you make a binding offer to purchase the selected items from the Restaurant Partner at the listed price. An Order is confirmed upon your receipt of a written confirmation via the Platform or email from the Company.
 
@@ -839,11 +835,7 @@ Both fees will be transparently disclosed to you prior to final order confirmati
 
 4.10  Failed Transactions: In the event of a failed payment transaction, you should not attempt to re-place the order without first confirming that the original payment has not been deducted. The Company is not liable for double charges arising from your failure to follow this procedure; however, where a double charge is confirmed, a full refund of the excess amount will be processed within 7 (seven) business days.
 
-__⚑  Legal Risk: Section 9(5) CGST Compliance__
-
-*As an e-commerce operator under Section 9(5), HIVAGO is liable for GST on restaurant services. Ensure your GST filings (GSTR-1, GSTR-3B) reflect this. Consult your chartered accountant to confirm correct GST heads for Platform Fee (may attract 18% GST as an intermediary service) vs. food supply.*
-
-## __5.  CANCELLATION AND REFUND — SUMMARY__
+## 5.  CANCELLATION AND REFUND — SUMMARY
 
 5.1  Full cancellation and refund terms are governed by the Company's Refund and Cancellation Policy, which is incorporated into these Terms by reference and available on the Platform.
 
@@ -856,7 +848,7 @@ __⚑  Legal Risk: Section 9(5) CGST Compliance__
 
 5.3  Approved refunds will be credited to the original payment source within 7 (seven) business days of the refund approval decision.
 
-## __6.  DELIVERY SERVICES AND LIMITATIONS__
+## 6.  DELIVERY SERVICES AND LIMITATIONS
 
 6.1  Delivery Model: The Company employs a hybrid delivery model comprising Company-contracted Delivery Partners and independent third-party logistics providers. All deliveries are facilitated through the Company's Delivery Partner network.
 
@@ -872,7 +864,7 @@ __⚑  Legal Risk: Section 9(5) CGST Compliance__
 
 6.7  Delivery Area: Delivery services are currently available only within designated zones in Airoli, Navi Mumbai. The Company reserves the right to modify delivery zones at any time without prior notice.
 
-## __7.  RESTAURANT PARTNERS — QUALITY, SAFETY, AND DISCLAIMERS__
+## 7.  RESTAURANT PARTNERS — QUALITY, SAFETY, AND DISCLAIMERS
 
 7.1  Independent Operators: All Restaurant Partners listed on the Platform are independent food service businesses and are not owned, controlled, managed, or operated by the Company. The Company does not supervise Restaurant Partners' food preparation, kitchen hygiene, or ingredient sourcing.
 
@@ -884,11 +876,7 @@ __⚑  Legal Risk: Section 9(5) CGST Compliance__
 
 7.5  Menus and Availability: Menus, item descriptions, prices, photographs, and availability listings are provided by Restaurant Partners and may not always be up to date. The Company makes no representation as to the accuracy or completeness of such information. Item unavailability after order placement shall be handled in accordance with the Refund and Cancellation Policy.
 
-__⚑  Legal Risk: Food Safety Liability__
-
-*While HIVAGO disclaims quality responsibility, under the Consumer Protection Act 2019 and Food Safety and Standards Act 2006, there remains a risk of being co-joined in consumer complaints. Ensure Restaurant Partner Agreements include strong indemnification clauses for food quality claims and require Restaurant Partners to maintain adequate product liability insurance.*
-
-## __8.  USER OBLIGATIONS AND PROHIBITED CONDUCT__
+## 8.  USER OBLIGATIONS AND PROHIBITED CONDUCT
 
 8.1  By using the Platform, you agree to comply with all Applicable Laws and these Terms. You specifically agree to the following obligations:
 
@@ -914,7 +902,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 8.3  Consequences of Violation: Breach of Clause 8.2 may result in immediate account suspension or termination, forfeiture of any pending orders or benefits, legal action, and reporting to appropriate law enforcement authorities.
 
-## __9.  USER-GENERATED CONTENT__
+## 9.  USER-GENERATED CONTENT
 
 9.1  The Platform allows Users to post reviews, ratings, photographs, and comments ('User Content'). You are solely responsible for all User Content you submit.
 
@@ -930,7 +918,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 9.5  The Company's moderation of User Content in accordance with its policies does not affect its intermediary status under Section 79 of the Information Technology Act, 2000.
 
-## __10.  INTELLECTUAL PROPERTY RIGHTS__
+## 10.  INTELLECTUAL PROPERTY RIGHTS
 
 10.1  All Intellectual Property in and to the Platform, including the HIVAGO brand name, logo, trademarks, technology infrastructure, algorithms, user interface, design elements, proprietary content, and all derivatives thereof, are exclusively owned by or licensed to the Company.
 
@@ -942,7 +930,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 10.5  If you believe that any content on the Platform infringes your intellectual property rights, you may submit a written notice to legal@hivago.in with full details of the alleged infringement. The Company will investigate and take appropriate action in accordance with Applicable Laws.
 
-## __11.  DATA PRIVACY AND CONSENT__
+## 11.  DATA PRIVACY AND CONSENT
 
 11.1  The Company's collection, use, storage, processing, and sharing of personal data is governed by its Privacy Policy, which is incorporated into these Terms by reference. By using the Platform, you consent to the processing of your personal data as described in the Privacy Policy.
 
@@ -958,11 +946,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 11.7  Location Data: The Platform collects precise GPS-based location data exclusively during active Order sessions for the purpose of facilitating delivery. Location data is not collected continuously or in the background when no Order is active.
 
-__⚑  Compliance Gap: DPO Appointment__
-
-*HIVAGO currently has no Data Protection Officer. While the DPDP Act 2023 thresholds may not apply at launch scale, proactively designating a point of contact for data privacy matters (internal or outsourced) is strongly recommended and referenced in Clause 11.5. Draft a privacy@hivago.in inbox and assign a responsible individual.*
-
-## __12.  PROMOTIONAL CONTENT AND SPONSORED LISTINGS__
+## 12.  PROMOTIONAL CONTENT AND SPONSORED LISTINGS
 
 12.1  The Platform may feature Restaurant Partners who have paid for sponsored placement, priority listing, or enhanced visibility ('Sponsored Listings'). All Sponsored Listings will be clearly identified with a 'Sponsored' or 'Ad' label to distinguish them from organic search results.
 
@@ -974,7 +958,7 @@ __⚑  Compliance Gap: DPO Appointment__
 
 12.5  Promotional Offers: Any promotional offers, first-order discounts, or cashback programmes are subject to separate offer-specific terms and conditions, which will be communicated at the time of the offer. In case of conflict between an offer's specific terms and these Terms, the offer-specific terms shall prevail to the extent of the conflict.
 
-## __13.  LIMITATION OF LIABILITY AND INDEMNIFICATION__
+## 13.  LIMITATION OF LIABILITY AND INDEMNIFICATION
 
 13.1  PLATFORM AS-IS: THE PLATFORM IS PROVIDED ON AN 'AS IS' AND 'AS AVAILABLE' BASIS WITHOUT ANY WARRANTY OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR NON-INFRINGEMENT.
 
@@ -995,11 +979,7 @@ __⚑  Compliance Gap: DPO Appointment__
 
 13.6  User Indemnification: You agree to indemnify, defend, and hold harmless the Company, its directors, officers, employees, agents, and licensors from and against any claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising out of or relating to: (a) your violation of these Terms or any Applicable Law; (b) your User Content; (c) your misuse of the Platform; or (d) any third-party claim arising from your actions or omissions.
 
-__⚑  Legal Risk: Consumer Protection Act 2019__
-
-*The limitation of liability in Clause 13.3 may not be enforceable against consumer claims under the Consumer Protection Act 2019. HIVAGO, as a 'service provider' under the Act, can be held liable for deficiency in service. Maintain a robust grievance redressal mechanism as required under the e-commerce rules to reduce exposure to consumer complaints.*
-
-## __14.  FORCE MAJEURE__
+## 14.  FORCE MAJEURE
 
 14.1  The Company shall not be held liable for any delay, failure, or non-performance of its obligations under these Terms to the extent that such delay, failure, or non-performance is caused by a Force Majeure Event beyond its reasonable control.
 
@@ -1009,7 +989,7 @@ __⚑  Legal Risk: Consumer Protection Act 2019__
 
 14.4  Orders affected by Force Majeure Events that cannot be fulfilled will be cancelled, and any amounts paid by Users for such Orders (excluding the Platform Fee) will be refunded in accordance with the Refund and Cancellation Policy.
 
-## __15.  REVIEWS, RATINGS, AND DISPUTE RESOLUTION__
+## 15.  REVIEWS, RATINGS, AND DISPUTE RESOLUTION
 
 15.1  Users may submit ratings (1-5 stars) and written reviews for Restaurant Partners and Delivery Partners. All reviews must reflect genuine, first-hand experience from an actual Order placed through the Platform.
 
@@ -1017,13 +997,13 @@ __⚑  Legal Risk: Consumer Protection Act 2019__
 
 15.3  Average ratings displayed on the Platform are computed algorithmically and may be subject to recalibration. The Company makes no representation that ratings accurately reflect the current performance of any Restaurant Partner or Delivery Partner.
 
-## __16.  GRIEVANCE REDRESSAL MECHANISM__
+## 16.  GRIEVANCE REDRESSAL MECHANISM
 
 16.1  In accordance with the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021 and the Consumer Protection (E-Commerce) Rules, 2020, the Company designates the following Grievance Officer:
 
 __Name__
 
-\[GRIEVANCE OFFICER NAME\]
+BHALCHANDRA BALU KUMBHARKAR
 
 __Designation__
 
@@ -1041,7 +1021,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 16.3  Pre-Litigation Notice: Prior to initiating any legal or judicial proceedings against the Company, you agree to provide the Company with a written notice of your claim at legal@hivago.in, allowing the Company 30 (thirty) days to investigate and attempt to resolve the dispute amicably. This requirement is a condition precedent to any litigation and does not affect your rights before consumer forums.
 
-## __17.  GOVERNING LAW AND DISPUTE RESOLUTION__
+## 17.  GOVERNING LAW AND DISPUTE RESOLUTION
 
 17.1  Governing Law: These Terms and all disputes, claims, or controversies arising out of or relating to these Terms, the Platform, or any Order placed through the Platform shall be governed by and construed in accordance with the laws of India, without regard to its conflict of law provisions.
 
@@ -1051,7 +1031,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 17.4  Mediation: Prior to approaching a court of law (but without prejudice to consumer forum rights), both parties agree to explore in good faith settlement through internal escalation and, if necessary, a neutral third-party mediator. The costs of any agreed mediation shall be shared equally.
 
-## __18.  MODIFICATIONS TO THE PLATFORM AND TERMS__
+## 18.  MODIFICATIONS TO THE PLATFORM AND TERMS
 
 18.1  The Company reserves the right to modify, suspend, or discontinue the Platform or any feature thereof, temporarily or permanently, with or without prior notice. The Company shall not be liable to you for any modification, suspension, or discontinuation of the Platform.
 
@@ -1059,7 +1039,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 18.3  The Company reserves the right to introduce new services, features, or monetisation mechanisms at any time, subject to providing reasonable prior notice to Users.
 
-## __19.  THIRD-PARTY SERVICES AND LINKS__
+## 19.  THIRD-PARTY SERVICES AND LINKS
 
 19.1  The Platform may integrate with or display links to third-party services, websites, or applications (including PayU, Firebase, and other analytics providers). The Company does not endorse, control, or take responsibility for any third-party service, its content, or its privacy practices.
 
@@ -1067,7 +1047,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 19.3  The Company uses third-party analytics tools to understand user behaviour and improve the Platform. Such analytics processing is described in the Privacy Policy.
 
-## __20.  GENERAL PROVISIONS__
+## 20.  GENERAL PROVISIONS
 
 20.1  Entire Agreement: These Terms, together with the Privacy Policy, Refund and Cancellation Policy, and any other policies referenced herein, constitute the entire agreement between you and the Company with respect to your use of the Platform and supersede all prior agreements, understandings, or arrangements.
 
@@ -1083,11 +1063,11 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 20.7  Headings: Section headings are for convenience only and do not affect the interpretation of these Terms.
 
-## __ACKNOWLEDGEMENT OF TERMS__
+## ACKNOWLEDGEMENT OF TERMS
 
 __BY CLICKING 'ACCEPT', 'REGISTER', OR 'PLACE ORDER' ON THE HIVAGO PLATFORM, OR BY CONTINUING TO USE THE PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, FULLY UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS AND CONDITIONS IN THEIR ENTIRETY. IF YOU DO NOT AGREE, YOU MUST IMMEDIATELY CEASE USE OF THE PLATFORM.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20-May-26__
 
 __Version: 1.0__
 
@@ -1112,7 +1092,7 @@ __1.0__
 
 __Effective__
 
-__\[DATE\]__
+__20-May-26__
 
 __Jurisdiction__
 
@@ -1126,13 +1106,13 @@ __WaradaVinayaka Private Limited__
 
 AL-5-13/9, Sneh Sagar Apt, Sector-17, Airoli, Navi Mumbai – 400708, Maharashtra, India
 
-GSTIN: 27AAECW3756G1Z3  |  support@hivago.in  |  grievance@hivago.in
+GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768  |  support@hivago.in  |  grievance@hivago.in
 
 __HIVAGO — REFUND AND CANCELLATION POLICY__
 
-*Issued by WaradaVinayaka Private Limited | Effective: \[DATE\] | Version 1.0*
+*Issued by WaradaVinayaka Private Limited | Effective: 20-May-26 | Version 1.0*
 
-## __QUICK REFERENCE — REFUND ELIGIBILITY MATRIX__
+## QUICK REFERENCE — REFUND ELIGIBILITY MATRIX
 
 This matrix provides an at-a-glance summary of all refund scenarios. The Platform Fee is NON-REFUNDABLE in all cases. Full rules are in the Sections below.
 
@@ -1272,7 +1252,7 @@ STRICTLY NON-REFUNDABLE.
 
 N/A
 
-## __PREAMBLE__
+## PREAMBLE
 
 This Refund and Cancellation Policy ('Policy') is published by WaradaVinayaka Private Limited ('Company', 'We', 'Us'), the operator of the HIVAGO on-demand food delivery marketplace ('Platform'). This Policy governs the rights and obligations of Users, Restaurant Partners, and the Company with respect to order cancellations, refund eligibility, delivery-related disputes, and the resolution process.
 
@@ -1292,7 +1272,7 @@ Approved refunds are credited only to the original payment source. No cash refun
 
 HIVAGO does not offer Cash on Delivery. All transactions are digital through PayU.
 
-## __1.  DEFINITIONS__
+## 1.  DEFINITIONS
 
 In this Policy, the following terms shall have the meanings assigned below. Capitalised terms not defined here carry the meanings given in the HIVAGO Terms and Conditions.
 
@@ -1334,7 +1314,7 @@ __"Business Day"__
 
 Any day other than a Sunday or declared public holiday under Maharashtra or Central Government notification.
 
-## __2.  PLATFORM FEE — ABSOLUTE NON-REFUNDABILITY__
+## 2.  PLATFORM FEE — ABSOLUTE NON-REFUNDABILITY
 
 __PLATFORM FEE POLICY — NO EXCEPTIONS__
 
@@ -1350,9 +1330,9 @@ The Platform Fee is clearly disclosed at the checkout screen prior to payment. P
 
 2.2  Disclosure at Checkout: The Platform Fee amount is displayed as a separate line item on the order summary and checkout screen prior to the User's final payment confirmation. Proceeding to payment constitutes the User's informed and express agreement to the Platform Fee and its non-refundable nature.
 
-## __3.  USER-INITIATED CANCELLATION__
+## 3.  USER-INITIATED CANCELLATION
 
-### __3.1  Standard Real-Time Orders — 2-Minute Cancellation Window__
+### 3.1  Standard Real-Time Orders — 2-Minute Cancellation Window
 
 A User may cancel a standard (real-time/immediate) Order within 2 (two) minutes of the Order Confirmation timestamp, subject to the condition that Restaurant Acceptance has not yet occurred. Cancellation within this window entitles the User to:
 
@@ -1367,7 +1347,7 @@ To cancel within the Cancellation Window:
 
 If the Cancellation Window has elapsed or Restaurant Acceptance has occurred prior to the cancellation request, the rules in Clause 3.2 below apply.
 
-### __3.2  Cancellation After Restaurant Acceptance__
+### 3.2  Cancellation After Restaurant Acceptance
 
 Once a Restaurant Partner has accepted and commenced food preparation — which may occur within seconds of Order Confirmation — the User's right to cancel is significantly restricted. The following assessment framework applies:
 
@@ -1395,7 +1375,7 @@ HIVAGO's settlement obligation to the Restaurant Partner is triggered upon order
 
 To avoid this situation, please review your order carefully at the cart and checkout stages before confirming payment.
 
-### __3.3  Pre-Orders and Scheduled Orders — Cancellation Schedule__
+### 3.3  Pre-Orders and Scheduled Orders — Cancellation Schedule
 
 For orders placed for a future time slot, the following cancellation schedule applies based on the time remaining before the scheduled delivery slot:
 
@@ -1415,7 +1395,7 @@ Less than 30 minutes
 
 No refund. Restaurant preparation is likely underway. Platform Fee non-refundable.
 
-### __3.4  Item Unavailability Discovered After Confirmation__
+### 3.4  Item Unavailability Discovered After Confirmation
 
 If, post-Order Confirmation, a Restaurant Partner reports that one or more items are unavailable, the Company will:
 
@@ -1425,9 +1405,9 @@ If, post-Order Confirmation, a Restaurant Partner reports that one or more items
 
 In all item unavailability scenarios, the Platform Fee remains non-refundable.
 
-## __4.  CANCELLATION BY THE COMPANY OR RESTAURANT PARTNER__
+## 4.  CANCELLATION BY THE COMPANY OR RESTAURANT PARTNER
 
-### __4.1  Company-Initiated Cancellation__
+### 4.1  Company-Initiated Cancellation
 
 The Company may cancel an Order at its sole discretion in the following circumstances, without limiting its rights under the Terms and Conditions:
 
@@ -1443,7 +1423,7 @@ In all Company-initiated cancellations (except fraud-related), the User will rec
 
 Fraud-related cancellations may result in account suspension and forfeiture of all amounts paid, pending investigation.
 
-### __4.2  Restaurant Partner-Initiated Cancellation__
+### 4.2  Restaurant Partner-Initiated Cancellation
 
 A Restaurant Partner may cancel an accepted Order in exceptional circumstances (e.g., sudden kitchen closure, complete ingredient unavailability). In such cases:
 
@@ -1458,9 +1438,9 @@ Where HIVAGO or a Restaurant Partner cancels an Order you have paid for, you are
 
 If the Company fails to process this refund within stated timelines, you may contact the National Consumer Helpline (1800-11-4000) or approach the District Consumer Disputes Redressal Commission, Navi Mumbai / Thane.
 
-## __5.  REFUNDS FOR DELIVERY-RELATED ISSUES__
+## 5.  REFUNDS FOR DELIVERY-RELATED ISSUES
 
-### __5.1  Non-Delivery__
+### 5.1  Non-Delivery
 
 A Non-Delivery claim arises when the User reports the Order was not received despite the status showing 'Delivered'. The following process and rules apply:
 
@@ -1480,7 +1460,7 @@ User failed to collect order within a reasonable time after receiving a delivery
 
 Note: HIVAGO does not currently offer live GPS tracking. Ensure push notifications are enabled on your device during the expected delivery window.
 
-### __5.2  Significant Delivery Delay__
+### 5.2  Significant Delivery Delay
 
 Delivery time estimates on HIVAGO are indicative only. Delays caused by Restaurant Partner preparation time, traffic conditions, weather, or peak demand are not grounds for a mandatory refund. However, where a delay is materially attributable to Delivery Partner default, the Company will:
 
@@ -1488,7 +1468,7 @@ Delivery time estimates on HIVAGO are indicative only. Delays caused by Restaura
 - Offer a partial refund of the Delivery Fee or a goodwill gesture, at its discretion;
 - HIVAGO does not guarantee any specific delivery time and this cannot be treated as a service level commitment.
 
-### __5.3  Wrong Items Delivered__
+### 5.3  Wrong Items Delivered
 
 If items delivered differ materially from what was ordered:
 
@@ -1498,7 +1478,7 @@ If items delivered differ materially from what was ordered:
 - If the entire order is confirmed as incorrect: full refund of food value and Delivery Fee will be considered;
 - Platform Fee non-refundable.
 
-### __5.4  Missing Items__
+### 5.4  Missing Items
 
 If one or more confirmed Order items are absent from the delivery:
 
@@ -1507,7 +1487,7 @@ If one or more confirmed Order items are absent from the delivery:
 - If validated: refund equal to the value of the missing item(s) will be processed;
 - High-frequency missing item claims from one account will be subject to fraud screening.
 
-### __5.5  Food Quality Complaints__
+### 5.5  Food Quality Complaints
 
 HIVAGO is a marketplace intermediary. Food quality, safety, temperature maintenance, and packaging are the exclusive responsibility of Restaurant Partners. The Company will facilitate the following process:
 
@@ -1523,9 +1503,9 @@ If you believe food received has caused or risks causing a food safety or health
 
 For medical emergencies, seek immediate medical attention first and report to HIVAGO after.
 
-## __6.  FAILED PAYMENTS AND TECHNICAL ERRORS__
+## 6.  FAILED PAYMENTS AND TECHNICAL ERRORS
 
-### __6.1  Payment Deducted but Order Not Confirmed__
+### 6.1  Payment Deducted but Order Not Confirmed
 
 If payment has been deducted from your account but no Order Confirmation was received:
 
@@ -1534,26 +1514,26 @@ If payment has been deducted from your account but no Order Confirmation was rec
 - Email support@hivago.in with your registered mobile number, date and time of transaction, and bank UTR/reference number;
 - Upon PayU confirmation of a failed transaction, a full refund of the deducted amount will be processed within 5–7 Business Days.
 
-### __6.2  Double Charge__
+### 6.2  Double Charge
 
 If you are charged twice for the same Order due to a payment gateway error:
 
 - Report both transaction references to support@hivago.in within 48 hours;
 - The Company will verify with PayU and process a refund of the duplicate charge within 7 Business Days of confirmation.
 
-### __6.3  Company's Liability Limitation__
+### 6.3  Company's Liability Limitation
 
 HIVAGO processes payments exclusively through PayU and does not independently handle payment instruments. While the Company will fully facilitate investigation and refund processing, it is not liable for errors attributable to PayU's infrastructure, the User's bank, or the card network. Unresolved payment disputes may need to be escalated directly to PayU and the issuing bank.
 
-## __7.  HOW TO RAISE A REFUND CLAIM — PROCESS AND TIMELINES__
+## 7.  HOW TO RAISE A REFUND CLAIM — PROCESS AND TIMELINES
 
-### __7.1  Channels for Raising a Claim__
+### 7.1  Channels for Raising a Claim
 
 - In-App: Orders > Select Order > Help > Report an Issue > Select issue category;
 - Email: support@hivago.in — include Order ID, registered mobile number, issue description, and any photographic evidence;
 - In-App Chat: Through HIVAGO's human customer support agents.
 
-### __7.2  Claim Deadlines__
+### 7.2  Claim Deadlines
 
 __STRICT DEADLINES — CLAIMS AFTER THESE PERIODS MAY BE REJECTED__
 
@@ -1569,7 +1549,7 @@ Pre-order cancellation: Per the schedule in Section 3.3 above.
 
 Late claims may be rejected at the Company's sole discretion. Time limits are enforced to enable accurate investigation.
 
-### __7.3  Investigation and Decision Process__
+### 7.3  Investigation and Decision Process
 
 - Acknowledgement: Within 24 hours of receiving your claim;
 - Preliminary Response: Within 48 hours;
@@ -1577,7 +1557,7 @@ Late claims may be rejected at the Company's sole discretion. Time limits are en
 - During investigation, the Company may request photographic evidence, Restaurant Partner records, or Delivery Partner data;
 - The Company's refund decision is final, subject to your rights before consumer forums and courts of competent jurisdiction.
 
-### __7.4  Refund Credit Timeline by Payment Method__
+### 7.4  Refund Credit Timeline by Payment Method
 
 __Payment Method__
 
@@ -1601,7 +1581,7 @@ Net Banking
 
 The timelines above run from the date the Company approves and initiates the refund through PayU. Actual credit depends on your bank's processing time, which is outside HIVAGO's control. Refunds are credited solely to the original payment instrument.
 
-## __8.  FRAUDULENT AND ABUSIVE REFUND CLAIMS__
+## 8.  FRAUDULENT AND ABUSIVE REFUND CLAIMS
 
 8.1  HIVAGO employs automated and manual fraud detection to identify refund abuse patterns, including:
 
@@ -1618,15 +1598,15 @@ The timelines above run from the date the Company approves and initiates the ref
 
 8.3  Restaurant Partners and Delivery Partners engaging in fraudulent dispute manipulation will face immediate suspension and potential legal action.
 
-## __9.  DISPUTE ESCALATION AND CONSUMER RIGHTS__
+## 9.  DISPUTE ESCALATION AND CONSUMER RIGHTS
 
-### __9.1  Internal Grievance Escalation__
+### 9.1  Internal Grievance Escalation
 
 If you are dissatisfied with the Company's refund decision, you may escalate to the Grievance Officer:
 
 __Grievance Officer__
 
-\[GRIEVANCE OFFICER NAME\]
+Bhalchandra B Kumbharkar
 
 __Email__
 
@@ -1640,11 +1620,11 @@ __Response Timeframe__
 
 Acknowledgement within 48 hours; resolution within 30 days
 
-### __9.2  Pre-Litigation Notice__
+### 9.2  Pre-Litigation Notice
 
 Before initiating any legal proceedings, you agree to provide the Company a written notice of claim to legal@hivago.in, allowing 30 (thirty) days for internal resolution. This does not affect your right to approach consumer forums.
 
-### __9.3  Consumer Forum Rights__
+### 9.3  Consumer Forum Rights
 
 Your statutory rights as a consumer are unaffected by this Policy. You may:
 
@@ -1654,17 +1634,17 @@ Your statutory rights as a consumer are unaffected by this Policy. You may:
 - Approach the State Consumer Disputes Redressal Commission, Maharashtra;
 - Approach the National Consumer Disputes Redressal Commission (NCDRC) for eligible claims.
 
-### __9.4  Governing Law__
+### 9.4  Governing Law
 
 This Policy is governed by the laws of India. Disputes shall be subject to the exclusive jurisdiction of the courts in Navi Mumbai / Thane, Maharashtra, without prejudice to consumer forum rights.
 
-## __10.  AMENDMENTS__
+## 10.  AMENDMENTS
 
 10.1  The Company may amend this Policy to reflect changes in operations, laws, or consumer protection guidelines. Material changes will be communicated via in-app notification at least 15 (fifteen) days before the effective date.
 
 10.2  Continued use of the Platform after the effective date of any amendment constitutes acceptance of the revised Policy.
 
-## __COMPLETE REFUND SCENARIO MATRIX__
+## COMPLETE REFUND SCENARIO MATRIX
 
 The following table is the complete refund eligibility reference for all scenarios. Platform Fee is non-refundable in all cases.
 
@@ -1806,11 +1786,574 @@ N/A
 
 __BY PLACING AN ORDER ON THE HIVAGO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THIS REFUND AND CANCELLATION POLICY. THE PLATFORM FEE IS NON-REFUNDABLE IN ALL CIRCUMSTANCES. REFUND CLAIMS MUST BE RAISED WITHIN THE PRESCRIBED DEADLINES. THIS POLICY DOES NOT AFFECT YOUR STATUTORY RIGHTS UNDER THE CONSUMER PROTECTION ACT, 2019.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20-May-26__
 
 Version: 1.0
 
 WaradaVinayaka Private Limited | HIVAGO Platform | support@hivago.in | grievance@hivago.in
+
+`
+  },
+  cookie: {
+    id: 'cookie',
+    title: 'Cookie Policy',
+    content: `__HIVAGO__
+
+Operated by WaradaVinayaka Private Limited
+
+__COOKIE POLICY__
+
+*Governing the Use of Cookies and Tracking Technologies on the HIVAGO Website and Mobile Application*
+
+__Version__
+
+__1.0__
+
+__Effective__
+
+__20-May-26__
+
+__Applies To__
+
+__Website & App__
+
+__Jurisdiction__
+
+__Maharashtra, India__
+
+__WaradaVinayaka Private Limited__
+
+AL-5-13/9, Sneh Sagar Apt, Sector-17, Airoli, Navi Mumbai – 400708, Maharashtra, India
+
+GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768  |  privacy@hivago.in
+
+__HIVAGO — COOKIE POLICY__
+
+*Issued by WaradaVinayaka Private Limited | Effective: 20-May-26 | Version 1.0*
+
+__COOKIE POLICY AT A GLANCE__
+
+__COOKIE POLICY — AT A GLANCE__
+
+__What is a cookie?__
+
+A small text file placed on your device by a website or app to remember information about your visit or session.
+
+__Does HIVAGO use cookies?__
+
+Yes - on the HIVAGO website. The mobile app uses equivalent on-device tracking technologies (SDKs and device identifiers).
+
+__Types of cookies used__
+
+Strictly Necessary, Analytics / Performance, and Marketing / Preference cookies.
+
+__Do you need to accept all cookies?__
+
+No. Only Strictly Necessary cookies are required. Analytics and Marketing cookies are optional - you can manage them.
+
+__How do you manage cookies?__
+
+Through the cookie consent banner on first visit, through your browser settings, or by emailing privacy@hivago.in.
+
+__Does HIVAGO sell cookie data?__
+
+No. HIVAGO does not sell, rent, or trade cookie or tracking data to any third party.
+
+__Third-party cookies__
+
+Firebase Analytics (Google) may set its own cookies or use SDKs. These are governed by Google's privacy policy.
+
+__Contact for cookie queries__
+
+privacy@hivago.in
+
+## 1.  INTRODUCTION AND SCOPE
+
+This Cookie Policy ('Policy') is published by WaradaVinayaka Private Limited ('Company', 'We', 'Us'), the operator of the HIVAGO on-demand food delivery marketplace ('Platform'), comprising the HIVAGO website (hivago.in or such other domain) and the HIVAGO mobile application (Android and iOS).
+
+This Policy explains what cookies and similar tracking technologies are, the types used by HIVAGO, the purposes for which they are used, and how you can manage your cookie preferences. It should be read in conjunction with our Privacy Policy, which is incorporated by reference.
+
+This Policy applies to all visitors to the HIVAGO website and all users of the HIVAGO mobile application, regardless of whether you are registered or unregistered, and regardless of the device you use to access the Platform.
+
+By continuing to use the HIVAGO website after being presented with the cookie consent banner, you consent to the use of non-essential cookies as described in this Policy. Strictly Necessary cookies do not require your consent as they are essential for the website to function. You may withdraw or adjust consent at any time as described in Section 7.
+
+## 2.  WHAT ARE COOKIES AND SIMILAR TECHNOLOGIES?
+
+### 2.1  Cookies
+
+A cookie is a small text file that a website places on your computer, smartphone, tablet, or other internet-enabled device when you visit the site. Cookies are widely used to make websites work efficiently, to provide information to the owners of the website, and to enable personalisation or targeted advertising features.
+
+Cookies allow the website to recognise your device and store certain information about your preferences or past visits. They do not contain code that can cause harm to your device, and they do not have access to your files or any other information on your device beyond what the website itself places or is permitted to access.
+
+### 2.2  Similar Tracking Technologies Used in the Mobile Application
+
+The HIVAGO mobile application does not use browser-based cookies in the traditional sense. Instead, it uses equivalent tracking technologies that serve similar purposes on mobile devices:
+
+__Technology__
+
+__How It Works and What It Does__
+
+__Software Development Kits (SDKs)__
+
+Code libraries integrated into the HIVAGO app (e.g., Firebase SDK) that collect device and usage data to power analytics, crash reporting, and app performance monitoring.
+
+__Device Identifiers__
+
+Unique identifiers assigned to your mobile device by the operating system (e.g., Android Advertising ID, Apple IDFA). Used for analytics and, where applicable, targeted advertising. These can be reset in your device's privacy settings.
+
+__Local Storage__
+
+Small data files stored on your device by the app to remember your preferences, session state, and frequently accessed data for faster app loading.
+
+__Session Tokens__
+
+Temporary authentication tokens generated when you log into the app to maintain your session securely without requiring re-authentication on every screen.
+
+### 2.3  Duration — Session vs Persistent Cookies
+
+__Type__
+
+__Description__
+
+__Session Cookies__
+
+Active only for the duration of your browser session. They are deleted automatically when you close your browser. Used for essential functionality such as maintaining your login state during a visit.
+
+__Persistent Cookies__
+
+Remain on your device for a defined period (from a few days to several months), even after you close your browser. They are used to remember your preferences and analyse how you use the Platform over time.
+
+## 3.  TYPES OF COOKIES USED BY HIVAGO
+
+HIVAGO uses three categories of cookies on its website, and equivalent technologies on its mobile application. These are described in detail below using visual tiles to make the information easily understandable.
+
+__🔒  STRICTLY NECESSARY COOKIES__
+
+__Purpose:__
+
+These cookies are essential for the HIVAGO website to function correctly. Without them, core features such as user login, session maintenance, order checkout, and security protections cannot operate. The website cannot function properly without these cookies and they cannot be disabled through our cookie banner.
+
+__Examples:__
+
+Session authentication tokens — keep you logged in during your visit. CSRF (Cross-Site Request Forgery) protection tokens — security measure preventing unauthorised actions. Load balancer cookies — ensure your requests go to the correct server. Shopping cart / order session data — retains your order before confirmation. Language and region preference if set by system default.
+
+__Can you opt out?  NO — These are essential for the website to operate. Disabling them through browser settings will cause core functionality to break.__
+
+__📊  ANALYTICS AND PERFORMANCE COOKIES__
+
+__Purpose:__
+
+These cookies help us understand how visitors interact with the HIVAGO website — which pages are visited most, where users come from, how long they spend on pages, and where they leave. This data is collected in aggregated and anonymised form and is used solely to improve the Platform's performance, navigation, and user experience. No personally identifiable information is included in analytics data.
+
+__Examples:__
+
+Firebase Analytics (Google LLC) — app and website usage tracking, crash reporting, event logging. Page view counters — how many users visit specific pages. Traffic source data — how users find the HIVAGO website (search, direct, referral). Error and crash logs — identifying technical issues for prompt resolution. Feature usage data — which app features are most and least used.
+
+__Can you opt out?  YES — You can opt out via the cookie consent banner on first visit, by adjusting your browser settings, or by installing Google's Analytics opt-out browser add-on (https://tools.google.com/dlpage/gaoptout).__
+
+__🎯  MARKETING AND PREFERENCE COOKIES__
+
+__Purpose:__
+
+These cookies are used to remember your preferences on the Platform, such as saved delivery addresses, notification settings, and cuisine preferences. They may also be used to deliver relevant promotional content on the Platform (such as restaurant recommendations or offer banners). These cookies do not track you across other websites for advertising purposes — HIVAGO does not engage in cross-site behavioural advertising.
+
+__Examples:__
+
+Saved address preference cookies — remember your frequently used delivery addresses. Notification preference settings — remember your opt-in or opt-out choices for push notifications and marketing emails. Platform personalisation data — remembering your cuisine preferences or recently viewed restaurants within the HIVAGO Platform. Promotional banner display frequency — avoid showing the same promotional content repeatedly.
+
+__Can you opt out?  YES — You can opt out via the cookie consent banner, through your account's notification preferences, or by emailing privacy@hivago.in.__
+
+## 4.  DETAILED COOKIE REGISTER
+
+The following table lists the specific cookies currently used on the HIVAGO website. This register is updated periodically to reflect changes in cookie use. If you identify a cookie not listed here, please notify us at privacy@hivago.in.
+
+__Cookie Name__
+
+__Category__
+
+__Set By__
+
+__Duration__
+
+__Purpose__
+
+__hivago_session__
+
+__Strictly Necessary__
+
+HIVAGO (First-party)
+
+Session (deleted on browser close)
+
+Maintains your login session and authentication state during your visit.
+
+___csrf__
+
+__Strictly Necessary__
+
+HIVAGO (First-party)
+
+Session
+
+Cross-site request forgery protection token — prevents unauthorised actions on your account.
+
+__hivago_region__
+
+__Strictly Necessary__
+
+HIVAGO (First-party)
+
+30 days
+
+Remembers your selected delivery region to show relevant restaurant listings.
+
+___ga__
+
+__Analytics__
+
+Google / Firebase (Third-party)
+
+2 years
+
+Google Analytics — distinguishes unique users for traffic analysis. Contains a randomly generated unique identifier.
+
+___ga_\[ID\]__
+
+__Analytics__
+
+Google / Firebase (Third-party)
+
+2 years
+
+Google Analytics 4 — maintains session state for analytics event tracking.
+
+___gid__
+
+__Analytics__
+
+Google / Firebase (Third-party)
+
+24 hours
+
+Google Analytics — distinguishes users for 24-hour session tracking.
+
+__firebase_app_check__
+
+__Analytics__
+
+Firebase (Third-party)
+
+1 hour
+
+Firebase App Check token — verifies requests originate from the genuine HIVAGO app.
+
+__hivago_pref__
+
+__Marketing / Preference__
+
+HIVAGO (First-party)
+
+90 days
+
+Stores your in-app preferences such as cuisine filter settings and notification choices.
+
+__hivago_promo_seen__
+
+__Marketing / Preference__
+
+HIVAGO (First-party)
+
+7 days
+
+Records which promotional banners you have already viewed to avoid repetitive displays.
+
+__cookie_consent__
+
+__Strictly Necessary__
+
+HIVAGO (First-party)
+
+1 year
+
+Records your cookie consent preference so you are not asked repeatedly on every visit.
+
+__Cookie Register — Colour Key__
+
+Dark Navy background = Strictly Necessary (cannot be disabled)
+
+Blue background = Analytics / Performance (optional — can be disabled)
+
+Purple background = Marketing / Preference (optional — can be disabled)
+
+## 5.  THIRD-PARTY COOKIES AND SERVICES
+
+### 5.1  Firebase Analytics (Google LLC)
+
+HIVAGO integrates Firebase Analytics, a product of Google LLC, for app performance monitoring, crash reporting, and usage analytics. Firebase may set its own cookies on the website and use SDKs within the mobile application to collect device and usage data.
+
+__Firebase Analytics — Key Facts__
+
+__Provider__
+
+Google LLC, operated under its Privacy Policy at https://policies.google.com/privacy
+
+__Data Collected__
+
+App / website usage events, device type, OS version, session duration, screen views, crash logs
+
+__Data Location__
+
+Processed on Google's global servers — may involve data transfer outside India
+
+__Anonymisation__
+
+IP addresses are anonymised by default in Firebase Analytics configuration
+
+__Opt-Out (Website)__
+
+Install Google Analytics Opt-Out Browser Add-On: https://tools.google.com/dlpage/gaoptout
+
+__Opt-Out (App)__
+
+Disable 'Analytics' in app settings (where available) or reset your advertising ID in device privacy settings
+
+5.2  The Company has configured Firebase Analytics to anonymise IP addresses and limit data collection to what is necessary for Platform improvement. Firebase Analytics data is not used for targeted advertising to Users outside the HIVAGO Platform.
+
+5.3  The Company does not control Firebase Analytics' data processing practices. Users who wish to opt out of Firebase Analytics tracking across all applications should consult Google's privacy settings at https://myaccount.google.com/data-and-privacy.
+
+### 5.4  PayU Payment Gateway
+
+The HIVAGO website integrates PayU's payment interface for processing transactions. PayU may set session cookies during the payment process to maintain payment session security and prevent fraud. These cookies are strictly functional and are governed by PayU's privacy and cookie policy. HIVAGO does not control or have access to PayU's cookies.
+
+### 5.5  No Third-Party Advertising Networks
+
+__HIVAGO Does NOT Use Advertising Network Cookies__
+
+HIVAGO does not integrate any third-party advertising networks (such as Google Ads remarketing tags, Meta Pixel, or similar ad-tracking technologies) that track you across other websites.
+
+No cross-site behavioural advertising cookies are placed on your device through the HIVAGO Platform.
+
+The only third-party tracking technology used is Firebase Analytics, which is limited to understanding how Users interact with the HIVAGO Platform itself.
+
+## 6.  HOW WE USE COOKIE DATA
+
+Cookie and tracking technology data collected through the HIVAGO Platform is used exclusively for the following purposes:
+
+__Cookie Data Usage__
+
+__Platform Security__
+
+Authenticating your session, preventing CSRF attacks, and protecting your account from unauthorised access.
+
+__Core Functionality__
+
+Maintaining your login state, remembering your region/address, processing your order in a single session.
+
+__Performance Monitoring__
+
+Identifying crashes, errors, and slow-loading pages to improve Platform stability and speed.
+
+__Usage Analytics__
+
+Understanding which features and pages are most used to prioritise Platform improvements.
+
+__Preference Retention__
+
+Remembering your notification preferences, cuisine filters, and saved delivery addresses.
+
+__Fraud Prevention__
+
+Detecting unusual usage patterns that may indicate fraudulent or automated activity.
+
+We do NOT use cookie data for:
+
+- Selling or sharing your data with third-party advertisers for the purpose of targeting you with ads on other platforms;
+- Building detailed consumer profiles for commercial sale;
+- Tracking your activity across websites other than the HIVAGO website;
+- Making automated decisions that significantly affect your legal rights or access to services.
+
+## 7.  MANAGING YOUR COOKIE PREFERENCES
+
+### 7.1  Cookie Consent Banner (Website)
+
+When you first visit the HIVAGO website, a cookie consent banner will be displayed. The banner allows you to:
+
+- Accept all cookies — consent to Strictly Necessary, Analytics, and Marketing / Preference cookies;
+- Accept only essential cookies — consent only to Strictly Necessary cookies while rejecting optional ones;
+- Customise preferences — individually enable or disable Analytics and Marketing / Preference cookie categories.
+
+Your consent choice is saved in a \`cookie_consent\` cookie for 12 months. You may change your preferences at any time by accessing the cookie settings link in the website footer.
+
+### 7.2  Browser-Level Cookie Controls
+
+All modern web browsers allow you to control cookies through browser settings. You can:
+
+- Block all cookies (note: this will prevent the HIVAGO website from functioning correctly);
+- Block third-party cookies only (this will block Firebase Analytics cookies without affecting core functionality);
+- Delete existing cookies from your browser at any time;
+- Set your browser to notify you before accepting any cookie.
+
+Cookie management instructions for major browsers:
+
+__Browser__
+
+__Settings Path__
+
+__Google Chrome__
+
+Settings > Privacy and Security > Cookies and Other Site Data
+
+__Mozilla Firefox__
+
+Options > Privacy & Security > Cookies and Site Data
+
+__Apple Safari__
+
+Preferences > Privacy > Manage Website Data
+
+__Microsoft Edge__
+
+Settings > Cookies and Site Permissions > Cookies and Site Data
+
+__Opera__
+
+Settings > Advanced > Privacy & Security > Site Settings > Cookies
+
+### 7.3  Mobile App — Device-Level Controls
+
+For tracking technologies used in the HIVAGO mobile application, you can manage your preferences through your device's operating system settings:
+
+__Platform__
+
+__How to Manage__
+
+__Android__
+
+Settings > Google > Ads > Reset Advertising ID, or Settings > Privacy > Ads (varies by manufacturer and Android version)
+
+__iOS (Apple)__
+
+Settings > Privacy & Security > Tracking — toggle 'Allow Apps to Request to Track'; Settings > Privacy > Apple Advertising to limit ad tracking
+
+__All Platforms__
+
+You may also contact us at privacy@hivago.in to request that we stop processing your usage data for analytics purposes.
+
+__Important — Effect of Disabling Cookies__
+
+Disabling Strictly Necessary cookies will prevent you from logging in to the HIVAGO website and using core ordering features. The website will not function properly without these cookies.
+
+Disabling Analytics cookies will not affect your ability to use the Platform but means we will have less data to improve your experience.
+
+Disabling Marketing / Preference cookies will mean your saved preferences (e.g., cuisine filters, delivery addresses) may not be remembered between sessions.
+
+### 7.4  Opt-Out via Email
+
+If you are unable to use the cookie banner or browser settings, or if you would like to request that we stop processing your data through analytics or preference cookies, you may contact us at privacy@hivago.in with the subject line 'Cookie Opt-Out Request'. We will process your request within 7 (seven) Business Days.
+
+## 8.  DATA PROCESSED THROUGH COOKIES — PRIVACY AND LEGAL BASIS
+
+### 8.1  Data Collected Through Cookies
+
+The data collected through cookies and tracking technologies includes:
+
+- Technical data: IP address (anonymised for analytics), device type, operating system, browser type and version, screen resolution;
+- Session data: Session ID, authentication tokens, order session data;
+- Usage data: Pages visited, time spent on pages, click patterns, search queries within the Platform, features used;
+- Preference data: Saved delivery addresses, notification settings, cuisine preferences;
+- Crash and error data: Technical error logs and crash reports.
+
+### 8.2  Legal Basis for Cookie Processing
+
+__Cookie Category__
+
+__Legal Basis__
+
+__Applicable Law__
+
+__Strictly Necessary__
+
+Legitimate Interests — essential for Platform security and functionality. No consent required.
+
+IT Act, 2000 (security obligations); DPDP Act, 2023 (legitimate use for service provision)
+
+__Analytics / Performance__
+
+Your consent — given through the cookie banner. May be withdrawn at any time.
+
+DPDP Act, 2023 (consent-based processing); IT (SPDI) Rules, 2011
+
+__Marketing / Preference__
+
+Your consent — given through the cookie banner or account settings. May be withdrawn at any time.
+
+DPDP Act, 2023 (consent-based processing); Consumer Protection (E-Commerce) Rules, 2020
+
+### 8.3  Data Retention
+
+Cookie data is retained for the duration specified in the Cookie Register in Section 4. Upon cookie expiry, the associated data is automatically deleted from your device and, where applicable, from HIVAGO's servers. You may manually delete cookies at any time through your browser settings.
+
+Analytics data collected through Firebase is retained for a period of up to 14 (fourteen) months in aggregated form, after which it is deleted. Raw session-level analytics data is retained for shorter periods as per Firebase's default configuration.
+
+### 8.4  Cross-Border Data Transfer
+
+Analytics data processed by Firebase Analytics (Google LLC) may be transferred to and processed on servers located outside India. The Company relies on Google's standard contractual terms and applicable adequacy frameworks for such transfers. Aggregated analytics data that does not identify individual Users is not subject to Indian data localisation requirements.
+
+## 9.  CHILDREN AND COOKIES
+
+The HIVAGO Platform is intended for users aged 18 years and above. We do not knowingly use cookies or tracking technologies to collect data from individuals under 18. If you believe that data from a minor has been collected through our cookies, please contact privacy@hivago.in immediately and we will take prompt action to delete such data.
+
+## 10.  DO NOT TRACK SIGNALS
+
+Some browsers transmit 'Do Not Track' (DNT) signals to websites. The HIVAGO website currently does not respond to or alter its behaviour in response to DNT signals, as there is no agreed industry standard for how websites should respond to DNT requests. However, you can use the cookie management options described in Section 7 to control the cookies set by our website.
+
+## 11.  UPDATES TO THIS COOKIE POLICY
+
+11.1  The Company reserves the right to update this Cookie Policy at any time to reflect changes in the cookies used, applicable laws, or our data practices. Material changes will be communicated via:
+
+- An updated cookie consent banner displayed on your next visit to the HIVAGO website;
+- A notice on the HIVAGO website's cookie policy page;
+- In-app notification for significant changes affecting the mobile application.
+
+11.2  The 'Effective Date' at the top of this Policy indicates when the current version took effect. We encourage you to review this Policy periodically.
+
+11.3  If you continue to use the HIVAGO Platform after an updated Policy takes effect, you are deemed to have accepted the revised terms. If you do not accept the changes, you may adjust your cookie preferences or cease using the Platform.
+
+## 12.  CONTACT US — COOKIE QUERIES AND COMPLAINTS
+
+If you have any questions, concerns, or complaints about our use of cookies or this Cookie Policy, please contact us through any of the following channels:
+
+__Contact Details — Cookie and Privacy Queries__
+
+__Privacy Email__
+
+privacy@hivago.in
+
+__Grievance Officer Email__
+
+grievance@hivago.in
+
+__Postal Address__
+
+WaradaVinayaka Private Limited, AL-5-13/9, Sneh Sagar Apt, Sector-17, Airoli, Navi Mumbai – 400708, Maharashtra
+
+__Response Time__
+
+Acknowledgement within 48 hours; resolution within 15 Business Days
+
+__Escalation__
+
+If unsatisfied with our response, you may approach the Data Protection Board of India once constituted under the DPDP Act, 2023.
+
+## ACKNOWLEDGEMENT AND CONSENT
+
+__BY CONTINUING TO USE THE HIVAGO WEBSITE AFTER THE COOKIE CONSENT BANNER IS DISPLAYED, OR BY CLICKING 'ACCEPT' ON THE BANNER, YOU CONSENT TO THE USE OF NON-ESSENTIAL COOKIES AS DESCRIBED IN THIS POLICY. STRICTLY NECESSARY COOKIES ARE DEPLOYED WITHOUT REQUIRING CONSENT AS THEY ARE ESSENTIAL FOR THE WEBSITE TO FUNCTION. YOU MAY WITHDRAW OR ADJUST YOUR CONSENT AT ANY TIME AS DESCRIBED IN SECTION 7 OF THIS POLICY.__
+
+__Last Updated: \[DATE\]__
+
+Version: 1.0
+
+WaradaVinayaka Private Limited | HIVAGO Platform | privacy@hivago.in
 
 `
   },
@@ -1851,9 +2394,9 @@ __PARTY B — THE RESTAURANT PARTNER__
 
 __WaradaVinayaka Private Limited__
 
-CIN: \[•\]
+CIN: U56291MH2026PTC467768
 
-GSTIN: 27AAECW3756G1Z3
+GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768
 
 AL-5-13/9, Sneh Sagar Apt, Sector-17,
 
@@ -2656,9 +3199,9 @@ __PARTY B — DELIVERY PARTNER__
 
 __WaradaVinayaka Private Limited__
 
-CIN: \[•\]
+CIN: U56291MH2026PTC467768
 
-GSTIN: 27AAECW3756G1Z3
+GSTIN: 27AAECW3756G1Z3  |  CIN: U56291MH2026PTC467768
 
 AL-5-13/9, Sneh Sagar Apt, Sector-17,
 

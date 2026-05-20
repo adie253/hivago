@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective__
 
-__\[DATE\]__
+__20\-May\-26__
 
 __Jurisdiction__
 
@@ -30,9 +30,9 @@ GSTIN: 27AAECW3756G1Z3  |  support@hivago\.in  |  grievance@hivago\.in
 
 __HIVAGO — REFUND AND CANCELLATION POLICY__
 
-*Issued by WaradaVinayaka Private Limited | Effective: \[DATE\] | Version 1\.0*
+*Issued by WaradaVinayaka Private Limited | Effective: 20\-May\-26 | Version 1\.0*
 
-## __QUICK REFERENCE — REFUND ELIGIBILITY MATRIX__
+## QUICK REFERENCE — REFUND ELIGIBILITY MATRIX
 
 This matrix provides an at\-a\-glance summary of all refund scenarios\. The Platform Fee is NON\-REFUNDABLE in all cases\. Full rules are in the Sections below\.
 
@@ -172,7 +172,7 @@ STRICTLY NON\-REFUNDABLE\.
 
 N/A
 
-## __PREAMBLE__
+## PREAMBLE
 
 This Refund and Cancellation Policy \('Policy'\) is published by WaradaVinayaka Private Limited \('Company', 'We', 'Us'\), the operator of the HIVAGO on\-demand food delivery marketplace \('Platform'\)\. This Policy governs the rights and obligations of Users, Restaurant Partners, and the Company with respect to order cancellations, refund eligibility, delivery\-related disputes, and the resolution process\.
 
@@ -192,7 +192,7 @@ Approved refunds are credited only to the original payment source\. No cash refu
 
 HIVAGO does not offer Cash on Delivery\. All transactions are digital through PayU\.
 
-## __1\.  DEFINITIONS__
+## 1\.  DEFINITIONS
 
 In this Policy, the following terms shall have the meanings assigned below\. Capitalised terms not defined here carry the meanings given in the HIVAGO Terms and Conditions\.
 
@@ -234,7 +234,7 @@ __"Business Day"__
 
 Any day other than a Sunday or declared public holiday under Maharashtra or Central Government notification\.
 
-## __2\.  PLATFORM FEE — ABSOLUTE NON\-REFUNDABILITY__
+## 2\.  PLATFORM FEE — ABSOLUTE NON\-REFUNDABILITY
 
 __PLATFORM FEE POLICY — NO EXCEPTIONS__
 
@@ -250,9 +250,9 @@ The Platform Fee is clearly disclosed at the checkout screen prior to payment\. 
 
 2\.2  Disclosure at Checkout: The Platform Fee amount is displayed as a separate line item on the order summary and checkout screen prior to the User's final payment confirmation\. Proceeding to payment constitutes the User's informed and express agreement to the Platform Fee and its non\-refundable nature\.
 
-## __3\.  USER\-INITIATED CANCELLATION__
+## 3\.  USER\-INITIATED CANCELLATION
 
-### __3\.1  Standard Real\-Time Orders — 2\-Minute Cancellation Window__
+### 3\.1  Standard Real\-Time Orders — 2\-Minute Cancellation Window
 
 A User may cancel a standard \(real\-time/immediate\) Order within 2 \(two\) minutes of the Order Confirmation timestamp, subject to the condition that Restaurant Acceptance has not yet occurred\. Cancellation within this window entitles the User to:
 
@@ -267,7 +267,7 @@ To cancel within the Cancellation Window:
 
 If the Cancellation Window has elapsed or Restaurant Acceptance has occurred prior to the cancellation request, the rules in Clause 3\.2 below apply\.
 
-### __3\.2  Cancellation After Restaurant Acceptance__
+### 3\.2  Cancellation After Restaurant Acceptance
 
 Once a Restaurant Partner has accepted and commenced food preparation — which may occur within seconds of Order Confirmation — the User's right to cancel is significantly restricted\. The following assessment framework applies:
 
@@ -295,7 +295,7 @@ HIVAGO's settlement obligation to the Restaurant Partner is triggered upon order
 
 To avoid this situation, please review your order carefully at the cart and checkout stages before confirming payment\.
 
-### __3\.3  Pre\-Orders and Scheduled Orders — Cancellation Schedule__
+### 3\.3  Pre\-Orders and Scheduled Orders — Cancellation Schedule
 
 For orders placed for a future time slot, the following cancellation schedule applies based on the time remaining before the scheduled delivery slot:
 
@@ -315,7 +315,7 @@ Less than 30 minutes
 
 No refund\. Restaurant preparation is likely underway\. Platform Fee non\-refundable\.
 
-### __3\.4  Item Unavailability Discovered After Confirmation__
+### 3\.4  Item Unavailability Discovered After Confirmation
 
 If, post\-Order Confirmation, a Restaurant Partner reports that one or more items are unavailable, the Company will:
 
@@ -325,9 +325,9 @@ If, post\-Order Confirmation, a Restaurant Partner reports that one or more item
 
 In all item unavailability scenarios, the Platform Fee remains non\-refundable\.
 
-## __4\.  CANCELLATION BY THE COMPANY OR RESTAURANT PARTNER__
+## 4\.  CANCELLATION BY THE COMPANY OR RESTAURANT PARTNER
 
-### __4\.1  Company\-Initiated Cancellation__
+### 4\.1  Company\-Initiated Cancellation
 
 The Company may cancel an Order at its sole discretion in the following circumstances, without limiting its rights under the Terms and Conditions:
 
@@ -343,7 +343,7 @@ In all Company\-initiated cancellations \(except fraud\-related\), the User will
 
 Fraud\-related cancellations may result in account suspension and forfeiture of all amounts paid, pending investigation\.
 
-### __4\.2  Restaurant Partner\-Initiated Cancellation__
+### 4\.2  Restaurant Partner\-Initiated Cancellation
 
 A Restaurant Partner may cancel an accepted Order in exceptional circumstances \(e\.g\., sudden kitchen closure, complete ingredient unavailability\)\. In such cases:
 
@@ -358,9 +358,9 @@ Where HIVAGO or a Restaurant Partner cancels an Order you have paid for, you are
 
 If the Company fails to process this refund within stated timelines, you may contact the National Consumer Helpline \(1800\-11\-4000\) or approach the District Consumer Disputes Redressal Commission, Navi Mumbai / Thane\.
 
-## __5\.  REFUNDS FOR DELIVERY\-RELATED ISSUES__
+## 5\.  REFUNDS FOR DELIVERY\-RELATED ISSUES
 
-### __5\.1  Non\-Delivery__
+### 5\.1  Non\-Delivery
 
 A Non\-Delivery claim arises when the User reports the Order was not received despite the status showing 'Delivered'\. The following process and rules apply:
 
@@ -380,7 +380,7 @@ User failed to collect order within a reasonable time after receiving a delivery
 
 Note: HIVAGO does not currently offer live GPS tracking\. Ensure push notifications are enabled on your device during the expected delivery window\.
 
-### __5\.2  Significant Delivery Delay__
+### 5\.2  Significant Delivery Delay
 
 Delivery time estimates on HIVAGO are indicative only\. Delays caused by Restaurant Partner preparation time, traffic conditions, weather, or peak demand are not grounds for a mandatory refund\. However, where a delay is materially attributable to Delivery Partner default, the Company will:
 
@@ -388,7 +388,7 @@ Delivery time estimates on HIVAGO are indicative only\. Delays caused by Restaur
 - Offer a partial refund of the Delivery Fee or a goodwill gesture, at its discretion;
 - HIVAGO does not guarantee any specific delivery time and this cannot be treated as a service level commitment\.
 
-### __5\.3  Wrong Items Delivered__
+### 5\.3  Wrong Items Delivered
 
 If items delivered differ materially from what was ordered:
 
@@ -398,7 +398,7 @@ If items delivered differ materially from what was ordered:
 - If the entire order is confirmed as incorrect: full refund of food value and Delivery Fee will be considered;
 - Platform Fee non\-refundable\.
 
-### __5\.4  Missing Items__
+### 5\.4  Missing Items
 
 If one or more confirmed Order items are absent from the delivery:
 
@@ -407,7 +407,7 @@ If one or more confirmed Order items are absent from the delivery:
 - If validated: refund equal to the value of the missing item\(s\) will be processed;
 - High\-frequency missing item claims from one account will be subject to fraud screening\.
 
-### __5\.5  Food Quality Complaints__
+### 5\.5  Food Quality Complaints
 
 HIVAGO is a marketplace intermediary\. Food quality, safety, temperature maintenance, and packaging are the exclusive responsibility of Restaurant Partners\. The Company will facilitate the following process:
 
@@ -423,9 +423,9 @@ If you believe food received has caused or risks causing a food safety or health
 
 For medical emergencies, seek immediate medical attention first and report to HIVAGO after\.
 
-## __6\.  FAILED PAYMENTS AND TECHNICAL ERRORS__
+## 6\.  FAILED PAYMENTS AND TECHNICAL ERRORS
 
-### __6\.1  Payment Deducted but Order Not Confirmed__
+### 6\.1  Payment Deducted but Order Not Confirmed
 
 If payment has been deducted from your account but no Order Confirmation was received:
 
@@ -434,26 +434,26 @@ If payment has been deducted from your account but no Order Confirmation was rec
 - Email support@hivago\.in with your registered mobile number, date and time of transaction, and bank UTR/reference number;
 - Upon PayU confirmation of a failed transaction, a full refund of the deducted amount will be processed within 5–7 Business Days\.
 
-### __6\.2  Double Charge__
+### 6\.2  Double Charge
 
 If you are charged twice for the same Order due to a payment gateway error:
 
 - Report both transaction references to support@hivago\.in within 48 hours;
 - The Company will verify with PayU and process a refund of the duplicate charge within 7 Business Days of confirmation\.
 
-### __6\.3  Company's Liability Limitation__
+### 6\.3  Company's Liability Limitation
 
 HIVAGO processes payments exclusively through PayU and does not independently handle payment instruments\. While the Company will fully facilitate investigation and refund processing, it is not liable for errors attributable to PayU's infrastructure, the User's bank, or the card network\. Unresolved payment disputes may need to be escalated directly to PayU and the issuing bank\.
 
-## __7\.  HOW TO RAISE A REFUND CLAIM — PROCESS AND TIMELINES__
+## 7\.  HOW TO RAISE A REFUND CLAIM — PROCESS AND TIMELINES
 
-### __7\.1  Channels for Raising a Claim__
+### 7\.1  Channels for Raising a Claim
 
 - In\-App: Orders > Select Order > Help > Report an Issue > Select issue category;
 - Email: support@hivago\.in — include Order ID, registered mobile number, issue description, and any photographic evidence;
 - In\-App Chat: Through HIVAGO's human customer support agents\.
 
-### __7\.2  Claim Deadlines__
+### 7\.2  Claim Deadlines
 
 __STRICT DEADLINES — CLAIMS AFTER THESE PERIODS MAY BE REJECTED__
 
@@ -469,7 +469,7 @@ Pre\-order cancellation: Per the schedule in Section 3\.3 above\.
 
 Late claims may be rejected at the Company's sole discretion\. Time limits are enforced to enable accurate investigation\.
 
-### __7\.3  Investigation and Decision Process__
+### 7\.3  Investigation and Decision Process
 
 - Acknowledgement: Within 24 hours of receiving your claim;
 - Preliminary Response: Within 48 hours;
@@ -477,7 +477,7 @@ Late claims may be rejected at the Company's sole discretion\. Time limits are e
 - During investigation, the Company may request photographic evidence, Restaurant Partner records, or Delivery Partner data;
 - The Company's refund decision is final, subject to your rights before consumer forums and courts of competent jurisdiction\.
 
-### __7\.4  Refund Credit Timeline by Payment Method__
+### 7\.4  Refund Credit Timeline by Payment Method
 
 __Payment Method__
 
@@ -501,7 +501,7 @@ Net Banking
 
 The timelines above run from the date the Company approves and initiates the refund through PayU\. Actual credit depends on your bank's processing time, which is outside HIVAGO's control\. Refunds are credited solely to the original payment instrument\.
 
-## __8\.  FRAUDULENT AND ABUSIVE REFUND CLAIMS__
+## 8\.  FRAUDULENT AND ABUSIVE REFUND CLAIMS
 
 8\.1  HIVAGO employs automated and manual fraud detection to identify refund abuse patterns, including:
 
@@ -518,15 +518,15 @@ The timelines above run from the date the Company approves and initiates the ref
 
 8\.3  Restaurant Partners and Delivery Partners engaging in fraudulent dispute manipulation will face immediate suspension and potential legal action\.
 
-## __9\.  DISPUTE ESCALATION AND CONSUMER RIGHTS__
+## 9\.  DISPUTE ESCALATION AND CONSUMER RIGHTS
 
-### __9\.1  Internal Grievance Escalation__
+### 9\.1  Internal Grievance Escalation
 
 If you are dissatisfied with the Company's refund decision, you may escalate to the Grievance Officer:
 
 __Grievance Officer__
 
-\[GRIEVANCE OFFICER NAME\]
+Bhalchandra B Kumbharkar
 
 __Email__
 
@@ -540,11 +540,11 @@ __Response Timeframe__
 
 Acknowledgement within 48 hours; resolution within 30 days
 
-### __9\.2  Pre\-Litigation Notice__
+### 9\.2  Pre\-Litigation Notice
 
 Before initiating any legal proceedings, you agree to provide the Company a written notice of claim to legal@hivago\.in, allowing 30 \(thirty\) days for internal resolution\. This does not affect your right to approach consumer forums\.
 
-### __9\.3  Consumer Forum Rights__
+### 9\.3  Consumer Forum Rights
 
 Your statutory rights as a consumer are unaffected by this Policy\. You may:
 
@@ -554,17 +554,17 @@ Your statutory rights as a consumer are unaffected by this Policy\. You may:
 - Approach the State Consumer Disputes Redressal Commission, Maharashtra;
 - Approach the National Consumer Disputes Redressal Commission \(NCDRC\) for eligible claims\.
 
-### __9\.4  Governing Law__
+### 9\.4  Governing Law
 
 This Policy is governed by the laws of India\. Disputes shall be subject to the exclusive jurisdiction of the courts in Navi Mumbai / Thane, Maharashtra, without prejudice to consumer forum rights\.
 
-## __10\.  AMENDMENTS__
+## 10\.  AMENDMENTS
 
 10\.1  The Company may amend this Policy to reflect changes in operations, laws, or consumer protection guidelines\. Material changes will be communicated via in\-app notification at least 15 \(fifteen\) days before the effective date\.
 
 10\.2  Continued use of the Platform after the effective date of any amendment constitutes acceptance of the revised Policy\.
 
-## __COMPLETE REFUND SCENARIO MATRIX__
+## COMPLETE REFUND SCENARIO MATRIX
 
 The following table is the complete refund eligibility reference for all scenarios\. Platform Fee is non\-refundable in all cases\.
 
@@ -706,7 +706,7 @@ N/A
 
 __BY PLACING AN ORDER ON THE HIVAGO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THIS REFUND AND CANCELLATION POLICY\. THE PLATFORM FEE IS NON\-REFUNDABLE IN ALL CIRCUMSTANCES\. REFUND CLAIMS MUST BE RAISED WITHIN THE PRESCRIBED DEADLINES\. THIS POLICY DOES NOT AFFECT YOUR STATUTORY RIGHTS UNDER THE CONSUMER PROTECTION ACT, 2019\.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20\-May\-26__
 
 Version: 1\.0
 

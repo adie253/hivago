@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Home, ChevronRight, ChevronDown, Lock, Shield, FileText, ArrowUpRight } from 'lucide-react';
+import { Home, ChevronRight, ChevronDown, Lock, Shield, FileText, ArrowUpRight, Cookie } from 'lucide-react';
 import { policyData } from '../data/policyData';
 
 export const PrivacyPage: React.FC = () => {
@@ -37,7 +37,7 @@ export const PrivacyPage: React.FC = () => {
                 }
 
                 // Form a clean, readable section title and unique element ID
-                const rawTitle = cleanLine.replace(/^##\s+__?|__?\s*$/g, '').replace(/\\/g, '').trim();
+                const rawTitle = cleanLine.replace(/^##\s+/, '').replace(/^__?|__?$/g, '').replace(/\\/g, '').trim();
                 const cleanTitle = rawTitle
                     .replace(/^\d+\.\s+/, '')
                     .replace(/^CLAUSE\s+\d+\s+—\s+/, '')
@@ -300,7 +300,8 @@ export const PrivacyPage: React.FC = () => {
     const policySidebarItems = [
         { id: 'privacy', label: 'Privacy Policy', icon: Shield, category: 'Core Policies' },
         { id: 'terms', label: 'Terms & Conditions', icon: Lock, category: 'Core Policies' },
-        { id: 'refund', label: 'Refund & Cancellation', icon: FileText, category: 'Core Policies' }
+        { id: 'refund', label: 'Refund & Cancellation', icon: FileText, category: 'Core Policies' },
+        { id: 'cookie', label: 'Cookie Policy', icon: Cookie, category: 'Core Policies' }
     ];
 
 
@@ -442,7 +443,7 @@ export const PrivacyPage: React.FC = () => {
                                                     <h3
                                                         key={idx}
                                                         className="text-[15.5px] font-bold text-gray-900 mt-6 mb-3 font-inter flex items-center gap-1.5 border-b border-gray-50 pb-1.5"
-                                                        dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(block.text.replace(/^###\s+__?|__?\s*$/g, '').trim()) }}
+                                                        dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(block.text.replace(/^###\s+/, '').replace(/^__?|__?$/g, '').trim()) }}
                                                     />
                                                 );
                                             }

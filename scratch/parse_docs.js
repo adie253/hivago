@@ -14,6 +14,7 @@ const files = [
     'HIVAGO_Privacy_Policy_v1.docx',
     'HIVAGO_Terms_and_Conditions_v1.docx',
     'HIVAGO_Refund_Cancellation_Policy_v1.docx',
+    'HIVAGO_Cookie_Policy_v1.docx',
     'HIVAGO_Restaurant_Partner_Agreement_v1.docx',
     'HIVAGO_Delivery_Partner_Agreement_v1.docx'
 ];

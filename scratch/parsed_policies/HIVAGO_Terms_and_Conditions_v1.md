@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective Date__
 
-__\[DATE\]__
+__20\-May\-26__
 
 __Jurisdiction__
 
@@ -26,9 +26,9 @@ __GSTIN: 27AAECW3756G1Z3__
 
 legal@hivago\.in  |  support@hivago\.in
 
-# __HIVAGO PLATFORM__
+# HIVAGO PLATFORM
 
-# __TERMS AND CONDITIONS OF USE__
+# TERMS AND CONDITIONS OF USE
 
 __PLEASE READ CAREFULLY BEFORE USING THIS PLATFORM__
 
@@ -36,7 +36,7 @@ These Terms and Conditions \('Terms'\) constitute a legally binding agreement be
 
 __Use of this Platform by any person below the age of 18 \(eighteen\) years is strictly prohibited\. By using this Platform, you represent and warrant that you are at least 18 years of age\.__
 
-## __2\.  DEFINITIONS__
+## 2\.  DEFINITIONS
 
 In these Terms, the following expressions have the meanings assigned to them below, unless the context otherwise requires:
 
@@ -94,7 +94,7 @@ __"Force Majeure Event"__
 
 Any event beyond the reasonable control of the Company including acts of God, natural disasters, pandemics, governmental actions, internet disruptions, cyberattacks, or civil unrest\.
 
-## __1\.  ACCEPTANCE OF TERMS__
+## 1\.  ACCEPTANCE OF TERMS
 
 1\.1  By accessing or using the Platform, you confirm that:
 
@@ -108,7 +108,7 @@ Any event beyond the reasonable control of the Company including acts of God, na
 
 1\.3  Your continued use of the Platform following any modification to these Terms constitutes your acceptance of the revised Terms\. It is your responsibility to review these Terms periodically\.
 
-## __2\.  NATURE OF THE PLATFORM — MARKETPLACE INTERMEDIARY STATUS__
+## 2\.  NATURE OF THE PLATFORM — MARKETPLACE INTERMEDIARY STATUS
 
 2\.1  HIVAGO is a technology\-enabled online marketplace platform that facilitates the discovery, ordering, and delivery of food and beverages from Restaurant Partners\. The Company operates exclusively as an intermediary between Users and Restaurant Partners and between Users and Delivery Partners\.
 
@@ -120,11 +120,7 @@ Any event beyond the reasonable control of the Company including acts of God, na
 
 2\.5  The Company shall be entitled to the safe harbour and intermediary protections available under Section 79 of the Information Technology Act, 2000 and the Information Technology \(Intermediary Guidelines and Digital Media Ethics Code\) Rules, 2021, in respect of User Content and third\-party content hosted on the Platform\.
 
-__⚑  Legal Risk: Intermediary Shield__
-
-*Clause 2 establishes HIVAGO's intermediary status under IT Act Section 79\. Maintain this protection by: \(a\) not editing User Content except per due diligence rules; \(b\) acting expeditiously on takedown notices; \(c\) not initiating or selecting recipients of third\-party content\.*
-
-## __3\.  USER REGISTRATION AND ACCOUNT SECURITY__
+## 3\.  USER REGISTRATION AND ACCOUNT SECURITY
 
 3\.1  Mandatory Registration: Access to the Platform's ordering features requires registration\. You agree to provide your full name, mobile phone number, email address, and delivery address\(es\) during registration\.
 
@@ -140,7 +136,7 @@ __⚑  Legal Risk: Intermediary Shield__
 
 3\.7  Account Suspension and Termination: The Company reserves the right to suspend, restrict, or permanently terminate your account, with or without prior notice, for any violation of these Terms, applicable law, or policies issued by the Company\. Upon termination, your right to use the Platform ceases immediately\.
 
-## __4\.  ORDERING PROCESS, PAYMENT, AND INVOICING__
+## 4\.  ORDERING PROCESS, PAYMENT, AND INVOICING
 
 4\.1  Order Placement: By placing an Order on the Platform, you make a binding offer to purchase the selected items from the Restaurant Partner at the listed price\. An Order is confirmed upon your receipt of a written confirmation via the Platform or email from the Company\.
 
@@ -167,11 +163,7 @@ Both fees will be transparently disclosed to you prior to final order confirmati
 
 4\.10  Failed Transactions: In the event of a failed payment transaction, you should not attempt to re\-place the order without first confirming that the original payment has not been deducted\. The Company is not liable for double charges arising from your failure to follow this procedure; however, where a double charge is confirmed, a full refund of the excess amount will be processed within 7 \(seven\) business days\.
 
-__⚑  Legal Risk: Section 9\(5\) CGST Compliance__
-
-*As an e\-commerce operator under Section 9\(5\), HIVAGO is liable for GST on restaurant services\. Ensure your GST filings \(GSTR\-1, GSTR\-3B\) reflect this\. Consult your chartered accountant to confirm correct GST heads for Platform Fee \(may attract 18% GST as an intermediary service\) vs\. food supply\.*
-
-## __5\.  CANCELLATION AND REFUND — SUMMARY__
+## 5\.  CANCELLATION AND REFUND — SUMMARY
 
 5\.1  Full cancellation and refund terms are governed by the Company's Refund and Cancellation Policy, which is incorporated into these Terms by reference and available on the Platform\.
 
@@ -184,7 +176,7 @@ __⚑  Legal Risk: Section 9\(5\) CGST Compliance__
 
 5\.3  Approved refunds will be credited to the original payment source within 7 \(seven\) business days of the refund approval decision\.
 
-## __6\.  DELIVERY SERVICES AND LIMITATIONS__
+## 6\.  DELIVERY SERVICES AND LIMITATIONS
 
 6\.1  Delivery Model: The Company employs a hybrid delivery model comprising Company\-contracted Delivery Partners and independent third\-party logistics providers\. All deliveries are facilitated through the Company's Delivery Partner network\.
 
@@ -200,7 +192,7 @@ __⚑  Legal Risk: Section 9\(5\) CGST Compliance__
 
 6\.7  Delivery Area: Delivery services are currently available only within designated zones in Airoli, Navi Mumbai\. The Company reserves the right to modify delivery zones at any time without prior notice\.
 
-## __7\.  RESTAURANT PARTNERS — QUALITY, SAFETY, AND DISCLAIMERS__
+## 7\.  RESTAURANT PARTNERS — QUALITY, SAFETY, AND DISCLAIMERS
 
 7\.1  Independent Operators: All Restaurant Partners listed on the Platform are independent food service businesses and are not owned, controlled, managed, or operated by the Company\. The Company does not supervise Restaurant Partners' food preparation, kitchen hygiene, or ingredient sourcing\.
 
@@ -212,11 +204,7 @@ __⚑  Legal Risk: Section 9\(5\) CGST Compliance__
 
 7\.5  Menus and Availability: Menus, item descriptions, prices, photographs, and availability listings are provided by Restaurant Partners and may not always be up to date\. The Company makes no representation as to the accuracy or completeness of such information\. Item unavailability after order placement shall be handled in accordance with the Refund and Cancellation Policy\.
 
-__⚑  Legal Risk: Food Safety Liability__
-
-*While HIVAGO disclaims quality responsibility, under the Consumer Protection Act 2019 and Food Safety and Standards Act 2006, there remains a risk of being co\-joined in consumer complaints\. Ensure Restaurant Partner Agreements include strong indemnification clauses for food quality claims and require Restaurant Partners to maintain adequate product liability insurance\.*
-
-## __8\.  USER OBLIGATIONS AND PROHIBITED CONDUCT__
+## 8\.  USER OBLIGATIONS AND PROHIBITED CONDUCT
 
 8\.1  By using the Platform, you agree to comply with all Applicable Laws and these Terms\. You specifically agree to the following obligations:
 
@@ -242,7 +230,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 8\.3  Consequences of Violation: Breach of Clause 8\.2 may result in immediate account suspension or termination, forfeiture of any pending orders or benefits, legal action, and reporting to appropriate law enforcement authorities\.
 
-## __9\.  USER\-GENERATED CONTENT__
+## 9\.  USER\-GENERATED CONTENT
 
 9\.1  The Platform allows Users to post reviews, ratings, photographs, and comments \('User Content'\)\. You are solely responsible for all User Content you submit\.
 
@@ -258,7 +246,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 9\.5  The Company's moderation of User Content in accordance with its policies does not affect its intermediary status under Section 79 of the Information Technology Act, 2000\.
 
-## __10\.  INTELLECTUAL PROPERTY RIGHTS__
+## 10\.  INTELLECTUAL PROPERTY RIGHTS
 
 10\.1  All Intellectual Property in and to the Platform, including the HIVAGO brand name, logo, trademarks, technology infrastructure, algorithms, user interface, design elements, proprietary content, and all derivatives thereof, are exclusively owned by or licensed to the Company\.
 
@@ -270,7 +258,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 10\.5  If you believe that any content on the Platform infringes your intellectual property rights, you may submit a written notice to legal@hivago\.in with full details of the alleged infringement\. The Company will investigate and take appropriate action in accordance with Applicable Laws\.
 
-## __11\.  DATA PRIVACY AND CONSENT__
+## 11\.  DATA PRIVACY AND CONSENT
 
 11\.1  The Company's collection, use, storage, processing, and sharing of personal data is governed by its Privacy Policy, which is incorporated into these Terms by reference\. By using the Platform, you consent to the processing of your personal data as described in the Privacy Policy\.
 
@@ -286,11 +274,7 @@ __⚑  Legal Risk: Food Safety Liability__
 
 11\.7  Location Data: The Platform collects precise GPS\-based location data exclusively during active Order sessions for the purpose of facilitating delivery\. Location data is not collected continuously or in the background when no Order is active\.
 
-__⚑  Compliance Gap: DPO Appointment__
-
-*HIVAGO currently has no Data Protection Officer\. While the DPDP Act 2023 thresholds may not apply at launch scale, proactively designating a point of contact for data privacy matters \(internal or outsourced\) is strongly recommended and referenced in Clause 11\.5\. Draft a privacy@hivago\.in inbox and assign a responsible individual\.*
-
-## __12\.  PROMOTIONAL CONTENT AND SPONSORED LISTINGS__
+## 12\.  PROMOTIONAL CONTENT AND SPONSORED LISTINGS
 
 12\.1  The Platform may feature Restaurant Partners who have paid for sponsored placement, priority listing, or enhanced visibility \('Sponsored Listings'\)\. All Sponsored Listings will be clearly identified with a 'Sponsored' or 'Ad' label to distinguish them from organic search results\.
 
@@ -302,7 +286,7 @@ __⚑  Compliance Gap: DPO Appointment__
 
 12\.5  Promotional Offers: Any promotional offers, first\-order discounts, or cashback programmes are subject to separate offer\-specific terms and conditions, which will be communicated at the time of the offer\. In case of conflict between an offer's specific terms and these Terms, the offer\-specific terms shall prevail to the extent of the conflict\.
 
-## __13\.  LIMITATION OF LIABILITY AND INDEMNIFICATION__
+## 13\.  LIMITATION OF LIABILITY AND INDEMNIFICATION
 
 13\.1  PLATFORM AS\-IS: THE PLATFORM IS PROVIDED ON AN 'AS IS' AND 'AS AVAILABLE' BASIS WITHOUT ANY WARRANTY OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR NON\-INFRINGEMENT\.
 
@@ -323,11 +307,7 @@ __⚑  Compliance Gap: DPO Appointment__
 
 13\.6  User Indemnification: You agree to indemnify, defend, and hold harmless the Company, its directors, officers, employees, agents, and licensors from and against any claims, liabilities, damages, losses, and expenses \(including reasonable legal fees\) arising out of or relating to: \(a\) your violation of these Terms or any Applicable Law; \(b\) your User Content; \(c\) your misuse of the Platform; or \(d\) any third\-party claim arising from your actions or omissions\.
 
-__⚑  Legal Risk: Consumer Protection Act 2019__
-
-*The limitation of liability in Clause 13\.3 may not be enforceable against consumer claims under the Consumer Protection Act 2019\. HIVAGO, as a 'service provider' under the Act, can be held liable for deficiency in service\. Maintain a robust grievance redressal mechanism as required under the e\-commerce rules to reduce exposure to consumer complaints\.*
-
-## __14\.  FORCE MAJEURE__
+## 14\.  FORCE MAJEURE
 
 14\.1  The Company shall not be held liable for any delay, failure, or non\-performance of its obligations under these Terms to the extent that such delay, failure, or non\-performance is caused by a Force Majeure Event beyond its reasonable control\.
 
@@ -337,7 +317,7 @@ __⚑  Legal Risk: Consumer Protection Act 2019__
 
 14\.4  Orders affected by Force Majeure Events that cannot be fulfilled will be cancelled, and any amounts paid by Users for such Orders \(excluding the Platform Fee\) will be refunded in accordance with the Refund and Cancellation Policy\.
 
-## __15\.  REVIEWS, RATINGS, AND DISPUTE RESOLUTION__
+## 15\.  REVIEWS, RATINGS, AND DISPUTE RESOLUTION
 
 15\.1  Users may submit ratings \(1\-5 stars\) and written reviews for Restaurant Partners and Delivery Partners\. All reviews must reflect genuine, first\-hand experience from an actual Order placed through the Platform\.
 
@@ -345,13 +325,13 @@ __⚑  Legal Risk: Consumer Protection Act 2019__
 
 15\.3  Average ratings displayed on the Platform are computed algorithmically and may be subject to recalibration\. The Company makes no representation that ratings accurately reflect the current performance of any Restaurant Partner or Delivery Partner\.
 
-## __16\.  GRIEVANCE REDRESSAL MECHANISM__
+## 16\.  GRIEVANCE REDRESSAL MECHANISM
 
 16\.1  In accordance with the Information Technology \(Intermediary Guidelines and Digital Media Ethics Code\) Rules, 2021 and the Consumer Protection \(E\-Commerce\) Rules, 2020, the Company designates the following Grievance Officer:
 
 __Name__
 
-\[GRIEVANCE OFFICER NAME\]
+BHALCHANDRA BALU KUMBHARKAR
 
 __Designation__
 
@@ -369,7 +349,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 16\.3  Pre\-Litigation Notice: Prior to initiating any legal or judicial proceedings against the Company, you agree to provide the Company with a written notice of your claim at legal@hivago\.in, allowing the Company 30 \(thirty\) days to investigate and attempt to resolve the dispute amicably\. This requirement is a condition precedent to any litigation and does not affect your rights before consumer forums\.
 
-## __17\.  GOVERNING LAW AND DISPUTE RESOLUTION__
+## 17\.  GOVERNING LAW AND DISPUTE RESOLUTION
 
 17\.1  Governing Law: These Terms and all disputes, claims, or controversies arising out of or relating to these Terms, the Platform, or any Order placed through the Platform shall be governed by and construed in accordance with the laws of India, without regard to its conflict of law provisions\.
 
@@ -379,7 +359,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 17\.4  Mediation: Prior to approaching a court of law \(but without prejudice to consumer forum rights\), both parties agree to explore in good faith settlement through internal escalation and, if necessary, a neutral third\-party mediator\. The costs of any agreed mediation shall be shared equally\.
 
-## __18\.  MODIFICATIONS TO THE PLATFORM AND TERMS__
+## 18\.  MODIFICATIONS TO THE PLATFORM AND TERMS
 
 18\.1  The Company reserves the right to modify, suspend, or discontinue the Platform or any feature thereof, temporarily or permanently, with or without prior notice\. The Company shall not be liable to you for any modification, suspension, or discontinuation of the Platform\.
 
@@ -387,7 +367,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 18\.3  The Company reserves the right to introduce new services, features, or monetisation mechanisms at any time, subject to providing reasonable prior notice to Users\.
 
-## __19\.  THIRD\-PARTY SERVICES AND LINKS__
+## 19\.  THIRD\-PARTY SERVICES AND LINKS
 
 19\.1  The Platform may integrate with or display links to third\-party services, websites, or applications \(including PayU, Firebase, and other analytics providers\)\. The Company does not endorse, control, or take responsibility for any third\-party service, its content, or its privacy practices\.
 
@@ -395,7 +375,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 19\.3  The Company uses third\-party analytics tools to understand user behaviour and improve the Platform\. Such analytics processing is described in the Privacy Policy\.
 
-## __20\.  GENERAL PROVISIONS__
+## 20\.  GENERAL PROVISIONS
 
 20\.1  Entire Agreement: These Terms, together with the Privacy Policy, Refund and Cancellation Policy, and any other policies referenced herein, constitute the entire agreement between you and the Company with respect to your use of the Platform and supersede all prior agreements, understandings, or arrangements\.
 
@@ -411,11 +391,11 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 20\.7  Headings: Section headings are for convenience only and do not affect the interpretation of these Terms\.
 
-## __ACKNOWLEDGEMENT OF TERMS__
+## ACKNOWLEDGEMENT OF TERMS
 
 __BY CLICKING 'ACCEPT', 'REGISTER', OR 'PLACE ORDER' ON THE HIVAGO PLATFORM, OR BY CONTINUING TO USE THE PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, FULLY UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS AND CONDITIONS IN THEIR ENTIRETY\. IF YOU DO NOT AGREE, YOU MUST IMMEDIATELY CEASE USE OF THE PLATFORM\.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20\-May\-26__
 
 __Version: 1\.0__
 
