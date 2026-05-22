@@ -510,7 +510,14 @@ export const CheckoutPage: React.FC = () => {
 
                             {/* Delivery Address */}
                             <div
-                                onClick={() => isLoggedIn && fulfillmentType !== 'Pickup' && setIsAddressDropdownOpen(!isAddressDropdownOpen)}
+                                onClick={() => {
+                                    if (fulfillmentType === 'Pickup') return;
+                                    if (!isLoggedIn) {
+                                        setIsDetailsFlowOpen(true);
+                                    } else {
+                                        setIsAddressDropdownOpen(!isAddressDropdownOpen);
+                                    }
+                                }}
                                 className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 transition-all relative ${fulfillmentType !== 'Pickup' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                             >
                                 <div className="flex items-center justify-between">
