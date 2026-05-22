@@ -63,7 +63,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [refreshError, setRefreshError] = useState<string | null>(null);
 
     // Conflict State
-    const [conflictInfo, setConflictInfo] = useState<{ name: string, id: string } | null>(null);
+    const [conflictInfo, setConflictInfo] = useState<{ name: string, id: string, type: 'reconcile' | 'add' } | null>(null);
+    const [pendingItem, setPendingItem] = useState<{ item: Omit<CartItem, 'quantity'>, rId: string, rName: string } | null>(null);
 
     // RECONCILE CARTS (STRICT FRONTEND MERGE)
     const reconcileCarts = useCallback(async (localCart: any) => {
@@ -83,7 +84,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (hasLocalItems && hasRemoteItems && localCart.restaurantId !== remoteCart.restaurantId) {
                 setConflictInfo({
                     name: remoteCart.restaurantName || "another restaurant",
-                    id: remoteCart.restaurantId
+                    id: remoteCart.restaurantId,
+                    type: 'reconcile'
                 });
                 return;
             }
@@ -267,11 +269,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 🚀 ADD TO CART
     const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string, silent: boolean = false) => {
         let isExisting = false;
+        let conflictDetected = false;
         setCartItems(existingItems => {
             const currentRestaurantId = existingItems.length > 0 ? restaurantId : undefined;
 
             if (currentRestaurantId && rId && currentRestaurantId !== rId) {
-                setConflictInfo({ id: rId, name: rName || 'Restaurant' });
+                conflictDetected = true;
+                setConflictInfo({ id: rId, name: rName || 'Restaurant', type: 'add' });
+                setPendingItem({ item, rId, rName: rName || 'Restaurant' });
                 return existingItems;
             }
 
@@ -305,7 +310,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return updatedItems;
         });
 
-        if (!silent) {
+        if (!silent && !conflictDetected) {
             if (isExisting) {
                 showToast(`Updated ${item.name} quantity`, "success");
             } else {
@@ -519,6 +524,46 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const handleStartFresh = async () => {
+        if (!conflictInfo) return;
+
+        if (conflictInfo.type === 'reconcile') {
+            await forceReplaceCart();
+        } else {
+            // Add conflict: start fresh with pending item
+            if (pendingItem) {
+                try {
+                    if (isLoggedIn) {
+                        await clearServerCart();
+                    }
+                } catch (e) {
+                    console.error("Failed to clear server cart:", e);
+                }
+
+                DIContainer.getClearCartUseCase().execute();
+
+                const newItem: CartItem = { ...pendingItem.item, quantity: 1 } as CartItem;
+                setCartItems([newItem]);
+                setRestaurantId(pendingItem.rId);
+                setRestaurantName(pendingItem.rName);
+
+                if (isLoggedIn) {
+                    debouncedPushToServer({
+                        restaurantId: pendingItem.rId,
+                        restaurantName: pendingItem.rName,
+                        items: [newItem]
+                    });
+                } else {
+                    DIContainer.getAddToCartUseCase().execute(pendingItem.item, pendingItem.rId, pendingItem.rName);
+                }
+
+                showToast(`Added ${pendingItem.item.name} to fresh cart`, "success");
+            }
+            setConflictInfo(null);
+            setPendingItem(null);
+        }
+    };
+
     const refreshCartFromServer = useCallback(async () => {
         if (!isLoggedIn) return;
         try {
@@ -672,42 +717,53 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             </div>
                             <h3 className="text-2xl font-black text-gray-900 mb-3">Restaurant Conflict</h3>
                             <p className="text-gray-500 leading-relaxed font-medium">
-                                Your existing cart has items from <span className="text-gray-900 font-bold">"{conflictInfo.name}"</span>.
-                                Would you like to clear it and start fresh with your current items?
+                                {conflictInfo.type === 'reconcile' ? (
+                                    <>
+                                        Your existing remote cart has items from <span className="text-gray-900 font-bold">"{conflictInfo.name}"</span>.
+                                        Would you like to clear it and start fresh with your guest items?
+                                    </>
+                                ) : (
+                                    <>
+                                        Your existing cart has items from <span className="text-gray-900 font-bold">"{restaurantName || 'another restaurant'}"</span>.
+                                        Would you like to clear it and start fresh with items from <span className="text-[#FF4732] font-bold">"{conflictInfo.name}"</span>?
+                                    </>
+                                )}
                             </p>
                         </div>
                         <div className="flex border-t border-gray-100">
                             <button
                                 onClick={() => {
+                                    if (conflictInfo.type === 'reconcile') {
+                                        getCart().then(remoteCart => {
+                                            if (remoteCart && remoteCart.items) {
+                                                const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
+                                                    id: rItem.id || rItem.menuItemId,
+                                                    menuItemId: rItem.menuItemId,
+                                                    name: rItem.name,
+                                                    price: rItem.unitPrice,
+                                                    quantity: rItem.quantity,
+                                                    isVeg: true,
+                                                    isAddon: false,
+                                                    customizations: rItem.specialInstructions || undefined,
+                                                    description: Array.isArray(rItem.options)
+                                                        ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
+                                                        : (typeof rItem.options === 'string' ? rItem.options : "")
+                                                }));
+                                                setCartItems(convertedItems);
+                                                setRestaurantId(remoteCart.restaurantId);
+                                                setRestaurantName(remoteCart.restaurantName);
+                                            }
+                                        });
+                                    }
                                     setConflictInfo(null);
-                                    // Optionally pull existing cart here if they "Keep"
-                                    getCart().then(remoteCart => {
-                                        if (remoteCart && remoteCart.items) {
-                                            const convertedItems: CartItem[] = remoteCart.items.map((rItem: any) => ({
-                                                id: rItem.id || rItem.menuItemId,
-                                                menuItemId: rItem.menuItemId,
-                                                name: rItem.name,
-                                                price: rItem.unitPrice,
-                                                quantity: rItem.quantity,
-                                                isVeg: true,
-                                                isAddon: false,
-                                                customizations: rItem.specialInstructions || undefined,
-                                                description: Array.isArray(rItem.options)
-                                                    ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
-                                                    : (typeof rItem.options === 'string' ? rItem.options : "")
-                                            }));
-                                            setCartItems(convertedItems);
-                                            setRestaurantId(remoteCart.restaurantId);
-                                            setRestaurantName(remoteCart.restaurantName);
-                                        }
-                                    });
+                                    setPendingItem(null);
                                 }}
                                 className="flex-1 px-6 py-5 text-gray-500 font-bold hover:bg-gray-50 transition-colors border-r border-gray-100"
                             >
                                 Keep Existing
                             </button>
                             <button
-                                onClick={forceReplaceCart}
+                                onClick={handleStartFresh}
                                 className="flex-1 px-6 py-5 text-[#FF4732] font-extrabold hover:bg-red-50 transition-colors"
                             >
                                 Start Fresh

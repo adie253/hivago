@@ -51,7 +51,7 @@ export const RestaurantsNearby: React.FC = () => {
                     <div
                         key={restaurant.id}
                         onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                        className="flex flex-col min-w-[280px] md:min-w-[320px] bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
+                        className="flex flex-col w-[280px] md:w-[320px] flex-shrink-0 bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                     >
                         {/* Image Container */}
                         <div className="relative aspect-[4/3] w-full bg-[#F5F5F5] rounded-[24px] overflow-hidden mb-4 flex items-center justify-center">

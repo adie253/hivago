@@ -35,7 +35,7 @@ export const RecommendedRestaurants: React.FC = () => {
                         <div
                             key={restaurant.id}
                             onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                            className="flex flex-col min-w-[280px] md:min-w-[340px] bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
+                            className="flex flex-col w-[280px] md:w-[340px] flex-shrink-0 bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                         >
                             {/* Image Container */}
                             <div className="relative h-48 md:h-56 w-full overflow-hidden">

@@ -94,7 +94,7 @@ export const DishesDiscount: React.FC = () => {
                     <div
                         key={`${dish.restaurantId}-${dish.id}`}
                         onClick={() => navigate(`/restaurant/${dish.restaurantId}`)}
-                        className="flex flex-col min-w-[220px] md:min-w-[260px] bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
+                        className="flex flex-col w-[220px] md:w-[260px] flex-shrink-0 bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
                     >
                         {/* Image Container */}
                         <div className="relative h-32 md:h-36 w-full overflow-hidden">
