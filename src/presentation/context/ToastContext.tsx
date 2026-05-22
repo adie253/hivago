@@ -87,99 +87,59 @@ const ToastItem = ({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
     switch (toast.type) {
       case 'success':
         return {
-          card: "bg-emerald-50/95 border-emerald-100/50 shadow-emerald-500/5 text-emerald-900",
-          iconBg: "bg-white text-emerald-600 border border-emerald-100 shadow-sm",
-          progressBar: "bg-emerald-500",
-          closeBtn: "text-emerald-400 hover:text-emerald-950 hover:bg-emerald-100/50"
+          card: "bg-[#DCFCE7] border-[#BBF7D0] text-[#14532D]",
+          icon: (
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="currentColor" className="text-black" />
+              <path d="M9 12l2 2 4-4" stroke="#DCFCE7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            </svg>
+          )
         };
       case 'error':
         return {
-          card: "bg-rose-50/95 border-rose-100/50 shadow-rose-500/5 text-rose-900",
-          iconBg: "bg-white text-rose-600 border border-rose-100 shadow-sm",
-          progressBar: "bg-rose-500",
-          closeBtn: "text-rose-400 hover:text-rose-950 hover:bg-rose-100/50"
+          card: "bg-[#FEE2E2] border-[#FECACA] text-[#7F1D1D]",
+          icon: (
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="currentColor" className="text-black" />
+              <path d="M15 9l-6 6M9 9l6 6" stroke="#FEE2E2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            </svg>
+          )
         };
       case 'warning':
         return {
-          card: "bg-amber-50/95 border-amber-100/50 shadow-amber-500/5 text-amber-900",
-          iconBg: "bg-white text-amber-600 border border-amber-100 shadow-sm",
-          progressBar: "bg-amber-500",
-          closeBtn: "text-amber-400 hover:text-amber-950 hover:bg-amber-100/50"
+          card: "bg-[#FEF9C3] border-[#FEF08A] text-black",
+          icon: (
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="currentColor" className="text-black" />
+              <rect x="11" y="7" width="2" height="6" rx="1" fill="#FEF9C3" />
+              <circle cx="12" cy="16" r="1.2" fill="#FEF9C3" />
+            </svg>
+          )
         };
-      default:
+      default: // info
         return {
-          card: "bg-blue-50/95 border-blue-100/50 shadow-blue-500/5 text-blue-900",
-          iconBg: "bg-white text-blue-600 border border-blue-100 shadow-sm",
-          progressBar: "bg-blue-500",
-          closeBtn: "text-blue-400 hover:text-blue-950 hover:bg-blue-100/50"
+          card: "bg-[#EFF6FF] border-[#DBEAFE] text-black",
+          icon: (
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="currentColor" className="text-black" />
+              <rect x="11" y="11" width="2" height="5" rx="1" fill="#EFF6FF" />
+              <circle cx="12" cy="8" r="1.2" fill="#EFF6FF" />
+            </svg>
+          )
         };
     }
   };
 
-  const styles = getStyle();
-
-  const getIcon = () => {
-    switch (toast.type) {
-      case 'success':
-        return (
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        );
-      case 'error':
-        return (
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-        );
-      case 'warning':
-        return (
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 17c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-        );
-      default:
-        return (
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        );
-    }
-  };
+  const style = getStyle();
 
   return (
-    <div className={`group relative overflow-hidden rounded-[16px] backdrop-blur-xl py-2.5 px-3.5 shadow-[0_12px_28px_rgba(0,0,0,0.06)] border flex items-center gap-3 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${styles.card}`}>
-      {getIcon()}
+    <div className={`group relative overflow-hidden rounded-[16px] py-4 px-5 border flex items-center gap-3.5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 ${style.card}`}>
+      {style.icon}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-extrabold leading-snug tracking-tight">
+        <p className="text-[14px] font-medium leading-normal tracking-tight">
           {toast.message}
         </p>
       </div>
-      <button 
-        onClick={onClose}
-        className={`shrink-0 p-1.5 rounded-xl transition-all ${styles.closeBtn}`}
-      >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-      
-      {/* Progress bar at bottom */}
-      <div className="absolute bottom-0 left-0 h-[2.5px] bg-black/5 w-full" />
-      <motion.div 
-        initial={{ width: '100%' }}
-        animate={{ width: '0%' }}
-        transition={{ duration: (toast.duration || 4000) / 1000, ease: 'linear' }}
-        className={`absolute bottom-0 left-0 h-[2.5px] ${styles.progressBar}`}
-      />
     </div>
   );
 };
