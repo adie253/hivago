@@ -14,6 +14,7 @@ import { MobileMenu } from '../components/checkout/MobileMenu';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { useUserLocation } from '../context/LocationContext';
 import { StepperIcon } from '../components/checkout/StepperIcon';
+import { useToast } from '../context/ToastContext';
 
 // Mock frequently bought items removed - now fetching dynamic ones
 interface SuggestedItem {
@@ -32,6 +33,7 @@ interface SuggestedItem {
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const { 
         cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName, 
         deliveryQuote, setDeliveryQuote, 
@@ -478,14 +480,23 @@ export const CheckoutPage: React.FC = () => {
                                         <h3 className="font-bold text-[17px] text-[#222]">Cutlery</h3>
                                         {/* Simple Toggle Switch */}
                                         <div
-                                            onClick={() => setIncludeCutlery(!includeCutlery)}
+                                            onClick={() => {
+                                                const newVal = !includeCutlery;
+                                                setIncludeCutlery(newVal);
+                                                showToast(
+                                                    newVal ? "Cutlery option added to your order" : "Cutlery removed from order",
+                                                    "success"
+                                                );
+                                            }}
                                             className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors flex items-center ${includeCutlery ? 'bg-[#FF4732]' : 'bg-gray-200'}`}
                                         >
                                             <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${includeCutlery ? 'translate-x-[20px]' : 'translate-x-0'}`}></div>
                                         </div>
                                     </div>
-                                    <p className="text-gray-400 text-[13px] leading-tight font-medium w-[80%]">
-                                        No cutlery provided. Thanks for reducing waste
+                                    <p className="text-gray-400 text-[13px] leading-tight font-medium w-[80%] transition-colors duration-200">
+                                        {includeCutlery 
+                                            ? "Cutlery will be provided. Thank you!" 
+                                            : "No cutlery provided. Thanks for reducing waste"}
                                     </p>
                                 </div>
                                 <div className="flex items-center opacity-80 gap-[2px]">

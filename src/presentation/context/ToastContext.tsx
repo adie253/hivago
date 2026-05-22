@@ -47,7 +47,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ToastContext.Provider value={{ showToast, removeToast }}>
       {children}
-      <div className="fixed top-4 left-1/2 -translate-x-1/2 sm:top-auto sm:left-auto sm:translate-x-0 sm:bottom-6 sm:right-6 z-[9999] flex flex-col sm:flex-col-reverse gap-2 pointer-events-none w-[280px] sm:w-[320px]">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 sm:top-auto sm:left-auto sm:translate-x-0 sm:bottom-6 sm:right-6 z-[9999] flex flex-col sm:flex-col-reverse gap-3 pointer-events-none w-[calc(100%-2rem)] sm:w-full sm:max-w-md px-4 sm:px-0">
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => (
             <motion.div
@@ -122,32 +122,32 @@ const ToastItem = ({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
     switch (toast.type) {
       case 'success':
         return (
-          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] ${styles.iconBg}`}>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         );
       case 'error':
         return (
-          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] ${styles.iconBg}`}>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
         );
       case 'warning':
         return (
-          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] ${styles.iconBg}`}>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 17c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
         );
       default:
         return (
-          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] ${styles.iconBg}`}>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -156,29 +156,29 @@ const ToastItem = ({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
   };
 
   return (
-    <div className={`group relative overflow-hidden rounded-[12px] backdrop-blur-xl py-2 px-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border flex items-center gap-2.5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${styles.card}`}>
+    <div className={`group relative overflow-hidden rounded-[16px] backdrop-blur-xl py-2.5 px-3.5 shadow-[0_12px_28px_rgba(0,0,0,0.06)] border flex items-center gap-3 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${styles.card}`}>
       {getIcon()}
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-extrabold leading-snug tracking-tight">
+        <p className="text-sm font-extrabold leading-snug tracking-tight">
           {toast.message}
         </p>
       </div>
       <button 
         onClick={onClose}
-        className={`shrink-0 p-1 rounded-lg transition-all ${styles.closeBtn}`}
+        className={`shrink-0 p-1.5 rounded-xl transition-all ${styles.closeBtn}`}
       >
-        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
       
       {/* Progress bar at bottom */}
-      <div className="absolute bottom-0 left-0 h-[2px] bg-black/5 w-full" />
+      <div className="absolute bottom-0 left-0 h-[2.5px] bg-black/5 w-full" />
       <motion.div 
         initial={{ width: '100%' }}
         animate={{ width: '0%' }}
         transition={{ duration: (toast.duration || 4000) / 1000, ease: 'linear' }}
-        className={`absolute bottom-0 left-0 h-[2px] ${styles.progressBar}`}
+        className={`absolute bottom-0 left-0 h-[2.5px] ${styles.progressBar}`}
       />
     </div>
   );
