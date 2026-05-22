@@ -62,17 +62,22 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                 const apiDishes = await searchDishesUseCase.execute(query);
 
                 apiDishes.forEach(item => {
-                    searchResults.push({
-                        id: item.restaurantId || item.id,
-                        dishId: item.id,
-                        name: item.name,
-                        type: 'Dish',
-                        restaurantName: item.restaurantName || 'Restaurant',
-                        image: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com'))
-                            ? item.imageUrl
-                            : getFallbackImage(item.name),
-                        price: item.price
-                    });
+                    const restaurantId = item.restaurantId || item.id;
+                    // Only show dishes from restaurants within the 5km radius (present in allRestaurants)
+                    const belongsToNearRestaurant = allRestaurants.some(r => r.id === restaurantId);
+                    if (belongsToNearRestaurant) {
+                        searchResults.push({
+                            id: restaurantId,
+                            dishId: item.id,
+                            name: item.name,
+                            type: 'Dish',
+                            restaurantName: item.restaurantName || 'Restaurant',
+                            image: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com'))
+                                ? item.imageUrl
+                                : getFallbackImage(item.name),
+                            price: item.price
+                        });
+                    }
                 });
 
                 setResults(searchResults.slice(0, 15));

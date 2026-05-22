@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { formatPrice } from '../../utils/formatUtils';
-import { Plus, Minus, Star, Loader2 } from 'lucide-react';
+import { Plus, Minus, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { AddOnsOverlay } from './AddOnsOverlay';
-import { fetchItemDetails } from '../../data/api';
 
 export interface MenuItem {
     id: string;
@@ -27,38 +26,15 @@ interface MenuItemCardProps {
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, restaurantName, onClick, isHighlighted }) => {
     const { cartItems, addToCart, removeFromCart } = useCart();
     const [showCustomize, setShowCustomize] = useState(false);
-    const [isCheckingOptions, setIsCheckingOptions] = useState(false);
 
     const cartItemsOfThisType = cartItems.filter(i => (i.menuItemId || i.id) === item.id);
     const quantity = cartItemsOfThisType.reduce((acc, i) => acc + i.quantity, 0);
 
-    const getNumericPrice = () => typeof item.price === 'string' ? parseInt(item.price.replace(/[^0-9]/g, ''), 10) : item.price;
 
-    const handleInitialAdd = async (e?: React.MouseEvent) => {
+
+    const handleInitialAdd = (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
-
-        setIsCheckingOptions(true);
-        try {
-            const details = await fetchItemDetails(item.id);
-            if (details && details.options && details.options.length > 0) {
-                // Item has options, open the customize overlay
-                setShowCustomize(true);
-            } else {
-                // No options, immediately add to cart
-                addToCart({
-                    id: item.id,
-                    name: item.name,
-                    price: getNumericPrice(),
-                    isVeg: item.isVeg,
-                }, restaurantId, restaurantName);
-            }
-        } catch (error) {
-            console.error("Failed to fetch item details to check for options", error);
-            // Fallback: If API fails, try to show the overlay (it will retry fetching inside, or fail gracefully)
-            setShowCustomize(true);
-        } finally {
-            setIsCheckingOptions(false);
-        }
+        setShowCustomize(true);
     };
 
     const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: { id: string, name: string, price: number }[]) => {
@@ -150,10 +126,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                         {quantity === 0 ? (
                             <button
                                 onClick={handleInitialAdd}
-                                disabled={isCheckingOptions}
-                                className="px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 min-w-[70px] justify-center"
+                                className="px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm flex items-center gap-2 min-w-[70px] justify-center"
                             >
-                                {isCheckingOptions ? <Loader2 className="w-4 h-4 animate-spin" /> : "ADD"}
+                                ADD
                             </button>
                         ) : (
                             <div className="flex items-center bg-red-50 rounded-lg overflow-hidden border border-[#FF4732]/20">
@@ -166,10 +141,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                                 <span className="w-6 text-center text-sm font-bold text-gray-900">{quantity}</span>
                                 <button
                                     onClick={handleInitialAdd}
-                                    disabled={isCheckingOptions}
-                                    className="w-8 h-8 flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                                    className="w-8 h-8 flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"
                                 >
-                                    {isCheckingOptions ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" strokeWidth={3} />}
+                                    <Plus className="w-3.5 h-3.5" strokeWidth={3} />
                                 </button>
                             </div>
                         )}

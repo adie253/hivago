@@ -3,7 +3,7 @@ import { useRestaurants } from '../../hooks/useRestaurants';
 import { RestaurantFilters, RestaurantListItem, RestaurantSort } from '../../types/api';
 import { useUserLocation } from './LocationContext';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { formatDistance } from '../../utils/distanceUtils';
+import { formatDistance, haversineKm } from '../../utils/distanceUtils';
 
 // Standardized frontend interface to keep existing components working
 export interface FoodItem {
@@ -128,6 +128,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const filters: RestaurantFilters = useMemo(() => ({
         lat: selectedLocation?.latitude,
         lng: selectedLocation?.longitude,
+        radiusKm: selectedLocation ? 5 : undefined,
         search: searchQuery || undefined,
         cuisines: activeCategory !== 'All' ? [activeCategory] : undefined,
         pureVeg: isVegOnly || undefined,
@@ -148,8 +149,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         page: currentPage,
         pageSize: pageSize
     }), [
-        selectedLocation?.latitude, 
-        selectedLocation?.longitude, 
+        selectedLocation, 
         searchQuery, 
         activeCategory, 
         isVegOnly, 
@@ -171,30 +171,50 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const filteredRestaurants: Restaurant[] = useMemo(() => {
         if (!data?.items) return [];
         return data.items
-            .filter((item: RestaurantListItem) => item.isAcceptingOrders)
-            .map((item: RestaurantListItem) => ({
-                id: item.id,
-                name: item.name,
-                cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
-                rating: 4.2, // API currently missing rating
-                deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
-                distance: item.distanceKm != null ? formatDistance(item.distanceKm) : "-- km",
-                costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
-                imageUrl: (item.logoUrl && item.logoUrl !== 'null' && item.logoUrl !== 'undefined' && !item.logoUrl.includes('example.com'))
-                    ? item.logoUrl
-                    : getFallbackImage(item.name, item.cuisineTypes[0] || 'General', 'restaurant'),
-                promoted: false,
-                discount: item.distanceKm != null && item.distanceKm < 3 ? "FREE Delivery" : undefined,
-                isVeg: item.isPureVeg,
-                categories: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
-                acceptsPickup: item.acceptsPickup,
-                isAcceptingOrders: item.isAcceptingOrders,
-                menu: [],
-                addressLine: item.addressLine,
-                latitude: item.latitude,
-                longitude: item.longitude
-            }));
-    }, [data]);
+            .filter((item: RestaurantListItem) => {
+                if (!item.isAcceptingOrders) return false;
+                
+                // If user has a selected location, enforce 5km radius locally
+                if (selectedLocation?.latitude != null && selectedLocation?.longitude != null) {
+                    const dist = item.distanceKm != null 
+                        ? item.distanceKm 
+                        : haversineKm(selectedLocation.latitude, selectedLocation.longitude, item.latitude, item.longitude);
+                    return dist <= 5;
+                }
+                
+                return true;
+            })
+            .map((item: RestaurantListItem) => {
+                const dist = (selectedLocation?.latitude != null && selectedLocation?.longitude != null)
+                    ? (item.distanceKm != null 
+                        ? item.distanceKm 
+                        : haversineKm(selectedLocation.latitude, selectedLocation.longitude, item.latitude, item.longitude))
+                    : item.distanceKm;
+
+                return {
+                    id: item.id,
+                    name: item.name,
+                    cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
+                    rating: 4.2, // API currently missing rating
+                    deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
+                    distance: dist != null ? formatDistance(dist) : "-- km",
+                    costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
+                    imageUrl: (item.logoUrl && item.logoUrl !== 'null' && item.logoUrl !== 'undefined' && !item.logoUrl.includes('example.com'))
+                        ? item.logoUrl
+                        : getFallbackImage(item.name, item.cuisineTypes[0] || 'General', 'restaurant'),
+                    promoted: false,
+                    discount: dist != null && dist < 3 ? "FREE Delivery" : undefined,
+                    isVeg: item.isPureVeg,
+                    categories: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
+                    acceptsPickup: item.acceptsPickup,
+                    isAcceptingOrders: item.isAcceptingOrders,
+                    menu: [],
+                    addressLine: item.addressLine,
+                    latitude: item.latitude,
+                    longitude: item.longitude
+                };
+            });
+    }, [data, selectedLocation]);
 
     const totalCount = data?.totalCount || 0;
 

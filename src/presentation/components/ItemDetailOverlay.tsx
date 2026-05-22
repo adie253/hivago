@@ -41,7 +41,7 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
         setShowCustomize(true);
     };
 
-    const handleConfirmAdd = (itemToAdd: MenuItem, finalPrice: number, instructions: string) => {
+    const handleConfirmAdd = (itemToAdd: MenuItem, finalPrice: number, instructions: string, selectedAddons?: { id: string, name: string, price: number }[]) => {
         // Generate a unique ID if there are instructions to separate customized items in cart
         const cartItemId = instructions 
             ? `${itemToAdd.id}-${btoa(instructions).substring(0, 8)}` 
@@ -53,7 +53,8 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
             name: itemToAdd.name, // Keep the original name clean, we'll display customizations in the subtitle
             price: finalPrice,
             isVeg: itemToAdd.isVeg,
-            customizations: instructions || undefined
+            customizations: instructions || undefined,
+            selectedAddons: selectedAddons
         });
         
         setShowCustomize(false);
