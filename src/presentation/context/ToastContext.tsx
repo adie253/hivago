@@ -122,32 +122,32 @@ const ToastItem = ({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
     switch (toast.type) {
       case 'success':
         return (
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${styles.iconBg}`}>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         );
       case 'error':
         return (
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${styles.iconBg}`}>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
         );
       case 'warning':
         return (
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${styles.iconBg}`}>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 17c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
         );
       default:
         return (
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${styles.iconBg}`}>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] ${styles.iconBg}`}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -156,7 +156,7 @@ const ToastItem = ({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
   };
 
   return (
-    <div className={`group relative overflow-hidden rounded-[24px] backdrop-blur-xl p-4 shadow-[0_16px_36px_rgba(0,0,0,0.06)] border flex items-center gap-3.5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${styles.card}`}>
+    <div className={`group relative overflow-hidden rounded-[16px] backdrop-blur-xl py-2.5 px-3.5 shadow-[0_12px_28px_rgba(0,0,0,0.06)] border flex items-center gap-3 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${styles.card}`}>
       {getIcon()}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-extrabold leading-snug tracking-tight">
@@ -173,12 +173,12 @@ const ToastItem = ({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
       </button>
       
       {/* Progress bar at bottom */}
-      <div className="absolute bottom-0 left-0 h-1 bg-black/5 w-full" />
+      <div className="absolute bottom-0 left-0 h-[2.5px] bg-black/5 w-full" />
       <motion.div 
         initial={{ width: '100%' }}
         animate={{ width: '0%' }}
         transition={{ duration: (toast.duration || 4000) / 1000, ease: 'linear' }}
-        className={`absolute bottom-0 left-0 h-1 ${styles.progressBar}`}
+        className={`absolute bottom-0 left-0 h-[2.5px] ${styles.progressBar}`}
       />
     </div>
   );
