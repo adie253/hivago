@@ -34,7 +34,14 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   const showToast = useCallback((message: string, type: ToastType = 'info', duration: number = 4000) => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
+    setToasts((prev) => {
+      const next = [...prev, { id, message, type, duration }];
+      const limit = window.innerWidth < 640 ? 2 : 3;
+      if (next.length > limit) {
+        return next.slice(-limit);
+      }
+      return next;
+    });
   }, []);
 
   return (
