@@ -425,6 +425,24 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             setLabel('Home');
                             setIsDefault(true);
                             setStep('addAddress');
+
+                            // Immediately request and pin the user's current location on the map
+                            if ('geolocation' in navigator) {
+                                navigator.geolocation.getCurrentPosition(
+                                    (position) => {
+                                        const coords = {
+                                            lat: position.coords.latitude,
+                                            lng: position.coords.longitude
+                                        };
+                                        setMapCoordinates(coords);
+                                        sessionStorage.setItem('checkout_map_coords', JSON.stringify(coords));
+                                    },
+                                    (error) => {
+                                        console.error("Error pinning current location:", error);
+                                    },
+                                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                                );
+                            }
                         }}
                         className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF4732] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
                     >

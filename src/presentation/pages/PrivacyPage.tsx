@@ -80,14 +80,14 @@ export const PrivacyPage: React.FC = () => {
     // Group raw lines into beautiful styled semantic block items
     const parseBlocks = (lines: string[]) => {
         const blocks: { 
-            type: 'p' | 'h3' | 'ul' | 'alert' | 'note' | 'table'; 
+            type: 'p' | 'h3' | 'ul' | 'alert' | 'table'; 
             text: string; 
             items?: string[]; 
             tableData?: { headers: string[]; rows: string[][] } 
         }[] = [];
         
         let currentBlock: string[] = [];
-        let currentType: 'p' | 'h3' | 'ul' | 'alert' | 'note' = 'p';
+        let currentType: 'p' | 'h3' | 'ul' | 'alert' = 'p';
 
         const flushBlock = () => {
             if (currentBlock.length === 0) return;
@@ -228,11 +228,6 @@ export const PrivacyPage: React.FC = () => {
             } else if (trimmed.startsWith('⚑') || trimmed.includes('Legal Risk:')) {
                 flushBlock();
                 currentType = 'alert';
-                currentBlock.push(trimmed);
-                flushBlock();
-            } else if (trimmed.startsWith('__') && trimmed.endsWith('__') && trimmed.length > 20 && !trimmed.includes('\n')) {
-                flushBlock();
-                currentType = 'note';
                 currentBlock.push(trimmed);
                 flushBlock();
             } else {
@@ -467,19 +462,6 @@ export const PrivacyPage: React.FC = () => {
                                                             <div>
                                                                 <h4 className="font-extrabold text-[#B02421] text-xs uppercase tracking-wider mb-1 font-inter">Legal Risk Shield Note</h4>
                                                                 <p className="text-xs text-gray-800 leading-relaxed font-semibold" dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(block.text.replace(/^⚑\s*/, '')) }} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-                                            if (block.type === 'note') {
-                                                return (
-                                                    <div key={idx} className="bg-amber-50 border-l-4 border-amber-500 p-4.5 my-6 rounded-r-xl shadow-xs">
-                                                        <div className="flex items-start gap-3">
-                                                            <span className="text-amber-600 text-base mt-0.5">⚠️</span>
-                                                            <div>
-                                                                <h4 className="font-extrabold text-amber-800 text-xs uppercase tracking-wider mb-1 font-inter">Important Clause Warning</h4>
-                                                                <p className="text-xs text-gray-800 leading-relaxed font-semibold" dangerouslySetInnerHTML={{ __html: formatInlineMarkdown(block.text.replace(/^__?|__?$/g, '')) }} />
                                                             </div>
                                                         </div>
                                                     </div>
