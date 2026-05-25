@@ -14,5 +14,6 @@ export function useRestaurants(filters: RestaurantFilters) {
       }),
     placeholderData: keepPreviousData, // smooth UX when filters change
     staleTime: 5 * 60 * 1000, // 5 minutes cache
+    enabled: filters.lat !== undefined && filters.lng !== undefined,
   });
 }

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users, Home, Briefcase } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import homeIcon from "../../assets/icons/home_icon.png";
 import searchIcon from "../../assets/icons/search_icon.png";

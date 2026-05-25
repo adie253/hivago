@@ -85,6 +85,7 @@ interface FilterContextType {
     isLoading: boolean;
     error: any;
     refreshData: () => void;
+    isLocationRequired: boolean;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -218,6 +219,8 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const totalCount = data?.totalCount || 0;
 
+    const isLocationRequired = !selectedLocation?.latitude || !selectedLocation?.longitude;
+
     return (
         <FilterContext.Provider value={{
             searchQuery,
@@ -255,7 +258,8 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setPageSize,
             isLoading,
             error,
-            refreshData: refetch
+            refreshData: refetch,
+            isLocationRequired
         }}>
             {children}
         </FilterContext.Provider>

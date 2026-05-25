@@ -50,7 +50,12 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const refreshAddresses = useCallback(async () => {
         if (!isTokenValid()) {
             setAddresses([]);
-            setSelectedLocation(null);
+            const saved = localStorage.getItem('selected_location');
+            if (saved) {
+                setSelectedLocation(JSON.parse(saved));
+            } else {
+                setSelectedLocation(null);
+            }
             return;
         }
 
@@ -121,13 +126,27 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     useEffect(() => {
         if (!isLoggedIn) {
             setAddresses([]);
-            setSelectedLocation(null);
+            const saved = localStorage.getItem('selected_location');
+            if (saved) {
+                setSelectedLocation(JSON.parse(saved));
+            } else {
+                setSelectedLocation(null);
+            }
         } else {
             refreshAddresses();
         }
     }, [isLoggedIn, refreshAddresses]);
 
     const selectLocation = (address: Address) => {
+        if (
+            selectedLocationRef.current &&
+            selectedLocationRef.current.latitude === address.latitude &&
+            selectedLocationRef.current.longitude === address.longitude
+        ) {
+            return;
+        }
+        // Update ref SYNCHRONOUSLY to block subsequent calls in the same tick
+        selectedLocationRef.current = address;
         setSelectedLocation(address);
         showToast(`Delivery address: ${address.label}`, "success");
     };

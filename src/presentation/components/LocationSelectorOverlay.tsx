@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { ArrowLeft, Search, Navigation2, Plus, Home, Briefcase, MapPin, ChevronDown, Check, X, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
 import { AddAddressOverlay } from './AddAddressOverlay';
+import { isTokenValid } from '../../data/api';
 
 interface LocationSelectorOverlayProps {
     isOpen: boolean;
@@ -42,11 +43,23 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
             setLocationError(null);
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    setInitialLocation({
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude
-                    });
-                    setIsAddAddressOpen(true);
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    if (isTokenValid()) {
+                        setInitialLocation({ lat, lng });
+                        setIsAddAddressOpen(true);
+                    } else {
+                        selectLocation({
+                            id: 'current-location',
+                            label: 'Current Location',
+                            addressLine: 'Using your GPS location',
+                            landmark: null,
+                            isDefault: false,
+                            latitude: lat,
+                            longitude: lng
+                        });
+                        onClose();
+                    }
                     setIsDetectingLocation(false);
                 },
                 (err) => {

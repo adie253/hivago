@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Search, Navigation2, MapPin, Loader2, Check } from 'lucide-react';
-import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setDefaultAddress } from '../../data/api';
+import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setDefaultAddress, isTokenValid } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
 import { MapPicker } from './checkout/MapPicker';
 import { useToast } from '../context/ToastContext';
@@ -17,7 +17,7 @@ interface AddAddressOverlayProps {
 type Step = 'search' | 'details';
 
 export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, onClose, initialStep, initialLocation, addressToEdit }) => {
-    const { refreshAddresses } = useUserLocation();
+    const { refreshAddresses, selectLocation } = useUserLocation();
     const { showToast } = useToast();
 
     // Search Step States
@@ -196,6 +196,21 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
         setErrorMsg('');
         try {
             const finalLandmark = (landmark && landmark !== label) ? landmark : null;
+
+            if (!isTokenValid()) {
+                selectLocation({
+                    id: 'guest-selected',
+                    label: label || 'Selected Location',
+                    addressLine: `${addressLine}${finalLandmark ? `, Near ${finalLandmark}` : ''}`,
+                    landmark: finalLandmark || null,
+                    isDefault: false,
+                    latitude,
+                    longitude
+                });
+                clearSessionData();
+                onClose();
+                return;
+            }
 
             const payload = {
                 addressLine,

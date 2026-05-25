@@ -7,6 +7,7 @@ import { CategoryCarousel } from '../components/CategoryCarousel';
 import { FilterChips } from '../components/FilterChips';
 import { useFilters } from '../context/FilterContext';
 import restaurantBanner from '../../assets/restaurant_page/restaurant_banner.svg';
+import { LocationRequiredModal } from '../components/LocationRequiredModal';
 
 export const RestaurantsPage: React.FC = () => {
     const navigate = useNavigate();
@@ -18,12 +19,13 @@ export const RestaurantsPage: React.FC = () => {
         pageSize,
         isLoading, 
         error, 
-        refreshData 
+        refreshData,
+        isLocationRequired
     } = useFilters();
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    if (isLoading && filteredRestaurants.length === 0) {
+    if (isLoading && filteredRestaurants.length === 0 && !isLocationRequired) {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center">
                 <div className="w-16 h-16 border-4 border-red-200 border-t-[#FF4732] rounded-full animate-spin mb-4"></div>
@@ -50,7 +52,9 @@ export const RestaurantsPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white font-sans overflow-x-hidden p-0 ">
+        <div className="min-h-screen bg-white font-sans overflow-x-hidden p-0 relative">
+            {isLocationRequired && <LocationRequiredModal />}
+
             <div className="w-full">
                 <img 
                     src={restaurantBanner} 

@@ -10,13 +10,16 @@ import { DishesDiscount } from '../components/DishesDiscount';
 import { RecommendedRestaurants } from '../components/RecommendedRestaurants';
 import { DeliveryFeatures } from '../components/DeliveryFeatures';
 import { useFilters } from '../context/FilterContext';
+import { LocationRequiredModal } from '../components/LocationRequiredModal';
 
 export const HomePage: React.FC = () => {
     const navigate = useNavigate();
-    const { allRestaurants, isLoading } = useFilters();
+    const { allRestaurants, isLoading, isLocationRequired } = useFilters();
 
     return (
-        <div className="min-h-screen bg-white font-sans">
+        <div className="min-h-screen bg-white font-sans relative">
+            {isLocationRequired && <LocationRequiredModal />}
+            
             <HeroSection />
 
             <div className="max-w-7xl mx-auto bg-white rounded-t-3xl  relative z-30 shadow-sm border-t border-gray-100 pt-2 pb-20">
@@ -47,15 +50,10 @@ export const HomePage: React.FC = () => {
                     )}
                 </div>
 
-                {/* Promo Banners Section */}
-                {/* <PromoBanners /> */}
-
                 <FilterChips />
-                {/* Popular This Week Section */}
                 <RestaurantsNearby />
                 <DishesDiscount />
                 <RecommendedRestaurants />
-                {/* <OfferBanners /> */}
             </div>
 
             {/* Delivery Features Section - Full Width Dark Background */}
