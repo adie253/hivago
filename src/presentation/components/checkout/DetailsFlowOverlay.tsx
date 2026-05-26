@@ -182,7 +182,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     };
 
     const renderPhone = () => (
-        <div className="flex-1 px-6 pt-10 pb-6 flex flex-col">
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                if (phone.length === 10) handleSendOtp();
+            }}
+            className="flex-1 px-6 pt-10 pb-6 flex flex-col"
+        >
             <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-20">Enter your phone number</h2>
             <p className="text-gray-500 text-sm mb-10 pb-6 pr-24 leading-snug">We'll use this to keep you updated about your order</p>
             <div className="flex flex-col mb-auto gap-2">
@@ -205,13 +211,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 {errorMsg && step === 'phone' && <p className="text-red-500 text-sm">{errorMsg}</p>}
             </div>
             <button
-                onClick={handleSendOtp}
+                type="submit"
                 disabled={isSendingOtp || phone.length !== 10}
                 className={`w-full mt-10 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors flex items-center justify-center ${isSendingOtp || phone.length !== 10 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
             >
                 {isSendingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify number'}
             </button>
-        </div>
+        </form>
     );
 
     const handleVerifyOtp = async () => {
@@ -279,7 +285,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     };
 
     const renderOtp = () => (
-        <div className="flex-1 px-6 pt-10 pb-6 flex flex-col">
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                if (otp.join('').length === 6) handleVerifyOtp();
+            }}
+            className="flex-1 px-6 pt-10 pb-6 flex flex-col"
+        >
             <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-20">Enter OTP</h2>
             <p className="text-gray-500 text-sm mb-10 pb-6 pr-20 leading-snug">Enter the 6 digit code sent to you at +91 {phone || 'XXXXXX1234'}</p>
             <p className="text-gray-800 font-bold mb-3 text-sm">OTP</p>
@@ -303,13 +315,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 {errorMsg && step === 'otp' && <p className="text-red-500 text-sm mt-1">{errorMsg}</p>}
             </div>
             <button
-                onClick={handleVerifyOtp}
+                type="submit"
                 disabled={isVerifyingOtp || otp.join('').length !== 6}
                 className={`w-full mt-10 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors flex justify-center items-center ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
             >
                 {isVerifyingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Continue to address'}
             </button>
-        </div>
+        </form>
     );
 
     const handleAllowLocation = () => {
@@ -530,7 +542,15 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <div className="px-6 pt-6 pb-2">
                 <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-6">Add Address Details</h2>
             </div>
-            <div className="px-6 flex flex-col gap-5 flex-1 pb-10">
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!isSavingAddress && addressLine.trim()) {
+                        handleSaveAddress();
+                    }
+                }}
+                className="px-6 flex flex-col gap-5 flex-1 pb-10"
+            >
                 <div className="flex flex-col gap-2 relative z-0">
                     <label className="text-sm font-bold text-gray-700 ml-1">Pin your exact location</label>
                     <div className="relative h-64">
@@ -565,6 +585,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         {['Home', 'Work', 'Other'].map(l => (
                             <button
                                 key={l}
+                                type="button"
                                 onClick={() => setLabel(l)}
                                 className={`flex-1 py-3 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
                             >
@@ -587,13 +608,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 {errorMsg && <p className="text-red-500 text-xs font-bold mt-2 ml-1">{errorMsg}</p>}
                 <button
-                    onClick={handleSaveAddress}
+                    type="submit"
                     disabled={isSavingAddress || !addressLine.trim()}
                     className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
                 >
                     {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save and Continue"}
                 </button>
-            </div>
+            </form>
         </div>
     );
 

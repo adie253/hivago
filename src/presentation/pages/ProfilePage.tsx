@@ -374,7 +374,15 @@ export const ProfilePage: React.FC = () => {
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-5">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!isUpdatingProfile && editName.trim()) {
+                                    handleSaveProfile();
+                                }
+                            }}
+                            className="flex flex-col gap-5"
+                        >
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Full Name</label>
                                 <input
@@ -398,7 +406,7 @@ export const ProfilePage: React.FC = () => {
                             </div>
 
                             <button
-                                onClick={handleSaveProfile}
+                                type="submit"
                                 disabled={isUpdatingProfile || !editName.trim()}
                                 className={`w-full mt-2 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center ${isUpdatingProfile || !editName.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
                             >
@@ -406,7 +414,7 @@ export const ProfilePage: React.FC = () => {
                                     <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                 ) : 'Save Changes'}
                             </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             )}

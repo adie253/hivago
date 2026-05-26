@@ -66,16 +66,22 @@ export const CouponOverlay: React.FC<CouponOverlayProps> = ({ onClose }) => {
                 <div className="flex-1 overflow-y-auto no-scrollbar bg-[#F8FAFC] p-4 sm:p-5 pb-8 border-t border-gray-100">
                     
                     {/* Promo Code Input */}
-                    <div className="bg-white rounded-2xl p-1 shadow-sm border border-gray-100 flex items-center mb-6">
+                    <form 
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            onClose();
+                        }}
+                        className="bg-white rounded-2xl p-1 shadow-sm border border-gray-100 flex items-center mb-6"
+                    >
                         <input 
                             type="text" 
                             placeholder="Promo Code" 
                             className="flex-1 bg-transparent border-none outline-none px-4 py-3 text-[15px] placeholder-gray-400 font-medium text-gray-800"
                         />
-                        <button className="text-[#FF4732] font-bold px-5 py-3">
+                        <button type="submit" className="text-[#FF4732] font-bold px-5 py-3">
                             Apply
                         </button>
-                    </div>
+                    </form>
 
                     <h3 className="text-gray-600 text-[15px] font-medium mb-3 px-1">Offers</h3>
                     {renderOfferCard('free-delivery', 'FREE Delivery')}

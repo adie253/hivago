@@ -399,7 +399,15 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                     <p className="text-gray-400 text-sm font-medium">Fetching exact coordinates...</p>
                                 </div>
                             ) : (
-                                <div className="px-5 py-6 md:px-10 md:py-10 flex flex-col gap-6">
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (!isSaving && addressLine.trim() && !isLoadingDetails) {
+                                            handleSaveAddress();
+                                        }
+                                    }}
+                                    className="px-5 py-6 md:px-10 md:py-10 flex flex-col gap-6"
+                                >
                                     {/* Mobile-only map picker */}
                                     <div className="md:hidden flex flex-col gap-2">
                                         <label className="text-sm font-bold text-gray-700 ml-1">Confirm exact location</label>
@@ -441,6 +449,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                         {['Home', 'Work', 'Other'].map(l => (
                                             <button
                                                 key={l}
+                                                type="button"
                                                 onClick={() => setLabel(l)}
                                                 className={`flex-1 py-3.5 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] scale-[1.02]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
                                             >
@@ -471,7 +480,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
                                     <div className="mt-4 md:mt-8 pb-6 bg-transparent shrink-0">
                                         <button
-                                            onClick={handleSaveAddress}
+                                            type="submit"
                                             disabled={isSaving || !addressLine.trim() || isLoadingDetails}
                                             className={`w-full text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
                                                 ${isSaving || !addressLine.trim() || isLoadingDetails ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
@@ -479,7 +488,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                             {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Save Address'}
                                         </button>
                                     </div>
-                                </div>
+                                </form>
                             )}
                         </div>
                     </div>

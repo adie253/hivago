@@ -182,7 +182,13 @@ export const SignInPage: React.FC = () => {
                         {/* Form Section */}
                         <div className="flex-1 flex flex-col lg:max-w-[55%] z-10 pb-10 px-6 pt-10">
                             {step === 'phone' ? (
-                                <div className="flex flex-col h-full">
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (phone.length === 10) handleSendOtp();
+                                    }}
+                                    className="flex flex-col h-full"
+                                >
                                     <h2 className="text-[28px] font-bold text-[#111] leading-tight mb-2 pr-10">Welcome Back</h2>
                                     <p className="text-gray-500 text-[15px] mb-10 pb-4 pr-10 leading-snug font-medium">
                                         Enter your phone number to continue your culinary journey with Hivago.
@@ -212,7 +218,7 @@ export const SignInPage: React.FC = () => {
 
                                     <div className="mt-auto">
                                         <button
-                                            onClick={handleSendOtp}
+                                            type="submit"
                                             disabled={isSendingOtp || phone.length !== 10}
                                             className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-95 ${isSendingOtp || phone.length !== 10 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
                                         >
@@ -222,9 +228,15 @@ export const SignInPage: React.FC = () => {
                                             By continuing, you agree to our <span className="text-[#111] underline">Terms of Service</span> and <span className="text-[#111] underline">Privacy Policy</span>.
                                         </p>
                                     </div>
-                                </div>
+                                </form>
                             ) : (
-                                <div className="flex flex-col h-full">
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (otp.join('').length === 6) handleVerifyOtp();
+                                    }}
+                                    className="flex flex-col h-full"
+                                >
                                     <h2 className="text-[28px] font-bold text-[#111] leading-tight mb-2 pr-10">Verify Identity</h2>
                                     <p className="text-gray-500 text-[15px] mb-10 pb-4 pr-10 leading-snug font-medium">
                                         We've sent a 6-digit verification code to <span className="text-[#111] font-bold">+91 {phone}</span>
@@ -253,7 +265,7 @@ export const SignInPage: React.FC = () => {
 
                                     <div className="mt-auto">
                                         <button
-                                            onClick={handleVerifyOtp}
+                                            type="submit"
                                             disabled={isVerifyingOtp || otp.join('').length !== 6}
                                             className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex justify-center items-center active:scale-95 ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
                                         >
@@ -261,12 +273,12 @@ export const SignInPage: React.FC = () => {
                                         </button>
                                         <div className="mt-8 text-center text-sm font-bold text-gray-500">
                                             Didn't receive the code?{' '}
-                                            <button className="text-[#FF4732] font-bold hover:underline" onClick={handleSendOtp}>
+                                            <button type="button" className="text-[#FF4732] font-bold hover:underline" onClick={handleSendOtp}>
                                                 Resend Now
                                             </button>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             )}
                         </div>
 
