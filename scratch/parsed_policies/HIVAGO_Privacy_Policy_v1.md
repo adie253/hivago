@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective Date__
 
-__20\-May\-26__
+__20 May 2026__
 
 __Jurisdiction__
 
@@ -26,7 +26,7 @@ GSTIN: 27AAECW3756G1Z3  |  privacy@hivago\.in
 
 __HIVAGO — PRIVACY POLICY__
 
-*Issued by WaradaVinayaka Private Limited | Effective: \[DATE\] | Version 1\.0*
+*Issued by WaradaVinayaka Private Limited | Effective: 20 May 2026 | Version 1\.0*
 
 __PRIVACY AT A GLANCE — WHAT THIS POLICY COVERS__
 
@@ -489,7 +489,7 @@ Non\-personal; cannot be used to identify individuals
 ### 8\.2  How to Request Account Deletion
 
 - Navigate to: Settings > Account > Delete My Account within the HIVAGO app; OR
-- Send a written request to privacy@hivago\.in from your registered email address with subject line: 'Account Deletion Request — \[Your Registered Mobile Number\]'\.
+- Send a written request to privacy@hivago\.in from your registered email address with subject line: 'Account Deletion Request — [Your Registered Mobile Number]'\.
 
 ### 8\.3  Processing Timeline
 
@@ -617,7 +617,7 @@ In accordance with the IT Act, SPDI Rules, and the DPDP Act, the Company designa
 
 __Name__
 
-\[GRIEVANCE OFFICER NAME\]
+Bhalchandra B Kumbharkar
 
 __Designation__
 
@@ -645,7 +645,7 @@ If you are unsatisfied with our response to your privacy grievance, you have the
 
 __BY USING THE HIVAGO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY IN ITS ENTIRETY AND CONSENT TO THE COLLECTION, USE, STORAGE, AND PROCESSING OF YOUR PERSONAL DATA AS DESCRIBED HEREIN\. IF YOU DO NOT AGREE TO THIS POLICY, YOU MUST IMMEDIATELY CEASE USING THE PLATFORM AND MAY REQUEST DELETION OF YOUR ACCOUNT\.__
 
-__Last Updated: 20\-May\-26__
+__Last Updated: 20 May 2026__
 
 Version: 1\.0
 

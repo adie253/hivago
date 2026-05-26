@@ -417,7 +417,7 @@ export const PrivacyPage: React.FC = () => {
                                 WaradaVinayaka Private Limited
                             </span>
                             <span className="text-xs text-gray-400 font-bold">
-                                Version 1.0 • Effective: [DATE]
+                                Version 1.0 • Effective: 20 May 2026
                             </span>
                         </div>
 

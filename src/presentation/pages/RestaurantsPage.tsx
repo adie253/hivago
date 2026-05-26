@@ -7,6 +7,7 @@ import { CategoryCarousel } from '../components/CategoryCarousel';
 import { FilterChips } from '../components/FilterChips';
 import { useFilters } from '../context/FilterContext';
 import restaurantBanner from '../../assets/restaurant_page/restaurant_banner.svg';
+import restaurantBannerMobile from '../../assets/restaurant_baaner_mobile.svg';
 import { LocationRequiredModal } from '../components/LocationRequiredModal';
 
 export const RestaurantsPage: React.FC = () => {
@@ -56,10 +57,17 @@ export const RestaurantsPage: React.FC = () => {
             {isLocationRequired && <LocationRequiredModal />}
 
             <div className="w-full">
+                {/* Desktop View Banner */}
                 <img 
                     src={restaurantBanner} 
                     alt="Discover 100+ Restaurants" 
-                    className="w-full h-auto object-cover m-0 p-0"
+                    className="hidden sm:block w-full h-auto object-cover m-0 p-0"
+                />
+                {/* Mobile View Banner */}
+                <img 
+                    src={restaurantBannerMobile} 
+                    alt="Discover 100+ Restaurants" 
+                    className="block sm:hidden w-full h-auto object-cover m-0 p-0"
                 />
             </div>
 

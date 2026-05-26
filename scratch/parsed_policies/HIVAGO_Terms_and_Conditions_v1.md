@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective Date__
 
-__20\-May\-26__
+__20 May 2026__
 
 __Jurisdiction__
 
@@ -395,7 +395,7 @@ Acknowledgement within 48 hours; Resolution within 30 days of receipt
 
 __BY CLICKING 'ACCEPT', 'REGISTER', OR 'PLACE ORDER' ON THE HIVAGO PLATFORM, OR BY CONTINUING TO USE THE PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, FULLY UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS AND CONDITIONS IN THEIR ENTIRETY\. IF YOU DO NOT AGREE, YOU MUST IMMEDIATELY CEASE USE OF THE PLATFORM\.__
 
-__Last Updated: 20\-May\-26__
+__Last Updated: 20 May 2026__
 
 __Version: 1\.0__
 

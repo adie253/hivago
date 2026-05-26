@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective__
 
-__20\-May\-26__
+__20 May 2026__
 
 __Jurisdiction__
 
@@ -30,7 +30,7 @@ GSTIN: 27AAECW3756G1Z3  |  support@hivago\.in  |  grievance@hivago\.in
 
 __HIVAGO — REFUND AND CANCELLATION POLICY__
 
-*Issued by WaradaVinayaka Private Limited | Effective: 20\-May\-26 | Version 1\.0*
+*Issued by WaradaVinayaka Private Limited | Effective: 20 May 2026 | Version 1\.0*
 
 ## QUICK REFERENCE — REFUND ELIGIBILITY MATRIX
 
@@ -526,8 +526,7 @@ If you are dissatisfied with the Company's refund decision, you may escalate to 
 
 __Grievance Officer__
 
-Bhalchandra B Kumbharkar
-
+BHALCHANDRA B KUMBHARKAR
 __Email__
 
 grievance@hivago\.in
@@ -706,7 +705,7 @@ N/A
 
 __BY PLACING AN ORDER ON THE HIVAGO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THIS REFUND AND CANCELLATION POLICY\. THE PLATFORM FEE IS NON\-REFUNDABLE IN ALL CIRCUMSTANCES\. REFUND CLAIMS MUST BE RAISED WITHIN THE PRESCRIBED DEADLINES\. THIS POLICY DOES NOT AFFECT YOUR STATUTORY RIGHTS UNDER THE CONSUMER PROTECTION ACT, 2019\.__
 
-__Last Updated: 20\-May\-26__
+__Last Updated: 20 May 2026__
 
 Version: 1\.0
 

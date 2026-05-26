@@ -642,7 +642,7 @@ This Agreement is governed by and construed in accordance with the laws of India
 
 # __SCHEDULE A — FEE STRUCTURE__
 
-The following fee structure is effective from \[DATE\] and may be revised per Clause 7\.2\. Current rates are always visible on the Restaurant Partner Dashboard\.
+The following fee structure is effective from 20 May 2026 and may be revised per Clause 7\.2\. Current rates are always visible on the Restaurant Partner Dashboard\.
 
 __Fee Component__
 
@@ -792,7 +792,7 @@ Witness 1 — Name: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_  Signature:
 
 Witness 2 — Name: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_  Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_  Date: \_\_\_\_\_\_\_\_\_\_
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20 May 2026__
 
 Version: 1\.0
 

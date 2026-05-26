@@ -12,7 +12,7 @@ __1\.0__
 
 __Effective__
 
-__20\-May\-26__
+__20 May 2026__
 
 __Applies To__
 
@@ -30,7 +30,7 @@ GSTIN: 27AAECW3756G1Z3  |  privacy@hivago\.in
 
 __HIVAGO — COOKIE POLICY__
 
-*Issued by WaradaVinayaka Private Limited | Effective: 20\-May\-26 | Version 1\.0*
+*Issued by WaradaVinayaka Private Limited | Effective: 20 May 2026 | Version 1\.0*
 
 __COOKIE POLICY AT A GLANCE__
 
@@ -550,7 +550,7 @@ If unsatisfied with our response, you may approach the Data Protection Board of 
 
 __BY CONTINUING TO USE THE HIVAGO WEBSITE AFTER THE COOKIE CONSENT BANNER IS DISPLAYED, OR BY CLICKING 'ACCEPT' ON THE BANNER, YOU CONSENT TO THE USE OF NON\-ESSENTIAL COOKIES AS DESCRIBED IN THIS POLICY\. STRICTLY NECESSARY COOKIES ARE DEPLOYED WITHOUT REQUIRING CONSENT AS THEY ARE ESSENTIAL FOR THE WEBSITE TO FUNCTION\. YOU MAY WITHDRAW OR ADJUST YOUR CONSENT AT ANY TIME AS DESCRIBED IN SECTION 7 OF THIS POLICY\.__
 
-__Last Updated: \[DATE\]__
+__Last Updated: 20 May 2026__
 
 Version: 1\.0
 
