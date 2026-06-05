@@ -49,12 +49,60 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         }
     }, [originalItem?.id]);
 
+    // Preselect defaults
+    useEffect(() => {
+        if (apiItem) {
+            const initialSelected = new Set<string>();
+            apiItem.options?.forEach(opt => {
+                if (opt.isDefault) {
+                    initialSelected.add(opt.id);
+                }
+            });
+            apiItem.optionGroups?.forEach(group => {
+                group.options?.forEach(opt => {
+                    if (opt.isDefault) {
+                        initialSelected.add(opt.id);
+                    }
+                });
+            });
+            setSelectedOptions(initialSelected);
+        }
+    }, [apiItem]);
+
     const toggleOption = (id: string) => {
         const newSet = new Set(selectedOptions);
         if (newSet.has(id)) {
             newSet.delete(id);
         } else {
             newSet.add(id);
+        }
+        setSelectedOptions(newSet);
+    };
+
+    const toggleGroupOption = (_groupId: string, optionId: string, group: any) => {
+        const newSet = new Set(selectedOptions);
+        const groupOptionIds = group.options.map((o: any) => o.id);
+
+        if (group.minSelections === 1 && group.maxSelections === 1) {
+            // Radio button behavior
+            groupOptionIds.forEach((id: string) => {
+                if (id !== optionId) newSet.delete(id);
+            });
+            newSet.add(optionId);
+        } else {
+            // Checkbox behavior
+            if (newSet.has(optionId)) {
+                // Check if deselecting violates minSelections (usually only applies to single-choice, but let's be safe)
+                const currentlySelectedInGroup = groupOptionIds.filter((id: string) => newSet.has(id));
+                if (currentlySelectedInGroup.length > group.minSelections) {
+                    newSet.delete(optionId);
+                }
+            } else {
+                const currentlySelectedInGroup = groupOptionIds.filter((id: string) => newSet.has(id));
+                if (currentlySelectedInGroup.length < group.maxSelections) {
+                    newSet.add(optionId);
+                }
+            }
         }
         setSelectedOptions(newSet);
     };
@@ -69,22 +117,42 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     const mainItemPrice = useMemo(() => {
         let total = basePrice;
         
-        // Add selected options from API (ingredients/mods)
+        // Add selected options from API (flat options)
         if (apiItem && apiItem.options) {
             apiItem.options.forEach(opt => {
                 const optPrice = typeof opt.additionalPrice === 'number' && !isNaN(opt.additionalPrice) ? opt.additionalPrice : 0;
                 if (selectedOptions.has(opt.id)) total += optPrice;
             });
         }
+
+        // Add selected option group options
+        if (apiItem && apiItem.optionGroups) {
+            apiItem.optionGroups.forEach(group => {
+                group.options.forEach(opt => {
+                    const optPrice = typeof opt.additionalPrice === 'number' && !isNaN(opt.additionalPrice) ? opt.additionalPrice : 0;
+                    if (selectedOptions.has(opt.id)) total += optPrice;
+                });
+            });
+        }
         return total;
     }, [basePrice, selectedOptions, apiItem]);
 
     const selectedOptionsText = useMemo(() => {
-        if (!apiItem || !apiItem.options) return "";
-        return apiItem.options
-            .filter(opt => selectedOptions.has(opt.id))
-            .map(opt => opt.name)
-            .join(", ");
+        if (!apiItem) return "";
+        const parts: string[] = [];
+        if (apiItem.options) {
+            apiItem.options
+                .filter(opt => selectedOptions.has(opt.id))
+                .forEach(opt => parts.push(opt.name));
+        }
+        if (apiItem.optionGroups) {
+            apiItem.optionGroups.forEach(group => {
+                group.options
+                    .filter(opt => selectedOptions.has(opt.id))
+                    .forEach(opt => parts.push(`${group.groupName}: ${opt.name}`));
+            });
+        }
+        return parts.join(", ");
     }, [apiItem, selectedOptions]);
 
     const finalInstructions = useMemo(() => {
@@ -93,6 +161,18 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         if (specialInstructions) parts.push(specialInstructions);
         return parts.join(" | ");
     }, [selectedOptionsText, specialInstructions]);
+
+    const validationError = useMemo(() => {
+        if (!apiItem || !apiItem.optionGroups) return null;
+        for (const group of apiItem.optionGroups) {
+            const groupOptionIds = group.options.map(o => o.id);
+            const selectedCount = groupOptionIds.filter(id => selectedOptions.has(id)).length;
+            if (selectedCount < group.minSelections) {
+                return `Please select at least ${group.minSelections} option(s) for "${group.groupName}"`;
+            }
+        }
+        return null;
+    }, [apiItem, selectedOptions]);
 
     const totalPrice = useMemo(() => {
         return mainItemPrice;
@@ -177,6 +257,62 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                 </div>
                             )}
 
+                            {/* Option Groups Section */}
+                            {apiItem && apiItem.optionGroups && apiItem.optionGroups.length > 0 && (
+                                [...apiItem.optionGroups]
+                                    .sort((a, b) => a.displayOrder - b.displayOrder)
+                                    .map((group) => (
+                                        <div key={group.id} className="mb-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div>
+                                                    <h3 className="text-sm font-bold text-gray-900 tracking-wide">{group.groupName}</h3>
+                                                    <p className="text-[10px] text-gray-400 font-bold mt-0.5">
+                                                        {group.minSelections === 1 && group.maxSelections === 1 
+                                                            ? "Select 1 option" 
+                                                            : `Select up to ${group.maxSelections} option(s)`}
+                                                    </p>
+                                                </div>
+                                                {group.isRequired && (
+                                                    <span className="bg-[#FFF0EF] text-[#D12E27] text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">
+                                                        Required
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="space-y-4">
+                                                {group.options.map((opt) => {
+                                                    const isSelected = selectedOptions.has(opt.id);
+                                                    const optPrice = typeof opt.additionalPrice === 'number' && !isNaN(opt.additionalPrice) ? opt.additionalPrice : 0;
+                                                    const isRadio = group.minSelections === 1 && group.maxSelections === 1;
+                                                    
+                                                    return (
+                                                        <div key={opt.id} className="flex items-center justify-between group cursor-pointer" onClick={() => toggleGroupOption(group.id, opt.id, group)}>
+                                                            <div>
+                                                                <p className={`text-sm font-bold transition-colors ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{opt.name}</p>
+                                                                {optPrice > 0 ? (
+                                                                    <p className="text-[11px] font-bold text-gray-400">₹ {formatPrice(optPrice)}</p>
+                                                                ) : (
+                                                                    <p className="text-[11px] font-bold text-gray-400">Included</p>
+                                                                )}
+                                                            </div>
+                                                            <div className={`w-6 h-6 flex items-center justify-center transition-all ${
+                                                                isRadio 
+                                                                    ? `rounded-full border-2 ${isSelected ? 'border-[#FF4732]' : 'border-gray-300'}` 
+                                                                    : `rounded-md border-2 ${isSelected ? 'bg-[#FF4732] border-[#FF4732] shadow-sm scale-105' : 'bg-transparent border-gray-300 hover:border-[#FF4732]'}`
+                                                            }`}>
+                                                                {isSelected && (
+                                                                    isRadio 
+                                                                        ? <div className="w-2.5 h-2.5 rounded-full bg-[#FF4732]" />
+                                                                        : <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ))
+                            )}
+
 
                             {/* Special Instructions */}
                             <div className="mb-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -214,19 +350,54 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
 
                 {/* Bottom Action Bar */}
                 <div className="bg-white p-4 sm:p-6 border-t border-gray-100 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-20">
+                     {validationError && (
+                         <div className="text-red-600 text-xs font-bold mb-3 text-center bg-red-50 py-2 rounded-xl border border-red-100">
+                             {validationError}
+                         </div>
+                     )}
                      <button
                          onClick={() => {
-                             const addons = apiItem?.options
-                                 ? apiItem.options
+                             if (validationError) return;
+                             const addons: { id: string; name: string; price: number; groupId?: string; groupName?: string; }[] = [];
+                             
+                             if (apiItem?.options) {
+                                 apiItem.options
                                      .filter(opt => selectedOptions.has(opt.id))
-                                     .map(opt => ({ id: opt.id, name: opt.name, price: opt.additionalPrice || 0 }))
-                                 : [];
+                                     .forEach(opt => {
+                                         addons.push({
+                                             id: opt.id,
+                                             name: opt.name,
+                                             price: opt.additionalPrice || 0
+                                         });
+                                     });
+                             }
+                             
+                             if (apiItem?.optionGroups) {
+                                 apiItem.optionGroups.forEach(group => {
+                                     group.options
+                                         .filter(opt => selectedOptions.has(opt.id))
+                                         .forEach(opt => {
+                                             addons.push({
+                                                 id: opt.id,
+                                                 name: opt.name,
+                                                 price: opt.additionalPrice || 0,
+                                                 groupId: group.id,
+                                                 groupName: group.groupName
+                                             });
+                                         });
+                                 });
+                             }
+                             
                              onConfirmAdd({
                                  ...originalItem,
                              }, mainItemPrice, finalInstructions, addons);
                          }}
-                         className="w-full bg-[#D12E27] text-white rounded-2xl py-4 px-6 flex items-center justify-between shadow-lg hover:bg-[#B52721] active:scale-[0.98] transition-all group"
-                         disabled={isLoading}
+                         className={`w-full text-white rounded-2xl py-4 px-6 flex items-center justify-between shadow-lg active:scale-[0.98] transition-all group ${
+                             validationError 
+                                 ? 'bg-gray-300 cursor-not-allowed shadow-none' 
+                                 : 'bg-[#D12E27] hover:bg-[#B52721]'
+                         }`}
+                         disabled={isLoading || !!validationError}
                      >
                          <div className="flex items-center gap-3">
                               <span className="text-lg font-bold tracking-wide">₹ {formatPrice(totalPrice)}</span>

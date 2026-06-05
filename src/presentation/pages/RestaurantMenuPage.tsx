@@ -100,7 +100,9 @@ export const RestaurantMenuPage: React.FC = () => {
         description: item.description || '',
         imageUrl: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com')) 
             ? item.imageUrl 
-            : getFallbackImage(item.name, item.category)
+            : getFallbackImage(item.name, item.category),
+        options: (item as any).options,
+        optionGroups: (item as any).optionGroups
     })), [filteredMenu]);
 
     useEffect(() => {

@@ -2,6 +2,8 @@ export interface SelectedAddon {
     id: string;
     name: string;
     price: number;
+    groupId?: string;
+    groupName?: string;
 }
 
 export interface CartItem {

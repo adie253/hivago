@@ -13,6 +13,8 @@ export interface MenuItem {
     bestseller: boolean;
     description: string;
     imageUrl: string;
+    options?: any[];
+    optionGroups?: any[];
 }
 
 interface MenuItemCardProps {
@@ -37,7 +39,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
         setShowCustomize(true);
     };
 
-    const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: { id: string, name: string, price: number }[]) => {
+    const handleConfirmAdd = (itemToAdd: MenuItem, mainItemPrice: number, instructions: string, selectedAddons: { id: string, name: string, price: number, groupId?: string, groupName?: string }[]) => {
         // Add the main item
         const cartItemId = instructions 
             ? `${itemToAdd.id}-${btoa(instructions).substring(0, 8)}` 

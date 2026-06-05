@@ -445,7 +445,9 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
             description: item.description,
             imageUrl: (item.imageUrl && item.imageUrl !== 'null' && item.imageUrl !== 'undefined' && !item.imageUrl.includes('example.com'))
                 ? item.imageUrl
-                : getFallbackImage(item.name, item.category)
+                : getFallbackImage(item.name, item.category),
+            options: (item as any).options,
+            optionGroups: (item as any).optionGroups
         }))
     };
 };
@@ -585,6 +587,26 @@ export interface ApiItemOption {
     id: string;
     name: string;
     additionalPrice: number;
+    type?: string;
+    isDefault?: boolean;
+}
+
+export interface ApiOptionGroupOption {
+    id: string;
+    name: string;
+    type: string;
+    additionalPrice: number;
+    isDefault: boolean;
+}
+
+export interface ApiOptionGroup {
+    id: string;
+    groupName: string;
+    isRequired: boolean;
+    minSelections: number;
+    maxSelections: number;
+    displayOrder: number;
+    options: ApiOptionGroupOption[];
 }
 
 export interface ApiItem {
@@ -597,6 +619,7 @@ export interface ApiItem {
     isVegetarian: boolean;
     preparationTimeMinutes: number;
     options: ApiItemOption[];
+    optionGroups?: ApiOptionGroup[];
 }
 
 export const fetchItemDetails = async (itemId: string): Promise<ApiItem | null> => {

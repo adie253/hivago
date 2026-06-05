@@ -228,11 +228,13 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 const res = await updateAddress(addressToEdit.id, payload);
                 if (res && res.message) showToast(res.message, "success");
                 else showToast("Address updated", "success");
+                const updatedId = res?.id || res?.address?.id || res?.data?.id || res?._id;
+                if (updatedId) savedAddressId = updatedId;
             } else {
                 const res = await addAddress(payload);
                 if (res && res.message) showToast(res.message, "success");
                 else showToast("Address added", "success");
-                savedAddressId = res.id;
+                savedAddressId = res?.id || res?.address?.id || res?.data?.id || res?._id;
             }
 
             // If "Set as default" is checked, call the separate default API
@@ -254,7 +256,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
         <div className="fixed inset-0 z-[10000] bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 md:p-6 font-sans">
             <div className="w-full h-full md:max-w-6xl md:h-[90vh] md:max-h-[850px] bg-[#FAFAFA] flex flex-col relative animate-in slide-in-from-bottom-4 duration-300 md:rounded-[40px] md:overflow-hidden md:shadow-2xl">
             {/* Header */}
-            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm shrink-0">
+            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm shrink-0">
                 <button 
                     onClick={() => step === 'details' ? setStep('search') : onClose()} 
                     className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center transition-transform active:scale-95"

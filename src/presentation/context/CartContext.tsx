@@ -139,19 +139,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [isLoggedIn]);
 
     const convertServerItems = (remoteItems: any[]): CartItem[] => {
-        return remoteItems.map((rItem: any) => ({
-            id: rItem.id || (rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId),
-            menuItemId: rItem.menuItemId,
-            name: rItem.name,
-            price: rItem.unitPrice,
-            quantity: rItem.quantity,
-            isVeg: true,
-            isAddon: false,
-            customizations: rItem.specialInstructions || undefined,
-            description: Array.isArray(rItem.options)
-                ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
-                : (typeof rItem.options === 'string' ? rItem.options : "")
-        }));
+        return remoteItems.map((rItem: any) => {
+            const selectedAddons = Array.isArray(rItem.options)
+                ? rItem.options.map((o: any) => ({
+                    id: o.value || "",
+                    name: o.value || "",
+                    price: 0,
+                    groupName: o.name || ""
+                }))
+                : [];
+
+            return {
+                id: rItem.id || (rItem.specialInstructions ? `${rItem.menuItemId}-${btoa(rItem.specialInstructions).substring(0, 8)}` : rItem.menuItemId),
+                menuItemId: rItem.menuItemId,
+                name: rItem.name,
+                price: rItem.unitPrice,
+                quantity: rItem.quantity,
+                isVeg: true,
+                isAddon: false,
+                customizations: rItem.specialInstructions || undefined,
+                selectedAddons: selectedAddons,
+                description: Array.isArray(rItem.options)
+                    ? rItem.options.map((o: any) => `${o.name}: ${o.value}`).join(", ")
+                    : (typeof rItem.options === 'string' ? rItem.options : "")
+            };
+        });
     };
 
     const updateStateWithFinalCart = (items: CartItem[], rId: string, rName: string) => {
@@ -246,7 +258,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         unitPrice: i.price,
                         quantity: i.quantity,
                     };
-                    if (i.description && i.description !== "") payload.options = i.description;
+                    if (i.selectedAddons && i.selectedAddons.length > 0) {
+                        payload.options = i.selectedAddons.map(addon => `${addon.groupName || 'Addon'}:${addon.name}`).join(",");
+                    } else if (i.description && i.description !== "") {
+                        payload.options = i.description;
+                    }
                     if (i.customizations && i.customizations !== "") payload.specialInstructions = i.customizations;
                     return payload;
                 });
@@ -335,7 +351,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     name: i.name,
                     unitPrice: i.price,
                     quantity: i.quantity,
-                    options: i.description,
+                    options: i.selectedAddons && i.selectedAddons.length > 0
+                        ? i.selectedAddons.map(addon => `${addon.groupName || 'Addon'}:${addon.name}`).join(",")
+                        : (i.description || ""),
                     specialInstructions: i.customizations
                 }));
 

@@ -506,9 +506,11 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 savedAddress = res;
             }
 
+            const savedId = savedAddress?.id || savedAddress?.address?.id || savedAddress?.data?.id || savedAddress?._id || (addressToEdit ? addressToEdit.id : null);
+
             // If "Set as default" is checked, call the separate default API
-            if (isDefault && savedAddress?.id) {
-                await setDefaultAddress(savedAddress.id);
+            if (isDefault && savedId) {
+                await setDefaultAddress(savedId);
             }
             
             await refreshAddresses();
@@ -516,7 +518,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             // Ensure we pass a complete address object for immediate selection
             const finalAddress = {
                 ...payload,
-                id: savedAddress?.id || (addressToEdit ? addressToEdit.id : 'temp-id')
+                id: savedId || 'temp-id'
             };
             
             onComplete(finalAddress);
@@ -621,7 +623,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     return (
         <div className="fixed inset-0 z-[60] bg-[#F5F6F8] flex flex-col font-sans h-screen overflow-hidden">
             {/* Top Bar */}
-            <div className="bg-[#D12E27] lg:bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm shrink-0 text-white lg:text-gray-800 lg:border-b lg:border-gray-100">
+            <div className="bg-[#D12E27] lg:bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 text-white lg:text-gray-800 lg:border-b lg:border-gray-100">
                 <button onClick={handleBack} className="p-2 lg:bg-white rounded-full lg:shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center transition-transform hover:scale-105">
                     <ArrowLeft className="w-5 h-5 text-white lg:text-gray-800" />
                 </button>

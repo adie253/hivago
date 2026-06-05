@@ -239,7 +239,7 @@ export const CheckoutPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#F5F6F8] font-sans pb-40">
             {/* Top Bar */}
-            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm">
                 <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center">
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
@@ -344,17 +344,35 @@ export const CheckoutPage: React.FC = () => {
                                             <div className="flex-1">
                                                 <h4 className="font-bold text-[15px] text-[#2D2D2D]">{item.name}</h4>
                                                 {item.selectedAddons && item.selectedAddons.length > 0 ? (
-                                                    <div className="mt-2 space-y-1.5">
-                                                        {item.selectedAddons.map((addon) => (
-                                                            <div key={addon.id} className="flex items-center gap-2 group">
-                                                                <div 
-                                                                    onClick={() => updateItemAddon(item.id, addon.id, 'remove')}
-                                                                    className="w-4 h-4 rounded border border-emerald-500 bg-emerald-500 flex items-center justify-center cursor-pointer hover:bg-emerald-600 transition-colors"
-                                                                >
-                                                                    <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                                                    <div className="mt-2 space-y-2.5">
+                                                        {Object.entries(
+                                                            item.selectedAddons.reduce((acc, addon) => {
+                                                                const group = addon.groupName || "Add-ons";
+                                                                if (!acc[group]) acc[group] = [];
+                                                                acc[group].push(addon);
+                                                                return acc;
+                                                            }, {} as Record<string, typeof item.selectedAddons>)
+                                                        ).map(([groupName, addons]) => (
+                                                            <div key={groupName} className="space-y-1">
+                                                                <p className="text-[9px] font-bold text-[#FF4732] uppercase tracking-wider">{groupName}</p>
+                                                                <div className="space-y-1.5 pl-1">
+                                                                    {addons.map((addon) => (
+                                                                        <div key={addon.id} className="flex items-center gap-2 group">
+                                                                            <div 
+                                                                                onClick={() => updateItemAddon(item.id, addon.id, 'remove')}
+                                                                                className="w-4 h-4 rounded border border-emerald-500 bg-emerald-500 flex items-center justify-center cursor-pointer hover:bg-emerald-600 transition-colors"
+                                                                            >
+                                                                                <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                                                                            </div>
+                                                                            <span className="text-[11px] font-bold text-gray-500 flex-1">{addon.name}</span>
+                                                                            {addon.price > 0 ? (
+                                                                                <span className="text-[10px] font-bold text-gray-400">+ ₹ {formatPrice(addon.price)}</span>
+                                                                            ) : (
+                                                                                <span className="text-[10px] font-bold text-gray-400">Included</span>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
-                                                                <span className="text-[11px] font-bold text-gray-500 flex-1">{addon.name}</span>
-                                                                <span className="text-[10px] font-bold text-gray-400">₹ {formatPrice(addon.price)}</span>
                                                             </div>
                                                         ))}
                                                         {item.customizations?.includes('|') && (

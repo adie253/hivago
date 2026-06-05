@@ -365,7 +365,7 @@ export const DemoCheckoutPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#F5F6F8] font-sans pb-40">
             {/* Top Bar */}
-            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm">
                 <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center">
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
@@ -452,7 +452,7 @@ export const DemoCheckoutPage: React.FC = () => {
                                 )}
 
                                 {deliveryStatus && (
-                                    <div className={`max-w-[150px] absolute bottom-4 left-4 right-4 p-3 rounded-xl shadow-lg border flex items-start gap-3 z-20 animate-in slide-in-from-bottom-2 duration-300 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' :
+                                    <div className={`absolute bottom-4 left-4 right-auto z-10 w-[calc(100%-32px)] max-w-[280px] p-3 rounded-xl shadow-lg border flex items-start gap-3 animate-in slide-in-from-bottom-2 duration-300 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' :
                                             deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' :
                                                 'bg-amber-50 border-amber-100 text-amber-700'
                                         }`}>
@@ -466,7 +466,7 @@ export const DemoCheckoutPage: React.FC = () => {
                                                     : deliveryError}
                                             </span>
                                             {deliveryStatus === 'error' && (
-                                                <span className="text-[11px] font-medium opacity-80 mt-1 w-[200px]">Try a different address or pick a closer restaurant.</span>
+                                                <span className="text-[11px] font-medium opacity-80 mt-1">Try a different address or pick a closer restaurant.</span>
                                             )}
                                         </div>
                                     </div>

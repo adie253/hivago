@@ -382,7 +382,7 @@ export const OrderTrackingPage: React.FC = () => {
         return (
             <div className="min-h-[100dvh] bg-[#F8F9FA] font-sans pb-20">
                 {/* Navbar */}
-                <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+                <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm">
                     <div className="flex items-center gap-4">
                         <button onClick={() => navigate('/orders')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
                             <ArrowLeft className="w-5 h-5 text-gray-800" />
@@ -515,7 +515,7 @@ export const OrderTrackingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#F8F9FA] font-sans pb-24">
             {/* Navbar */}
-            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-100 shadow-sm">
+            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm">
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/orders')} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center">
                         <ArrowLeft className="w-5 h-5 text-gray-800" />
