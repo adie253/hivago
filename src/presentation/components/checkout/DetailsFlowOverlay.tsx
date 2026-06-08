@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, Check, Edit2, Home, Briefcase } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefaultAddress } from '../../../data/api';
+import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefaultAddress, reverseGeocode, getPlacesAutocomplete, getPlaceDetails } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import { useToast } from '../../context/ToastContext';
@@ -35,6 +35,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const [landmark, setLandmark] = useState(() => sessionStorage.getItem('checkout_landmark') || '');
     const [isDefault, setIsDefault] = useState(true);
     const [label, setLabel] = useState(() => sessionStorage.getItem('checkout_label') || 'Home');
+    const [selectedAddressText, setSelectedAddressText] = useState(() => sessionStorage.getItem('checkout_address_text') || '');
     const [mapCoordinates, setMapCoordinates] = useState<{lat: number, lng: number} | null>(() => {
         const saved = sessionStorage.getItem('checkout_map_coords');
         return saved ? JSON.parse(saved) : null;
@@ -48,9 +49,49 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const { refreshLoginStatus } = useCart();
     const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [predictions, setPredictions] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
 
+    useEffect(() => {
+        if (searchQuery.length < 3) {
+            setPredictions([]);
+            return;
+        }
 
+        const timer = setTimeout(async () => {
+            setIsSearching(true);
+            try {
+                const results = await getPlacesAutocomplete(searchQuery);
+                setPredictions(results || []);
+            } catch (err) {
+                console.error("Autocomplete error:", err);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 500);
 
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const handleSelectPrediction = async (placeId: string, description: string) => {
+        setSelectedAddressText(description);
+        setPredictions([]);
+        
+        try {
+            const details = await getPlaceDetails(placeId);
+            if (details) {
+                const lat = details.geometry?.location?.lat || details.latitude || details.lat || 0;
+                const lng = details.geometry?.location?.lng || details.longitude || details.lng || 0;
+                const parsedLat = typeof lat === 'function' ? lat() : parseFloat(lat);
+                const parsedLng = typeof lng === 'function' ? lng() : parseFloat(lng);
+                
+                setMapCoordinates({ lat: parsedLat, lng: parsedLng });
+            }
+        } catch (e) {
+            console.error('Failed to parse place details', e);
+        }
+    };
 
     useEffect(() => {
         sessionStorage.setItem('checkout_step', step);
@@ -81,12 +122,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         sessionStorage.setItem('checkout_address_line', addressLine);
         sessionStorage.setItem('checkout_landmark', landmark);
         sessionStorage.setItem('checkout_label', label);
+        sessionStorage.setItem('checkout_address_text', selectedAddressText);
         if (mapCoordinates) {
             sessionStorage.setItem('checkout_map_coords', JSON.stringify(mapCoordinates));
         } else {
             sessionStorage.removeItem('checkout_map_coords');
         }
-    }, [addressLine, landmark, label, mapCoordinates]);
+    }, [addressLine, landmark, label, selectedAddressText, mapCoordinates]);
 
     useEffect(() => {
         if (isTokenValid() && step === 'phone') {
@@ -419,6 +461,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                             setLabel(add.label || 'Home');
                                             setIsDefault(add.isDefault);
                                             setMapCoordinates({lat: add.latitude, lng: add.longitude});
+                                            setSelectedAddressText(add.addressLine);
                                             setStep('addAddress');
                                         }}
                                         className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
@@ -438,23 +481,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             setIsDefault(true);
                             setStep('addAddress');
 
-                            // Immediately request and pin the user's current location on the map
-                            if ('geolocation' in navigator) {
-                                navigator.geolocation.getCurrentPosition(
-                                    (position) => {
-                                        const coords = {
-                                            lat: position.coords.latitude,
-                                            lng: position.coords.longitude
-                                        };
-                                        setMapCoordinates(coords);
-                                        sessionStorage.setItem('checkout_map_coords', JSON.stringify(coords));
-                                    },
-                                    (error) => {
-                                        console.error("Error pinning current location:", error);
-                                    },
-                                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                                );
-                            }
+                            setMapCoordinates(null);
+                            setSelectedAddressText('');
+                            sessionStorage.removeItem('checkout_map_coords');
+                            sessionStorage.removeItem('checkout_address_text');
                         }}
                         className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF4732] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
                     >
@@ -485,9 +515,12 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         setIsSavingAddress(true);
         try {
             const finalLandmark = (landmark && landmark !== label) ? landmark : null;
+            const fullAddress = (selectedAddressText && !addressLine.includes(selectedAddressText))
+                ? `${addressLine}, ${selectedAddressText}`
+                : addressLine;
 
             const payload = {
-                addressLine,
+                addressLine: fullAddress,
                 landmark: finalLandmark,
                 latitude: mapCoordinates?.lat || 19.033,
                 longitude: mapCoordinates?.lng || 73.029,
@@ -498,15 +531,27 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             let savedAddress;
             if (addressToEdit) {
                 const res = await updateAddress(addressToEdit.id, payload);
+                console.log("DetailsFlowOverlay updateAddress response:", res);
                 if (res && res.message) showToast(res.message, "success");
                 savedAddress = res;
             } else {
                 const res = await addAddress(payload);
+                console.log("DetailsFlowOverlay addAddress response:", res);
                 if (res && res.message) showToast(res.message, "success");
                 savedAddress = res;
             }
 
-            const savedId = savedAddress?.id || savedAddress?.address?.id || savedAddress?.data?.id || savedAddress?._id || (addressToEdit ? addressToEdit.id : null);
+            const savedId = (savedAddress && (
+                savedAddress.id || 
+                savedAddress.address?.id || 
+                savedAddress.data?.id || 
+                savedAddress.data?.address?.id || 
+                savedAddress._id || 
+                savedAddress.addressId || 
+                (Array.isArray(savedAddress) && (savedAddress[savedAddress.length - 1]?.id || savedAddress[savedAddress.length - 1]?._id))
+            )) || (addressToEdit ? addressToEdit.id : null);
+
+            console.log("DetailsFlowOverlay resolved savedId for default setting:", savedId);
 
             // If "Set as default" is checked, call the separate default API
             if (isDefault && savedId) {
@@ -551,37 +596,94 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         handleSaveAddress();
                     }
                 }}
-                className="px-6 flex flex-col gap-5 flex-1 pb-10"
+                className="px-6 flex flex-col gap-4 flex-1 pb-4"
             >
-                <div className="flex flex-col gap-2 relative z-0">
+                <div className="flex flex-col gap-1.5 relative z-0">
                     <label className="text-sm font-bold text-gray-700 ml-1">Pin your exact location</label>
-                    <div className="relative h-64">
-                        <MapPicker position={mapCoordinates} onPositionChange={setMapCoordinates} />
+                    <div className="relative h-48">
+                        <MapPicker 
+                            position={mapCoordinates} 
+                            onPositionChange={async (pos) => {
+                                setMapCoordinates(pos);
+                                try {
+                                    const geoResult = await reverseGeocode(pos.lat, pos.lng);
+                                    if (geoResult && geoResult.addressLine) {
+                                        setSelectedAddressText(geoResult.addressLine);
+                                    }
+                                } catch (err) {
+                                    console.error("Failed to reverse geocode:", err);
+                                }
+                            }} 
+                            allowGeolocation={true} 
+                        />
 
                     </div>
 
                 </div>
-                <div className="flex flex-col gap-2 relative z-20">
+                <div className="flex flex-col gap-1.5 relative z-30">
+                    <label className="text-sm font-bold text-gray-700 ml-1">Delivery Area</label>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={selectedAddressText}
+                            onChange={(e) => {
+                                setSelectedAddressText(e.target.value);
+                                setSearchQuery(e.target.value);
+                            }}
+                            onFocus={() => {
+                                if (selectedAddressText.length >= 3) {
+                                    setSearchQuery(selectedAddressText);
+                                }
+                            }}
+                            onBlur={() => setTimeout(() => setPredictions([]), 200)}
+                            placeholder="Search area, building, street name..."
+                            className="w-full bg-white border border-gray-100 focus:border-[#FF4732] rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400 shadow-sm"
+                        />
+
+                        {predictions.length > 0 && (
+                            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-100 rounded-2xl shadow-xl z-[100] max-h-60 overflow-y-auto">
+                                {predictions.map((pred, i) => (
+                                    <button
+                                        key={pred.placeId || pred.place_id || i}
+                                        type="button"
+                                        onClick={() => {
+                                            handleSelectPrediction(pred.placeId || pred.place_id || pred.id, pred.description || pred.name);
+                                            setPredictions([]);
+                                        }}
+                                        className="w-full flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left group"
+                                    >
+                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#FF4732] transition-colors mt-0.5 shrink-0" />
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-gray-800 text-sm">{pred.mainText || pred.structured_formatting?.main_text || pred.description?.split(',')[0]}</span>
+                                            <span className="text-xs text-gray-500 font-medium line-clamp-1">{pred.secondaryText || pred.structured_formatting?.secondary_text}</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="flex flex-col gap-1.5 relative z-20">
                     <label className="text-sm font-bold text-gray-700 ml-1">Flat / House No. / Building / Area</label>
                     <input
                         type="text"
                         value={addressLine}
                         onChange={e => setAddressLine(e.target.value)}
                         placeholder="Complete address details"
-                        className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
+                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-bold text-gray-700 ml-1">Nearby Landmark (Optional)</label>
                     <input
                         type="text"
                         value={landmark}
                         onChange={e => setLandmark(e.target.value)}
                         placeholder="e.g. Near HDFC Bank"
-                        className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
+                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
-                <div className="flex flex-col gap-3 mt-2">
+                <div className="flex flex-col gap-2 mt-1">
                     <label className="text-sm font-bold text-gray-700 ml-1">Save address as</label>
                     <div className="flex gap-3">
                         {['Home', 'Work', 'Other'].map(l => (
@@ -589,7 +691,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                 key={l}
                                 type="button"
                                 onClick={() => setLabel(l)}
-                                className={`flex-1 py-3 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
+                                className={`flex-1 py-2 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
                             >
                                 {l}
                             </button>
@@ -598,7 +700,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 <div 
                     onClick={() => setIsDefault(!isDefault)}
-                    className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-2 cursor-pointer transition-all hover:bg-gray-50"
+                    className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm mt-1 cursor-pointer transition-all hover:bg-gray-50"
                 >
                     <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-800">Set as default address</span>
@@ -612,7 +714,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <button
                     type="submit"
                     disabled={isSavingAddress || !addressLine.trim()}
-                    className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                    className={`w-full mt-3 text-white font-bold text-[16px] py-[12px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
                 >
                     {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save and Continue"}
                 </button>
@@ -638,7 +740,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             </div>
 
             <div className="flex-1 overflow-y-auto flex items-start justify-center w-full lg:p-8">
-                <div className="w-full lg:max-w-[1000px] bg-[#FAFAFA] lg:bg-white lg:rounded-[32px] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex flex-col overflow-hidden min-h-full lg:min-h-0 border border-transparent lg:border-gray-100">
+                <div className="w-full lg:max-w-[900px] bg-[#FAFAFA] lg:bg-white lg:rounded-[32px] lg:shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex flex-col overflow-hidden min-h-full lg:min-h-0 border border-transparent lg:border-gray-100">
                     <div className="shrink-0 lg:px-8 lg:pt-6">
                         {renderStepper()}
                     </div>

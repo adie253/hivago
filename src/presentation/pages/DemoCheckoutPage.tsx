@@ -444,6 +444,7 @@ export const DemoCheckoutPage: React.FC = () => {
                                 <MapPicker
                                     position={selectedLocation?.latitude ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : { lat: 18.5204, lng: 73.8567 }}
                                     onPositionChange={() => { }}
+                                    readOnly={true}
                                 />
                                 {isCheckingDelivery && (
                                     <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">

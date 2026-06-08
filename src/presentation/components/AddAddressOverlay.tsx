@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Search, Navigation2, MapPin, Loader2, Check } from 'lucide-react';
-import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setDefaultAddress, isTokenValid } from '../../data/api';
+import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setDefaultAddress, isTokenValid, reverseGeocode } from '../../data/api';
 import { useUserLocation } from '../context/LocationContext';
 import { MapPicker } from './checkout/MapPicker';
 import { useToast } from '../context/ToastContext';
@@ -137,10 +137,6 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
         setSelectedPlaceId(placeId);
         setSelectedAddressText(description);
         
-        // Auto-fill address line with the main part of the address
-        const mainText = description.split(',')[0];
-        setAddressLine(mainText);
-        
         setStep('details');
         setIsLoadingDetails(true);
 
@@ -156,16 +152,24 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 
                 setLatitude(parsedLat);
                 setLongitude(parsedLng);
-
-                // If the backend provides more details, we can fill them here
-                if (details.formatted_address && !addressLine) {
-                     setAddressLine(details.name || details.formatted_address.split(',')[0]);
-                }
             }
         } catch (e) {
             console.error('Failed to parse place details', e);
         } finally {
             setIsLoadingDetails(false);
+        }
+    };
+
+    const handleMapPositionChange = async (pos: { lat: number; lng: number }) => {
+        setLatitude(pos.lat);
+        setLongitude(pos.lng);
+        try {
+            const geoResult = await reverseGeocode(pos.lat, pos.lng);
+            if (geoResult && geoResult.addressLine) {
+                setSelectedAddressText(geoResult.addressLine);
+            }
+        } catch (err) {
+            console.error("Failed to reverse geocode:", err);
         }
     };
 
@@ -226,16 +230,21 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
             if (addressToEdit) {
                 const res = await updateAddress(addressToEdit.id, payload);
+                console.log("AddAddressOverlay updateAddress response:", res);
                 if (res && res.message) showToast(res.message, "success");
                 else showToast("Address updated", "success");
-                const updatedId = res?.id || res?.address?.id || res?.data?.id || res?._id;
+                const updatedId = res?.id || res?.address?.id || res?.data?.id || res?.data?.address?.id || res?._id || res?.addressId || (Array.isArray(res) && (res[res.length - 1]?.id || res[res.length - 1]?._id));
                 if (updatedId) savedAddressId = updatedId;
             } else {
                 const res = await addAddress(payload);
+                console.log("AddAddressOverlay addAddress response:", res);
                 if (res && res.message) showToast(res.message, "success");
                 else showToast("Address added", "success");
-                savedAddressId = res?.id || res?.address?.id || res?.data?.id || res?._id;
+                const newId = res?.id || res?.address?.id || res?.data?.id || res?.data?.address?.id || res?._id || res?.addressId || (Array.isArray(res) && (res[res.length - 1]?.id || res[res.length - 1]?._id));
+                if (newId) savedAddressId = newId;
             }
+
+            console.log("AddAddressOverlay resolved savedAddressId for default setting:", savedAddressId);
 
             // If "Set as default" is checked, call the separate default API
             if (isDefault && savedAddressId) {
@@ -254,7 +263,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
     return createPortal(
         <div className="fixed inset-0 z-[10000] bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 md:p-6 font-sans">
-            <div className="w-full h-full md:max-w-6xl md:h-[90vh] md:max-h-[850px] bg-[#FAFAFA] flex flex-col relative animate-in slide-in-from-bottom-4 duration-300 md:rounded-[40px] md:overflow-hidden md:shadow-2xl">
+            <div className="w-full h-full md:max-w-4xl md:h-[80vh] md:max-h-[700px] bg-[#FAFAFA] flex flex-col relative animate-in slide-in-from-bottom-4 duration-300 md:rounded-[32px] md:overflow-hidden md:shadow-2xl">
             {/* Header */}
             <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm shrink-0">
                 <button 
@@ -310,7 +319,34 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                             <button 
                                 onClick={() => {
                                     setSelectedAddressText('Selected via Map');
-                                    setStep('details');
+                                    setIsSearching(true);
+                                    if ('geolocation' in navigator) {
+                                        navigator.geolocation.getCurrentPosition(
+                                            (pos) => {
+                                                const lat = pos.coords.latitude;
+                                                const lng = pos.coords.longitude;
+                                                setLatitude(lat);
+                                                setLongitude(lng);
+                                                setStep('details');
+                                                setIsSearching(false);
+                                                // Trigger reverse geocoding to fill address text immediately
+                                                reverseGeocode(lat, lng).then(geo => {
+                                                    if (geo && geo.addressLine) {
+                                                        setSelectedAddressText(geo.addressLine);
+                                                    }
+                                                }).catch(err => console.error("Failed to reverse geocode in Map Select:", err));
+                                            },
+                                            () => {
+                                                // Fallback to Pune or default coordinates, just go to details
+                                                setStep('details');
+                                                setIsSearching(false);
+                                            },
+                                            { timeout: 5000 }
+                                        );
+                                    } else {
+                                        setStep('details');
+                                        setIsSearching(false);
+                                    }
                                 }}
                                 disabled={isSearching}
                                 className={`flex items-center gap-3 p-4 border border-gray-100 rounded-2xl transition-colors group ${isSearching ? 'opacity-70 cursor-wait bg-gray-50' : 'hover:bg-gray-50'}`}
@@ -369,31 +405,14 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                             <div className="flex-1">
                                 <MapPicker 
                                     position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
-                                    onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                    onPositionChange={handleMapPositionChange} 
                                     allowGeolocation={true}
                                 />
-                            </div>
-                            <div className="p-6 bg-white border-t border-gray-50">
-                                <div className="flex items-start gap-3">
-                                    <MapPin className="w-6 h-6 text-[#FF4732] shrink-0 mt-0.5" />
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-gray-900 leading-tight mb-1">Exact Location</span>
-                                        <span className="text-xs font-medium text-gray-500 leading-snug">{selectedAddressText}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
                         {/* Right side form */}
                         <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {/* Mobile-only map info */}
-                            <div className="md:hidden bg-[#FFF4F2] px-6 py-5 border-b border-red-50 flex items-start gap-3">
-                                <MapPin className="w-6 h-6 text-[#FF4732] shrink-0 mt-0.5" />
-                                <div className="flex flex-col">
-                                    <span className="text-[15px] font-bold text-[#111] leading-tight mb-1">Delivering to</span>
-                                    <span className="text-sm font-medium text-gray-500 leading-snug">{selectedAddressText}</span>
-                                </div>
-                            </div>
 
                             {isLoadingDetails ? (
                                 <div className="py-20 flex flex-col items-center justify-center gap-3">
@@ -408,7 +427,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                             handleSaveAddress();
                                         }
                                     }}
-                                    className="px-5 py-6 md:px-10 md:py-10 flex flex-col gap-6"
+                                    className="px-5 py-5 md:px-8 md:py-6 flex flex-col gap-4"
                                 >
                                     {/* Mobile-only map picker */}
                                     <div className="md:hidden flex flex-col gap-2">
@@ -416,36 +435,80 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                         <div className="h-[250px]">
                                             <MapPicker 
                                                 position={latitude && longitude ? { lat: latitude, lng: longitude } : null} 
-                                                onPositionChange={(pos) => { setLatitude(pos.lat); setLongitude(pos.lng); }} 
+                                                onPositionChange={handleMapPositionChange} 
                                                 allowGeolocation={true}
                                             />
                                         </div>
                                         <p className="text-[11px] font-medium text-gray-400 ml-1 mt-0.5">Move the map or point your exact location using the pin</p>
                                     </div>
 
-                                <div className="flex flex-col gap-2 relative z-20">
+                                <div className="flex flex-col gap-1.5 relative z-30">
+                                    <label className="text-sm font-bold text-gray-800 ml-1">Delivery Area</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={selectedAddressText}
+                                            onChange={(e) => {
+                                                setSelectedAddressText(e.target.value);
+                                                setSearchQuery(e.target.value);
+                                            }}
+                                            onFocus={() => {
+                                                if (selectedAddressText.length >= 3) {
+                                                    setSearchQuery(selectedAddressText);
+                                                }
+                                            }}
+                                            onBlur={() => setTimeout(() => setPredictions([]), 200)}
+                                            placeholder="Search area, building, street name..."
+                                            className="w-full bg-white border-2 border-gray-100 focus:border-[#FF4732] rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400"
+                                        />
+
+                                        {predictions.length > 0 && (
+                                            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-100 rounded-2xl shadow-xl z-[100] max-h-60 overflow-y-auto">
+                                                {predictions.map((pred, i) => (
+                                                    <button
+                                                        key={pred.placeId || pred.place_id || i}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            handleSelectPrediction(pred.placeId || pred.place_id || pred.id, pred.description || pred.name);
+                                                            setPredictions([]);
+                                                        }}
+                                                        className="w-full flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left group"
+                                                    >
+                                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#FF4732] transition-colors mt-0.5 shrink-0" />
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold text-gray-800 text-sm">{pred.mainText || pred.structured_formatting?.main_text || pred.description?.split(',')[0]}</span>
+                                                            <span className="text-xs text-gray-500 font-medium line-clamp-1">{pred.secondaryText || pred.structured_formatting?.secondary_text}</span>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-1.5 relative z-20">
                                     <label className="text-sm font-bold text-gray-800 ml-1">Flat / House No. / Floor / Building <span className="text-[#FF4732]">*</span></label>
                                     <input
                                         type="text"
                                         value={addressLine}
                                         onChange={e => setAddressLine(e.target.value)}
                                         placeholder="e.g. Flat 101, A Wing, Yash Tower"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white text-[15px] font-medium text-gray-800 transition-all placeholder:text-gray-400"
+                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-4 py-3 outline-none focus:border-[#FF4732] focus:bg-white text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-1.5">
                                     <label className="text-sm font-bold text-gray-800 ml-1">Nearby Landmark (Optional)</label>
                                     <input
                                         type="text"
                                         value={landmark}
                                         onChange={e => setLandmark(e.target.value)}
                                         placeholder="e.g. Near Metro Station"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white text-[15px] font-medium text-gray-800 transition-all placeholder:text-gray-400"
+                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-4 py-3 outline-none focus:border-[#FF4732] focus:bg-white text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-3 mt-2">
+                                <div className="flex flex-col gap-2 mt-1">
                                     <label className="text-sm font-bold text-gray-800 ml-1">Save this address as</label>
                                     <div className="flex gap-3">
                                         {['Home', 'Work', 'Other'].map(l => (
@@ -453,7 +516,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                                 key={l}
                                                 type="button"
                                                 onClick={() => setLabel(l)}
-                                                className={`flex-1 py-3.5 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] scale-[1.02]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
+                                                className={`flex-1 py-2.5 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] scale-[1.02]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
                                             >
                                                 {l}
                                             </button>
@@ -463,10 +526,10 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
                                 <div 
                                     onClick={() => setIsDefault(!isDefault)}
-                                    className="flex items-center justify-between bg-[#FAFAFA] p-5 rounded-2xl border border-gray-100 mt-2 cursor-pointer transition-all hover:bg-gray-50"
+                                    className="flex items-center justify-between bg-[#FAFAFA] px-4 py-3.5 rounded-2xl border border-gray-100 mt-1 cursor-pointer transition-all hover:bg-gray-50"
                                 >
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[15px] font-bold text-gray-900">Set as default</span>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[14px] font-bold text-gray-900">Set as default</span>
                                         <span className="text-xs text-gray-500 font-medium leading-[1.3] max-w-[200px]">We'll automatically deliver here next time</span>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200 bg-white'}`}>
@@ -475,17 +538,17 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 </div>
 
                                     {errorMsg && (
-                                        <div className="bg-red-50 text-red-600 text-sm font-bold p-4 rounded-xl text-center border border-red-100 mb-1">
+                                        <div className="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-xl text-center border border-red-100 mb-0">
                                             {errorMsg}
                                         </div>
                                     )}
 
-                                    <div className="mt-4 md:mt-8 pb-6 bg-transparent shrink-0">
+                                    <div className="mt-2 pb-2 bg-transparent shrink-0">
                                         <button
                                             type="submit"
-                                            disabled={isSaving || !addressLine.trim() || isLoadingDetails}
-                                            className={`w-full text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
-                                                ${isSaving || !addressLine.trim() || isLoadingDetails ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
+                                            disabled={isSaving || !addressLine.trim() || isLoadingDetails || !latitude || !longitude}
+                                            className={`w-full text-white font-bold text-base py-3.5 rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
+                                                ${isSaving || !addressLine.trim() || isLoadingDetails || !latitude || !longitude ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
                                         >
                                             {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Save Address'}
                                         </button>
