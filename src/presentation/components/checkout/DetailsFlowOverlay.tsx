@@ -51,7 +51,6 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
     const [searchQuery, setSearchQuery] = useState('');
     const [predictions, setPredictions] = useState<any[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         if (searchQuery.length < 3) {
@@ -60,14 +59,11 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         }
 
         const timer = setTimeout(async () => {
-            setIsSearching(true);
             try {
                 const results = await getPlacesAutocomplete(searchQuery);
                 setPredictions(results || []);
             } catch (err) {
                 console.error("Autocomplete error:", err);
-            } finally {
-                setIsSearching(false);
             }
         }, 500);
 
