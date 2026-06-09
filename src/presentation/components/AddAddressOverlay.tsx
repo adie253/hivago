@@ -5,6 +5,7 @@ import { getPlacesAutocomplete, getPlaceDetails, addAddress, updateAddress, setD
 import { useUserLocation } from '../context/LocationContext';
 import { MapPicker } from './checkout/MapPicker';
 import { useToast } from '../context/ToastContext';
+import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 
 interface AddAddressOverlayProps {
     isOpen: boolean;
@@ -110,27 +111,22 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
     if (!isOpen) return null;
 
     const handleUseCurrentLocation = () => {
-        if ('geolocation' in navigator) {
-            setIsSearching(true);
-            setErrorMsg('');
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    setLatitude(pos.coords.latitude);
-                    setLongitude(pos.coords.longitude);
-                    setSelectedAddressText('Current Location');
-                    setStep('details');
-                    setIsSearching(false);
-                },
-                (err) => {
-                    console.error("Error fetching GPS:", err);
-                    setErrorMsg("Please enable location access to use this feature.");
-                    setIsSearching(false);
-                },
-                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
-            );
-        } else {
-            setErrorMsg("Geolocation is not supported by your browser.");
-        }
+        setIsSearching(true);
+        setErrorMsg('');
+        getCurrentPositionWithFallback(
+            (pos) => {
+                setLatitude(pos.coords.latitude);
+                setLongitude(pos.coords.longitude);
+                setSelectedAddressText('Current Location');
+                setStep('details');
+                setIsSearching(false);
+            },
+            (err, friendlyMessage) => {
+                console.error("Error fetching GPS:", err);
+                setErrorMsg(friendlyMessage);
+                setIsSearching(false);
+            }
+        );
     };
 
     const handleSelectPrediction = async (placeId: string, description: string) => {
@@ -320,33 +316,28 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 onClick={() => {
                                     setSelectedAddressText('Selected via Map');
                                     setIsSearching(true);
-                                    if ('geolocation' in navigator) {
-                                        navigator.geolocation.getCurrentPosition(
-                                            (pos) => {
-                                                const lat = pos.coords.latitude;
-                                                const lng = pos.coords.longitude;
-                                                setLatitude(lat);
-                                                setLongitude(lng);
-                                                setStep('details');
-                                                setIsSearching(false);
-                                                // Trigger reverse geocoding to fill address text immediately
-                                                reverseGeocode(lat, lng).then(geo => {
-                                                    if (geo && geo.addressLine) {
-                                                        setSelectedAddressText(geo.addressLine);
-                                                    }
-                                                }).catch(err => console.error("Failed to reverse geocode in Map Select:", err));
-                                            },
-                                            () => {
-                                                // Fallback to Pune or default coordinates, just go to details
-                                                setStep('details');
-                                                setIsSearching(false);
-                                            },
-                                            { timeout: 5000 }
-                                        );
-                                    } else {
-                                        setStep('details');
-                                        setIsSearching(false);
-                                    }
+                                    getCurrentPositionWithFallback(
+                                        (pos) => {
+                                            const lat = pos.coords.latitude;
+                                            const lng = pos.coords.longitude;
+                                            setLatitude(lat);
+                                            setLongitude(lng);
+                                            setStep('details');
+                                            setIsSearching(false);
+                                            // Trigger reverse geocoding to fill address text immediately
+                                            reverseGeocode(lat, lng).then(geo => {
+                                                if (geo && geo.addressLine) {
+                                                    setSelectedAddressText(geo.addressLine);
+                                                }
+                                            }).catch(err => console.error("Failed to reverse geocode in Map Select:", err));
+                                        },
+                                        () => {
+                                            // Fallback to Pune or default coordinates, just go to details
+                                            setStep('details');
+                                            setIsSearching(false);
+                                        },
+                                        { timeout: 5000 }
+                                    );
                                 }}
                                 disabled={isSearching}
                                 className={`flex items-center gap-3 p-4 border border-gray-100 rounded-2xl transition-colors group ${isSearching ? 'opacity-70 cursor-wait bg-gray-50' : 'hover:bg-gray-50'}`}

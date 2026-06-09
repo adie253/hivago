@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { GoogleMap } from "@react-google-maps/api";
 import { useGoogleMaps } from "../../context/GoogleMapsContext";
 import { Locate } from "lucide-react";
+import { getCurrentPositionWithFallback } from "../../../utils/geolocation";
 
 type Position = {
   lat: number;
@@ -44,22 +45,20 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   useEffect(() => {
     if (position || !allowGeolocation || readOnly) return; // already provided, not allowed, or readOnly
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const userLocation = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-          };
+    getCurrentPositionWithFallback(
+      (pos) => {
+        const userLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
 
-          setCenter(userLocation);
-          onPositionChange(userLocation);
-        },
-        () => {
-          console.log("Location permission denied, using default");
-        }
-      );
-    }
+        setCenter(userLocation);
+        onPositionChange(userLocation);
+      },
+      (err) => {
+        console.log("Location permission denied or failed, using default:", err);
+      }
+    );
   }, []);
 
   // Sync external position (search/GPS/edit)
@@ -126,25 +125,22 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   }, [onPositionChange]);
 
   const handleLocateUser = useCallback(() => {
-    if ("geolocation" in navigator) {
-      setIsLocating(true);
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const userLocation = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-          };
-          setCenter(userLocation);
-          onPositionChange(userLocation);
-          setIsLocating(false);
-        },
-        (err) => {
-          console.error("Locate User failed:", err);
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    }
+    setIsLocating(true);
+    getCurrentPositionWithFallback(
+      (pos) => {
+        const userLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+        setCenter(userLocation);
+        onPositionChange(userLocation);
+        setIsLocating(false);
+      },
+      (err) => {
+        console.error("Locate User failed:", err);
+        setIsLocating(false);
+      }
+    );
   }, [onPositionChange]);
 
   if (!isLoaded) {

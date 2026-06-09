@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, Navigation, Map, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
 import { LocationSelectorOverlay } from './LocationSelectorOverlay';
+import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 
 interface LocationRequiredCardProps {
     title?: string;
@@ -18,35 +19,29 @@ export const LocationRequiredCard: React.FC<LocationRequiredCardProps> = ({
     const [gpsError, setGpsError] = useState<string | null>(null);
 
     const handleShareLocation = () => {
-        if ('geolocation' in navigator) {
-            setIsDetecting(true);
-            setGpsError(null);
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    selectLocation({
-                        id: 'current-location',
-                        label: 'Current Location',
-                        addressLine: 'Using your GPS location',
-                        landmark: null,
-                        isDefault: false,
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude
-                    });
-                    setIsDetecting(false);
-                },
-                (err) => {
-                    console.error("GPS detection failed:", err);
-                    setGpsError("Please allow GPS access or select your location manually.");
-                    setIsDetecting(false);
-                    // Automatically fallback to showing the manual selector
-                    setTimeout(() => setIsSelectorOpen(true), 1500);
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-            );
-        } else {
-            setGpsError("Geolocation is not supported by your browser.");
-            setIsSelectorOpen(true);
-        }
+        setIsDetecting(true);
+        setGpsError(null);
+        getCurrentPositionWithFallback(
+            (pos) => {
+                selectLocation({
+                    id: 'current-location',
+                    label: 'Current Location',
+                    addressLine: 'Using your GPS location',
+                    landmark: null,
+                    isDefault: false,
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude
+                });
+                setIsDetecting(false);
+            },
+            (err, friendlyMessage) => {
+                console.error("GPS detection failed:", err);
+                setGpsError(friendlyMessage);
+                setIsDetecting(false);
+                // Automatically fallback to showing the manual selector
+                setTimeout(() => setIsSelectorOpen(true), 1500);
+            }
+        );
     };
 
     return (

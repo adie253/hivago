@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useToast } from './ToastContext';
 import { getAddresses, isTokenValid } from '../../data/api';
 import { useCart } from './CartContext';
+import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 
 interface Address {
     id: string;
@@ -97,7 +98,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // Give logged-in sync a moment to load saved addresses first
         const timer = setTimeout(() => {
             if (!selectedLocationRef.current) {
-                navigator.geolocation.getCurrentPosition(
+                getCurrentPositionWithFallback(
                     (position) => {
                         const { latitude, longitude } = position.coords;
                         setSelectedLocation({
@@ -115,7 +116,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                         console.error("Location permission denied or failed:", error);
                         sessionStorage.setItem('location_asked', 'true');
                     },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                    { timeout: 5000 }
                 );
             }
         }, 1500);

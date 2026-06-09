@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Navigation, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
+import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 
 export const LocationRequiredModal: React.FC = () => {
     const { selectLocation } = useUserLocation();
@@ -15,7 +16,7 @@ export const LocationRequiredModal: React.FC = () => {
             const handlePermissionChange = () => {
                 if (activeStatus && activeStatus.state === 'granted') {
                     setIsDetecting(true);
-                    navigator.geolocation.getCurrentPosition(
+                    getCurrentPositionWithFallback(
                         (pos) => {
                             selectLocation({
                                 id: 'current-location',
@@ -23,7 +24,7 @@ export const LocationRequiredModal: React.FC = () => {
                                 addressLine: 'Using your GPS location',
                                 landmark: null,
                                 isDefault: false,
-                                  latitude: pos.coords.latitude,
+                                latitude: pos.coords.latitude,
                                 longitude: pos.coords.longitude
                             });
                             setIsDetecting(false);
@@ -31,8 +32,7 @@ export const LocationRequiredModal: React.FC = () => {
                         (err) => {
                             console.error("Auto GPS failed after permission change:", err);
                             setIsDetecting(false);
-                        },
-                        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+                        }
                     );
                 }
             };
@@ -55,32 +55,27 @@ export const LocationRequiredModal: React.FC = () => {
     }, [selectLocation]);
 
     const handleShareLocation = () => {
-        if ('geolocation' in navigator) {
-            setIsDetecting(true);
-            setGpsError(null);
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    selectLocation({
-                        id: 'current-location',
-                        label: 'Current Location',
-                        addressLine: 'Using your GPS location',
-                        landmark: null,
-                        isDefault: false,
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude
-                    });
-                    setIsDetecting(false);
-                },
-                (err) => {
-                    console.error("GPS detection failed:", err);
-                    setGpsError("Location access is required to show nearby restaurants. Please enable GPS permissions in your browser settings and try again.");
-                    setIsDetecting(false);
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-            );
-        } else {
-            setGpsError("Geolocation is not supported by your browser.");
-        }
+        setIsDetecting(true);
+        setGpsError(null);
+        getCurrentPositionWithFallback(
+            (pos) => {
+                selectLocation({
+                    id: 'current-location',
+                    label: 'Current Location',
+                    addressLine: 'Using your GPS location',
+                    landmark: null,
+                    isDefault: false,
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude
+                });
+                setIsDetecting(false);
+            },
+            (err, friendlyMessage) => {
+                console.error("GPS detection failed:", err);
+                setGpsError(friendlyMessage);
+                setIsDetecting(false);
+            }
+        );
     };
 
     return (

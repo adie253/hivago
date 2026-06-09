@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Navigation2, Plus, Home, Briefcase, MapPin, ChevronD
 import { useUserLocation } from '../context/LocationContext';
 import { AddAddressOverlay } from './AddAddressOverlay';
 import { isTokenValid } from '../../data/api';
+import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 
 interface LocationSelectorOverlayProps {
     isOpen: boolean;
@@ -38,40 +39,35 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
     );
 
     const handleUseCurrentLocation = () => {
-        if ('geolocation' in navigator) {
-            setIsDetectingLocation(true);
-            setLocationError(null);
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    if (isTokenValid()) {
-                        setInitialLocation({ lat, lng });
-                        setIsAddAddressOpen(true);
-                    } else {
-                        selectLocation({
-                            id: 'current-location',
-                            label: 'Current Location',
-                            addressLine: 'Using your GPS location',
-                            landmark: null,
-                            isDefault: false,
-                            latitude: lat,
-                            longitude: lng
-                        });
-                        onClose();
-                    }
-                    setIsDetectingLocation(false);
-                },
-                (err) => {
-                    console.error("GPS Error:", err);
-                    setLocationError("Please enable location access to use this feature.");
-                    setIsDetectingLocation(false);
-                },
-                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
-            );
-        } else {
-            setLocationError("Geolocation is not supported by your browser.");
-        }
+        setIsDetectingLocation(true);
+        setLocationError(null);
+        getCurrentPositionWithFallback(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                if (isTokenValid()) {
+                    setInitialLocation({ lat, lng });
+                    setIsAddAddressOpen(true);
+                } else {
+                    selectLocation({
+                        id: 'current-location',
+                        label: 'Current Location',
+                        addressLine: 'Using your GPS location',
+                        landmark: null,
+                        isDefault: false,
+                        latitude: lat,
+                        longitude: lng
+                    });
+                    onClose();
+                }
+                setIsDetectingLocation(false);
+            },
+            (err, friendlyMessage) => {
+                console.error("GPS Error:", err);
+                setLocationError(friendlyMessage);
+                setIsDetectingLocation(false);
+            }
+        );
     };
 
     const handleOpenAddAddress = () => {

@@ -4,6 +4,7 @@ import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefault
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import { useToast } from '../../context/ToastContext';
+import { getCurrentPositionWithFallback } from '../../../utils/geolocation';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
@@ -363,25 +364,20 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     );
 
     const handleAllowLocation = () => {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setMapCoordinates({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    });
-                    setStep('addresses');
-                    refreshAddresses();
-                },
-                () => {
-                    setStep('addresses');
-                    refreshAddresses();
-                }
-            );
-        } else {
-            setStep('addresses');
-            refreshAddresses();
-        }
+        getCurrentPositionWithFallback(
+            (position) => {
+                setMapCoordinates({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
+                setStep('addresses');
+                refreshAddresses();
+            },
+            () => {
+                setStep('addresses');
+                refreshAddresses();
+            }
+        );
     };
 
     const renderLocation = () => (
