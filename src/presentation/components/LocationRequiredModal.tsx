@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { MapPin, Navigation, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
 import { getCurrentPositionWithFallback } from '../../utils/geolocation';
+import { LocationSettingsGuideModal } from './LocationSettingsGuideModal';
 
 export const LocationRequiredModal: React.FC = () => {
     const { selectLocation } = useUserLocation();
     const [isDetecting, setIsDetecting] = useState(false);
     const [gpsError, setGpsError] = useState<string | null>(null);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
 
     // Automated listener for browser address bar permission changes
     React.useEffect(() => {
@@ -101,8 +103,17 @@ export const LocationRequiredModal: React.FC = () => {
                 </p>
 
                 {gpsError && (
-                    <div className="w-full mb-6 p-4 bg-red-50 text-[#FF4732] text-xs md:text-sm font-semibold rounded-2xl border border-red-100 leading-relaxed text-center animate-in shake duration-300">
-                        {gpsError}
+                    <div className="w-full mb-6 flex flex-col gap-2">
+                        <div className="w-full p-4 bg-red-50 text-[#FF4732] text-xs md:text-sm font-semibold rounded-2xl border border-red-100 leading-relaxed text-center animate-in shake duration-300">
+                            {gpsError}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsGuideOpen(true)}
+                            className="text-xs font-bold text-[#FF4732] hover:underline transition-all mt-1"
+                        >
+                            Location blocked? See how to enable
+                        </button>
                     </div>
                 )}
 
@@ -125,6 +136,11 @@ export const LocationRequiredModal: React.FC = () => {
                     )}
                 </button>
             </div>
+
+            <LocationSettingsGuideModal 
+                isOpen={isGuideOpen} 
+                onClose={() => setIsGuideOpen(false)} 
+            />
         </div>
     );
 };

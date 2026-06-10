@@ -3,6 +3,7 @@ import { GoogleMap } from "@react-google-maps/api";
 import { useGoogleMaps } from "../../context/GoogleMapsContext";
 import { Locate } from "lucide-react";
 import { getCurrentPositionWithFallback } from "../../../utils/geolocation";
+import { LocationSettingsGuideModal } from "../LocationSettingsGuideModal";
 
 type Position = {
   lat: number;
@@ -38,6 +39,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   const [center, setCenter] = useState<Position>(position || defaultCenter);
   const [isDragging, setIsDragging] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
 
@@ -139,6 +141,9 @@ export const MapPicker: React.FC<MapPickerProps> = ({
       (err) => {
         console.error("Locate User failed:", err);
         setIsLocating(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setIsGuideOpen(true);
+        }
       }
     );
   }, [onPositionChange]);
@@ -249,6 +254,11 @@ export const MapPicker: React.FC<MapPickerProps> = ({
           )}
         </button>
       )}
+
+      <LocationSettingsGuideModal 
+        isOpen={isGuideOpen} 
+        onClose={() => setIsGuideOpen(false)} 
+      />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { useUserLocation } from '../context/LocationContext';
 import { AddAddressOverlay } from './AddAddressOverlay';
 import { isTokenValid } from '../../data/api';
 import { getCurrentPositionWithFallback } from '../../utils/geolocation';
+import { LocationSettingsGuideModal } from './LocationSettingsGuideModal';
 
 interface LocationSelectorOverlayProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
     const [initialLocation, setInitialLocation] = useState<{lat: number, lng: number} | undefined>(undefined);
     const [isDetectingLocation, setIsDetectingLocation] = useState(false);
     const [locationError, setLocationError] = useState<string | null>(null);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
 
     // Prevent body scroll when overlay is open
     useEffect(() => {
@@ -142,10 +144,17 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
             </div>
 
             {locationError && (
-                <div className="px-4 md:px-6 mb-6">
+                <div className="px-4 md:px-6 mb-6 flex flex-col gap-2">
                     <div className="p-3 bg-red-50 text-[#FF4732] text-sm font-semibold rounded-xl border border-red-100">
                         {locationError}
                     </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsGuideOpen(true)}
+                        className="text-xs font-bold text-[#FF4732] hover:underline text-left self-start mt-0.5 ml-1"
+                    >
+                        Location blocked? See how to enable
+                    </button>
                 </div>
             )}
 
@@ -209,6 +218,11 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                 onClose={() => setIsAddAddressOpen(false)} 
                 initialStep={initialLocation ? 'details' : 'search'}
                 initialLocation={initialLocation}
+            />
+
+            <LocationSettingsGuideModal 
+                isOpen={isGuideOpen} 
+                onClose={() => setIsGuideOpen(false)} 
             />
         </div>,
         document.body

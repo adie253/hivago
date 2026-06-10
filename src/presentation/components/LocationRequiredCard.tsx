@@ -3,6 +3,7 @@ import { MapPin, Navigation, Map, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
 import { LocationSelectorOverlay } from './LocationSelectorOverlay';
 import { getCurrentPositionWithFallback } from '../../utils/geolocation';
+import { LocationSettingsGuideModal } from './LocationSettingsGuideModal';
 
 interface LocationRequiredCardProps {
     title?: string;
@@ -17,6 +18,7 @@ export const LocationRequiredCard: React.FC<LocationRequiredCardProps> = ({
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
     const [isDetecting, setIsDetecting] = useState(false);
     const [gpsError, setGpsError] = useState<string | null>(null);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
 
     const handleShareLocation = () => {
         setIsDetecting(true);
@@ -65,8 +67,17 @@ export const LocationRequiredCard: React.FC<LocationRequiredCardProps> = ({
             </p>
 
             {gpsError && (
-                <div className="w-full mb-4 p-3.5 bg-red-50 text-[#FF4732] text-xs md:text-sm font-semibold rounded-2xl border border-red-100 animate-in shake duration-300">
-                    {gpsError}
+                <div className="w-full mb-4 flex flex-col gap-2">
+                    <div className="w-full p-3.5 bg-red-50 text-[#FF4732] text-xs md:text-sm font-semibold rounded-2xl border border-red-100 animate-in shake duration-300">
+                        {gpsError}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsGuideOpen(true)}
+                        className="text-xs font-bold text-[#FF4732] hover:underline transition-all mt-1"
+                    >
+                        Location blocked? See how to enable
+                    </button>
                 </div>
             )}
 
@@ -102,6 +113,11 @@ export const LocationRequiredCard: React.FC<LocationRequiredCardProps> = ({
             <LocationSelectorOverlay 
                 isOpen={isSelectorOpen} 
                 onClose={() => setIsSelectorOpen(false)} 
+            />
+
+            <LocationSettingsGuideModal 
+                isOpen={isGuideOpen} 
+                onClose={() => setIsGuideOpen(false)} 
             />
         </div>
     );

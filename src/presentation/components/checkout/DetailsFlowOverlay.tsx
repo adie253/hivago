@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import { useToast } from '../../context/ToastContext';
 import { getCurrentPositionWithFallback } from '../../../utils/geolocation';
+import { LocationSettingsGuideModal } from '../LocationSettingsGuideModal';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
@@ -32,6 +33,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
     const [isSavingAddress, setIsSavingAddress] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [addressLine, setAddressLine] = useState(() => sessionStorage.getItem('checkout_address_line') || '');
     const [landmark, setLandmark] = useState(() => sessionStorage.getItem('checkout_landmark') || '');
     const [isDefault, setIsDefault] = useState(true);
@@ -373,9 +375,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 setStep('addresses');
                 refreshAddresses();
             },
-            () => {
-                setStep('addresses');
-                refreshAddresses();
+            (err) => {
+                if (err.code === err.PERMISSION_DENIED) {
+                    setIsGuideOpen(true);
+                } else {
+                    setStep('addresses');
+                    refreshAddresses();
+                }
             }
         );
     };
@@ -759,6 +765,11 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     </div>
                 </div>
             </div>
+
+            <LocationSettingsGuideModal 
+                isOpen={isGuideOpen} 
+                onClose={() => setIsGuideOpen(false)} 
+            />
         </div>
     );
 };
