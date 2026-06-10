@@ -4,7 +4,7 @@ import { ArrowLeft, Search, Navigation2, Plus, Home, Briefcase, MapPin, ChevronD
 import { useUserLocation } from '../context/LocationContext';
 import { AddAddressOverlay } from './AddAddressOverlay';
 import { isTokenValid } from '../../data/api';
-import { getCurrentPositionWithFallback } from '../../utils/geolocation';
+import { getCurrentPositionWithFallback, isMobileDevice } from '../../utils/geolocation';
 import { LocationSettingsGuideModal } from './LocationSettingsGuideModal';
 
 interface LocationSelectorOverlayProps {
@@ -148,13 +148,15 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
                     <div className="p-3 bg-red-50 text-[#FF4732] text-sm font-semibold rounded-xl border border-red-100">
                         {locationError}
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => setIsGuideOpen(true)}
-                        className="text-xs font-bold text-[#FF4732] hover:underline text-left self-start mt-0.5 ml-1"
-                    >
-                        Location blocked? See how to enable
-                    </button>
+                    {isMobileDevice() && (
+                        <button
+                            type="button"
+                            onClick={() => setIsGuideOpen(true)}
+                            className="text-xs font-bold text-[#FF4732] hover:underline text-left self-start mt-0.5 ml-1"
+                        >
+                            Location blocked? See how to enable
+                        </button>
+                    )}
                 </div>
             )}
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { GoogleMap } from "@react-google-maps/api";
 import { useGoogleMaps } from "../../context/GoogleMapsContext";
 import { Locate } from "lucide-react";
-import { getCurrentPositionWithFallback } from "../../../utils/geolocation";
+import { getCurrentPositionWithFallback, isMobileDevice } from "../../../utils/geolocation";
 import { LocationSettingsGuideModal } from "../LocationSettingsGuideModal";
 
 type Position = {
@@ -141,7 +141,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
       (err) => {
         console.error("Locate User failed:", err);
         setIsLocating(false);
-        if (err.code === err.PERMISSION_DENIED) {
+        if (err.code === err.PERMISSION_DENIED && isMobileDevice()) {
           setIsGuideOpen(true);
         }
       }

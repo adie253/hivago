@@ -71,3 +71,8 @@ export const getCurrentPositionWithFallback = (
         highAccuracyOptions
     );
 };
+
+export const isMobileDevice = (): boolean => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+    return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+};
