@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Smartphone, Check, RefreshCw, Settings, Info } from 'lucide-react';
+import { X, Smartphone, RefreshCw, Settings, Info } from 'lucide-react';
 
 interface LocationSettingsGuideModalProps {
     isOpen: boolean;
