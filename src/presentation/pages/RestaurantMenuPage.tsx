@@ -438,12 +438,12 @@ export const RestaurantMenuPage: React.FC = () => {
 
                 {/* Menu Sections Container (Desktop) */}
                 <div className="max-w-7xl mx-auto px-4 mt-12">
-                    <div className="flex items-center gap-10 border-b border-gray-100">
+                    <div className="flex items-center gap-10 border-b border-gray-100 overflow-x-auto no-scrollbar scroll-smooth">
                         {categories.map(cat => (
                             <button
                                 key={cat}
                                 onClick={() => setActiveTab(cat)}
-                                className={`text-base pb-5 transition-all relative ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-900 group'}`}
+                                className={`text-base pb-5 transition-all relative whitespace-nowrap flex-shrink-0 ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-900 group'}`}
                             >
                                 {cat}
                                 {activeTab === cat && (
