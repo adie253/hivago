@@ -11,6 +11,18 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
     const [selection, setSelection] = useState<'all' | 'pure-veg'>('pure-veg');
     const [remember, setRemember] = useState(true);
 
+    React.useEffect(() => {
+        if (!isOpen) return;
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (

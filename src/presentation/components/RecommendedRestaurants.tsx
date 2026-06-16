@@ -28,7 +28,7 @@ export const RecommendedRestaurants: React.FC = () => {
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
             <h2 className="text-3xl font-inter font-bold     text-gray-900 tracking-tight mb-8">Recommended</h2>
 
-            <div className="flex overflow-x-auto gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex overflow-x-auto overflow-y-hidden gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {allRestaurants.slice(2, 8).map((restaurant) => {
                     const isFav = isFavorite(restaurant.id);
                     return (

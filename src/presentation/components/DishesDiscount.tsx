@@ -89,7 +89,7 @@ export const DishesDiscount: React.FC = () => {
                 </button>
             </div>
 
-            <div className="flex overflow-x-auto gap-4 md:gap-6 pb-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex overflow-x-auto overflow-y-hidden gap-4 md:gap-6 pb-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {discountedDishes.map((dish) => (
                     <div
                         key={`${dish.restaurantId}-${dish.id}`}

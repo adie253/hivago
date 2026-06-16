@@ -44,7 +44,7 @@ export const FilterChips: React.FC = () => {
 
     return (
         <>
-            <div className="w-full flex items-center gap-3 md:gap-4 px-4 md:px-12 pb-6 md:pb-8 border-b border-gray-100 font-sans overflow-x-auto no-scrollbar">
+            <div className="w-full flex items-center gap-3 md:gap-4 px-4 md:px-12 pb-6 md:pb-8 border-b border-gray-100 font-sans overflow-x-auto overflow-y-hidden no-scrollbar">
 
                 {/* Filter Icon button */}
                 <button

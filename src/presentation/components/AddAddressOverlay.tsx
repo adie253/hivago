@@ -46,7 +46,6 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
     useEffect(() => {
         if (isOpen) {
-            document.body.style.overflow = 'hidden';
             if (addressToEdit) {
                 setStep('details');
                 setLatitude(addressToEdit.latitude);
@@ -78,10 +77,21 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 if (savedText) setSelectedAddressText(savedText);
             }
             setErrorMsg('');
-        } else {
-            document.body.style.overflow = 'unset';
         }
     }, [isOpen, addressToEdit]);
+
+    // Prevent body scroll when overlay is open
+    useEffect(() => {
+        if (!isOpen) return;
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
+        };
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) return;

@@ -9,6 +9,17 @@ interface PaymentSelectionOverlayProps {
 export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = ({ onClose, onSelect }) => {
     const [selectedId, setSelectedId] = useState('UPI');
 
+    React.useEffect(() => {
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
+        };
+    }, []);
+
     const paymentMethods = [
         {
             id: 'UPI',

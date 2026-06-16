@@ -44,7 +44,7 @@ export const CategoryCarousel: React.FC = () => {
             {/* Categories */}
             <div
                 ref={scrollContainerRef}
-                className="flex gap-4 md:gap-6 overflow-x-auto pb-4 -mb-4 px-2 snap-x scroll-smooth no-scrollbar"
+                className="flex gap-4 md:gap-6 overflow-x-auto overflow-y-hidden pb-4 -mb-4 px-2 snap-x scroll-smooth no-scrollbar"
             >
                 {categoriesData.map((cat, index) => {
                     const isActive = activeCategory === cat.name;

@@ -46,7 +46,7 @@ export const RestaurantsNearby: React.FC = () => {
             </div>
 
             {/* Horizontal Scroll Container */}
-            <div className="flex overflow-x-auto gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex overflow-x-auto overflow-y-hidden gap-6 md:gap-8 pb-8 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {sortedRestaurants.slice(0, 6).map(({ restaurant, distKm }) => (
                     <div
                         key={restaurant.id}

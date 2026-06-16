@@ -262,7 +262,7 @@ export const RestaurantMenuPage: React.FC = () => {
 
                 {/* Category Tabs (Mobile) */}
                 <div className="mt-8">
-                    <div className="flex items-center gap-8 px-5 overflow-x-auto no-scrollbar scroll-smooth">
+                    <div className="flex items-center gap-8 px-5 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth">
                         {categories.map(cat => (
                             <button
                                 key={cat}
@@ -438,7 +438,7 @@ export const RestaurantMenuPage: React.FC = () => {
 
                 {/* Menu Sections Container (Desktop) */}
                 <div className="max-w-7xl mx-auto px-4 mt-12">
-                    <div className="flex items-center gap-10 border-b border-gray-100 overflow-x-auto no-scrollbar scroll-smooth">
+                    <div className="flex items-center gap-10 border-b border-gray-100 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth">
                         {categories.map(cat => (
                             <button
                                 key={cat}

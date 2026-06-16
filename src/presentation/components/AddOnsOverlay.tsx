@@ -21,11 +21,14 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
     const [isUnavailabilityMenuOpen, setIsUnavailabilityMenuOpen] = useState(false);
 
     useEffect(() => {
-        const originalStyle = document.body.style.overflow;
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
         document.body.style.overflow = 'hidden';
         document.body.classList.add('hide-floating-cart');
         return () => {
-            document.body.style.overflow = originalStyle;
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
             document.body.classList.remove('hide-floating-cart');
         };
     }, []);

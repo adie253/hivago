@@ -10,6 +10,17 @@ export const LocationRequiredModal: React.FC = () => {
     const [gpsError, setGpsError] = useState<string | null>(null);
     const [isGuideOpen, setIsGuideOpen] = useState(false);
 
+    React.useEffect(() => {
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
+        };
+    }, []);
+
     // Automated listener for browser address bar permission changes
     React.useEffect(() => {
         if ('permissions' in navigator) {

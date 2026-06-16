@@ -11,6 +11,18 @@ type OSTab = 'ios' | 'android';
 export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProps> = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState<OSTab>('ios');
 
+    React.useEffect(() => {
+        if (!isOpen) return;
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (

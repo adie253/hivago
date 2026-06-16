@@ -20,6 +20,18 @@ type Step = 'phone' | 'otp' | 'location' | 'addresses' | 'addAddress';
 
 export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose, onComplete }) => {
     const { showToast } = useToast();
+
+    useEffect(() => {
+        (window as any).__activeModalsCount = ((window as any).__activeModalsCount || 0) + 1;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            (window as any).__activeModalsCount = Math.max(0, ((window as any).__activeModalsCount || 0) - 1);
+            if (((window as any).__activeModalsCount) === 0) {
+                document.body.style.overflow = 'unset';
+            }
+        };
+    }, []);
+
     const [step, setStep] = useState<Step>(() => {
         if (!isTokenValid()) return 'phone';
         const saved = sessionStorage.getItem('checkout_step');

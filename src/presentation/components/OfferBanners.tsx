@@ -9,7 +9,7 @@ export const OfferBanners: React.FC = () => {
     const goToRestaurants = () => navigate('/restaurants');
     return (
         <div className="px-4 md:px-12 py-8 overflow-hidden">
-            <div className="flex overflow-x-auto pb-6 gap-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1">
+            <div className="flex overflow-x-auto overflow-y-hidden pb-6 gap-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1">
 
                 {/* Yellow Gradient Card - Burger Explosion */}
                 <div onClick={goToRestaurants} className="cursor-pointer hover:scale-[1.02] transition-transform flex-shrink-0 snap-start w-[280px] md:w-[360px] bg-gradient-to-br from-[#FFD600] to-[#E67E22] rounded-[32px] p-6 flex items-center justify-between relative overflow-hidden h-48 md:h-56">
