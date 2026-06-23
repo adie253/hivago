@@ -30,6 +30,7 @@ interface CartContextType {
     includeCutlery: boolean;
     setIncludeCutlery: (include: boolean) => void;
     updateItemAddon: (itemId: string, addonId: string, action: 'add' | 'remove') => void;
+    isCartLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -40,17 +41,60 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [restaurantId, setRestaurantId] = useState<string | undefined>(undefined);
     const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
     const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
-    const [deliveryQuote, setDeliveryQuote] = useState<any | null>(null);
-    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(null);
-    const [deliveryError, setDeliveryError] = useState<string | null>(null);
+    const [isCartLoading, setIsCartLoading] = useState(true);
+    const [deliveryQuote, setDeliveryQuote] = useState<any | null>(() => {
+        const saved = sessionStorage.getItem('checkout_delivery_quote');
+        return saved ? JSON.parse(saved) : null;
+    });
+    const [deliveryStatus, setDeliveryStatus] = useState<'success' | 'error' | 'warning' | null>(() => {
+        const saved = sessionStorage.getItem('checkout_delivery_status');
+        return (saved === 'success' || saved === 'error' || saved === 'warning') ? saved : null;
+    });
+    const [deliveryError, setDeliveryError] = useState<string | null>(() => {
+        return sessionStorage.getItem('checkout_delivery_error');
+    });
     const [isCheckingDelivery, setIsCheckingDelivery] = useState<boolean>(false);
-    const [fulfillmentType, setFulfillmentTypeState] = useState<'Delivery' | 'Pickup'>('Delivery');
+    const [fulfillmentType, setFulfillmentTypeState] = useState<'Delivery' | 'Pickup'>(() => {
+        const saved = sessionStorage.getItem('checkout_fulfillment_type');
+        return (saved === 'Delivery' || saved === 'Pickup') ? saved : 'Delivery';
+    });
 
     const setFulfillmentType = (type: 'Delivery' | 'Pickup') => {
         setFulfillmentTypeState(type);
+        sessionStorage.setItem('checkout_fulfillment_type', type);
         showToast(`Switched to ${type} mode`, "success");
     };
-    const [includeCutlery, setIncludeCutlery] = useState<boolean>(false);
+    const [includeCutlery, setIncludeCutlery] = useState<boolean>(() => {
+        return sessionStorage.getItem('checkout_include_cutlery') === 'true';
+    });
+
+    useEffect(() => {
+        if (deliveryQuote) {
+            sessionStorage.setItem('checkout_delivery_quote', JSON.stringify(deliveryQuote));
+        } else {
+            sessionStorage.removeItem('checkout_delivery_quote');
+        }
+    }, [deliveryQuote]);
+
+    useEffect(() => {
+        if (deliveryStatus) {
+            sessionStorage.setItem('checkout_delivery_status', deliveryStatus);
+        } else {
+            sessionStorage.removeItem('checkout_delivery_status');
+        }
+    }, [deliveryStatus]);
+
+    useEffect(() => {
+        if (deliveryError) {
+            sessionStorage.setItem('checkout_delivery_error', deliveryError);
+        } else {
+            sessionStorage.removeItem('checkout_delivery_error');
+        }
+    }, [deliveryError]);
+
+    useEffect(() => {
+        sessionStorage.setItem('checkout_include_cutlery', includeCutlery.toString());
+    }, [includeCutlery]);
 
     const hasSyncedAfterLogin = useRef(false);
     const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -210,35 +254,40 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     //  INIT CART
     useEffect(() => {
         const init = async () => {
-            if (isLoggedIn) {
-                const alreadySynced = sessionStorage.getItem('cart_reconciled') === 'true';
+            setIsCartLoading(true);
+            try {
+                if (isLoggedIn) {
+                    const alreadySynced = sessionStorage.getItem('cart_reconciled') === 'true';
 
-                if (alreadySynced) {
-                    // Reload: skip reconcile, just load from server
-                    try {
-                        const remoteCart = await getCart();
-                        if (remoteCart?.items?.length > 0) {
-                            const items = convertServerItems(remoteCart.items);
-                            setCartItems(items);
-                            setRestaurantId(remoteCart.restaurantId);
-                            setRestaurantName(remoteCart.restaurantName);
+                    if (alreadySynced) {
+                        // Reload: skip reconcile, just load from server
+                        try {
+                            const remoteCart = await getCart();
+                            if (remoteCart?.items?.length > 0) {
+                                const items = convertServerItems(remoteCart.items);
+                                setCartItems(items);
+                                setRestaurantId(remoteCart.restaurantId);
+                                setRestaurantName(remoteCart.restaurantName);
+                            }
+                        } catch (e) {
+                            console.error('Failed to load cart on reload:', e);
                         }
-                    } catch (e) {
-                        console.error('Failed to load cart on reload:', e);
+                    } else {
+                        // First login: run full reconcile (merge guest + server)
+                        const localCartData = DIContainer.getGetCartUseCase().execute();
+                        await reconcileCarts(localCartData);
+                        sessionStorage.setItem('cart_reconciled', 'true');
                     }
                 } else {
-                    // First login: run full reconcile (merge guest + server)
+                    // Guest mode
                     const localCartData = DIContainer.getGetCartUseCase().execute();
-                    await reconcileCarts(localCartData);
-                    sessionStorage.setItem('cart_reconciled', 'true');
+                    setCartItems(localCartData.items || []);
+                    setRestaurantId(localCartData.restaurantId);
+                    setRestaurantName(localCartData.restaurantName);
+                    hasSyncedAfterLogin.current = false;
                 }
-            } else {
-                // Guest mode
-                const localCartData = DIContainer.getGetCartUseCase().execute();
-                setCartItems(localCartData.items || []);
-                setRestaurantId(localCartData.restaurantId);
-                setRestaurantName(localCartData.restaurantName);
-                hasSyncedAfterLogin.current = false;
+            } finally {
+                setIsCartLoading(false);
             }
         };
 
@@ -487,6 +536,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRestaurantId(undefined);
         setRestaurantName(undefined);
         
+        // Reset checkout states
+        setDeliveryQuote(null);
+        setDeliveryStatus(null);
+        setDeliveryError(null);
+        setFulfillmentTypeState('Delivery');
+        setIncludeCutlery(false);
+
+        // Remove all checkout session keys
+        const checkoutKeys = [
+            'checkout_fulfillment_type',
+            'checkout_include_cutlery',
+            'checkout_delivery_quote',
+            'checkout_delivery_status',
+            'checkout_delivery_error',
+            'checkout_instructions',
+            'checkout_delivery_option',
+            'checkout_tip_amount',
+            'checkout_agreed_to_terms',
+            'checkout_details_flow_open',
+            'checkout_step',
+            'checkout_address_line',
+            'checkout_landmark',
+            'checkout_label',
+            'checkout_map_coords'
+        ];
+        checkoutKeys.forEach(key => sessionStorage.removeItem(key));
+        
         if (isLoggedIn) {
             clearServerCart().catch(err => console.error("Failed to clear server cart:", err));
         }
@@ -622,6 +698,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCartItems([]);
         setRestaurantId(undefined);
         setRestaurantName(undefined);
+
+        // Reset checkout states
+        setDeliveryQuote(null);
+        setDeliveryStatus(null);
+        setDeliveryError(null);
+        setFulfillmentTypeState('Delivery');
+        setIncludeCutlery(false);
+
+        // Remove all checkout session keys
+        const checkoutKeys = [
+            'checkout_fulfillment_type',
+            'checkout_include_cutlery',
+            'checkout_delivery_quote',
+            'checkout_delivery_status',
+            'checkout_delivery_error',
+            'checkout_instructions',
+            'checkout_delivery_option',
+            'checkout_tip_amount',
+            'checkout_agreed_to_terms',
+            'checkout_details_flow_open',
+            'checkout_step',
+            'checkout_address_line',
+            'checkout_landmark',
+            'checkout_label',
+            'checkout_map_coords'
+        ];
+        checkoutKeys.forEach(key => sessionStorage.removeItem(key));
+
         // Clear the reconcile flag so next login runs fresh reconcile
         sessionStorage.removeItem('cart_reconciled');
         hasSyncedAfterLogin.current = false;
@@ -711,7 +815,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setFulfillmentType,
             includeCutlery,
             setIncludeCutlery,
-            updateItemAddon
+            updateItemAddon,
+            isCartLoading
         }}>
             {children}
             <SessionWarningPopup

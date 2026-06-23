@@ -8,7 +8,7 @@ import { ProfilePage } from './presentation/pages/ProfilePage';
 import { RestaurantsPage } from './presentation/pages/RestaurantsPage';
 import { SignInPage } from './presentation/pages/SignInPage';
 import { RegisterPage } from './presentation/pages/RegisterPage';
-import { DemoCheckoutPage } from './presentation/pages/DemoCheckoutPage';
+import { PaymentPage } from './presentation/pages/PaymentPage';
 import { OrderTrackingPage } from './presentation/pages/OrderTrackingPage';
 import { OrdersPage } from './presentation/pages/OrdersPage';
 import { PaymentSuccessPage } from './presentation/pages/PaymentSuccessPage';
@@ -26,7 +26,7 @@ import { GoogleMapsProvider } from './presentation/context/GoogleMapsContext';
 
 const MainContent = () => {
   const location = useLocation();
-  const isCheckout = location.pathname === '/checkout' || location.pathname === '/demo-checkout' || location.pathname === '/track-order' || location.pathname === '/payment-success';
+  const isCheckout = location.pathname === '/checkout' || location.pathname === '/payment' || location.pathname === '/track-order' || location.pathname === '/payment-success';
 
   return (
     <>
@@ -37,7 +37,7 @@ const MainContent = () => {
           <Route path="/restaurants" element={<RestaurantsPage />} />
           <Route path="/restaurant/:id" element={<RestaurantMenuPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/demo-checkout" element={<DemoCheckoutPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
           <Route path="/track-order" element={<OrderTrackingPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />

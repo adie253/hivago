@@ -15,6 +15,7 @@ import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { useUserLocation } from '../context/LocationContext';
 import { StepperIcon } from '../components/checkout/StepperIcon';
 import { useToast } from '../context/ToastContext';
+import { LoadingScreen } from '../components/LoadingScreen';
 
 // Mock frequently bought items removed - now fetching dynamic ones
 interface SuggestedItem {
@@ -43,7 +44,8 @@ export const CheckoutPage: React.FC = () => {
         isLoggedIn,
         fulfillmentType,
         includeCutlery, setIncludeCutlery,
-        updateItemAddon
+        updateItemAddon,
+        isCartLoading
     } = useCart();
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
@@ -80,13 +82,14 @@ export const CheckoutPage: React.FC = () => {
     const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
+    const [detailsFetchAttempted, setDetailsFetchAttempted] = useState(false);
     const { setFulfillmentType } = useCart();
 
     // Ensure restaurant details are always loaded as soon as restaurantId is available, independent of location coordinates
     React.useEffect(() => {
-        if (restaurantId) {
-            let cancelled = false;
-            const loadDetails = async () => {
+        let cancelled = false;
+        const loadDetails = async () => {
+            if (restaurantId) {
                 try {
                     const details = await fetchRestaurantById(restaurantId);
                     if (!cancelled && details) {
@@ -94,11 +97,17 @@ export const CheckoutPage: React.FC = () => {
                     }
                 } catch (err) {
                     console.error("Failed to load restaurant details on mount/restaurantId change:", err);
+                } finally {
+                    if (!cancelled) {
+                        setDetailsFetchAttempted(true);
+                    }
                 }
-            };
-            loadDetails();
-            return () => { cancelled = true; };
-        }
+            } else {
+                setDetailsFetchAttempted(true);
+            }
+        };
+        loadDetails();
+        return () => { cancelled = true; };
     }, [restaurantId]);
 
     // Enrich cart items dynamically using the fetched restaurant details (menu catalog) to preserve correct isVeg status and imageUrl
@@ -224,7 +233,7 @@ export const CheckoutPage: React.FC = () => {
         } else if (fulfillmentType === 'Delivery' && !selectedLocation) {
             setIsAddressDropdownOpen(true);
         } else {
-            navigate('/demo-checkout');
+            navigate('/payment');
         }
     };
 
@@ -233,8 +242,11 @@ export const CheckoutPage: React.FC = () => {
         if (address) {
             selectLocation(address);
         }
-        // User wants to stay on this screen to see the updated delivery availability and total
     };
+
+    if (isCartLoading || (restaurantId && !detailsFetchAttempted)) {
+        return <LoadingScreen message="Retrieving your cart details..." />;
+    }
 
     return (
         <div className="min-h-screen bg-[#F5F6F8] font-sans pb-40">
@@ -767,7 +779,7 @@ export const CheckoutPage: React.FC = () => {
                                  !selectedLocation ? "Select Address" :
                                  isCheckingDelivery ? "Checking delivery..." : 
                                  (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : 
-                                 "Proceed to pay"}
+                                 "Proceed to checkout"}
                             </button>
 
                         </div>
@@ -786,7 +798,7 @@ export const CheckoutPage: React.FC = () => {
                                  !selectedLocation ? "Select Address" :
                                  isCheckingDelivery ? "Checking delivery..." : 
                                  (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : 
-                                 "Proceed to pay"}
+                                 "Proceed to checkout"}
                             </button>
                         </div>
                     </div>

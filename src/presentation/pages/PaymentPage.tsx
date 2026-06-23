@@ -13,8 +13,9 @@ import { MapPicker } from '../components/checkout/MapPicker';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 import { StepperIcon } from '../components/checkout/StepperIcon';
+import { LoadingScreen } from '../components/LoadingScreen';
 
-export const DemoCheckoutPage: React.FC = () => {
+export const PaymentPage: React.FC = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { 
@@ -27,15 +28,47 @@ export const DemoCheckoutPage: React.FC = () => {
         setFulfillmentType,
         includeCutlery,
         addToCart,
-        removeFromCart
+        removeFromCart,
+        isCartLoading
     } = useCart();
     const { selectedLocation } = useUserLocation();
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [detailsFetchAttempted, setDetailsFetchAttempted] = useState(false);
     const [isOrdered, setIsOrdered] = useState(false);
-    const [instructions, setInstructions] = useState('');
-    const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string | null>(null);
-    const [tipAmount, setTipAmount] = useState(0);
-    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [instructions, setInstructions] = useState(() => {
+        return sessionStorage.getItem('checkout_instructions') || '';
+    });
+    const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string | null>(() => {
+        return sessionStorage.getItem('checkout_delivery_option');
+    });
+    const [tipAmount, setTipAmount] = useState<number>(() => {
+        const saved = sessionStorage.getItem('checkout_tip_amount');
+        return saved ? Number(saved) : 0;
+    });
+    const [agreedToTerms, setAgreedToTerms] = useState<boolean>(() => {
+        return sessionStorage.getItem('checkout_agreed_to_terms') === 'true';
+    });
+
+    useEffect(() => {
+        sessionStorage.setItem('checkout_instructions', instructions);
+    }, [instructions]);
+
+    useEffect(() => {
+        if (selectedDeliveryOption) {
+            sessionStorage.setItem('checkout_delivery_option', selectedDeliveryOption);
+        } else {
+            sessionStorage.removeItem('checkout_delivery_option');
+        }
+    }, [selectedDeliveryOption]);
+
+    useEffect(() => {
+        sessionStorage.setItem('checkout_tip_amount', tipAmount.toString());
+    }, [tipAmount]);
+
+    useEffect(() => {
+        sessionStorage.setItem('checkout_agreed_to_terms', agreedToTerms.toString());
+    }, [agreedToTerms]);
+
     const [finalAmount, setFinalAmount] = useState(0);
     const [isPaymentOverlayOpen, setIsPaymentOverlayOpen] = useState(false);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
@@ -123,22 +156,33 @@ export const DemoCheckoutPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        let cancelled = false;
         const loadRestaurantDetails = async () => {
             if (restaurantId) {
                 try {
                     const details = await fetchRestaurantById(restaurantId);
-                    setRestaurantDetails(details);
-                    
-                    // Force 'Delivery' if restaurant doesn't accept pickup
-                    if (details && !details.acceptsPickup && fulfillmentType === 'Pickup') {
-                        setFulfillmentType('Delivery');
+                    if (!cancelled) {
+                        setRestaurantDetails(details);
+                        // Force 'Delivery' if restaurant doesn't accept pickup
+                        if (details && !details.acceptsPickup && fulfillmentType === 'Pickup') {
+                            setFulfillmentType('Delivery');
+                        }
                     }
                 } catch (error) {
                     console.error("Failed to fetch restaurant details:", error);
+                } finally {
+                    if (!cancelled) {
+                        setDetailsFetchAttempted(true);
+                    }
                 }
+            } else {
+                setDetailsFetchAttempted(true);
             }
         };
         loadRestaurantDetails();
+        return () => {
+            cancelled = true;
+        };
     }, [restaurantId]);
 
     const handlePlaceOrder = async () => {
@@ -360,6 +404,10 @@ export const DemoCheckoutPage: React.FC = () => {
                 </div>
             </div>
         );
+    }
+
+    if (isCartLoading || (restaurantId && !detailsFetchAttempted)) {
+        return <LoadingScreen message="Setting up your secure checkout..." />;
     }
 
     return (
@@ -721,7 +769,7 @@ export const DemoCheckoutPage: React.FC = () => {
                                 disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error'}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to checkout'}
+                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to pay'}
                             </button>
                         )}
                     </div>
@@ -741,7 +789,7 @@ export const DemoCheckoutPage: React.FC = () => {
                             disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error'}
                             className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                         >
-                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to checkout'}
+                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to pay'}
                         </button>
                     )}
                 </div>

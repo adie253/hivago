@@ -16,7 +16,7 @@ The following sequence must be maintained for order processing:
 
 1.  **Cart Initialization**: `GET /api/cart` (handles `204 No Content` for empty carts).
 2.  **Cart Sync**: `POST /api/cart/sync` merges guest items into the customer account after login.
-3.  **Checkout**: Uses `DemoCheckoutPage.tsx` or `CheckoutPage.tsx`.
+3.  **Checkout**: Uses `PaymentPage.tsx` or `CheckoutPage.tsx`.
 4.  **Order Placement**: `POST /api/orders`
     - **CRITICAL**: Must include an `Idempotency-Key` header to prevent double-charging.
     - **Payload**: Requires `items` and `pricing` objects.

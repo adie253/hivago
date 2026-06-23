@@ -248,7 +248,7 @@ export const AboutUsPage: React.FC = () => {
                                 </div>
                                 <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">FSSAI License</span>
                             </div>
-                            <h4 className="text-base font-bold text-slate-900 leading-snug"><span className="text-xs text-slate-400 font-medium block mt-0.5">(Reference No.)</span>10260408108518842 </h4>
+                            <h4 className="text-base font-bold text-slate-900 leading-snug">11526998000419</h4>
                         </div>
 
                         {/* GSTIN Card */}
