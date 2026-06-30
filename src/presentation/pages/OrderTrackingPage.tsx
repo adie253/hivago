@@ -177,50 +177,44 @@ export const OrderTrackingPage: React.FC = () => {
         }
     }, [order, restaurantData]);
 
-    // Fetch delivery codes when rider is assigned or when pickup is preparing/ready
+    // Fetch delivery/pickup codes when order is active
+    useEffect(() => {
+        if (orderId) {
+            const saved = localStorage.getItem(`delivery_codes_${orderId}`);
+            if (saved) {
+                try {
+                    setDeliveryCodes(JSON.parse(saved));
+                } catch (e) {
+                    setDeliveryCodes(null);
+                }
+            } else {
+                setDeliveryCodes(null);
+            }
+        } else {
+            setDeliveryCodes(null);
+        }
+    }, [orderId]);
+
     useEffect(() => {
         const loadCodes = async () => {
             if (!order || !orderId) return;
 
             const rawStatus = (order.status || '').toUpperCase();
             const isClosed = ['DELIVERED', 'CANCELLED', 'REJECTED', 'FAILED', 'COMPLETED'].includes(rawStatus);
-            const isPickupOrder = order?.fulfillmentType?.toLowerCase() === 'pickup';
 
-            if (isPickupOrder) {
-                const isAccepted = ['PREPARING', 'READY', 'READY FOR PICKUP', 'READY_FOR_PICKUP'].includes(rawStatus);
-                if (isAccepted && !isClosed) {
-                    try {
-                        const codes = await fetchDeliveryCodes(orderId);
+            if (!isClosed) {
+                try {
+                    const codes = await fetchDeliveryCodes(orderId);
+                    if (codes && (codes.pickupCode || codes.dropCode)) {
                         setDeliveryCodes(codes);
-                    } catch (err) {
-                        console.error("[OrderTracking] Failed to fetch pickup codes:", err);
+                        localStorage.setItem(`delivery_codes_${orderId}`, JSON.stringify(codes));
                     }
-                } else {
-                    setDeliveryCodes(null);
+                } catch (err) {
+                    console.error("[OrderTracking] Failed to fetch delivery codes:", err);
                 }
             } else {
-                // Statuses where a rider is involved
-                const hasRider = [
-                    'ASSIGNED3PL', 
-                    'RIDERASSIGNED', 
-                    'RIDERENROUTEPICKUP', 
-                    'RIDERARRIVEDPICKUP', 
-                    'PICKEDUP', 
-                    'RIDERENROUTEDROP', 
-                    'RIDERARRIVEDDROP', 
-                    'WAITINGFORCUSTOMER'
-                ].includes(rawStatus);
-
-                if (hasRider && !isClosed) {
-                    try {
-                        const codes = await fetchDeliveryCodes(orderId);
-                        setDeliveryCodes(codes);
-                    } catch (err) {
-                        console.error("[OrderTracking] Failed to fetch delivery codes:", err);
-                    }
-                } else {
-                    setDeliveryCodes(null);
-                }
+                setDeliveryCodes(null);
+                localStorage.removeItem(`delivery_codes_${orderId}`);
             }
         };
 
@@ -555,6 +549,11 @@ export const OrderTrackingPage: React.FC = () => {
                                             <span className="text-[#FF4732] font-bold text-[22px] uppercase">
                                                 {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
+                                            {import.meta.env.DEV && (
+                                                <span className="text-[10px] text-gray-400 font-mono mt-1">
+                                                    [Debug] Codes: {JSON.stringify(deliveryCodes)}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -748,6 +747,11 @@ export const OrderTrackingPage: React.FC = () => {
                                                 {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
                                         </div>
+                                        {import.meta.env.DEV && (
+                                            <span className="text-[10px] text-gray-400 font-mono mt-1">
+                                                [Debug] Codes: {JSON.stringify(deliveryCodes)}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
