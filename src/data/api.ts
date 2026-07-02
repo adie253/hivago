@@ -650,10 +650,12 @@ export interface ApiOrder {
     customerId: string;
     restaurantId: string;
     restaurantName: string;
-    status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | 'REFUNDING' | 'REFUNDED' | string;
+    status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | 'REFUNDING' | 'REFUNDED' | 'FAILED' | string;
     statusDisplay?: string;
     rejectionReason?: string;
     cancellationReason?: string;
+    failureReason?: string;
+    paymentId?: string;
     estimatedMinutes?: number;
     estimatedTimeDisplay?: string;
     totalAmount: number;
@@ -831,12 +833,75 @@ export const initiatePayment = async (orderId: string) => {
 
 let payuWindowRef: Window | null = null;
 
-function redirectToPayU(params: any) {
-  // Open popup window centered on screen
+export const preOpenPayUPopup = () => {
+  // Open popup window centered on screen synchronously during user action
   const width = 600, height = 700;
   const left = window.screenX + (window.outerWidth - width) / 2;
   const top = window.screenY + (window.outerHeight - height) / 2;
   payuWindowRef = window.open('', 'PayUPopup', `width=${width},height=${height},left=${left},top=${top}`);
+
+  if (payuWindowRef) {
+    try {
+      payuWindowRef.document.write(`
+        <html>
+          <head>
+            <title>Connecting to PayU...</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f9fafb;
+                color: #374151;
+              }
+              .spinner {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #ff584a;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin-bottom: 20px;
+              }
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+              h3 { margin: 0 0 8px 0; font-size: 18px; font-weight: 600; }
+              p { margin: 0; font-size: 14px; color: #6b7280; }
+            </style>
+          </head>
+          <body>
+            <div class="spinner"></div>
+            <h3>Connecting to PayU</h3>
+            <p>Please do not close this window...</p>
+          </body>
+        </html>
+      `);
+      payuWindowRef.document.close();
+    } catch (e) {
+      console.error("Failed to write loading state to popup window:", e);
+    }
+  }
+};
+
+function redirectToPayU(params: any) {
+  // If popup wasn't pre-opened, open it now (fallback)
+  if (!payuWindowRef || payuWindowRef.closed) {
+    const width = 600, height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    payuWindowRef = window.open('', 'PayUPopup', `width=${width},height=${height},left=${left},top=${top}`);
+  }
+
+  if (!payuWindowRef) {
+    console.error("Failed to open or locate PayU popup window");
+    return;
+  }
 
   const form = document.createElement('form');
   form.method = 'POST';
@@ -851,8 +916,8 @@ function redirectToPayU(params: any) {
     firstname: params.firstName,
     email: params.email,
     phone: params.phone,
-     surl: params.surl,
-  furl: params.furl,
+    surl: params.surl,
+    furl: params.furl,
     hash: params.hash
   };
 
@@ -866,6 +931,17 @@ function redirectToPayU(params: any) {
 
   document.body.appendChild(form);
   form.submit();
+
+  // Delay cleanup to prevent Chrome/Blink from cancelling the form submission
+  setTimeout(() => {
+    try {
+      if (document.body.contains(form)) {
+        document.body.removeChild(form);
+      }
+    } catch (e) {
+      console.error("Failed to clean up form:", e);
+    }
+  }, 1000);
 }
 
 export const closePayUPopupWindow = () => {

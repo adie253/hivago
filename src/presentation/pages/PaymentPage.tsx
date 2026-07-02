@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
-import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode, isPayUPopupClosed } from '../../data/api';
+import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode, isPayUPopupClosed, preOpenPayUPopup } from '../../data/api';
 import { Restaurant } from '../context/FilterContext';
 import { PaymentSelectionOverlay } from '../components/checkout/PaymentSelectionOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
@@ -205,6 +205,11 @@ export const PaymentPage: React.FC = () => {
                 return;
             }
 
+            // Pre-open PayU popup synchronously during the user-gesture click stack (prevents Chrome Pop-up Blocker)
+            if (selectedPaymentMethod && selectedPaymentMethod !== "CASH") {
+                preOpenPayUPopup();
+            }
+
             const customerPhone = localStorage.getItem('customer_phone') || "0000000000";
 
             // Resolve real pincode/city for the order — required by the orders API
@@ -286,6 +291,11 @@ export const PaymentPage: React.FC = () => {
             showToast("Order initiated successfully!", "success");
         } catch (error: any) {
             console.error('Failed to place order:', error);
+            
+            // Close the pre-opened PayU popup if order placement failed
+            if (selectedPaymentMethod && selectedPaymentMethod !== "CASH") {
+                closePayUPopupWindow();
+            }
             
             const errorType = error.response?.data?.type;
             if (errorType === 'Order.RestaurantDoesNotAcceptPickup') {

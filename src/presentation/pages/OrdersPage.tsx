@@ -40,7 +40,11 @@ export const OrdersPage: React.FC = () => {
         fetchOrders();
     }, []);
 
-    const activeStatuses = ['PENDING', 'PREPARING', 'READY', 'ASSIGNED', 'PAID'];
+    const activeStatuses = [
+        'PENDING', 'PLACED', 'PAID', 'CONFIRMED', 'ACCEPTED', 
+        'PREPARING', 'READY', 'READY_FOR_PICKUP', 'READY FOR PICKUP', 
+        'ASSIGNED', 'PICKED_UP', 'DELIVERING'
+    ];
     const activeOrders = orders.filter(o => activeStatuses.includes((o.status || '').toUpperCase()));
     const pastOrders = orders.filter(o => !activeStatuses.includes((o.status || '').toUpperCase()));
     const currentOrdersList = activeTab === 'active' ? activeOrders : pastOrders;
@@ -63,8 +67,9 @@ export const OrdersPage: React.FC = () => {
     };
 
     const getStatusColor = (status: string) => {
-        if (['DELIVERED', 'PICKED_UP'].includes(status)) return 'bg-[#E6F9EA] text-[#00A32A]';
-        if (['CANCELLED', 'REJECTED'].includes(status)) return 'bg-red-50 text-red-600';
+        const upperStatus = (status || '').toUpperCase();
+        if (['DELIVERED', 'PICKED_UP', 'COMPLETED'].includes(upperStatus)) return 'bg-[#E6F9EA] text-[#00A32A]';
+        if (['CANCELLED', 'REJECTED', 'FAILED', 'REFUNDED', 'REFUNDING'].includes(upperStatus)) return 'bg-red-50 text-red-600';
         return 'bg-blue-50 text-blue-600'; // Default for pending/active
     };
 

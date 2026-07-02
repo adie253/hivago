@@ -20,7 +20,7 @@ export const OrderTrackingPage: React.FC = () => {
     const orderId = searchParams.get('orderId');
     const [order, setOrder] = useState<ApiOrder | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered' | 'cancelled' | 'rejected'>('placed');
+    const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered' | 'cancelled' | 'rejected' | 'failed'>('placed');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { lastStatusUpdate } = useNotifications();
     const { reorder } = useCart();
@@ -35,16 +35,26 @@ export const OrderTrackingPage: React.FC = () => {
         if (order) {
             const apiStatus = (order.status || '').toUpperCase();
             const statusDisplay = ((order as any).statusDisplay || '').toUpperCase();
+            const isPickupOrder = order.fulfillmentType?.toLowerCase() === 'pickup';
+
             if (['DELIVERED', 'COMPLETED'].includes(apiStatus) || statusDisplay === 'DELIVERED') {
                 setStatus('delivered');
-            } else if (['ASSIGNED', 'PICKED_UP'].includes(apiStatus) || statusDisplay === 'PICKED UP') {
+            } else if (['ASSIGNED', 'PICKED_UP', 'DELIVERING'].includes(apiStatus) || statusDisplay === 'PICKED UP') {
                 setStatus('delivery');
-            } else if (['PREPARING', 'READY', 'READY FOR PICKUP', 'READY_FOR_PICKUP'].includes(apiStatus) || statusDisplay === 'READY FOR PICKUP') {
+            } else if (['READY', 'READY_FOR_PICKUP', 'READY FOR PICKUP'].includes(apiStatus) || statusDisplay === 'READY FOR PICKUP') {
+                if (isPickupOrder) {
+                    setStatus('delivery'); // Ready for Pickup stage
+                } else {
+                    setStatus('preparing'); // Still preparing/waiting for driver to pick up
+                }
+            } else if (['PREPARING', 'CONFIRMED', 'ACCEPTED'].includes(apiStatus) || statusDisplay === 'PREPARING' || statusDisplay === 'CONFIRMED' || statusDisplay === 'ACCEPTED') {
                 setStatus('preparing');
             } else if (['REJECTED', 'REFUNDING', 'REFUNDED'].includes(apiStatus) || statusDisplay === 'REJECTED' || statusDisplay === 'REFUND IN PROGRESS') {
                 setStatus('rejected');
             } else if (apiStatus === 'CANCELLED' || statusDisplay === 'CANCELLED') {
                 setStatus('cancelled');
+            } else if (apiStatus === 'FAILED' || statusDisplay === 'FAILED') {
+                setStatus('failed');
             } else {
                 setStatus('placed'); // PENDING, PAID, CONFIRMED
             }
@@ -306,7 +316,7 @@ export const OrderTrackingPage: React.FC = () => {
 
         // If already delivered, show "Delivered"
         if (status === 'delivered') return 'Delivered';
-        if (status === 'rejected' || status === 'cancelled') return '--';
+        if (status === 'rejected' || status === 'cancelled' || status === 'failed') return '--';
 
         // 1. Use the explicit display string if backend provided one
         if (o.estimatedTimeDisplay) return o.estimatedTimeDisplay;
@@ -372,7 +382,9 @@ export const OrderTrackingPage: React.FC = () => {
         );
     }
 
-    if (status === 'rejected' || status === 'cancelled') {
+    if (status === 'rejected' || status === 'cancelled' || status === 'failed') {
+        const isCash = order?.paymentId === 'CASH';
+
         return (
             <div className="min-h-[100dvh] bg-[#F8F9FA] font-sans pb-20">
                 {/* Navbar */}
@@ -398,11 +410,19 @@ export const OrderTrackingPage: React.FC = () => {
                             </div>
 
                             <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
-                                {status === 'rejected' ? 'Order Rejected' : 'Order Cancelled'}
+                                {status === 'rejected' ? 'Order Rejected' : status === 'failed' ? 'Order Failed' : 'Order Cancelled'}
                             </h2>
 
                             <p className="text-gray-500 font-bold text-base lg:text-lg mb-6 leading-relaxed">
-                                {order?.rejectionReason || order?.cancellationReason || (status === 'rejected' ? 'The restaurant is unable to fulfill your order right now.' : "Your order was cancelled.")}
+                                {order?.rejectionReason || 
+                                 order?.cancellationReason || 
+                                 order?.failureReason || 
+                                 (order as any).failureNotes ||
+                                 (order as any).deliveryInfo?.failureNotes ||
+                                 (order as any).deliveryInfo?.failureReason ||
+                                 (status === 'rejected' ? 'The restaurant is unable to fulfill your order right now.' : 
+                                  status === 'failed' ? 'Your order could not be completed.' : 
+                                  "Your order was cancelled.")}
                             </p>
 
                             {/* Actions - Desktop Only inside left col */}
@@ -425,34 +445,36 @@ export const OrderTrackingPage: React.FC = () => {
 
                         {/* Right Column: Cards */}
                         <div className="flex flex-col gap-5 lg:flex-1 w-full">
-                            {/* Refund Info Card */}
-                            <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col gap-5 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                            {/* Refund Info Card - Only show for online payments */}
+                            {!isCash && (
+                                <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col gap-5 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
-                                <div className="relative z-10 flex flex-col gap-5">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Amount</span>
-                                        <span className="text-[#FF4732] font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
-                                    </div>
+                                    <div className="relative z-10 flex flex-col gap-5">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Amount</span>
+                                            <span className="text-[#FF4732] font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
+                                        </div>
 
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Status</span>
-                                        <div className="flex items-center gap-1.5 px-3 py-1 bg-[#E6F5EC] text-[#00A050] rounded-full text-[11px] font-extrabold shadow-sm border border-[#D1EEDB]">
-                                            <CheckCircle className="w-3 h-3" />
-                                            <span>INITIATED</span>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Status</span>
+                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#E6F5EC] text-[#00A050] rounded-full text-[11px] font-extrabold shadow-sm border border-[#D1EEDB]">
+                                                <CheckCircle className="w-3 h-3" />
+                                                <span>INITIATED</span>
+                                            </div>
+                                        </div>
+
+                                        <hr className="border-gray-50" />
+
+                                        <div className="flex items-start gap-3 bg-[#F8FAFC] p-4 rounded-xl border border-blue-50/50">
+                                            <Clock className="w-5 h-5 text-[#8B96A5] shrink-0 mt-0.5" />
+                                            <p className="text-[13px] text-gray-500 leading-relaxed font-medium">
+                                                Refunds typically take <span className="text-gray-900 font-bold">5-7 business days</span> to reflect in your account once processed by PayU.
+                                            </p>
                                         </div>
                                     </div>
-
-                                    <hr className="border-gray-50" />
-
-                                    <div className="flex items-start gap-3 bg-[#F8FAFC] p-4 rounded-xl border border-blue-50/50">
-                                        <Clock className="w-5 h-5 text-[#8B96A5] shrink-0 mt-0.5" />
-                                        <p className="text-[13px] text-gray-500 leading-relaxed font-medium">
-                                            Refunds typically take <span className="text-gray-900 font-bold">5-7 business days</span> to reflect in your account once processed by PayU.
-                                        </p>
-                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Order Summary (Minimized) */}
                             <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100">
@@ -549,11 +571,11 @@ export const OrderTrackingPage: React.FC = () => {
                                             <span className="text-[#FF4732] font-bold text-[22px] uppercase">
                                                 {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
-                                            {import.meta.env.DEV && (
+                                            {/* {import.meta.env.DEV && (
                                                 <span className="text-[10px] text-gray-400 font-mono mt-1">
                                                     [Debug] Codes: {JSON.stringify(deliveryCodes)}
                                                 </span>
-                                            )}
+                                            )} */}
                                         </div>
                                     </div>
                                 </div>
@@ -747,11 +769,11 @@ export const OrderTrackingPage: React.FC = () => {
                                                 {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
                                         </div>
-                                        {import.meta.env.DEV && (
+                                        {/* {import.meta.env.DEV && (
                                             <span className="text-[10px] text-gray-400 font-mono mt-1">
                                                 [Debug] Codes: {JSON.stringify(deliveryCodes)}
                                             </span>
-                                        )}
+                                        )} */}
                                     </div>
                                 </div>
                             </div>
@@ -795,16 +817,18 @@ export const OrderTrackingPage: React.FC = () => {
                             <div className="p-6 lg:p-10 relative bg-white">
                                 <h2 className="text-[22px] font-bold text-gray-900 mb-10 tracking-tight text-center">Order Status</h2>
 
-                                {/* Vertical Line */}
-                                <div className="absolute left-[47px] lg:left-[63px] top-[148px] lg:top-[128px] bottom-10 w-0.5 bg-gray-100"></div>
+                                <div className="relative flex flex-col gap-10">
+                                    {/* Vertical Line */}
+                                    <div className="absolute left-6 lg:left-[17px] top-6 lg:top-[17px] bottom-[30px] lg:bottom-[34px] w-0.5 bg-gray-100 -translate-x-[1px] z-0"></div>
 
-                                {/* Progress Fill */}
-                                <div
-                                    className="absolute left-[47px] lg:left-[63px] top-[148px] lg:top-[128px] w-0.5 bg-[#00A050] transition-all duration-1000 origin-top"
-                                    style={{ height: `${(currentStageIndex / (stages.length - 1)) * 80}%` }}
-                                ></div>
-
-                                <div className="flex flex-col gap-10">
+                                    {/* Progress Fill */}
+                                    <div
+                                        className="absolute left-6 lg:left-[17px] top-6 lg:top-[17px] bottom-[30px] lg:bottom-[34px] w-0.5 bg-[#00A050] transition-all duration-1000 -translate-x-[1px] z-0"
+                                        style={{ 
+                                            transform: `scaleY(${currentStageIndex / (stages.length - 1)})`,
+                                            transformOrigin: 'top'
+                                        }}
+                                    ></div>
                                     {stages.map((stage, idx) => {
                                         const isCompleted = idx < currentStageIndex;
                                         const isActive = idx === currentStageIndex;
