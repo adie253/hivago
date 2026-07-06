@@ -16,6 +16,8 @@ import { useUserLocation } from '../context/LocationContext';
 import { StepperIcon } from '../components/checkout/StepperIcon';
 import { useToast } from '../context/ToastContext';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { FEATURE_FLAGS } from '../../config/featureFlags';
+
 
 // Mock frequently bought items removed - now fetching dynamic ones
 interface SuggestedItem {
@@ -747,15 +749,24 @@ export const CheckoutPage: React.FC = () => {
                                             </>
                                         )}
 
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="text-[#555] text-[14px]">GST (5%)</span>
-                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(gst)}</span>
-                                        </div>
+                                        {FEATURE_FLAGS.SEPARATE_PLATFORM_FEE ? (
+                                            <>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <span className="text-[#555] text-[14px]">GST (5%)</span>
+                                                    <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(gst)}</span>
+                                                </div>
 
-                                        <div className="flex justify-between items-center mb-4">
-                                            <span className="text-[#555] text-[14px]">Platform Fee</span>
-                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(platformFee)}</span>
-                                        </div>
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <span className="text-[#555] text-[14px]">Platform Fee</span>
+                                                    <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(platformFee)}</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="text-[#555] text-[14px]">GST and Restaurant Charges</span>
+                                                <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(gst + platformFee)}</span>
+                                            </div>
+                                        )}
 
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
 

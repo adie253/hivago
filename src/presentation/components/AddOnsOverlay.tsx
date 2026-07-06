@@ -4,6 +4,8 @@ import { X, Check, ShoppingBag, Loader2, ChevronRight } from 'lucide-react';
 import { formatPrice } from '../../utils/formatUtils';
 import { MenuItem } from './MenuItemCard';
 import { fetchItemDetails, ApiItem } from '../../data/api';
+import { FEATURE_FLAGS } from '../../config/featureFlags';
+
 
 interface AddOnsOverlayProps {
     originalItem: MenuItem | null;
@@ -57,40 +59,55 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
         if (apiItem) {
             const initialSelected = new Set<string>();
             
-            // Helper to check if an option is default
-            const isDefaultOption = (opt: any) => {
-                if (opt.isDefault === true || opt.isDefault === 'true' || opt.isDefault === 1 || opt.isDefault === '1') {
-                    return true;
-                }
-                // Fallback check if the name itself indicates a default option (e.g. name contains "default")
-                if (opt.name && typeof opt.name === 'string' && opt.name.toLowerCase().includes('default')) {
-                    return true;
-                }
-                return false;
-            };
+            if (FEATURE_FLAGS.PRESELECT_DEFAULTS) {
+                // Helper to check if an option is default
+                const isDefaultOption = (opt: any) => {
+                    if (opt.isDefault === true || opt.isDefault === 'true' || opt.isDefault === 1 || opt.isDefault === '1') {
+                        return true;
+                    }
+                    // Fallback check if the name itself indicates a default option (e.g. name contains "default")
+                    if (opt.name && typeof opt.name === 'string' && opt.name.toLowerCase().includes('default')) {
+                        return true;
+                    }
+                    return false;
+                };
 
-            apiItem.options?.forEach(opt => {
-                if (isDefaultOption(opt)) {
-                    initialSelected.add(opt.id);
-                }
-            });
-
-            apiItem.optionGroups?.forEach(group => {
-                let defaultSelected = false;
-                group.options?.forEach(opt => {
+                apiItem.options?.forEach(opt => {
                     if (isDefaultOption(opt)) {
                         initialSelected.add(opt.id);
-                        defaultSelected = true;
                     }
                 });
 
-                // Fallback: if the group is required (isRequired or minSelections > 0)
-                // and no default option was found/selected, select the first option by default
-                if (!defaultSelected && (group.isRequired || group.minSelections > 0) && group.options && group.options.length > 0) {
-                    initialSelected.add(group.options[0].id);
-                    defaultSelected = true;
-                }
-            });
+                apiItem.optionGroups?.forEach(group => {
+                    let defaultSelected = false;
+                    group.options?.forEach(opt => {
+                        if (isDefaultOption(opt)) {
+                            initialSelected.add(opt.id);
+                            defaultSelected = true;
+                        }
+                    });
+
+                    // Fallback: if the group is required (isRequired or minSelections > 0)
+                    // and no default option was found/selected, select the first option by default
+                    if (!defaultSelected && (group.isRequired || group.minSelections > 0) && group.options && group.options.length > 0) {
+                        initialSelected.add(group.options[0].id);
+                        defaultSelected = true;
+                    }
+                });
+            } else {
+                apiItem.options?.forEach(opt => {
+                    if (opt.isDefault) {
+                        initialSelected.add(opt.id);
+                    }
+                });
+                apiItem.optionGroups?.forEach(group => {
+                    group.options?.forEach(opt => {
+                        if (opt.isDefault) {
+                            initialSelected.add(opt.id);
+                        }
+                    });
+                });
+            }
 
             setSelectedOptions(initialSelected);
         }

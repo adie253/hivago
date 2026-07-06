@@ -14,6 +14,7 @@ import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 import { StepperIcon } from '../components/checkout/StepperIcon';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { FEATURE_FLAGS } from '../../config/featureFlags';
 
 export const PaymentPage: React.FC = () => {
     const navigate = useNavigate();
@@ -730,15 +731,24 @@ export const PaymentPage: React.FC = () => {
                                     </>
                                 )}
 
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium">GST (5%)</span>
-                                    <span className="text-gray-700 font-bold">{gst.toFixed(2)}</span>
-                                </div>
+                                {FEATURE_FLAGS.SEPARATE_PLATFORM_FEE ? (
+                                    <>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-400 font-medium">GST (5%)</span>
+                                            <span className="text-gray-700 font-bold">{gst.toFixed(2)}</span>
+                                        </div>
 
-                                <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
-                                    <span className="text-gray-400 font-medium">Platform Fee</span>
-                                    <span className="text-gray-700 font-bold">{platformFee.toFixed(2)}</span>
-                                </div>
+                                        <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
+                                            <span className="text-gray-400 font-medium">Platform Fee</span>
+                                            <span className="text-gray-700 font-bold">{platformFee.toFixed(2)}</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
+                                        <span className="text-gray-400 font-medium">GST and Restaurant Charges</span>
+                                        <span className="text-gray-700 font-bold">{(gst + platformFee).toFixed(2)}</span>
+                                    </div>
+                                )}
 
                                 <div className="flex justify-between items-center pt-1">
                                     <span className="text-[#FF4732] font-bold">To Pay</span>
