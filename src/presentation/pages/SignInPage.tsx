@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useToast } from '../context/ToastContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Loader2, Check } from 'lucide-react';
 import { sendOtp, verifyOtp, setAuthSession } from '../../data/api';
 import { useCart } from '../context/CartContext';
@@ -235,7 +235,7 @@ export const SignInPage: React.FC = () => {
                                             {isSendingOtp ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Get OTP Code'}
                                         </button>
                                         <p className="text-center text-[11px] text-gray-400 mt-6 font-medium px-10">
-                                            By continuing, you agree to our <span className="text-[#111] underline">Terms of Service</span> and <span className="text-[#111] underline">Privacy Policy</span>.
+                                            By continuing, you agree to our <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" className="text-[#111] underline hover:text-[#FF4732] transition-colors">Terms of Service</Link> and <Link to="/privacy?doc=privacy" target="_blank" rel="noopener noreferrer" className="text-[#111] underline hover:text-[#FF4732] transition-colors">Privacy Policy</Link>.
                                         </p>
                                     </div>
                                 </form>
