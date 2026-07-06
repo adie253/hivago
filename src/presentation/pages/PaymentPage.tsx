@@ -730,9 +730,14 @@ export const PaymentPage: React.FC = () => {
                                     </>
                                 )}
 
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-400 font-medium">GST (5%)</span>
+                                    <span className="text-gray-700 font-bold">{gst.toFixed(2)}</span>
+                                </div>
+
                                 <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
-                                    <span className="text-gray-400 font-medium">GST and Restaurant Charges</span>
-                                    <span className="text-gray-700 font-bold">{(gst + platformFee).toFixed(2)}</span>
+                                    <span className="text-gray-400 font-medium">Platform Fee</span>
+                                    <span className="text-gray-700 font-bold">{platformFee.toFixed(2)}</span>
                                 </div>
 
                                 <div className="flex justify-between items-center pt-1">

@@ -747,9 +747,14 @@ export const CheckoutPage: React.FC = () => {
                                             </>
                                         )}
 
+                                        <div className="flex justify-between items-center mb-3">
+                                            <span className="text-[#555] text-[14px]">GST (5%)</span>
+                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(gst)}</span>
+                                        </div>
+
                                         <div className="flex justify-between items-center mb-4">
-                                            <span className="text-[#555] text-[14px]">GST and Restaurant Charges</span>
-                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(gst + platformFee)}</span>
+                                            <span className="text-[#555] text-[14px]">Platform Fee</span>
+                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(platformFee)}</span>
                                         </div>
 
                                         <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
