@@ -2,8 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useToast } from './ToastContext';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
-import { syncCart, isTokenValid, getCart, refreshToken, clearServerCart } from '../../data/api';
-import { SessionWarningPopup } from '../components/SessionWarningPopup';
+import { syncCart, isTokenValid, getCart, clearServerCart, clearAuthSession } from '../../data/api';
 
 interface CartContextType {
     cartItems: CartItem[];
@@ -97,14 +96,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [includeCutlery]);
 
     const hasSyncedAfterLogin = useRef(false);
-    const sessionCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    // Session Warning States
-    const [isSessionWarningOpen, setIsSessionWarningOpen] = useState(false);
-    const [isRefreshingToken, setIsRefreshingToken] = useState(false);
-    const [expiresInSeconds, setExpiresInSeconds] = useState(0);
-    const [refreshError, setRefreshError] = useState<string | null>(null);
 
     // Conflict State
     const [conflictInfo, setConflictInfo] = useState<{ name: string, id: string, type: 'reconcile' | 'add' } | null>(null);
@@ -682,15 +674,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const handleLogout = useCallback(() => {
-        localStorage.removeItem('customer_token');
-
-        localStorage.removeItem('customer_refresh_token');
-        localStorage.removeItem('customer_token_expires_at');
+        clearAuthSession();
         localStorage.removeItem('customer_id');
         localStorage.removeItem('customer_phone');
         localStorage.removeItem('customer_name');
         localStorage.removeItem('hivago_cart_v2');
-        localStorage.removeItem('customer_refresh_token');
 
         // ❗ Clear cart from localStorage so stale local items don't
         // get merged into the server cart on the NEXT login
@@ -731,64 +719,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         hasSyncedAfterLogin.current = false;
 
         setIsLoggedIn(false);
-        setIsSessionWarningOpen(false);
     }, []);
 
-    const handleStayLoggedIn = async () => {
-        setIsRefreshingToken(true);
-        setRefreshError(null);
-        const result = await refreshToken();
-        setIsRefreshingToken(false);
-        if (result) {
-            setIsSessionWarningOpen(false);
-            refreshLoginStatus();
-        } else {
-            setRefreshError("Could not extend session. Please log in again.");
-            // Wait 2 seconds before logout to show the error
-            setTimeout(() => {
-                handleLogout();
-            }, 2500);
-        }
-    };
-
-    // 🚀 SESSION MONITORING
+    // 🚀 LISTEN TO SILENT REFRESH LOGOUTS
     useEffect(() => {
-        const checkSession = () => {
-            const expiresAt = localStorage.getItem('customer_token_expires_at');
-            if (expiresAt && isLoggedIn) {
-                const expiryTime = new Date(expiresAt).getTime();
-                const now = Date.now();
-                const timeLeft = expiryTime - now;
-                const timeLeftSeconds = Math.max(0, Math.floor(timeLeft / 1000));
-
-                setExpiresInSeconds(timeLeftSeconds);
-
-                if (timeLeft <= 0) {
-                    handleLogout();
-                } else if (timeLeft < 5 * 60 * 1000) { // Show popup 5 minutes before
-                    setIsSessionWarningOpen(true);
-                } else {
-                    setIsSessionWarningOpen(false);
-                }
-            } else if (!expiresAt && isLoggedIn) {
-                // If logged in but no expiry date, maybe it's a permanent session or we should skip
-            } else {
-                setIsSessionWarningOpen(false);
-            }
+        const handleAuthLogout = () => {
+            handleLogout();
         };
-
-        if (isLoggedIn) {
-            sessionCheckIntervalRef.current = setInterval(checkSession, 1000); // Check every 1s for accuracy
-            checkSession();
-        } else {
-            if (sessionCheckIntervalRef.current) clearInterval(sessionCheckIntervalRef.current);
-            setIsSessionWarningOpen(false);
-        }
-
+        window.addEventListener('auth-logout', handleAuthLogout);
         return () => {
-            if (sessionCheckIntervalRef.current) clearInterval(sessionCheckIntervalRef.current);
+            window.removeEventListener('auth-logout', handleAuthLogout);
         };
-    }, [isLoggedIn, handleLogout]);
+    }, [handleLogout]);
 
     return (
         <CartContext.Provider value={{
@@ -819,15 +761,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isCartLoading
         }}>
             {children}
-            <SessionWarningPopup
-                isOpen={isSessionWarningOpen}
-                onClose={() => setIsSessionWarningOpen(false)}
-                onLogout={handleLogout}
-                onStayLoggedIn={handleStayLoggedIn}
-                isRefreshing={isRefreshingToken}
-                expiresInSeconds={expiresInSeconds}
-                error={refreshError}
-            />
 
             {conflictInfo && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
