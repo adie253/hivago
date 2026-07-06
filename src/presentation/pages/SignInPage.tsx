@@ -209,7 +209,7 @@ export const SignInPage: React.FC = () => {
                                                     setErrorMsg('');
                                                 }}
                                                 placeholder="Enter 10 digit number"
-                                                className={`flex-1 bg-white border rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] font-bold text-lg text-[#111] shadow-sm transition-all ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
+                                                className={`flex-1 min-w-0 bg-white border rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] font-bold text-lg text-[#111] shadow-sm transition-all ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
                                                 autoFocus
                                             />
                                         </div>
