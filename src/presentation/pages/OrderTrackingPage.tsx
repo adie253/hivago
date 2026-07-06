@@ -384,6 +384,19 @@ export const OrderTrackingPage: React.FC = () => {
 
     if (status === 'rejected' || status === 'cancelled' || status === 'failed') {
         const isCash = order?.paymentId === 'CASH';
+        const isPaymentIncomplete = (() => {
+            const reason = (order.cancellationReason || order.failureReason || '').toLowerCase();
+            const apiStatus = (order.status || '').toUpperCase();
+            const statusDisplay = ((order as any).statusDisplay || '').toUpperCase();
+
+            return (
+                reason.includes('payment') ||
+                reason.includes('timeout') ||
+                reason.includes('payu') ||
+                apiStatus === 'FAILED' ||
+                statusDisplay === 'FAILED'
+            );
+        })();
 
         return (
             <div className="min-h-[100dvh] bg-[#F8F9FA] font-sans pb-20">
@@ -445,35 +458,68 @@ export const OrderTrackingPage: React.FC = () => {
 
                         {/* Right Column: Cards */}
                         <div className="flex flex-col gap-5 lg:flex-1 w-full">
-                            {/* Refund Info Card - Only show for online payments */}
+                            {/* Refund Info or Payment Incomplete Card - Only show for online payments */}
                             {!isCash && (
-                                <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col gap-5 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                                isPaymentIncomplete ? (
+                                    <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col gap-5 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
-                                    <div className="relative z-10 flex flex-col gap-5">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Amount</span>
-                                            <span className="text-[#FF4732] font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
-                                        </div>
+                                        <div className="relative z-10 flex flex-col gap-5">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Payment Amount</span>
+                                                <span className="text-gray-500 font-extrabold text-2xl line-through">₹{getOrderTotal(order)}</span>
+                                            </div>
 
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Status</span>
-                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#E6F5EC] text-[#00A050] rounded-full text-[11px] font-extrabold shadow-sm border border-[#D1EEDB]">
-                                                <CheckCircle className="w-3 h-3" />
-                                                <span>INITIATED</span>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Payment Status</span>
+                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[11px] font-extrabold shadow-sm border border-amber-200">
+                                                    <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                                    <span>INCOMPLETE</span>
+                                                </div>
+                                            </div>
+
+                                            <hr className="border-gray-50" />
+
+                                            <div className="flex items-start gap-3 bg-[#FFF9F6] p-4 rounded-xl border border-amber-100/50">
+                                                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[13px] text-gray-800 font-bold">No amount was charged</span>
+                                                    <p className="text-[12px] text-gray-500 leading-relaxed font-medium">
+                                                        As the payment was not successfully completed, no money was charged to your account. If any amount was temporarily debited, it will be automatically reversed by your bank within <span className="text-gray-900 font-bold">3-5 business days</span>.
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
+                                    </div>
+                                ) : (
+                                    <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col gap-5 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
-                                        <hr className="border-gray-50" />
+                                        <div className="relative z-10 flex flex-col gap-5">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Amount</span>
+                                                <span className="text-[#FF4732] font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
+                                            </div>
 
-                                        <div className="flex items-start gap-3 bg-[#F8FAFC] p-4 rounded-xl border border-blue-50/50">
-                                            <Clock className="w-5 h-5 text-[#8B96A5] shrink-0 mt-0.5" />
-                                            <p className="text-[13px] text-gray-500 leading-relaxed font-medium">
-                                                Refunds typically take <span className="text-gray-900 font-bold">5-7 business days</span> to reflect in your account once processed by PayU.
-                                            </p>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Status</span>
+                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-[#E6F5EC] text-[#00A050] rounded-full text-[11px] font-extrabold shadow-sm border border-[#D1EEDB]">
+                                                    <CheckCircle className="w-3 h-3" />
+                                                    <span>INITIATED</span>
+                                                </div>
+                                            </div>
+
+                                            <hr className="border-gray-50" />
+
+                                            <div className="flex items-start gap-3 bg-[#F8FAFC] p-4 rounded-xl border border-blue-50/50">
+                                                <Clock className="w-5 h-5 text-[#8B96A5] shrink-0 mt-0.5" />
+                                                <p className="text-[13px] text-gray-500 leading-relaxed font-medium">
+                                                    Refunds typically take <span className="text-gray-900 font-bold">5-7 business days</span> to reflect in your account once processed by PayU.
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )
                             )}
 
                             {/* Order Summary (Minimized) */}
