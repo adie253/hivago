@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useToast } from '../context/ToastContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
-import { sendOtp, verifyOtp } from '../../data/api';
+import { Loader2, Check } from 'lucide-react';
+import { sendOtp, verifyOtp, setAuthSession } from '../../data/api';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
 import girlOnSofa from '../../assets/checkout/girl_on_sofa.svg';
@@ -23,6 +23,7 @@ export const SignInPage: React.FC = () => {
     const [isSendingOtp, setIsSendingOtp] = useState(false);
     const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [rememberMe, setRememberMe] = useState(true);
 
     const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -58,12 +59,10 @@ export const SignInPage: React.FC = () => {
         try {
             const data = await verifyOtp(phone, otpString);
             if (data && data.accessToken) {
-                localStorage.setItem('customer_token', data.accessToken);
+                setAuthSession(data.accessToken, data.refreshToken, data.accessTokenExpiresAt, rememberMe);
                 localStorage.setItem('customer_phone', phone);
                 const cid = data.customerId || data.id;
                 if (cid) localStorage.setItem('customer_id', cid);
-                if (data.accessTokenExpiresAt) localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
-                if (data.refreshToken) localStorage.setItem('customer_refresh_token', data.refreshToken);
 
                 refreshLoginStatus();
                 refreshAddresses();
@@ -214,6 +213,17 @@ export const SignInPage: React.FC = () => {
                                             />
                                         </div>
                                         {errorMsg && <p className="text-[#FF4732] text-sm font-bold mt-1 ml-1">{errorMsg}</p>}
+                                    </div>
+
+                                    {/* Stay Signed In Checkbox */}
+                                    <div 
+                                        onClick={() => setRememberMe(!rememberMe)}
+                                        className="flex items-center gap-2.5 mt-4 ml-1 cursor-pointer select-none group"
+                                    >
+                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF4732] border-[#FF4732]' : 'bg-white border-gray-300 group-hover:border-[#FF4732]'}`}>
+                                            {rememberMe && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-600 group-hover:text-gray-800 transition-colors">Stay signed in</span>
                                     </div>
 
                                     <div className="mt-auto">

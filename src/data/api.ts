@@ -39,22 +39,141 @@ export const verifyOtp = async (phoneNumber: string, otp: string): Promise<any> 
     }
 };
 
+export const getRememberMe = (): boolean => {
+    return localStorage.getItem('remember_me') === 'true';
+};
+
+export const setRememberMe = (remember: boolean) => {
+    localStorage.setItem('remember_me', remember ? 'true' : 'false');
+};
+
+export const getAccessToken = (): string | null => {
+    return localStorage.getItem('customer_token') || sessionStorage.getItem('customer_token');
+};
+
+export const getRefreshToken = (): string | null => {
+    return localStorage.getItem('customer_refresh_token') || sessionStorage.getItem('customer_refresh_token');
+};
+
+export const getTokenExpiresAt = (): string | null => {
+    return localStorage.getItem('customer_token_expires_at') || sessionStorage.getItem('customer_token_expires_at');
+};
+
+export const setAuthSession = (accessToken: string, refreshToken: string | null, expiresAt: string | null, rememberMe: boolean) => {
+    localStorage.removeItem('customer_token');
+    localStorage.removeItem('customer_refresh_token');
+    localStorage.removeItem('customer_token_expires_at');
+    sessionStorage.removeItem('customer_token');
+    sessionStorage.removeItem('customer_refresh_token');
+    sessionStorage.removeItem('customer_token_expires_at');
+
+    setRememberMe(rememberMe);
+
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('customer_token', accessToken);
+    if (refreshToken) {
+        storage.setItem('customer_refresh_token', refreshToken);
+    }
+    if (expiresAt) {
+        storage.setItem('customer_token_expires_at', expiresAt);
+    }
+};
+
+export const updateAuthSession = (accessToken: string, refreshToken: string | null, expiresAt: string | null) => {
+    const rememberMe = getRememberMe();
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('customer_token', accessToken);
+    if (refreshToken) {
+        storage.setItem('customer_refresh_token', refreshToken);
+    }
+    if (expiresAt) {
+        storage.setItem('customer_token_expires_at', expiresAt);
+    }
+};
+
+export const clearAuthSession = () => {
+    localStorage.removeItem('customer_token');
+    localStorage.removeItem('customer_refresh_token');
+    localStorage.removeItem('customer_token_expires_at');
+    localStorage.removeItem('customer_phone');
+    localStorage.removeItem('customer_id');
+    localStorage.removeItem('customer_name');
+    localStorage.removeItem('remember_me');
+
+    sessionStorage.removeItem('customer_token');
+    sessionStorage.removeItem('customer_refresh_token');
+    sessionStorage.removeItem('customer_token_expires_at');
+};
+
 export const isTokenValid = (): boolean => {
-    const token = localStorage.getItem('customer_token');
-    const expiresAt = localStorage.getItem('customer_token_expires_at');
-    if (!token) return false;
+    const token = getAccessToken();
+    const refreshTkn = getRefreshToken();
+    if (!token && !refreshTkn) return false;
+
+    const expiresAt = getTokenExpiresAt();
     if (!expiresAt) return true;
-    return new Date(expiresAt).getTime() > Date.now();
+
+    if (new Date(expiresAt).getTime() > Date.now()) {
+        return true;
+    }
+
+    return !!refreshTkn;
+};
+
+let refreshPromise: Promise<string | null> | null = null;
+
+export const getOrPerformTokenRefresh = async (): Promise<string | null> => {
+    if (refreshPromise) {
+        return refreshPromise;
+    }
+
+    const refreshTkn = getRefreshToken();
+    if (!refreshTkn) {
+        return null;
+    }
+
+    refreshPromise = (async () => {
+        try {
+            const data = await refreshToken();
+            if (data && data.accessToken) {
+                return data.accessToken;
+            }
+            return null;
+        } catch (error) {
+            console.error("Token refresh failed in single-flight handler", error);
+            return null;
+        } finally {
+            refreshPromise = null;
+        }
+    })();
+
+    return refreshPromise;
 };
 
 export const authFetch = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
-    const token = localStorage.getItem('customer_token');
+    let token = getAccessToken();
     const headers = new Headers(options.headers || {});
-    if (token && isTokenValid()) {
-        headers.set('Authorization', `Bearer ${token}`);
+    if (token) {
+        headers.set('Authorization', 'Bearer ' + token);
     }
-    return fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+    
+    let response = await fetch(BASE_URL + endpoint, { ...options, headers });
+    
+    if (response.status === 401) {
+        const newToken = await getOrPerformTokenRefresh();
+        if (newToken) {
+            const retryHeaders = new Headers(options.headers || {});
+            retryHeaders.set('Authorization', 'Bearer ' + newToken);
+            response = await fetch(BASE_URL + endpoint, { ...options, headers: retryHeaders });
+        } else {
+            clearAuthSession();
+            window.dispatchEvent(new CustomEvent('auth-logout'));
+        }
+    }
+    
+    return response;
 };
+
 
 export interface ReverseGeocodeResult {
     city?: string;
@@ -1004,8 +1123,8 @@ export const checkDeliveryAvailability = async (restaurantId: string, lat: numbe
 
 export const refreshToken = async (): Promise<any> => {
     try {
-        const token = localStorage.getItem('customer_token');
-        const refreshTkn = localStorage.getItem('customer_refresh_token');
+        const token = getAccessToken();
+        const refreshTkn = getRefreshToken();
         if (!token) return null;
 
         // Try standard payload first (with refreshToken if available)
@@ -1013,7 +1132,7 @@ export const refreshToken = async (): Promise<any> => {
             ? { refreshToken: refreshTkn }
             : { token: token, accessToken: token };
 
-        const response = await fetch(`${BASE_URL}/auth/refresh`, {
+        const response = await fetch(BASE_URL + '/auth/refresh', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
@@ -1027,11 +1146,11 @@ export const refreshToken = async (): Promise<any> => {
                 ? { accessToken: token, refreshToken: refreshTkn }
                 : { token: token };
 
-            const retryResponse = await fetch(`${BASE_URL}/auth/refresh`, {
+            const retryResponse = await fetch(BASE_URL + '/auth/refresh', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify(fallbackPayload)
             });
@@ -1039,13 +1158,7 @@ export const refreshToken = async (): Promise<any> => {
             
             const data = await retryResponse.json();
             if (data && data.accessToken) {
-                localStorage.setItem('customer_token', data.accessToken);
-                if (data.accessTokenExpiresAt) {
-                    localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
-                }
-                if (data.refreshToken) {
-                    localStorage.setItem('customer_refresh_token', data.refreshToken);
-                }
+                updateAuthSession(data.accessToken, data.refreshToken, data.accessTokenExpiresAt);
                 return data;
             }
             return null;
@@ -1053,13 +1166,7 @@ export const refreshToken = async (): Promise<any> => {
         
         const data = await response.json();
         if (data && data.accessToken) {
-            localStorage.setItem('customer_token', data.accessToken);
-            if (data.accessTokenExpiresAt) {
-                localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
-            }
-            if (data.refreshToken) {
-                localStorage.setItem('customer_refresh_token', data.refreshToken);
-            }
+            updateAuthSession(data.accessToken, data.refreshToken, data.accessTokenExpiresAt);
             return data;
         }
         return null;

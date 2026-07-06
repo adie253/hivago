@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, MapPin, Menu as MenuIcon, Loader2, Check, Edit2, Home, Briefcase } from 'lucide-react';
-import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefaultAddress, reverseGeocode, getPlacesAutocomplete, getPlaceDetails } from '../../../data/api';
+import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefaultAddress, reverseGeocode, getPlacesAutocomplete, getPlaceDetails, setAuthSession } from '../../../data/api';
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import { useToast } from '../../context/ToastContext';
@@ -46,6 +46,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
     const [isSavingAddress, setIsSavingAddress] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [rememberMe, setRememberMe] = useState(true);
     const [addressLine, setAddressLine] = useState(() => sessionStorage.getItem('checkout_address_line') || '');
     const [landmark, setLandmark] = useState(() => sessionStorage.getItem('checkout_landmark') || '');
     const [isDefault, setIsDefault] = useState(true);
@@ -263,6 +264,18 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 {errorMsg && step === 'phone' && <p className="text-red-500 text-sm">{errorMsg}</p>}
             </div>
+
+            {/* Remember Me Checkbox */}
+            <div 
+                onClick={() => setRememberMe(!rememberMe)}
+                className="flex items-center gap-2.5 mt-2 ml-1 cursor-pointer select-none group"
+            >
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF4732] border-[#FF4732]' : 'bg-white border-gray-300 group-hover:border-[#FF4732]'}`}>
+                    {rememberMe && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                </div>
+                <span className="text-sm font-bold text-gray-600 group-hover:text-gray-800 transition-colors">Stay signed in</span>
+            </div>
+
             <button
                 type="submit"
                 disabled={isSendingOtp || phone.length !== 10}
@@ -284,12 +297,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
         try {
             const data = await verifyOtp(phone, otpString);
             if (data && data.accessToken) {
-                localStorage.setItem('customer_token', data.accessToken);
+                setAuthSession(data.accessToken, data.refreshToken, data.accessTokenExpiresAt, rememberMe);
                 localStorage.setItem('customer_phone', phone);
                 const cid = data.customerId || data.id;
                 if (cid) localStorage.setItem('customer_id', cid);
-                if (data.accessTokenExpiresAt) localStorage.setItem('customer_token_expires_at', data.accessTokenExpiresAt);
-                if (data.refreshToken) localStorage.setItem('customer_refresh_token', data.refreshToken);
 
                 refreshLoginStatus();
                 refreshAddresses();
