@@ -14,7 +14,7 @@ import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 import { StepperIcon } from '../components/checkout/StepperIcon';
 import { LoadingScreen } from '../components/LoadingScreen';
-import { FEATURE_FLAGS } from '../../config/featureFlags';
+
 
 export const PaymentPage: React.FC = () => {
     const navigate = useNavigate();
@@ -580,10 +580,10 @@ export const PaymentPage: React.FC = () => {
                     )} {/* End Left Column */}
 
                     {/* Right Column */}
-                    <div className={`flex flex-col gap-6 w-full lg:flex-1 lg:bg-white lg:p-6 lg:rounded-[24px] lg:shadow-sm lg:border lg:border-gray-50 ${fulfillmentType === 'Pickup' ? 'lg:max-w-[600px]' : 'lg:max-w-[50%]'}`}>
+                    <div className={`flex flex-col gap-6 w-full lg:flex-1 ${fulfillmentType === 'Pickup' ? 'lg:max-w-[600px]' : 'lg:max-w-[50%]'}`}>
 
                         {/* Cart Items */}
-                        <div className="hidden lg:flex flex-col gap-3">
+                        <div className="hidden flex-col gap-3">
                             <h2 className="text-sm font-bold text-gray-900 ml-1">Cart Items</h2>
                             <div className="flex flex-col gap-3">
                                 {enrichedCartItems.map(item => (
@@ -679,85 +679,77 @@ export const PaymentPage: React.FC = () => {
                             )}
                         </button> */}
 
-                        {/* Order Summary */}
+                        /* Order Details */
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1">Order Summary</h2>
-                            <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-6 lg:p-2 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium">Item Total</span>
-                                    <span className="text-gray-700 font-bold">{cartTotal.toFixed(0)}</span>
+                            <h2 className="text-sm font-bold text-gray-900 ml-1">
+                                Order Details • {restaurantName?.toUpperCase() || restaurantDetails?.name?.toUpperCase() || 'STAGE'}
+                            </h2>
+                            <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+                                
+                                {/* Items List */}
+                                <div className="flex flex-col gap-3">
+                                    {enrichedCartItems.map((item) => (
+                                        <div key={`od-${item.id}`} className="flex justify-between items-center text-[15px] font-bold text-gray-800">
+                                            <div className="flex items-center">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2.5 shrink-0" />
+                                                <span>{item.name} x {item.quantity}</span>
+                                            </div>
+                                            <span className="text-gray-700 font-bold">₹{Math.round(item.price * item.quantity)}</span>
+                                        </div>
+                                    ))}
                                 </div>
 
-                                <div className="border-t border-dashed border-gray-100"></div>
+                                <div className="border-t border-dashed border-gray-200/80 my-1" />
 
-                                {fulfillmentType !== 'Pickup' && (
-                                    <>
-                                        {isCheckingDelivery ? (
-                                            // Skeleton while fetching delivery quote
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex flex-col gap-1.5">
-                                                    <div className="h-3.5 w-24 bg-gray-100 rounded-full animate-pulse" />
-                                                    <div className="h-2.5 w-16 bg-gray-100 rounded-full animate-pulse" />
-                                                </div>
-                                                <div className="h-4 w-12 bg-gray-100 rounded-full animate-pulse" />
-                                            </div>
-                                        ) : (
-                                            <div className="flex justify-between items-center text-sm">
-                                                <div className="flex flex-col">
-                                                    <span className="text-gray-400 font-medium">
-                                                        Delivery Fee
-                                                        {deliveryQuote && deliveryQuote.distanceKm > 0 && ` (${deliveryQuote.distanceKm} km)`}
-                                                    </span>
-                                                    {deliveryQuote && deliveryQuote.estimatedMinutes > 0 && (
-                                                        <span className="text-xs text-gray-400">{deliveryQuote.estimatedMinutes} mins estimated</span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {deliveryFee > 0 ? (
-                                                        <span className="text-gray-700 font-bold">₹{deliveryFee.toFixed(0)}</span>
-                                                    ) : deliveryStatus === 'error' ? (
-                                                        <span className="text-gray-400 font-bold">Not available</span>
-                                                    ) : (
-                                                        <span className="text-[#64C27B] font-bold">FREE</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-400 font-medium">Delivery Tip</span>
-                                            <span className="text-gray-700 font-bold">{tipAmount.toFixed(2).padStart(5, '0')}</span>
-                                        </div>
-                                    </>
-                                )}
-
-                                {FEATURE_FLAGS.SEPARATE_PLATFORM_FEE ? (
-                                    <>
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-400 font-medium">GST (5%)</span>
-                                            <span className="text-gray-700 font-bold">{gst.toFixed(2)}</span>
-                                        </div>
-
-                                        <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
-                                            <span className="text-gray-400 font-medium">Platform Fee</span>
-                                            <span className="text-gray-700 font-bold">{platformFee.toFixed(2)}</span>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-100 pb-4">
-                                        <span className="text-gray-400 font-medium">GST and Restaurant Charges</span>
-                                        <span className="text-gray-700 font-bold">{(gst + platformFee).toFixed(2)}</span>
+                                {/* Price Breakdown */}
+                                <div className="flex flex-col gap-3 text-[14px]">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-400 font-medium">Item Total</span>
+                                        <span className="text-gray-700 font-bold">₹{cartTotal.toFixed(0)}</span>
                                     </div>
-                                )}
 
+                                    {fulfillmentType !== 'Pickup' && (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-400 font-medium">Delivery Fee</span>
+                                            {isCheckingDelivery ? (
+                                                <div className="h-4 w-12 bg-gray-100 rounded-full animate-pulse" />
+                                            ) : (
+                                                <span className="text-gray-700 font-bold">
+                                                    {deliveryFee > 0 ? `₹${deliveryFee.toFixed(0)}` : 'FREE'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {tipAmount > 0 && (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-400 font-medium">Delivery Tip</span>
+                                            <span className="text-gray-700 font-bold">₹{tipAmount.toFixed(0)}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-400 font-medium">Platform Charges</span>
+                                        <span className="text-gray-700 font-bold">₹{platformFee.toFixed(0)}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-400 font-medium">GST and Taxes</span>
+                                        <span className="text-gray-700 font-bold">₹{gst.toFixed(0)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-dashed border-gray-200/80 my-1" />
+
+                                {/* Total Paid */}
                                 <div className="flex justify-between items-center pt-1">
-                                    <span className="text-[#FF4732] font-bold">To Pay</span>
+                                    <span className="text-gray-950 font-bold text-base">Total Paid</span>
                                     {isCheckingDelivery ? (
                                         <div className="h-5 w-16 bg-red-100 rounded-full animate-pulse" />
                                     ) : deliveryStatus === 'error' ? (
                                         <span className="text-gray-400 font-bold">--</span>
                                     ) : (
-                                        <span className="text-[#FF4732] font-bold">₹{grandTotal.toFixed(0)}</span>
+                                        <span className="text-gray-950 font-bold text-[18px]">₹{grandTotal.toFixed(0)}</span>
                                     )}
                                 </div>
                             </div>
