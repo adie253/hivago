@@ -84,12 +84,11 @@ export const RestaurantMenuPage: React.FC = () => {
 
     const filteredMenu = React.useMemo(() => {
         return restaurant?.menu.filter(item => {
-            const matchesTab = activeTab === 'All' || item.category === activeTab;
             const matchesSearch = item.name.toLowerCase().includes(menuSearchQuery.toLowerCase()) || 
                                  (item.description || '').toLowerCase().includes(menuSearchQuery.toLowerCase());
-            return matchesTab && matchesSearch;
+            return matchesSearch;
         }) || [];
-    }, [restaurant?.menu, activeTab, menuSearchQuery]);
+    }, [restaurant?.menu, menuSearchQuery]);
 
     const menuItems: MenuItem[] = React.useMemo(() => filteredMenu.map(item => ({
         id: item.id,
@@ -102,14 +101,149 @@ export const RestaurantMenuPage: React.FC = () => {
             ? item.imageUrl 
             : getFallbackImage(item.name, item.category),
         options: (item as any).options,
-        optionGroups: (item as any).optionGroups
+        optionGroups: (item as any).optionGroups,
+        category: item.category || 'General'
     })), [filteredMenu]);
+
+    const menuByCategory = React.useMemo(() => {
+        const groups: { [key: string]: MenuItem[] } = {};
+        menuItems.forEach(item => {
+            const cat = item.category || 'General';
+            if (!groups[cat]) {
+                groups[cat] = [];
+            }
+            groups[cat].push(item);
+        });
+        return groups;
+    }, [menuItems]);
 
     useEffect(() => {
         if (restaurant && categories.length > 0 && !categories.includes(activeTab)) {
             setActiveTab('All');
         }
     }, [categories, activeTab, restaurant]);
+
+    const isScrollingRef = React.useRef(false);
+
+    const scrollToCategory = (categoryName: string) => {
+        if (categoryName === 'All') {
+            isScrollingRef.current = true;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setActiveTab('All');
+            setTimeout(() => {
+                isScrollingRef.current = false;
+            }, 800);
+            return;
+        }
+
+        const isMobile = window.innerWidth < 768;
+        const prefix = isMobile ? 'category-mobile-' : 'category-desktop-';
+        const elementId = `${prefix}${categoryName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        const element = document.getElementById(elementId);
+
+        if (element) {
+            isScrollingRef.current = true;
+            setActiveTab(categoryName);
+
+            // Desktop navbar is 60px, sticky category bar is 58px.
+            // Mobile has no global navbar, sticky category bar is 52px.
+            const navbarOffset = isMobile ? 0 : 60;
+            const stickyBarOffset = isMobile ? 52 : 58;
+            const extraSpacing = 16;
+            const totalOffset = navbarOffset + stickyBarOffset + extraSpacing;
+
+            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+
+            window.scrollTo({
+                top: elementPosition - totalOffset,
+                behavior: 'smooth'
+            });
+
+            setTimeout(() => {
+                isScrollingRef.current = false;
+            }, 800);
+        }
+    };
+
+    const scrollActiveTabIntoView = (categoryName: string) => {
+        const isMobile = window.innerWidth < 768;
+        const prefix = isMobile ? 'tab-mobile-' : 'tab-desktop-';
+        const tabId = `${prefix}${categoryName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        const tabElement = document.getElementById(tabId);
+
+        if (tabElement) {
+            const container = tabElement.parentElement;
+            if (container) {
+                const containerWidth = container.clientWidth;
+                const tabWidth = tabElement.clientWidth;
+                const tabLeft = tabElement.offsetLeft;
+
+                // Center the active category tab horizontally in the header container
+                const targetScrollLeft = tabLeft - (containerWidth / 2) + (tabWidth / 2);
+
+                container.scrollTo({
+                    left: targetScrollLeft,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    };
+
+    // Scroll active horizontal tab into view when activeTab changes
+    useEffect(() => {
+        if (activeTab) {
+            scrollActiveTabIntoView(activeTab);
+        }
+    }, [activeTab]);
+
+    // Scroll spy logic to select current category as we scroll
+    useEffect(() => {
+        if (menuSearchQuery) return;
+
+        const isMobile = window.innerWidth < 768;
+        const prefix = isMobile ? 'category-mobile-' : 'category-desktop-';
+
+        const observerOptions = {
+            root: null,
+            // Trigger when the category section reaches the top/middle of the viewport
+            rootMargin: isMobile ? '-100px 0px -60% 0px' : '-160px 0px -50% 0px',
+            threshold: 0
+        };
+
+        const observerCallback = (entries: IntersectionObserverEntry[]) => {
+            if (isScrollingRef.current) return;
+
+            // Find the entry that is currently visible in the active zone
+            const visibleEntry = entries.find(entry => entry.isIntersecting);
+            if (visibleEntry) {
+                const catName = visibleEntry.target.getAttribute('data-category-name');
+                if (catName) {
+                    setActiveTab(catName);
+                }
+            }
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        const sections = document.querySelectorAll(`[id^="${prefix}"]`);
+        sections.forEach(section => observer.observe(section));
+
+        // Fallback to select 'All' tab when scrolled near the top
+        const handleScroll = () => {
+            if (isScrollingRef.current) return;
+            if (window.scrollY < 150) {
+                setActiveTab('All');
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            sections.forEach(section => observer.unobserve(section));
+            observer.disconnect();
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [menuByCategory, menuSearchQuery]);
 
     if (isLocalLoading || (filtersLoading && !restaurant)) {
         return <MenuPageSkeleton />;
@@ -261,12 +395,13 @@ export const RestaurantMenuPage: React.FC = () => {
                 </div>
 
                 {/* Category Tabs (Mobile) */}
-                <div className="mt-8">
+                <div className="sticky top-0 z-30 bg-[#F8FAFC]/95 backdrop-blur-md border-b border-gray-200/80 pt-3 shadow-sm mt-8">
                     <div className="flex items-center gap-8 px-5 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth">
                         {categories.map(cat => (
                             <button
                                 key={cat}
-                                onClick={() => setActiveTab(cat)}
+                                id={`tab-mobile-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                onClick={() => scrollToCategory(cat)}
                                 className={`text-[14px] whitespace-nowrap pb-3 transition-all relative ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-700'}`}
                             >
                                 {cat}
@@ -278,20 +413,36 @@ export const RestaurantMenuPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Menu Header & Grid (Mobile) */}
+                {/* Menu Grid (Mobile) */}
                 <div className="px-5 mt-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6">{activeTab}</h2>
                     {menuItems.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-4">
-                            {menuItems.map(item => (
-                                <MenuItemCard 
-                                    key={item.id} 
-                                    item={item} 
-                                    restaurantId={restaurant.id}
-                                    restaurantName={restaurant.name}
-                                    onClick={() => setSelectedItem(item)}
-                                    isHighlighted={highlightedId === item.id}
-                                />
+                        <div className="flex flex-col gap-8">
+                            {Object.entries(menuByCategory).map(([categoryName, items]) => (
+                                <div 
+                                    key={categoryName} 
+                                    id={`category-mobile-${categoryName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                    data-category-name={categoryName}
+                                    className="flex flex-col"
+                                >
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <h3 className="text-sm font-extrabold text-gray-800 uppercase tracking-wide whitespace-nowrap">
+                                            {categoryName}
+                                        </h3>
+                                        <div className="flex-grow border-t border-gray-200/80" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {items.map(item => (
+                                            <MenuItemCard 
+                                                key={item.id} 
+                                                item={item} 
+                                                restaurantId={restaurant.id}
+                                                restaurantName={restaurant.name}
+                                                onClick={() => setSelectedItem(item)}
+                                                isHighlighted={highlightedId === item.id}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     ) : (
@@ -438,37 +589,54 @@ export const RestaurantMenuPage: React.FC = () => {
 
                 {/* Menu Sections Container (Desktop) */}
                 <div className="max-w-7xl mx-auto px-4 mt-12">
-                    <div className="flex items-center gap-10 border-b border-gray-100 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth">
-                        {categories.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveTab(cat)}
-                                className={`text-base pb-5 transition-all relative whitespace-nowrap flex-shrink-0 ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-900 group'}`}
-                            >
-                                {cat}
-                                {activeTab === cat && (
-                                    <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-[#FF4732] rounded-t-full" />
-                                )}
-                                <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-gray-200 rounded-t-full scale-x-0 group-hover:scale-x-100 transition-transform origin-center" />
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="mt-12 mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900">{activeTab}</h2>
+                    {/* Sticky Categories Bar */}
+                    <div className="sticky top-[60px] z-30 bg-[#F4F6F8]/95 backdrop-blur-md pt-4 pb-0 border-b border-gray-200/80 mb-10">
+                        <div className="flex items-center gap-10 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth">
+                            {categories.map(cat => (
+                                <button
+                                    key={cat}
+                                    id={`tab-desktop-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                    onClick={() => scrollToCategory(cat)}
+                                    className={`text-base pb-3 transition-all relative whitespace-nowrap flex-shrink-0 ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-500 hover:text-gray-900 group'}`}
+                                >
+                                    {cat}
+                                    {activeTab === cat && (
+                                        <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-[#FF4732] rounded-t-full" />
+                                    )}
+                                    <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-gray-300 rounded-t-full scale-x-0 group-hover:scale-x-100 transition-transform origin-center" />
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {menuItems.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {menuItems.map(item => (
-                                <MenuItemCard 
-                                    key={item.id} 
-                                    item={item} 
-                                    restaurantId={restaurant.id}
-                                    restaurantName={restaurant.name}
-                                    onClick={() => setSelectedItem(item)}
-                                    isHighlighted={highlightedId === item.id}
-                                />
+                        <div className="flex flex-col gap-14">
+                            {Object.entries(menuByCategory).map(([categoryName, items]) => (
+                                <div 
+                                    key={categoryName} 
+                                    id={`category-desktop-${categoryName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                    data-category-name={categoryName}
+                                    className="flex flex-col scroll-mt-28"
+                                >
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <h3 className="text-lg font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">
+                                            {categoryName}
+                                        </h3>
+                                        <div className="flex-grow border-t border-gray-200" />
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                        {items.map(item => (
+                                            <MenuItemCard 
+                                                key={item.id} 
+                                                item={item} 
+                                                restaurantId={restaurant.id}
+                                                restaurantName={restaurant.name}
+                                                onClick={() => setSelectedItem(item)}
+                                                isHighlighted={highlightedId === item.id}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     ) : (

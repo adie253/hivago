@@ -15,6 +15,7 @@ export interface MenuItem {
     imageUrl: string;
     options?: any[];
     optionGroups?: any[];
+    category?: string;
 }
 
 interface MenuItemCardProps {
