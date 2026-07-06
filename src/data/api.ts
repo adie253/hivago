@@ -1,4 +1,4 @@
-import { Restaurant, FoodItem } from '../presentation/context/FilterContext';
+import type { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 import { getFallbackImage } from '../utils/imageUtils';
 
 const BASE_URL = (import.meta.env.VITE_API_URL || '') + '/api';
