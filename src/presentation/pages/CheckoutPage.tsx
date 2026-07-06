@@ -8,7 +8,7 @@ import { useCart } from '../context/CartContext';
 import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
 import { formatPrice } from '../../utils/formatUtils';
 
-import { CouponOverlay } from '../components/CouponOverlay';
+// import { CouponOverlay } from '../components/CouponOverlay';
 import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
 import { MobileMenu } from '../components/checkout/MobileMenu';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
@@ -48,7 +48,7 @@ export const CheckoutPage: React.FC = () => {
         isCartLoading
     } = useCart();
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
-    const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
+    // const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
     const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(() => {
         return sessionStorage.getItem('checkout_details_flow_open') === 'true';
     });
@@ -662,8 +662,8 @@ export const CheckoutPage: React.FC = () => {
                             </div>
                         </div> */}
 
-                            {/* Coupon */}
-                            <div
+                            {/* Coupon - Commented for now */}
+                            {/* <div
                                 className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer mt-4"
                                 onClick={() => setIsCouponOverlayOpen(true)}
                             >
@@ -677,7 +677,7 @@ export const CheckoutPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <ChevronDown className="w-5 h-5 text-gray-400" />
-                            </div>
+                            </div> */}
 
                             {/* To Pay */}
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col mt-4 overflow-hidden mb-4">
@@ -804,9 +804,9 @@ export const CheckoutPage: React.FC = () => {
                     </div>
                 </>
             )}
-            {isCouponOverlayOpen && (
+            {/* {isCouponOverlayOpen && (
                 <CouponOverlay onClose={() => setIsCouponOverlayOpen(false)} />
-            )}
+            )} */}
 
             {isDetailsFlowOpen && (
                 <DetailsFlowOverlay
