@@ -755,6 +755,16 @@ export const PaymentPage: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Cancellation Policy */}
+                        <div className="flex flex-col gap-1 px-1 py-1 mt-2 mb-3">
+                            <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">
+                                Cancellation Policy
+                            </h3>
+                            <p className="text-[11px] text-slate-400/90 font-semibold leading-relaxed ml-1">
+                                A 100% cancellation charge will apply. This helps us compensate the restaurant partner for food preparation.
+                            </p>
+                        </div>
+
                         {/* Footer Section */}
                         <div className="flex flex-col gap-4 pb-6 px-1">
                             <div className="flex items-start gap-3">
