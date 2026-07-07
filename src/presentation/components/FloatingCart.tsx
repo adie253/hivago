@@ -34,9 +34,16 @@ export const FloatingCart: React.FC = () => {
                         <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 leading-tight">
                             {totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'} Added
                         </span>
-                        <span className="text-lg font-bold leading-tight">
-                            ₹{formatPrice(cartTotal)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold leading-tight">
+                                ₹{formatPrice(cartTotal)}
+                            </span>
+                            {cartTotal < 150 && (
+                                <span className="text-[9px] font-extrabold text-[#CE181B] bg-white px-1.5 py-0.5 rounded-full shadow-sm">
+                                    Min. ₹150
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
 

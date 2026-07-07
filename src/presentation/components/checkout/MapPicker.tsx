@@ -40,6 +40,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
 
@@ -91,7 +92,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
       return;
     }
 
-    if (!mapRef.current || !window.google || !position) {
+    if (!mapInstance || !window.google || !position) {
       if (markerRef.current) {
         markerRef.current.setMap(null);
         markerRef.current = null;
@@ -100,16 +101,16 @@ export const MapPicker: React.FC<MapPickerProps> = ({
     }
 
     if (markerRef.current) {
-      markerRef.current.setMap(mapRef.current);
+      markerRef.current.setMap(mapInstance);
       markerRef.current.setPosition(position);
     } else {
       markerRef.current = new google.maps.Marker({
-        map: mapRef.current,
+        map: mapInstance,
         position: position,
         animation: google.maps.Animation.DROP
       });
     }
-  }, [position?.lat, position?.lng, readOnly, isLoaded]);
+  }, [position?.lat, position?.lng, readOnly, isLoaded, mapInstance]);
 
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
@@ -184,6 +185,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
         zoom={15}
         onLoad={(map) => {
           mapRef.current = map;
+          setMapInstance(map);
           if (!position && !readOnly) {
             // Trigger initial position change so the parent has the default/GPS center coordinates
             const initialCenter = map.getCenter();

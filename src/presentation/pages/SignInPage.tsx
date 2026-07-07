@@ -216,7 +216,7 @@ export const SignInPage: React.FC = () => {
                                     </div>
 
                                     {/* Stay Signed In Checkbox */}
-                                    <div 
+                                    <div
                                         onClick={() => setRememberMe(!rememberMe)}
                                         className="flex items-center gap-2.5 mt-4 ml-1 cursor-pointer select-none group"
                                     >

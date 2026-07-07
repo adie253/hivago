@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { useToast } from '../context/ToastContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -19,7 +19,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 export const PaymentPage: React.FC = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { 
+    const {
         cartItems, cartTotal, clearCart, restaurantName, restaurantId,
         deliveryQuote,
         deliveryStatus,
@@ -271,7 +271,7 @@ export const PaymentPage: React.FC = () => {
                     discountCode: "",
                     discountDescription: ""
                 },
-                specialInstructions: includeCutlery 
+                specialInstructions: includeCutlery
                     ? `Please include cutlery. ${instructions}`.trim()
                     : instructions
             };
@@ -292,12 +292,12 @@ export const PaymentPage: React.FC = () => {
             showToast("Order initiated successfully!", "success");
         } catch (error: any) {
             console.error('Failed to place order:', error);
-            
+
             // Close the pre-opened PayU popup if order placement failed
             if (selectedPaymentMethod && selectedPaymentMethod !== "CASH") {
                 closePayUPopupWindow();
             }
-            
+
             const errorType = error.response?.data?.type;
             if (errorType === 'Order.RestaurantDoesNotAcceptPickup') {
                 showToast("Pickup unavailable. Switched to Delivery.", "warning");
@@ -496,86 +496,86 @@ export const PaymentPage: React.FC = () => {
                     {fulfillmentType !== 'Pickup' && (
                         <div className="flex flex-col gap-6 flex-1 w-full lg:max-w-[48%]">
 
-                        {/* Address Map */}
-                        <div className="hidden lg:flex flex-col gap-2 pt-2">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1">Address Map</h2>
-                            <div className="w-full h-[220px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative">
-                                <MapPicker
-                                    position={selectedLocation?.latitude ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : { lat: 18.5204, lng: 73.8567 }}
-                                    onPositionChange={() => { }}
-                                    readOnly={true}
-                                />
-                                {isCheckingDelivery && (
-                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-                                        <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
-                                    </div>
-                                )}
+                            {/* Address Map */}
+                            <div className="hidden lg:flex flex-col gap-2 pt-2">
+                                <h2 className="text-sm font-bold text-gray-900 ml-1">Address Map</h2>
+                                <div className="w-full h-[220px] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative">
+                                    <MapPicker
+                                        position={selectedLocation?.latitude ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : { lat: 18.5204, lng: 73.8567 }}
+                                        onPositionChange={() => { }}
+                                        readOnly={true}
+                                    />
+                                    {isCheckingDelivery && (
+                                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+                                            <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                                        </div>
+                                    )}
 
-                                {deliveryStatus && (
-                                    <div className={`absolute bottom-4 left-4 right-auto z-10 w-[calc(100%-32px)] max-w-[280px] p-3 rounded-xl shadow-lg border flex items-start gap-3 animate-in slide-in-from-bottom-2 duration-300 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' :
+                                    {deliveryStatus && (
+                                        <div className={`absolute bottom-4 left-4 right-auto z-10 w-[calc(100%-32px)] max-w-[280px] p-3 rounded-xl shadow-lg border flex items-start gap-3 animate-in slide-in-from-bottom-2 duration-300 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' :
                                             deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' :
                                                 'bg-amber-50 border-amber-100 text-amber-700'
-                                        }`}>
-                                        {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
-                                            deliveryStatus === 'error' ? <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
-                                                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
-                                        <div className="flex flex-col ">
-                                            <span className="text-[13px] font-medium leading-snug">
-                                                {deliveryStatus === 'success'
-                                                    ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins`
-                                                    : deliveryError}
-                                            </span>
-                                            {deliveryStatus === 'error' && (
-                                                <span className="text-[11px] font-medium opacity-80 mt-1">Try a different address or pick a closer restaurant.</span>
-                                            )}
+                                            }`}>
+                                            {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
+                                                deliveryStatus === 'error' ? <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
+                                                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
+                                            <div className="flex flex-col ">
+                                                <span className="text-[13px] font-medium leading-snug">
+                                                    {deliveryStatus === 'success'
+                                                        ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins`
+                                                        : deliveryError}
+                                                </span>
+                                                {deliveryStatus === 'error' && (
+                                                    <span className="text-[11px] font-medium opacity-80 mt-1">Try a different address or pick a closer restaurant.</span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Delivery Instructions */}
-                        <div className="flex flex-col gap-2 pt-2">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1">Delivery Instructions</h2>
-                            <div className="relative">
-                                <textarea
-                                    value={instructions}
-                                    onChange={(e) => setInstructions(e.target.value.slice(0, 200))}
-                                    placeholder="Do not ring the doorbell, leave food at the doorstep."
-                                    className="w-full h-32 bg-white border border-gray-200 rounded-2xl p-4 pr-12 outline-none focus:border-[#FF4732] text-sm font-medium text-gray-600 resize-none shadow-sm"
-                                />
-                                <button className="absolute top-4 right-4 text-[#FF4732]">
-                                    <Mic className="w-5 h-5" />
-                                </button>
-                                <span className="absolute bottom-4 left-4 text-[11px] text-gray-300 font-medium">
-                                    {instructions.length > 0 ? instructions.length : '83'}/200
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Delivery Options */}
-                        <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1">Delivery Options</h2>
-                            <div className="grid grid-cols-4 gap-2">
-                                {[
-                                    { id: 'Door Pickup', icon: Users, label: 'Door Pickup' },
-                                    { id: 'Leave at Door', icon: DoorOpen, label: 'Leave at Door' },
-                                    { id: 'Leave at Security', icon: ShieldCheck, label: 'Leave at Security' },
-                                    { id: 'Don\'t ring the bell', icon: BellOff, label: 'Don\'t ring the bell' }
-                                ].map((opt) => (
-                                    <button
-                                        key={opt.id}
-                                        onClick={() => setSelectedDeliveryOption(opt.id)}
-                                        className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all h-[76px] ${selectedDeliveryOption === opt.id ? 'border-[#FF4732] bg-[#FFF0EF] text-[#FF4732]' : 'border-gray-200 bg-white text-gray-400'}`}
-                                    >
-                                        <opt.icon className={`w-5 h-5 ${selectedDeliveryOption === opt.id ? 'text-[#FF4732]' : 'text-gray-400'}`} />
-                                        <span className={`text-[9px] font-bold leading-tight text-center ${selectedDeliveryOption === opt.id ? 'text-[#FF4732]' : 'text-gray-400'}`}>
-                                            {opt.label}
-                                        </span>
+                            {/* Delivery Instructions */}
+                            <div className="flex flex-col gap-2 pt-2">
+                                <h2 className="text-sm font-bold text-gray-900 ml-1">Delivery Instructions</h2>
+                                <div className="relative">
+                                    <textarea
+                                        value={instructions}
+                                        onChange={(e) => setInstructions(e.target.value.slice(0, 200))}
+                                        placeholder="Do not ring the doorbell, leave food at the doorstep."
+                                        className="w-full h-32 bg-white border border-gray-200 rounded-2xl p-4 pr-12 outline-none focus:border-[#FF4732] text-sm font-medium text-gray-600 resize-none shadow-sm"
+                                    />
+                                    <button className="absolute top-4 right-4 text-[#FF4732]">
+                                        <Mic className="w-5 h-5" />
                                     </button>
-                                ))}
+                                    <span className="absolute bottom-4 left-4 text-[11px] text-gray-300 font-medium">
+                                        {instructions.length > 0 ? instructions.length : '83'}/200
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+
+                            {/* Delivery Options */}
+                            <div className="flex flex-col gap-3">
+                                <h2 className="text-sm font-bold text-gray-900 ml-1">Delivery Options</h2>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                        { id: 'Door Pickup', icon: Users, label: 'Door Pickup' },
+                                        { id: 'Leave at Door', icon: DoorOpen, label: 'Leave at Door' },
+                                        { id: 'Leave at Security', icon: ShieldCheck, label: 'Leave at Security' },
+                                        { id: 'Don\'t ring the bell', icon: BellOff, label: 'Don\'t ring the bell' }
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            onClick={() => setSelectedDeliveryOption(opt.id)}
+                                            className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all h-[76px] ${selectedDeliveryOption === opt.id ? 'border-[#FF4732] bg-[#FFF0EF] text-[#FF4732]' : 'border-gray-200 bg-white text-gray-400'}`}
+                                        >
+                                            <opt.icon className={`w-5 h-5 ${selectedDeliveryOption === opt.id ? 'text-[#FF4732]' : 'text-gray-400'}`} />
+                                            <span className={`text-[9px] font-bold leading-tight text-center ${selectedDeliveryOption === opt.id ? 'text-[#FF4732]' : 'text-gray-400'}`}>
+                                                {opt.label}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     )} {/* End Left Column */}
 
@@ -613,15 +613,15 @@ export const PaymentPage: React.FC = () => {
                                             </div>
                                             {!item.isAddon ? (
                                                 <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-[34px]">
-                                                    <button 
-                                                        onClick={() => removeFromCart(item.id)} 
+                                                    <button
+                                                        onClick={() => removeFromCart(item.id)}
                                                         className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                                                     >
                                                         -
                                                     </button>
                                                     <span className="font-bold w-4 text-center text-[13px]">{item.quantity}</span>
-                                                    <button 
-                                                        onClick={() => addToCart({ ...item }, restaurantId, restaurantName)} 
+                                                    <button
+                                                        onClick={() => addToCart({ ...item }, restaurantId, restaurantName)}
                                                         className="w-8 h-full flex items-center justify-center text-gray-800 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                                                     >
                                                         +
@@ -679,13 +679,13 @@ export const PaymentPage: React.FC = () => {
                             )}
                         </button> */}
 
-                        /* Order Details */
+
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1">
+                            <h2 className="text-sm font-bold text-gray-900 ml-1 mt-2">
                                 Order Details • {restaurantName?.toUpperCase() || restaurantDetails?.name?.toUpperCase() || 'STAGE'}
                             </h2>
                             <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
-                                
+
                                 {/* Items List */}
                                 <div className="flex flex-col gap-3">
                                     {enrichedCartItems.map((item) => (
@@ -734,7 +734,7 @@ export const PaymentPage: React.FC = () => {
                                     </div>
 
                                     <div className="flex justify-between items-center">
-                                        <span className="text-gray-400 font-medium">GST and Taxes</span>
+                                        <span className="text-gray-400 font-medium">GST (5%)</span>
                                         <span className="text-gray-700 font-bold">₹{gst.toFixed(0)}</span>
                                     </div>
                                 </div>
@@ -755,6 +755,16 @@ export const PaymentPage: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Cancellation Policy */}
+                        <div className="flex flex-col gap-1 px-1 py-1 mt-2 mb-3">
+                            <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">
+                                Cancellation Policy
+                            </h3>
+                            <p className="text-[11px] text-slate-400/90 font-semibold leading-relaxed ml-1">
+                                A 100% cancellation charge will apply. This helps us compensate the restaurant partner for food preparation.
+                            </p>
+                        </div>
+
                         {/* Footer Section */}
                         <div className="flex flex-col gap-4 pb-6 px-1">
                             <div className="flex items-start gap-3">
@@ -765,7 +775,7 @@ export const PaymentPage: React.FC = () => {
                                     {agreedToTerms && <CheckCircle className="w-4 h-4 text-white" />}
                                 </div>
                                 <p className="text-[12px] text-gray-400 font-medium leading-relaxed">
-                                    By accepting this order, I agree to all <span className="underline cursor-pointer">terms & conditions.</span>
+                                    By accepting this order, I agree to all <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" className="underline cursor-pointer hover:text-[#FF4732] transition-colors">terms & conditions.</Link>
                                 </p>
                             </div>
 
@@ -775,6 +785,18 @@ export const PaymentPage: React.FC = () => {
                         </div>
 
                         {/* Desktop Proceed Button */}
+                        {cartTotal < 150 && (
+                            <div className="hidden lg:flex bg-[#FFF0EF] border border-[#FFDCDA] rounded-2xl p-4 items-start gap-3 mt-4 mb-2">
+                                <AlertCircle className="w-5 h-5 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                <div className="flex flex-col gap-0.5">
+                                    <h4 className="text-[13px] font-bold text-gray-900 leading-tight">Minimum order value required</h4>
+                                    <p className="text-[11px] text-gray-500 font-semibold leading-relaxed">
+                                        Subtotal must be at least ₹150 to place an order. Add ₹{150 - cartTotal} more worth of items.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         {isPaymentPopupOpen ? (
                             <div className="hidden lg:flex flex-col items-center justify-center gap-2 mt-2 py-4">
                                 <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
@@ -783,10 +805,10 @@ export const PaymentPage: React.FC = () => {
                         ) : (
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error'}
+                                disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error' || cartTotal < 150}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to pay'}
+                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : 'Proceed to pay'}
                             </button>
                         )}
                     </div>
@@ -795,7 +817,21 @@ export const PaymentPage: React.FC = () => {
 
             {/* Bottom Fixed Button - Mobile Only */}
             <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
-                <div className="max-w-md mx-auto">
+                <div className="max-w-md mx-auto flex flex-col gap-3">
+                    {cartTotal < 150 && (
+                        <div className="bg-[#FFF0EF] border border-[#FFDCDA] rounded-xl p-3 flex items-start gap-2.5">
+                            <AlertCircle className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                            <div className="flex flex-col">
+                                <p className="text-[11px] text-gray-600 font-bold leading-tight">
+                                    Min. order subtotal is ₹150
+                                </p>
+                                <p className="text-[10px] text-gray-500 font-semibold leading-normal">
+                                    Add ₹{150 - cartTotal} more worth of items to proceed
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {isPaymentPopupOpen ? (
                         <div className="w-full flex justify-center items-center py-4">
                             <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
@@ -803,10 +839,10 @@ export const PaymentPage: React.FC = () => {
                     ) : (
                         <button
                             onClick={handlePlaceOrder}
-                            disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error'}
+                            disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error' || cartTotal < 150}
                             className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                         >
-                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : 'Proceed to pay'}
+                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : 'Proceed to pay'}
                         </button>
                     )}
                 </div>

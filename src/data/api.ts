@@ -911,7 +911,26 @@ export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<Ap
         });
         if (!response.ok) {
             const errBody = await response.text();
-            throw new Error(`Failed to place order: ${response.statusText} - ${errBody}`);
+            let parsedErr: any = null;
+            try {
+                parsedErr = JSON.parse(errBody);
+            } catch (e) {
+                // Ignore parse errors
+            }
+
+            const errorMsg = parsedErr?.message || parsedErr?.error || `Failed to place order: ${response.statusText}`;
+            const errorType = parsedErr?.error || parsedErr?.type;
+            
+            const customErr = new Error(errorMsg);
+            if (errorType) {
+                (customErr as any).response = {
+                    data: {
+                        type: errorType,
+                        message: errorMsg
+                    }
+                };
+            }
+            throw customErr;
         }
         return await response.json();
     } catch (error) {

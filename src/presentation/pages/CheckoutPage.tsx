@@ -37,11 +37,11 @@ interface SuggestedItem {
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { 
-        cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName, 
-        deliveryQuote, setDeliveryQuote, 
-        deliveryStatus, setDeliveryStatus, 
-        deliveryError, setDeliveryError, 
+    const {
+        cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName,
+        deliveryQuote, setDeliveryQuote,
+        deliveryStatus, setDeliveryStatus,
+        deliveryError, setDeliveryError,
         isCheckingDelivery, setIsCheckingDelivery,
         isLoggedIn,
         fulfillmentType,
@@ -78,7 +78,7 @@ export const CheckoutPage: React.FC = () => {
             console.log('-------------------------');
         }
     }, [selectedLocation]);
-    
+
     const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
@@ -128,7 +128,7 @@ export const CheckoutPage: React.FC = () => {
 
 
 
-    const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0); 
+    const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0);
     const platformFee = cartTotal > 0 ? 5 : 0;
     const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst;
@@ -284,7 +284,7 @@ export const CheckoutPage: React.FC = () => {
 
                         {/* Left Column for Desktop */}
                         <div className="flex flex-col gap-4 flex-1 w-full">
-                            
+
                             {/* Stepper */}
                             <div className="bg-white lg:rounded-2xl px-6 py-4 border-b lg:border border-gray-100 flex items-center justify-between shadow-sm -mx-4 lg:mx-0 mb-1 lg:mb-0">
                                 <div className="flex flex-col items-center flex-shrink-0">
@@ -372,7 +372,7 @@ export const CheckoutPage: React.FC = () => {
                                                                 <div className="space-y-1.5 pl-1">
                                                                     {addons.map((addon) => (
                                                                         <div key={addon.id} className="flex items-center gap-2 group">
-                                                                            <div 
+                                                                            <div
                                                                                 onClick={() => updateItemAddon(item.id, addon.id, 'remove')}
                                                                                 className="w-4 h-4 rounded border border-emerald-500 bg-emerald-500 flex items-center justify-center cursor-pointer hover:bg-emerald-600 transition-colors"
                                                                             >
@@ -423,7 +423,7 @@ export const CheckoutPage: React.FC = () => {
                             </div>
 
                             {/* Add more items */}
-                            <div 
+                            <div
                                 onClick={() => restaurantId ? navigate(`/restaurant/${restaurantId}`) : navigate('/')}
                                 className="bg-white rounded-2xl p-4 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors border border-gray-50 justify-center"
                             >
@@ -456,7 +456,7 @@ export const CheckoutPage: React.FC = () => {
                                                             <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
                                                         </div>
                                                     </div>
-                                                    <button 
+                                                    <button
                                                         onClick={() => addToCart({
                                                             id: item.id,
                                                             menuItemId: item.id,
@@ -526,8 +526,8 @@ export const CheckoutPage: React.FC = () => {
                                         </div>
                                     </div>
                                     <p className="text-gray-400 text-[13px] leading-tight font-medium w-[80%] transition-colors duration-200">
-                                        {includeCutlery 
-                                            ? "Cutlery will be provided. Thank you!" 
+                                        {includeCutlery
+                                            ? "Cutlery will be provided. Thank you!"
                                             : "No cutlery provided. Thanks for reducing waste"}
                                     </p>
                                 </div>
@@ -590,23 +590,22 @@ export const CheckoutPage: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
-                                
+
                                 {fulfillmentType === 'Delivery' && isCheckingDelivery && (
                                     <div className="pl-11 mt-1 flex items-center gap-2 text-[11px] text-gray-400">
                                         <Loader2 className="w-3 h-3 animate-spin" />
                                         Checking delivery availability...
                                     </div>
                                 )}
-                                
+
                                 {fulfillmentType === 'Delivery' && !isCheckingDelivery && deliveryStatus && (
-                                    <div className={`pl-11 mt-1 flex items-center gap-1.5 text-[11px] font-bold ${
-                                        deliveryStatus === 'success' ? 'text-[#00A050]' : 
-                                        deliveryStatus === 'error' ? 'text-[#FF4732]' : 
-                                        'text-amber-600'
-                                    }`}>
+                                    <div className={`pl-11 mt-1 flex items-center gap-1.5 text-[11px] font-bold ${deliveryStatus === 'success' ? 'text-[#00A050]' :
+                                            deliveryStatus === 'error' ? 'text-[#FF4732]' :
+                                                'text-amber-600'
+                                        }`}>
                                         {deliveryStatus === 'success' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                                        {deliveryStatus === 'success' 
-                                            ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins` 
+                                        {deliveryStatus === 'success'
+                                            ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins`
                                             : deliveryError}
                                     </div>
                                 )}
@@ -784,18 +783,31 @@ export const CheckoutPage: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Desktop Checkout Button */}
-                             <button
+                            {/* Desktop Checkout Warning & Button */}
+                            {cartTotal < 150 && (
+                                <div className="hidden lg:flex bg-[#FFF0EF] border border-[#FFDCDA] rounded-2xl p-4 items-start gap-3 mt-4 mb-2">
+                                    <AlertCircle className="w-5 h-5 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <div className="flex flex-col gap-0.5">
+                                        <h4 className="text-[13px] font-bold text-gray-900 leading-tight">Minimum order value required</h4>
+                                        <p className="text-[11px] text-gray-500 font-semibold leading-relaxed">
+                                            Subtotal must be at least ₹150 to place an order. Add ₹{150 - cartTotal} more worth of items.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error') || cartTotal < 150}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {!isLoggedIn ? "Add phone and address details" : 
-                                 addresses.length === 0 ? "Add Address" :
-                                 !selectedLocation ? "Select Address" :
-                                 isCheckingDelivery ? "Checking delivery..." : 
-                                 (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : 
-                                 "Proceed to checkout"}
+                                {cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` :
+                                    !isLoggedIn ? "Add phone and address details" :
+                                        addresses.length === 0 ? "Add Address" :
+                                            !selectedLocation ? "Select Address" :
+                                                isCheckingDelivery ? "Checking delivery..." :
+                                                    (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
+                                                        "Proceed to checkout"}
                             </button>
 
                         </div>
@@ -803,18 +815,33 @@ export const CheckoutPage: React.FC = () => {
 
                     {/* Bottom Fixed Button - Mobile Only */}
                     <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
-                        <div className="max-w-md mx-auto">
-                             <button
+                        <div className="max-w-md mx-auto flex flex-col gap-3">
+                            {cartTotal < 150 && (
+                                <div className="bg-[#FFF0EF] border border-[#FFDCDA] rounded-xl p-3 flex items-start gap-2.5">
+                                    <AlertCircle className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <div className="flex flex-col">
+                                        <p className="text-[11px] text-gray-600 font-bold leading-tight">
+                                            Min. order subtotal is ₹150
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 font-semibold leading-normal">
+                                            Add ₹{150 - cartTotal} more worth of items to proceed
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error') || cartTotal < 150}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {!isLoggedIn ? "Add phone and address details" : 
-                                 addresses.length === 0 ? "Add Address" :
-                                 !selectedLocation ? "Select Address" :
-                                 isCheckingDelivery ? "Checking delivery..." : 
-                                 (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" : 
-                                 "Proceed to checkout"}
+                                {cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` :
+                                    !isLoggedIn ? "Add phone and address details" :
+                                        addresses.length === 0 ? "Add Address" :
+                                            !selectedLocation ? "Select Address" :
+                                                isCheckingDelivery ? "Checking delivery..." :
+                                                    (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
+                                                        "Proceed to checkout"}
                             </button>
                         </div>
                     </div>

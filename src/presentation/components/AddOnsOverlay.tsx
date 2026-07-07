@@ -361,12 +361,12 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                             {/* Special Instructions */}
                             <div className="mb-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                                 <h3 className="text-sm font-bold text-gray-900 mb-2">Special Instructions</h3>
-                                <p className="text-[10px] text-gray-500 font-medium mb-3">Please let us know if you are allergic to something or if we need to avoid anything.</p>
+                                <p className="text-[10px] text-gray-500 font-medium mb-3">Let us know your allergies or preferences. We'll try our best to accommodate them, though not all requests may be possible.</p>
                                 <div className="relative">
                                     <textarea 
                                         maxLength={350}
                                         className="w-full rounded-xl border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white transition-all focus:ring-1 focus:ring-[#FF4732] focus:border-[#FF4732] resize-none h-24 placeholder-gray-400"
-                                        placeholder="e.g. Less spicy, no onions..."
+                                        placeholder="e.g. Less spicy, no onions, nut allergy..."
                                         value={specialInstructions}
                                         onChange={(e) => setSpecialInstructions(e.target.value)}
                                     />
