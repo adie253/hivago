@@ -61,7 +61,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const setFulfillmentType = (type: 'Delivery' | 'Pickup') => {
         setFulfillmentTypeState(type);
         sessionStorage.setItem('checkout_fulfillment_type', type);
-        showToast(`Switched to ${type} mode`, "success");
     };
     const [includeCutlery, setIncludeCutlery] = useState<boolean>(() => {
         return sessionStorage.getItem('checkout_include_cutlery') === 'true';
