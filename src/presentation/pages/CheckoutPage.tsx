@@ -783,18 +783,31 @@ export const CheckoutPage: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Desktop Checkout Button */}
+                            {/* Desktop Checkout Warning & Button */}
+                            {cartTotal < 150 && (
+                                <div className="hidden lg:flex bg-[#FFF0EF] border border-[#FFDCDA] rounded-2xl p-4 items-start gap-3 mt-4 mb-2">
+                                    <AlertCircle className="w-5 h-5 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <div className="flex flex-col gap-0.5">
+                                        <h4 className="text-[13px] font-bold text-gray-900 leading-tight">Minimum order value required</h4>
+                                        <p className="text-[11px] text-gray-500 font-semibold leading-relaxed">
+                                            Subtotal must be at least ₹150 to place an order. Add ₹{150 - cartTotal} more worth of items.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error') || cartTotal < 150}
                                 className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
                             >
-                                {!isLoggedIn ? "Add phone and address details" :
-                                    addresses.length === 0 ? "Add Address" :
-                                        !selectedLocation ? "Select Address" :
-                                            isCheckingDelivery ? "Checking delivery..." :
-                                                (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
-                                                    "Proceed to checkout"}
+                                {cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` :
+                                    !isLoggedIn ? "Add phone and address details" :
+                                        addresses.length === 0 ? "Add Address" :
+                                            !selectedLocation ? "Select Address" :
+                                                isCheckingDelivery ? "Checking delivery..." :
+                                                    (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
+                                                        "Proceed to checkout"}
                             </button>
 
                         </div>
@@ -802,18 +815,33 @@ export const CheckoutPage: React.FC = () => {
 
                     {/* Bottom Fixed Button - Mobile Only */}
                     <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
-                        <div className="max-w-md mx-auto">
+                        <div className="max-w-md mx-auto flex flex-col gap-3">
+                            {cartTotal < 150 && (
+                                <div className="bg-[#FFF0EF] border border-[#FFDCDA] rounded-xl p-3 flex items-start gap-2.5">
+                                    <AlertCircle className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <div className="flex flex-col">
+                                        <p className="text-[11px] text-gray-600 font-bold leading-tight">
+                                            Min. order subtotal is ₹150
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 font-semibold leading-normal">
+                                            Add ₹{150 - cartTotal} more worth of items to proceed
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             <button
                                 onClick={handlePlaceOrder}
-                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error')}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error') || cartTotal < 150}
                                 className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
                             >
-                                {!isLoggedIn ? "Add phone and address details" :
-                                    addresses.length === 0 ? "Add Address" :
-                                        !selectedLocation ? "Select Address" :
-                                            isCheckingDelivery ? "Checking delivery..." :
-                                                (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
-                                                    "Proceed to checkout"}
+                                {cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` :
+                                    !isLoggedIn ? "Add phone and address details" :
+                                        addresses.length === 0 ? "Add Address" :
+                                            !selectedLocation ? "Select Address" :
+                                                isCheckingDelivery ? "Checking delivery..." :
+                                                    (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
+                                                        "Proceed to checkout"}
                             </button>
                         </div>
                     </div>
