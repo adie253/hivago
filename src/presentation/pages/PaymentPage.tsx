@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { useToast } from '../context/ToastContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -765,7 +765,7 @@ export const PaymentPage: React.FC = () => {
                                     {agreedToTerms && <CheckCircle className="w-4 h-4 text-white" />}
                                 </div>
                                 <p className="text-[12px] text-gray-400 font-medium leading-relaxed">
-                                    By accepting this order, I agree to all <span className="underline cursor-pointer">terms & conditions.</span>
+                                    By accepting this order, I agree to all <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" className="underline cursor-pointer hover:text-[#FF4732] transition-colors">terms & conditions.</Link>
                                 </p>
                             </div>
 
