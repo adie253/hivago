@@ -195,10 +195,9 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                                     {item.type === 'Dish' && (
                                         <div className="text-sm font-bold text-gray-900 mt-1">₹{item.price}</div>
                                     )}
-                                    {item.type === 'Restaurant' && item.rating && (
+                                    {item.type === 'Restaurant' && (
                                         <div className="flex items-center gap-2 mt-0.5 text-[10px] text-gray-500 font-medium">
-                                            <span className="flex items-center gap-0.5 text-emerald-600">★ {item.rating}</span>
-                                            <span>• {item.time}</span>
+                                            <span>{item.time}</span>
                                         </div>
                                     )}
                                 </div>

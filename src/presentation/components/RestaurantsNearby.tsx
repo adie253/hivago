@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Star, Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
+import { Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import { useUserLocation } from '../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
@@ -67,11 +67,7 @@ export const RestaurantsNearby: React.FC = () => {
                                 }}
                             />
 
-                            {/* Bottom Left Rating Pill */}
-                            <div className="absolute bottom-4 left-4 bg-white px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1.5">
-                                <Star className="w-4 h-4 text-emerald-500 fill-current" />
-                                <span className="text-sm font-bold text-gray-900">{restaurant.rating}</span>
-                            </div>
+
 
                             {restaurant.discount && (
                                 <div className="absolute top-4 left-4">

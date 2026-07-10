@@ -139,24 +139,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                         </div>
                     </section>
 
-                    {/* Ratings */}
-                    <section>
-                        <h3 className="text-sm font-bold text-gray-900 mb-3">Ratings</h3>
-                        <div className="flex gap-2.5">
-                            {[0, 3.5, 4.0, 4.5].map(val => (
-                                <button
-                                    key={val}
-                                    onClick={() => setTempRating(val)}
-                                    className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempRating === val
-                                        ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100'
-                                        : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    {val === 0 ? 'All' : `${val}+`}
-                                </button>
-                            ))}
-                        </div>
-                    </section>
+
 
                     {/* Service Type */}
                     <section>

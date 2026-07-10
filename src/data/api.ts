@@ -773,6 +773,7 @@ export interface ApiOrder {
     statusDisplay?: string;
     rejectionReason?: string;
     cancellationReason?: string;
+    cancellationNotes?: string;
     failureReason?: string;
     paymentId?: string;
     estimatedMinutes?: number;

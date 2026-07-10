@@ -1,6 +1,6 @@
 import React from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Star, Clock, MapPin, Heart } from 'lucide-react';
+import { Clock, MapPin, Heart } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useUserLocation } from '../context/LocationContext';
 import { haversineKm, formatDistance } from '../../utils/distanceUtils';
@@ -88,11 +88,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                     </button>
                 </div>
 
-                {/* Floating Rating Pill */}
-                <div className="absolute bottom-4 right-4 bg-white px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1">
-                    <span className="font-bold text-sm text-gray-800">{restaurant.rating}</span>
-                    <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                </div>
+
             </div>
 
             {/* Content Container */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone, Star } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, CheckCircle, ChefHat, Bike, ShoppingBag, Phone } from 'lucide-react';
 import { OrderTrackingSkeleton } from '../components/Skeletons';
 import { ApiOrder, getActiveOrders, getOrderById, getDeliveryQuote, fetchRestaurantById, fetchDeliveryCodes } from '../../data/api';
 
@@ -40,7 +40,11 @@ export const OrderTrackingPage: React.FC = () => {
             if (['DELIVERED', 'COMPLETED'].includes(apiStatus) || statusDisplay === 'DELIVERED') {
                 setStatus('delivered');
             } else if (['ASSIGNED', 'PICKED_UP', 'DELIVERING'].includes(apiStatus) || statusDisplay === 'PICKED UP') {
-                setStatus('delivery');
+                if (isPickupOrder && (apiStatus === 'PICKED_UP' || statusDisplay === 'PICKED UP')) {
+                    setStatus('delivered'); // Picked up is the final stage for self-pickup
+                } else {
+                    setStatus('delivery');
+                }
             } else if (['READY', 'READY_FOR_PICKUP', 'READY FOR PICKUP'].includes(apiStatus) || statusDisplay === 'READY FOR PICKUP') {
                 if (isPickupOrder) {
                     setStatus('delivery'); // Ready for Pickup stage
@@ -210,7 +214,7 @@ export const OrderTrackingPage: React.FC = () => {
             if (!order || !orderId) return;
 
             const rawStatus = (order.status || '').toUpperCase();
-            const isClosed = ['DELIVERED', 'CANCELLED', 'REJECTED', 'FAILED', 'COMPLETED'].includes(rawStatus);
+            const isClosed = ['DELIVERED', 'CANCELLED', 'REJECTED', 'FAILED', 'COMPLETED', 'PICKED_UP'].includes(rawStatus);
 
             if (!isClosed) {
                 try {
@@ -318,6 +322,11 @@ export const OrderTrackingPage: React.FC = () => {
         if (status === 'delivered') return 'Delivered';
         if (status === 'rejected' || status === 'cancelled' || status === 'failed') return '--';
 
+        // If self-pickup and ready for pickup (i.e. 'delivery' stage)
+        if (isPickup && status === 'delivery') {
+            return 'Ready to Collect';
+        }
+
         // 1. Use the explicit display string if backend provided one
         if (o.estimatedTimeDisplay) return o.estimatedTimeDisplay;
 
@@ -385,7 +394,15 @@ export const OrderTrackingPage: React.FC = () => {
     if (status === 'rejected' || status === 'cancelled' || status === 'failed') {
         const isCash = order?.paymentId === 'CASH';
         const isPaymentIncomplete = (() => {
-            const reason = (order.cancellationReason || order.failureReason || '').toLowerCase();
+            const apiPaymentStatus = ((order as any).paymentStatus || '').toUpperCase();
+            const apiPaymentStatusDisplay = ((order as any).paymentStatusDisplay || '').toUpperCase();
+            
+            // If the payment is completed/paid, it is not incomplete!
+            if (apiPaymentStatus === 'PAID' || apiPaymentStatusDisplay === 'PAID') {
+                return false;
+            }
+
+            const reason = (order.cancellationReason || order.failureReason || order.cancellationNotes || '').toLowerCase();
             const apiStatus = (order.status || '').toUpperCase();
             const statusDisplay = ((order as any).statusDisplay || '').toUpperCase();
 
@@ -427,15 +444,30 @@ export const OrderTrackingPage: React.FC = () => {
                             </h2>
 
                             <p className="text-gray-500 font-bold text-base lg:text-lg mb-6 leading-relaxed">
-                                {order?.rejectionReason || 
-                                 order?.cancellationReason || 
-                                 order?.failureReason || 
-                                 (order as any).failureNotes ||
-                                 (order as any).deliveryInfo?.failureNotes ||
-                                 (order as any).deliveryInfo?.failureReason ||
-                                 (status === 'rejected' ? 'The restaurant is unable to fulfill your order right now.' : 
-                                  status === 'failed' ? 'Your order could not be completed.' : 
-                                  "Your order was cancelled.")}
+                                {(() => {
+                                    const rawReason = order?.rejectionReason || 
+                                                     order?.cancellationReason || 
+                                                     order?.cancellationNotes || 
+                                                     order?.failureReason || 
+                                                     (order as any).failureNotes ||
+                                                     (order as any).deliveryInfo?.failureNotes ||
+                                                     (order as any).deliveryInfo?.failureReason;
+                                    
+                                    if (!rawReason) {
+                                        if (status === 'rejected') return 'The restaurant is unable to fulfill your order right now.';
+                                        if (status === 'failed') return 'Your order could not be completed.';
+                                        return 'Your order was cancelled.';
+                                    }
+
+                                    if (typeof rawReason === 'string') {
+                                        const lowerReason = rawReason.toLowerCase();
+                                        if (rawReason.includes('NoRidersAvailable') || lowerReason.includes('no riders available') || lowerReason.includes('noridersavailable')) {
+                                            return 'No riders available at the time';
+                                        }
+                                        return rawReason;
+                                    }
+                                    return String(rawReason);
+                                })()}
                             </p>
 
                             {/* Actions - Desktop Only inside left col */}
@@ -497,15 +529,15 @@ export const OrderTrackingPage: React.FC = () => {
 
                                         <div className="relative z-10 flex flex-col gap-5">
                                             <div className="flex items-center justify-between">
-                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Amount</span>
-                                                <span className="text-[#FF4732] font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
+                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest font-bold">Payment Amount</span>
+                                                <span className="text-gray-950 font-extrabold text-2xl">₹{getOrderTotal(order)}</span>
                                             </div>
 
                                             <div className="flex items-center justify-between">
-                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Refund Status</span>
+                                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest font-bold">Payment Status</span>
                                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-[#E6F5EC] text-[#00A050] rounded-full text-[11px] font-extrabold shadow-sm border border-[#D1EEDB]">
-                                                    <CheckCircle className="w-3 h-3" />
-                                                    <span>INITIATED</span>
+                                                    <CheckCircle className="w-3.5 h-3.5 text-[#00A050]" />
+                                                    <span>COMPLETED</span>
                                                 </div>
                                             </div>
 
@@ -513,9 +545,12 @@ export const OrderTrackingPage: React.FC = () => {
 
                                             <div className="flex items-start gap-3 bg-[#F8FAFC] p-4 rounded-xl border border-blue-50/50">
                                                 <Clock className="w-5 h-5 text-[#8B96A5] shrink-0 mt-0.5" />
-                                                <p className="text-[13px] text-gray-500 leading-relaxed font-medium">
-                                                    Refunds typically take <span className="text-gray-900 font-bold">5-7 business days</span> to reflect in your account once processed by PayU.
-                                                </p>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[13px] text-gray-800 font-bold">Refund Initiated</span>
+                                                    <p className="text-[12px] text-gray-500 leading-relaxed font-medium">
+                                                        Since the order could not be completed, a full refund of <span className="text-gray-900 font-bold">₹{getOrderTotal(order)}</span> has been initiated. The refund will be credited back to your original payment source within <span className="text-gray-900 font-bold">7 business days</span>.
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -680,11 +715,7 @@ export const OrderTrackingPage: React.FC = () => {
                                                 <div className="flex flex-col justify-center gap-1">
                                                     <span className="text-[16px] font-bold text-gray-900 leading-none">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
                                                     <div className="flex items-center gap-2">
-                                                        <div className="flex items-center gap-0.5 text-[#F7A626]">
-                                                            <Star className="w-[14px] h-[14px] fill-current" />
-                                                            <span className="text-[12px] font-bold">{(order as any)?.rider?.rating || '4.9'}</span>
-                                                        </div>
-                                                        <span className="text-gray-300 text-[12px] font-bold tracking-wider">• ID {(order as any)?.rider?.id || 'DW2125'}</span>
+                                                        <span className="text-gray-400 text-[12px] font-bold tracking-wider">ID {(order as any)?.rider?.id || 'DW2125'}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -719,7 +750,6 @@ export const OrderTrackingPage: React.FC = () => {
                                             const pricingPackagingFee = order?.pricing?.packagingFee || 0;
                                             const pricingServiceFee = order?.pricing?.serviceFee || 0;
                                             const pricingTotal = getOrderTotal(order);
-
                                             const definedExtras = pricingDeliveryFee + pricingDeliveryTip + pricingTax + pricingPackagingFee + pricingServiceFee - pricingDiscount;
                                             const remainder = pricingTotal - (pricingSubTotal + definedExtras);
 
@@ -759,10 +789,24 @@ export const OrderTrackingPage: React.FC = () => {
                                                     )}
 
                                                     {pricingTax > 0 && (
-                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                            <span>GST and Taxes</span>
-                                                            <span>₹{pricingTax}</span>
-                                                        </div>
+                                                        <>
+                                                            <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                                <span>GST on Food (5%)</span>
+                                                                <span>₹{Math.round(pricingSubTotal * 0.05)}</span>
+                                                            </div>
+                                                            {!isPickup && pricingDeliveryFee > 0 && (
+                                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                                    <span>GST on Delivery (18%)</span>
+                                                                    <span>₹{Math.round(pricingDeliveryFee * 0.18)}</span>
+                                                                </div>
+                                                            )}
+                                                            {pricingServiceFee > 0 && (
+                                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                                    <span>GST on Platform (18%)</span>
+                                                                    <span>₹{Math.round(pricingServiceFee * 0.18)}</span>
+                                                                </div>
+                                                            )}
+                                                        </>
                                                     )}
 
                                                     {pricingDiscount > 0 && (
@@ -939,11 +983,7 @@ export const OrderTrackingPage: React.FC = () => {
                                         <div className="flex flex-col gap-0.5">
                                             <span className="text-[15px] font-bold text-gray-900">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
                                             <div className="flex items-center gap-1.5">
-                                                <div className="flex items-center gap-1.5 text-amber-500">
-                                                    <Star className="w-3.5 h-3.5 fill-current" />
-                                                    <span className="text-[12px] font-bold">{(order as any)?.rider?.rating || '4.9'}</span>
-                                                </div>
-                                                <span className="text-gray-300 text-[11px] font-medium">• ID {(order as any)?.rider?.id || 'DW2125'}</span>
+                                                <span className="text-gray-400 text-[11px] font-medium">ID {(order as any)?.rider?.id || 'DW2125'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1018,11 +1058,25 @@ export const OrderTrackingPage: React.FC = () => {
                                             )}
 
                                             {pricingTax > 0 && (
-                                                <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                    <span>GST and Taxes</span>
-                                                    <span>₹{pricingTax}</span>
-                                                </div>
-                                            )}
+                                                 <>
+                                                     <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                         <span>GST on Food (5%)</span>
+                                                         <span>₹{Math.round(pricingSubTotal * 0.05)}</span>
+                                                     </div>
+                                                     {!isPickup && pricingDeliveryFee > 0 && (
+                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                             <span>GST on Delivery (18%)</span>
+                                                             <span>₹{Math.round(pricingDeliveryFee * 0.18)}</span>
+                                                         </div>
+                                                     )}
+                                                     {pricingServiceFee > 0 && (
+                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                             <span>GST on Platform (18%)</span>
+                                                             <span>₹{Math.round(pricingServiceFee * 0.18)}</span>
+                                                         </div>
+                                                     )}
+                                                 </>
+                                             )}
 
                                             {pricingDiscount > 0 && (
                                                 <div className="flex justify-between items-center text-[#64C27B] font-medium">

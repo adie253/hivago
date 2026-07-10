@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Clock, Star, Search, Mic, MapPin } from 'lucide-react';
+import { ArrowLeft, Clock, Search, Mic, MapPin } from 'lucide-react';
 import { MenuPageSkeleton } from '../components/Skeletons';
 import { MenuItemCard, MenuItem } from '../components/MenuItemCard';
 import { ItemDetailOverlay } from '../components/ItemDetailOverlay';
@@ -331,12 +331,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 <img src={deliveryBoy} alt="free" className="w-3.5 h-3.5" />
                                 <span>Free</span>
                             </div>
-                            <span className="text-gray-300">•</span>
-                            <div className="flex items-center gap-1.5">
-                                <Star className="w-3.5 h-3.5 text-[#FF4732] fill-[#FF4732]" />
-                                <span>{restaurant.rating}</span>
-                                <span className="text-gray-400 font-medium">200+ ratings</span>
-                            </div>
+                            {/* No ratings here */}
                         </div>
                     </div>
                 </div>
@@ -502,10 +497,6 @@ export const RestaurantMenuPage: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-8 mt-8">
-                                <div className="flex items-center gap-2">
-                                    <Star className="w-5 h-5 text-green-600 fill-green-600" />
-                                    <span className="text-base font-bold text-gray-900">{restaurant.rating}</span>
-                                </div>
                                 <div className="flex items-center gap-2 text-gray-500">
                                     <Clock className="w-5 h-5" />
                                     <span className="text-base font-bold">{restaurant.deliveryTime}</span>

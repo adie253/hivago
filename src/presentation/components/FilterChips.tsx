@@ -6,7 +6,6 @@ import {
     Footprints,
     Leaf,
     Sparkles,
-    Star,
     Flame
 } from 'lucide-react';
 import { FilterModal } from './FilterModal';
@@ -21,7 +20,7 @@ export const FilterChips: React.FC = () => {
         fulfillmentType, setFulfillmentType,
         sortBy, setSortBy,
         isNewlyAdded, setIsNewlyAdded,
-        minRating, setMinRating,
+        minRating,
         isPopular, setIsPopular,
         isVeganFriendly, setIsVeganFriendly,
         isJainOptions, setIsJainOptions
@@ -94,14 +93,7 @@ export const FilterChips: React.FC = () => {
                         Newly Added
                     </button>
 
-                    <button
-                        onClick={() => setMinRating(minRating === 4 ? 0 : 4)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${minRating === 4 ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
-                            }`}
-                    >
-                        <Star className={`w-3.5 h-3.5 md:w-4 md:h-4 ${minRating === 4 ? 'text-white' : 'text-[#FF4732]'}`} />
-                        Rating 4.0+
-                    </button>
+
 
                     <button
                         onClick={() => setIsVeganFriendly(!isVeganFriendly)}

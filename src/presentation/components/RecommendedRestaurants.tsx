@@ -1,6 +1,6 @@
 import React from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Star, Clock, MapPin, Heart, Zap } from 'lucide-react';
+import { Clock, MapPin, Heart, Zap } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useFilters } from '../context/FilterContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -67,10 +67,7 @@ export const RecommendedRestaurants: React.FC = () => {
                                     <Heart className={`w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
                                 </button>
 
-                                <div className="absolute bottom-4 left-4 bg-white px-2.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
-                                    <Star className="w-4 h-4 text-emerald-500 fill-current" />
-                                    <span className="text-sm font-bold text-gray-900">{restaurant.rating}</span>
-                                </div>
+
                             </div>
 
                             {/* Content */}
