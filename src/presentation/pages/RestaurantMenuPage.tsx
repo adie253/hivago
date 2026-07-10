@@ -326,11 +326,6 @@ export const RestaurantMenuPage: React.FC = () => {
                                     ? formatDistance(haversineKm(selectedLocation.latitude, selectedLocation.longitude, restaurant.latitude, restaurant.longitude))
                                     : '-- km'}</span>
                             </div>
-                            <span className="text-gray-300">•</span>
-                            <div className="flex items-center gap-1.5">
-                                <img src={deliveryBoy} alt="free" className="w-3.5 h-3.5" />
-                                <span>Free</span>
-                            </div>
                             {/* No ratings here */}
                         </div>
                     </div>

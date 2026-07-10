@@ -87,7 +87,6 @@ export const CouponOverlay: React.FC<CouponOverlayProps> = ({ onClose }) => {
                     </form>
 
                     <h3 className="text-gray-600 text-[15px] font-medium mb-3 px-1">Offers</h3>
-                    {renderOfferCard('free-delivery', 'FREE Delivery')}
                     {renderOfferCard('20-off-1', '20% OFF')}
 
                     <h3 className="text-gray-600 text-[15px] font-medium mb-3 mt-5 px-1">Order Offers</h3>
