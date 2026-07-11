@@ -453,6 +453,9 @@ export interface DeliveryQuoteRequest {
 export interface DeliveryQuoteResponse {
     id: string;
     deliveryFee: number;
+    platformFee: number;
+    gst: number;
+    totalPayable: number;
     distanceKm: number;
     estimatedMinutes: number;
     surgeMultiplier: number;

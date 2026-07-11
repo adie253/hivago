@@ -81,11 +81,12 @@ export const PaymentPage: React.FC = () => {
     const [showGstTooltip, setShowGstTooltip] = useState(false);
     const deliveryQuoteId = deliveryQuote?.id || '';
     const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0);
-    const platformFee = cartTotal > 0 ? 5 : 0;
+    const platformFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.platformFee || 0);
     const foodGst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
-    const deliveryGst = deliveryFee > 0 ? Math.round(deliveryFee * 0.18) : 0;
-    const platformGst = platformFee > 0 ? Math.round(platformFee * 0.18) : 0;
-    const gst = foodGst + deliveryGst + platformGst;
+    const deliveryGst = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote ? (deliveryFee * 0.18) : 0);
+    const platformGst = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote ? (platformFee * 0.18) : 0);
+    const deliveryAndPlatformGst = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.gst ?? (deliveryGst + platformGst));
+    const gst = foodGst + deliveryAndPlatformGst;
     const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
 
     // Enrich cart items dynamically using the fetched restaurant details (menu catalog) to preserve correct isVeg status and imageUrl
