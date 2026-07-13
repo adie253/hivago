@@ -139,10 +139,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 finalRestaurantName = remoteCart.restaurantName;
             }
 
-            // 2. Update UI state (no localStorage write — we're logged in)
-            setCartItems(finalItems);
-            setRestaurantId(finalRestaurantId);
-            setRestaurantName(finalRestaurantName);
+            // 2. Update UI state and save merged cart to localStorage
+            updateStateWithFinalCart(finalItems, finalRestaurantId!, finalRestaurantName!);
 
             // 3. Push merged result to server only if local items were involved
             if (hasLocalItems && finalItems.length > 0) {
@@ -206,14 +204,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRestaurantId(rId);
         setRestaurantName(rName);
 
-        // Only persist to localStorage for guests — logged-in users rely on server
-        if (!isLoggedIn) {
-            DIContainer.getCartRepository().saveCart({
-                restaurantId: rId,
-                restaurantName: rName,
-                items: items
-            });
-        }
+        // Always save to localStorage to ensure state is preserved on reload
+        DIContainer.getCartRepository().saveCart({
+            restaurantId: rId,
+            restaurantName: rName,
+            items: items
+        });
     };
 
     const performFrontendMerge = (local: CartItem[], remote: any[]): CartItem[] => {
@@ -247,34 +243,54 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const init = async () => {
             setIsCartLoading(true);
             try {
+                // 1. Immediately hydrate from localStorage first (for both guests and logged-in users)
+                // This ensures items are instantly displayed and preserved on reload/initial load.
+                const localCartData = DIContainer.getGetCartUseCase().execute();
+                const initialItems = localCartData.items || [];
+                const initialRestaurantId = localCartData.restaurantId;
+                const initialRestaurantName = localCartData.restaurantName;
+                
+                setCartItems(initialItems);
+                setRestaurantId(initialRestaurantId);
+                setRestaurantName(initialRestaurantName);
+
                 if (isLoggedIn) {
                     const alreadySynced = sessionStorage.getItem('cart_reconciled') === 'true';
 
                     if (alreadySynced) {
-                        // Reload: skip reconcile, just load from server
+                        // Reload: skip reconcile, load from server to check for updates
                         try {
                             const remoteCart = await getCart();
-                            if (remoteCart?.items?.length > 0) {
+                            if (remoteCart && remoteCart.items && remoteCart.items.length > 0) {
                                 const items = convertServerItems(remoteCart.items);
-                                setCartItems(items);
-                                setRestaurantId(remoteCart.restaurantId);
-                                setRestaurantName(remoteCart.restaurantName);
+                                updateStateWithFinalCart(items, remoteCart.restaurantId, remoteCart.restaurantName);
+                            } else if (initialItems.length > 0) {
+                                // If server cart is empty but local has items, re-sync them to server
+                                const itemsPayload = initialItems.map(i => ({
+                                    menuItemId: i.menuItemId || i.id,
+                                    name: i.name,
+                                    unitPrice: i.price,
+                                    quantity: i.quantity,
+                                    options: i.selectedAddons && i.selectedAddons.length > 0
+                                        ? i.selectedAddons.map(addon => `${addon.groupName || 'Addon'}:${addon.name}`).join(",")
+                                        : (i.description || ""),
+                                    specialInstructions: i.customizations
+                                }));
+                                await syncCart({
+                                    restaurantId: initialRestaurantId!,
+                                    restaurantName: initialRestaurantName || 'Restaurant',
+                                    items: itemsPayload
+                                }, true);
                             }
                         } catch (e) {
                             console.error('Failed to load cart on reload:', e);
                         }
                     } else {
                         // First login: run full reconcile (merge guest + server)
-                        const localCartData = DIContainer.getGetCartUseCase().execute();
                         await reconcileCarts(localCartData);
                         sessionStorage.setItem('cart_reconciled', 'true');
                     }
                 } else {
-                    // Guest mode
-                    const localCartData = DIContainer.getGetCartUseCase().execute();
-                    setCartItems(localCartData.items || []);
-                    setRestaurantId(localCartData.restaurantId);
-                    setRestaurantName(localCartData.restaurantName);
                     hasSyncedAfterLogin.current = false;
                 }
             } finally {
@@ -351,6 +367,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 updatedItems = [...existingItems, { ...item, quantity: 1 } as CartItem];
             }
 
+            // Always sync updatedItems with localStorage first
+            DIContainer.getCartRepository().saveCart({
+                restaurantId: rId || currentRestaurantId!,
+                restaurantName: rName || restaurantName || 'Restaurant',
+                items: updatedItems
+            });
+
             if (isLoggedIn) {
                 debouncedPushToServer({
                     restaurantId: rId || currentRestaurantId!,
@@ -358,6 +381,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     items: updatedItems
                 });
             } else {
+                // Execute guest usecase but we already saved cart
                 DIContainer.getAddToCartUseCase().execute(item, rId || currentRestaurantId!, rName || restaurantName!);
             }
 
@@ -407,21 +431,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 console.error("Reorder sync failed:", err);
                 showToast("Failed to reorder items", "error");
             }
-        } else {
-            // For guest, we manually sync with repository
-            DIContainer.getCartRepository().saveCart({
-                restaurantId: rId,
-                restaurantName: rName,
-                items: items
-            });
         }
+        
+        // Always save to localStorage cache for reload resilience
+        DIContainer.getCartRepository().saveCart({
+            restaurantId: rId,
+            restaurantName: rName,
+            items: items
+        });
         showToast(`Reordered items from ${rName}`, "success");
     }, [isLoggedIn, showToast]);
 
     //  REMOVE
     const removeFromCart = useCallback((itemId: string, silent: boolean = false) => {
         if (isLoggedIn) {
-            // Logged in: update React state directly, skip localStorage
             setCartItems(prev => {
                 const updatedItems = prev
                     .map(i => i.id === itemId || i.menuItemId === itemId
@@ -435,6 +458,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 setRestaurantId(currentRestaurantId);
                 setRestaurantName(currentRestaurantName);
+
+                // Always sync with localStorage
+                if (updatedItems.length === 0) {
+                    DIContainer.getClearCartUseCase().execute();
+                } else {
+                    DIContainer.getCartRepository().saveCart({
+                        restaurantId: currentRestaurantId!,
+                        restaurantName: currentRestaurantName || 'Restaurant',
+                        items: updatedItems
+                    });
+                }
 
                 if (updatedItems.length === 0) {
                     // Last item removed — cancel debounce and delete cart from server
