@@ -13,6 +13,7 @@ import { MobileMenu } from '../components/checkout/MobileMenu';
 import { useNotifications } from '../context/NotificationContext';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { formatPrice } from '../../utils/formatUtils';
 
 export const OrderTrackingPage: React.FC = () => {
     const navigate = useNavigate();
@@ -367,6 +368,69 @@ export const OrderTrackingPage: React.FC = () => {
         if (itemsTotal > 0) return itemsTotal;
 
         return backendTotal || 0;
+    };
+
+    const reconcileBill = (o: any) => {
+        if (!o) return null;
+
+        const isPickup = o.fulfillmentType?.toLowerCase() === 'pickup';
+        const itemsTotal = Array.isArray(o.items) ? o.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
+        const pricingSubTotal = o.pricing?.subTotal || itemsTotal;
+        const pricingDeliveryFee = !isPickup ? (o.pricing?.deliveryFee || 0) : 0;
+        const pricingDeliveryTip = !isPickup ? (o.pricing?.tip || 0) : 0;
+        const pricingTax = o.pricing?.tax || 0;
+        const pricingDiscount = o.pricing?.discount || 0;
+        const pricingPackagingFee = o.pricing?.packagingFee || 0;
+        const pricingServiceFee = o.pricing?.serviceFee || 0;
+        const pricingTotal = getOrderTotal(o);
+
+        // Smart reconciliation variables
+        // If pricing.serviceFee is 0, this is a new order with the adjusted client payload
+        const isNewPayload = pricingServiceFee === 0;
+
+        let displayPlatformFee = 0;
+        let displayFoodGst = 0;
+        let displayPlatformGst = 0;
+        let displayDeliveryGst = 0;
+
+        if (isNewPayload) {
+            // For new orders:
+            // - platformFee is always flat 10 (which is automatically added by backend but sent as 0 in payload)
+            // - pricingTax contains only the foodGst
+            displayPlatformFee = 10;
+            displayFoodGst = pricingTax; // foodGst
+            displayPlatformGst = 1.80; // 18% of 10
+            displayDeliveryGst = !isPickup && pricingDeliveryFee > 0 ? pricingDeliveryFee * 0.18 : 0;
+        } else {
+            // For old orders:
+            // - platformFee is stored in pricingServiceFee
+            // - pricingTax contains total tax, so we calculate foodGst (5%), platformGst (18%), deliveryGst (18%)
+            displayPlatformFee = pricingServiceFee;
+            displayFoodGst = pricingTax > 0 ? pricingSubTotal * 0.05 : 0;
+            displayPlatformGst = pricingServiceFee > 0 ? pricingServiceFee * 0.18 : 0;
+            displayDeliveryGst = !isPickup && pricingDeliveryFee > 0 ? pricingDeliveryFee * 0.18 : 0;
+        }
+
+        // Sum of all identified display components
+        const identifiedSum = pricingSubTotal + pricingDeliveryFee + pricingDeliveryTip + pricingPackagingFee - pricingDiscount + displayPlatformFee + displayFoodGst + displayPlatformGst + displayDeliveryGst;
+
+        // Any leftover remainder is displayed as taxes/charges adjustment
+        const leftover = pricingTotal - identifiedSum;
+        const displayLeftover = Math.abs(leftover) >= 1 ? leftover : 0;
+
+        return {
+            subTotal: pricingSubTotal,
+            deliveryFee: pricingDeliveryFee,
+            deliveryTip: pricingDeliveryTip,
+            packagingFee: pricingPackagingFee,
+            discount: pricingDiscount,
+            platformFee: displayPlatformFee,
+            foodGst: displayFoodGst,
+            platformGst: displayPlatformGst,
+            deliveryGst: displayDeliveryGst,
+            remainder: displayLeftover,
+            total: pricingTotal
+        };
     };
 
     if (isLoading) {
@@ -743,85 +807,76 @@ export const OrderTrackingPage: React.FC = () => {
                                         ))}
                                         {/* Dynamic Payment Breakdown */}
                                         {(() => {
-                                            const itemsTotal = Array.isArray(order?.items) ? order.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
-                                            const pricingSubTotal = order?.pricing?.subTotal || itemsTotal;
-                                            const pricingDeliveryFee = !isPickup ? (order?.pricing?.deliveryFee || 0) : 0;
-                                            const pricingDeliveryTip = !isPickup ? (order?.pricing?.tip || 0) : 0;
-                                            const pricingTax = order?.pricing?.tax || 0;
-                                            const pricingDiscount = order?.pricing?.discount || 0;
-                                            const pricingPackagingFee = order?.pricing?.packagingFee || 0;
-                                            const pricingServiceFee = order?.pricing?.serviceFee || 0;
-                                            const pricingTotal = getOrderTotal(order);
-                                            const definedExtras = pricingDeliveryFee + pricingDeliveryTip + pricingTax + pricingPackagingFee + pricingServiceFee - pricingDiscount;
-                                            const remainder = pricingTotal - (pricingSubTotal + definedExtras);
+                                            const bill = reconcileBill(order);
+                                            if (!bill) return null;
 
                                             return (
                                                 <div className="flex flex-col gap-2.5 pt-4 border-t border-gray-100 text-[14px]">
                                                     <div className="flex justify-between items-center text-gray-500 font-medium">
                                                         <span>Item Total</span>
-                                                        <span>₹{pricingSubTotal}</span>
+                                                        <span>₹{formatPrice(bill.subTotal)}</span>
                                                     </div>
 
-                                                    {!isPickup && pricingDeliveryFee > 0 && (
+                                                    {!isPickup && bill.deliveryFee > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Delivery Fee</span>
-                                                            <span>₹{pricingDeliveryFee}</span>
+                                                            <span>₹{formatPrice(bill.deliveryFee)}</span>
                                                         </div>
                                                     )}
 
-                                                    {!isPickup && pricingDeliveryTip > 0 && (
+                                                    {!isPickup && bill.deliveryTip > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Delivery Tip</span>
-                                                            <span>₹{pricingDeliveryTip}</span>
+                                                            <span>₹{formatPrice(bill.deliveryTip)}</span>
                                                         </div>
                                                     )}
 
-                                                    {pricingPackagingFee > 0 && (
+                                                    {bill.packagingFee > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Packaging Charges</span>
-                                                            <span>₹{pricingPackagingFee}</span>
+                                                            <span>₹{formatPrice(bill.packagingFee)}</span>
                                                         </div>
                                                     )}
 
-                                                    {pricingServiceFee > 0 && (
+                                                    {bill.platformFee > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Platform Charges</span>
-                                                            <span>₹{pricingServiceFee}</span>
+                                                            <span>₹{formatPrice(bill.platformFee)}</span>
                                                         </div>
                                                     )}
 
-                                                    {pricingTax > 0 && (
-                                                        <>
-                                                            <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                                <span>GST on Food (5%)</span>
-                                                                <span>₹{Math.round(pricingSubTotal * 0.05)}</span>
-                                                            </div>
-                                                            {!isPickup && pricingDeliveryFee > 0 && (
-                                                                <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                                    <span>GST on Delivery (18%)</span>
-                                                                    <span>₹{Math.round(pricingDeliveryFee * 0.18)}</span>
-                                                                </div>
-                                                            )}
-                                                            {pricingServiceFee > 0 && (
-                                                                <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                                    <span>GST on Platform (18%)</span>
-                                                                    <span>₹{Math.round(pricingServiceFee * 0.18)}</span>
-                                                                </div>
-                                                            )}
-                                                        </>
+                                                    {bill.foodGst > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>GST on Food (5%)</span>
+                                                            <span>₹{formatPrice(bill.foodGst)}</span>
+                                                        </div>
                                                     )}
 
-                                                    {pricingDiscount > 0 && (
+                                                    {!isPickup && bill.deliveryGst > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>GST (18% on Delivery)</span>
+                                                            <span>₹{formatPrice(bill.deliveryGst)}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {bill.platformGst > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>GST (18% on Platform Fee)</span>
+                                                            <span>₹{formatPrice(bill.platformGst)}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {bill.discount > 0 && (
                                                         <div className="flex justify-between items-center text-[#64C27B] font-medium">
                                                             <span>Discount Applied</span>
-                                                            <span>-₹{pricingDiscount}</span>
+                                                            <span>-₹{formatPrice(bill.discount)}</span>
                                                         </div>
                                                     )}
 
-                                                    {remainder > 0 && (
+                                                    {bill.remainder > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Taxes & Charges</span>
-                                                            <span>₹{remainder.toFixed(2)}</span>
+                                                            <span>₹{formatPrice(bill.remainder)}</span>
                                                         </div>
                                                     )}
 
@@ -829,7 +884,7 @@ export const OrderTrackingPage: React.FC = () => {
 
                                                     <div className="flex justify-between items-center text-gray-900 font-bold text-[18px]">
                                                         <span>Total Paid</span>
-                                                        <span className="text-xl text-gray-900">₹{pricingTotal}</span>
+                                                        <span className="text-xl text-gray-900">₹{formatPrice(bill.total)}</span>
                                                     </div>
                                                 </div>
                                             );
@@ -1011,86 +1066,76 @@ export const OrderTrackingPage: React.FC = () => {
                                 ))}
                                 {/* Dynamic Payment Breakdown (Mobile) */}
                                 {(() => {
-                                    const itemsTotal = Array.isArray(order?.items) ? order.items.reduce((sum: number, item: any) => sum + ((item.unitPrice || 0) * (item.quantity || 1)), 0) : 0;
-                                    const pricingSubTotal = order?.pricing?.subTotal || itemsTotal;
-                                    const pricingDeliveryFee = !isPickup ? (order?.pricing?.deliveryFee || 0) : 0;
-                                    const pricingDeliveryTip = !isPickup ? (order?.pricing?.tip || 0) : 0;
-                                    const pricingTax = order?.pricing?.tax || 0;
-                                    const pricingDiscount = order?.pricing?.discount || 0;
-                                    const pricingPackagingFee = order?.pricing?.packagingFee || 0;
-                                    const pricingServiceFee = order?.pricing?.serviceFee || 0;
-                                    const pricingTotal = getOrderTotal(order);
-
-                                    const definedExtras = pricingDeliveryFee + pricingDeliveryTip + pricingTax + pricingPackagingFee + pricingServiceFee - pricingDiscount;
-                                    const remainder = pricingTotal - (pricingSubTotal + definedExtras);
+                                    const bill = reconcileBill(order);
+                                    if (!bill) return null;
 
                                     return (
                                         <div className="flex flex-col gap-2 pt-2 border-t border-dashed border-gray-100 text-xs">
                                             <div className="flex justify-between items-center text-gray-500 font-medium">
                                                 <span>Item Total</span>
-                                                <span>₹{pricingSubTotal}</span>
+                                                <span>₹{formatPrice(bill.subTotal)}</span>
                                             </div>
 
-                                            {!isPickup && pricingDeliveryFee > 0 && (
+                                            {!isPickup && bill.deliveryFee > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Delivery Fee</span>
-                                                    <span>₹{pricingDeliveryFee}</span>
+                                                    <span>₹{formatPrice(bill.deliveryFee)}</span>
                                                 </div>
                                             )}
 
-                                            {!isPickup && pricingDeliveryTip > 0 && (
+                                            {!isPickup && bill.deliveryTip > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Delivery Tip</span>
-                                                    <span>₹{pricingDeliveryTip}</span>
+                                                    <span>₹{formatPrice(bill.deliveryTip)}</span>
                                                 </div>
                                             )}
 
-                                            {pricingPackagingFee > 0 && (
+                                            {bill.packagingFee > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Packaging Charges</span>
-                                                    <span>₹{pricingPackagingFee}</span>
+                                                    <span>₹{formatPrice(bill.packagingFee)}</span>
                                                 </div>
                                             )}
 
-                                            {pricingServiceFee > 0 && (
+                                            {bill.platformFee > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Platform Charges</span>
-                                                    <span>₹{pricingServiceFee}</span>
+                                                    <span>₹{formatPrice(bill.platformFee)}</span>
                                                 </div>
                                             )}
 
-                                            {pricingTax > 0 && (
-                                                <>
-                                                    <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                        <span>GST on Food (5%)</span>
-                                                        <span>₹{Math.round(pricingSubTotal * 0.05)}</span>
-                                                    </div>
-                                                    {!isPickup && pricingDeliveryFee > 0 && (
-                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                            <span>GST on Delivery (18%)</span>
-                                                            <span>₹{Math.round(pricingDeliveryFee * 0.18)}</span>
-                                                        </div>
-                                                    )}
-                                                    {pricingServiceFee > 0 && (
-                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                            <span>GST on Platform (18%)</span>
-                                                            <span>₹{Math.round(pricingServiceFee * 0.18)}</span>
-                                                        </div>
-                                                    )}
-                                                </>
+                                            {bill.foodGst > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>GST on Food (5%)</span>
+                                                    <span>₹{formatPrice(bill.foodGst)}</span>
+                                                </div>
                                             )}
 
-                                            {pricingDiscount > 0 && (
+                                            {!isPickup && bill.deliveryGst > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>GST (18% on Delivery)</span>
+                                                    <span>₹{formatPrice(bill.deliveryGst)}</span>
+                                                </div>
+                                            )}
+
+                                            {bill.platformGst > 0 && (
+                                                <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                    <span>GST (18% on Platform Fee)</span>
+                                                    <span>₹{formatPrice(bill.platformGst)}</span>
+                                                </div>
+                                            )}
+
+                                            {bill.discount > 0 && (
                                                 <div className="flex justify-between items-center text-[#64C27B] font-medium">
                                                     <span>Discount Applied</span>
-                                                    <span>-₹{pricingDiscount}</span>
+                                                    <span>-₹{formatPrice(bill.discount)}</span>
                                                 </div>
                                             )}
 
-                                            {remainder > 0 && (
+                                            {bill.remainder > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Taxes & Charges</span>
-                                                    <span>₹{remainder.toFixed(2)}</span>
+                                                    <span>₹{formatPrice(bill.remainder)}</span>
                                                 </div>
                                             )}
 
@@ -1098,7 +1143,7 @@ export const OrderTrackingPage: React.FC = () => {
 
                                             <div className="flex justify-between items-center text-gray-900 font-bold text-sm">
                                                 <span>Total Paid</span>
-                                                <span className="text-gray-900 font-bold text-base">₹{pricingTotal}</span>
+                                                <span className="text-gray-900 font-bold text-base">₹{formatPrice(bill.total)}</span>
                                             </div>
                                         </div>
                                     );

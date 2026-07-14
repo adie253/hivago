@@ -265,10 +265,10 @@ export const PaymentPage: React.FC = () => {
                 pricing: {
                     subTotal: cartTotal,
                     deliveryFee: deliveryFee,
-                    tax: gst,
+                    tax: deliveryQuote ? (deliveryQuote.foodGst || 0) : gst,
                     discount: 0,
                     packagingFee: 0,
-                    serviceFee: platformFee,
+                    serviceFee: deliveryQuote ? 0 : platformFee,
                     tip: tipAmount,
                     discountCode: "",
                     discountDescription: ""
@@ -727,9 +727,11 @@ export const PaymentPage: React.FC = () => {
                                             })
                                             .map((item, idx) => {
                                                 let displayName = item.name;
-                                                if (item.name === 'GST') {
-                                                    displayName = fulfillmentType === 'Pickup' 
-                                                        ? 'GST (18% on Platform Fee)' 
+                                                if (item.name === 'Base Fee') {
+                                                    displayName = 'Delivery Fee';
+                                                } else if (item.name === 'GST') {
+                                                    displayName = fulfillmentType === 'Pickup'
+                                                        ? 'GST (18% on Platform Fee)'
                                                         : 'GST (18% on Delivery + Platform Fee)';
                                                 } else if (item.name === 'GST on Food') {
                                                     displayName = 'GST on Food (5%)';

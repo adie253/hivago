@@ -565,7 +565,7 @@ export const CheckoutPage: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
-                                    {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName || 'the restaurant'}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
+                                    {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName || 'the restaurant'}${restaurantDetails?.addressLine ? ` (${restaurantDetails.addressLine})` : ''}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
                                 </div>
 
                                 {/* Fulfillment Mode Toggle - Only shown if restaurant accepts pickup */}
@@ -726,9 +726,11 @@ export const CheckoutPage: React.FC = () => {
                                                 })
                                                 .map((item, idx) => {
                                                     let displayName = item.name;
-                                                    if (item.name === 'GST') {
-                                                        displayName = fulfillmentType === 'Pickup' 
-                                                            ? 'GST (18% on Platform Fee)' 
+                                                    if (item.name === 'Base Fee') {
+                                                        displayName = 'Delivery Fee';
+                                                    } else if (item.name === 'GST') {
+                                                        displayName = fulfillmentType === 'Pickup'
+                                                            ? 'GST (18% on Platform Fee)'
                                                             : 'GST (18% on Delivery + Platform Fee)';
                                                     } else if (item.name === 'GST on Food') {
                                                         displayName = 'GST on Food (5%)';
