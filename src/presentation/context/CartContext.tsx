@@ -410,16 +410,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isLoggedIn) {
             // For reorder, we push immediately instead of debouncing to ensure it's ready for checkout
             try {
-                const itemsPayload = items.map(i => ({
-                    menuItemId: i.menuItemId || i.id,
-                    name: i.name,
-                    unitPrice: i.price,
-                    quantity: i.quantity,
-                    options: i.selectedAddons && i.selectedAddons.length > 0
-                        ? i.selectedAddons.map(addon => `${addon.groupName || 'Addon'}:${addon.name}`).join(",")
-                        : (i.description || ""),
-                    specialInstructions: i.customizations
-                }));
+                const itemsPayload = items.map(i => {
+                    const p: any = {
+                        menuItemId: i.menuItemId || i.id,
+                        name: i.name,
+                        unitPrice: i.price,
+                        quantity: i.quantity
+                    };
+                    if (i.selectedAddons && i.selectedAddons.length > 0) {
+                        p.options = i.selectedAddons.map(addon => `${addon.groupName || 'Addon'}:${addon.name}`).join(",");
+                    } else if (i.description && i.description !== "") {
+                        p.options = i.description;
+                    }
+                    if (i.customizations && i.customizations !== "") {
+                        p.specialInstructions = i.customizations;
+                    }
+                    return p;
+                });
 
                 await clearServerCart();
                 await syncCart({
@@ -430,6 +437,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } catch (err) {
                 console.error("Reorder sync failed:", err);
                 showToast("Failed to reorder items", "error");
+                return;
             }
         }
         
