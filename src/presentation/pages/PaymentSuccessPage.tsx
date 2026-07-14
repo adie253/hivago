@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, Package, ArrowRight, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
-import { verifyPayment, getOrderById } from '../../data/api';
+import { verifyPayment, getOrderById, fetchRestaurantById } from '../../data/api';
 
 export const PaymentSuccessPage: React.FC = () => {
     const navigate = useNavigate();
@@ -12,6 +12,7 @@ export const PaymentSuccessPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [orderId, setOrderId] = useState<string | null>(null);
     const [orderData, setOrderData] = useState<any>(null);
+    const [restaurantAddress, setRestaurantAddress] = useState<string | null>(null);
 
     useEffect(() => {
         // Extract order info from URL, e.g. ?txnid=... or read from sessionStorage
@@ -44,6 +45,14 @@ export const PaymentSuccessPage: React.FC = () => {
                             return;
                         }
                         setOrderData(order);
+                        try {
+                            const restaurant = await fetchRestaurantById(order.restaurantId);
+                            if (restaurant && restaurant.addressLine) {
+                                setRestaurantAddress(restaurant.addressLine);
+                            }
+                        } catch (err) {
+                            console.error("Failed to fetch restaurant details for address:", err);
+                        }
                     }
                 }
             } catch (error) {
@@ -77,6 +86,25 @@ export const PaymentSuccessPage: React.FC = () => {
             </div>
         );
     }
+
+    const getPricingDetails = () => {
+        if (!orderData) return { subTotal: 0, deliveryFee: 0, platformFee: 0, tax: 0, packagingFee: 0, tip: 0, discount: 0, total: 0 };
+        const total = orderData.totalAmount || orderData.pricing?.total || 0;
+        const subTotal = orderData.pricing?.subTotal || 0;
+        const deliveryFee = orderData.pricing?.deliveryFee || 0;
+        const platformFee = orderData.pricing?.serviceFee || 0;
+        const packagingFee = orderData.pricing?.packagingFee || 0;
+        const tip = orderData.pricing?.tip || 0;
+        const discount = orderData.pricing?.discount || 0;
+
+        // Dynamic tax calculation: total = subTotal + deliveryFee + platformFee + packagingFee + tip + tax - discount
+        // => tax = total - subTotal - deliveryFee - platformFee - packagingFee - tip + discount
+        const tax = Math.max(0, total - (subTotal + deliveryFee + platformFee + packagingFee + tip) + discount);
+
+        return { subTotal, deliveryFee, platformFee, tax, packagingFee, tip, discount, total };
+    };
+
+    const pricing = getPricingDetails();
 
     return (
         <div className="min-h-[100dvh] bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden">
@@ -192,22 +220,40 @@ export const PaymentSuccessPage: React.FC = () => {
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
                                     <span>Subtotal</span>
-                                    <span>₹{(orderData.pricing?.subTotal || 0).toFixed(2)}</span>
+                                    <span>₹{pricing.subTotal.toFixed(2)}</span>
                                 </div>
-                                {orderData.fulfillmentType !== 'Pickup' && (
+                                {orderData.fulfillmentType !== 'Pickup' && pricing.deliveryFee > 0 && (
                                     <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
                                         <span>Delivery Fee</span>
-                                        <span>{orderData.pricing?.deliveryFee > 0 ? `₹${(orderData.pricing.deliveryFee).toFixed(2)}` : 'FREE'}</span>
+                                        <span>₹{pricing.deliveryFee.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {pricing.platformFee > 0 && (
+                                    <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
+                                        <span>Platform Fee</span>
+                                        <span>₹{pricing.platformFee.toFixed(2)}</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
                                     <span>Taxes & Charges</span>
-                                    <span>₹{(orderData.pricing?.tax || 0).toFixed(2)}</span>
+                                    <span>₹{pricing.tax.toFixed(2)}</span>
                                 </div>
-                                {orderData.pricing?.packagingFee > 0 && (
+                                {pricing.packagingFee > 0 && (
                                     <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
                                         <span>Packaging Fee</span>
-                                        <span>₹{(orderData.pricing.packagingFee).toFixed(2)}</span>
+                                        <span>₹{pricing.packagingFee.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {pricing.tip > 0 && (
+                                    <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
+                                        <span>Driver Tip</span>
+                                        <span>₹{pricing.tip.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {pricing.discount > 0 && (
+                                    <div className="flex justify-between items-center text-xs text-[#00A050] font-bold">
+                                        <span>Discount Applied</span>
+                                        <span>-₹{pricing.discount.toFixed(2)}</span>
                                     </div>
                                 )}
                             </div>
@@ -218,14 +264,14 @@ export const PaymentSuccessPage: React.FC = () => {
                             
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-bold text-gray-900">Grand Total</span>
-                                <span className="text-xl font-bold text-[#00A050]">₹{(orderData.totalAmount || orderData.pricing?.total || 0).toFixed(2)}</span>
+                                <span className="text-xl font-bold text-[#00A050]">₹{pricing.total.toFixed(2)}</span>
                             </div>
 
                             <div className="flex items-center gap-2 mt-4 text-[11px] text-gray-400 font-semibold bg-white p-3 border border-gray-50 rounded-xl">
                                 <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                 <span className="truncate">
                                     {orderData.fulfillmentType === 'Pickup' 
-                                        ? `Pickup from: ${orderData.deliveryInfo?.pickupAddress || 'Restaurant'}`
+                                        ? `Pickup from: ${restaurantAddress || orderData.deliveryInfo?.pickupAddress || 'Restaurant'}`
                                         : `Deliver to: ${(orderData.deliveryInfo?.deliveryAddress?.formattedAddress || orderData.deliveryInfo?.deliveryAddress?.street || 'Selected Location')}`
                                     }
                                 </span>
