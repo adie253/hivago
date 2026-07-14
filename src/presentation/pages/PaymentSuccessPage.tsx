@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, Package, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
+import { verifyPayment, getOrderById } from '../../data/api';
 
 export const PaymentSuccessPage: React.FC = () => {
     const navigate = useNavigate();
@@ -17,24 +18,46 @@ export const PaymentSuccessPage: React.FC = () => {
         let id = queryParams.get('orderId') || sessionStorage.getItem('orderId');
         let txn = queryParams.get('txnid') || sessionStorage.getItem('txnId');
 
-        // Use standard ID if none found
         setOrderId(id || txn || "1771138859799");
         refreshCartFromServer();
-        
-        // Simulate a slight delay to show loading state
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-            // clean up session storage
-            sessionStorage.removeItem('orderId');
-            sessionStorage.removeItem('txnId');
 
-            // If we are running inside the PayU popup, close it so the parent can take over via polling
-            if (window.opener && window.opener !== window) {
-                window.close();
+        const verifyAndCheckOrder = async () => {
+            try {
+                // 1. Verify the payment with backend
+                if (txn) {
+                    await verifyPayment(txn);
+                } else {
+                    const storedTxn = sessionStorage.getItem('txnId');
+                    if (storedTxn) {
+                        await verifyPayment(storedTxn);
+                    }
+                }
+
+                // 2. Double check order status from the server
+                const finalOrderId = id || txn;
+                if (finalOrderId) {
+                    const order = await getOrderById(finalOrderId);
+                    if (order && (order.status === 'Cancelled' || order.status === 'Failed')) {
+                        navigate(`/payment-failed?orderId=${finalOrderId}`, { replace: true });
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error("Error during payment verification on success page:", error);
+            } finally {
+                setIsLoading(false);
+                // clean up session storage
+                sessionStorage.removeItem('orderId');
+                sessionStorage.removeItem('txnId');
+
+                // If we are running inside the PayU popup, close it so the parent can take over via polling
+                if (window.opener && window.opener !== window) {
+                    window.close();
+                }
             }
-        }, 1200);
+        };
 
-        return () => clearTimeout(timer);
+        verifyAndCheckOrder();
     }, [location]);
 
     if (isLoading) {
