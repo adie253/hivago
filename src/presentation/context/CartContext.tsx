@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useToast } from './ToastContext';
 import DIContainer from '../../di/container';
 import { CartItem } from '../../core/entities/CartItem';
-import { syncCart, isTokenValid, getCart, clearServerCart, clearAuthSession } from '../../data/api';
+import { syncCart, isTokenValid, getCart, clearServerCart, clearAuthSession, DeliveryQuoteResponse } from '../../data/api';
 
 interface CartContextType {
     cartItems: CartItem[];
@@ -14,8 +14,8 @@ interface CartContextType {
     refreshCartFromServer: () => Promise<void>;
     cartTotal: number;
     refreshLoginStatus: () => void;
-    deliveryQuote: any | null;
-    setDeliveryQuote: (quote: any | null) => void;
+    deliveryQuote: DeliveryQuoteResponse | null;
+    setDeliveryQuote: (quote: DeliveryQuoteResponse | null) => void;
     deliveryStatus: 'success' | 'error' | 'warning' | null;
     setDeliveryStatus: (status: 'success' | 'error' | 'warning' | null) => void;
     deliveryError: string | null;
@@ -41,7 +41,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [restaurantName, setRestaurantName] = useState<string | undefined>(undefined);
     const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid());
     const [isCartLoading, setIsCartLoading] = useState(true);
-    const [deliveryQuote, setDeliveryQuote] = useState<any | null>(() => {
+    const [deliveryQuote, setDeliveryQuote] = useState<DeliveryQuoteResponse | null>(() => {
         const saved = sessionStorage.getItem('checkout_delivery_quote');
         return saved ? JSON.parse(saved) : null;
     });

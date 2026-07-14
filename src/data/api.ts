@@ -441,9 +441,10 @@ export interface DeliveryQuoteRequest {
     restaurantId: string;
     pickupLatitude: number;
     pickupLongitude: number;
-    dropLatitude: number;
-    dropLongitude: number;
+    dropLatitude?: number;
+    dropLongitude?: number;
     orderAmount: number;
+    fulfillmentType?: 'Delivery' | 'Pickup';
     // Optional — backend reverse-geocodes from lat/lng if omitted
     pickupPincode?: string | null;
     dropPincode?: string | null;
@@ -452,10 +453,14 @@ export interface DeliveryQuoteRequest {
 
 export interface DeliveryQuoteResponse {
     id: string;
+    fulfillmentType: 'Delivery' | 'Pickup';
+    itemTotal: number;
     deliveryFee: number;
     platformFee: number;
     gst: number;
+    foodGst: number;
     totalPayable: number;
+    grandTotal: number;
     distanceKm: number;
     estimatedMinutes: number;
     surgeMultiplier: number;
@@ -858,7 +863,7 @@ export const getOrderById = async (orderId: string): Promise<ApiOrder | null> =>
 export interface ApiPlaceOrderRequest {
     paymentId: string;
     paymentTransactionId: string;
-    deliveryQuoteId: string;
+    deliveryQuoteId?: string | null;
     fulfillmentType: 'Delivery' | 'Pickup';
     restaurantId: string;
     restaurantName: string;

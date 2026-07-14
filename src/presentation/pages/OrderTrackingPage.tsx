@@ -143,8 +143,9 @@ export const OrderTrackingPage: React.FC = () => {
                     let dropLat = (order.deliveryInfo?.deliveryAddress as any)?.latitude;
                     let dropLng = (order.deliveryInfo?.deliveryAddress as any)?.longitude;
 
-                    // Fallback to address search if lat/lng missing
-                    if (!dropLat || !dropLng) {
+                    const isPickup = order.fulfillmentType?.toLowerCase() === 'pickup';
+                    // Fallback to address search if lat/lng missing (only for Delivery)
+                    if (!isPickup && (!dropLat || !dropLng)) {
                         console.log("[OrderTracking] Delivery coordinates missing, skipping quote fetch");
                         return;
                     }
@@ -154,8 +155,9 @@ export const OrderTrackingPage: React.FC = () => {
                             restaurantId: order.restaurantId,
                             pickupLatitude: restaurant.latitude,
                             pickupLongitude: restaurant.longitude,
-                            dropLatitude: dropLat,
-                            dropLongitude: dropLng,
+                            dropLatitude: isPickup ? undefined : dropLat,
+                            dropLongitude: isPickup ? undefined : dropLng,
+                            fulfillmentType: isPickup ? 'Pickup' : 'Delivery',
                             orderAmount: order.totalAmount || order.pricing?.total || 0
                         });
 

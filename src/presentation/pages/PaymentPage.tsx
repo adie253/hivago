@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { useToast } from '../context/ToastContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle, ChevronDown } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
 import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode, isPayUPopupClosed, preOpenPayUPopup } from '../../data/api';
@@ -14,6 +14,7 @@ import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 import { StepperIcon } from '../components/checkout/StepperIcon';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { formatPrice } from '../../utils/formatUtils';
 
 
 export const PaymentPage: React.FC = () => {
@@ -78,16 +79,12 @@ export const PaymentPage: React.FC = () => {
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [confirmedRestaurant, setConfirmedRestaurant] = useState<string | null>(null);
     const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
-    const [showGstTooltip, setShowGstTooltip] = useState(false);
-    const deliveryQuoteId = deliveryQuote?.id || '';
-    const deliveryFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.deliveryFee || 0);
-    const platformFee = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.platformFee || 0);
-    const foodGst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0;
-    const deliveryGst = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote ? (deliveryFee * 0.18) : 0);
-    const platformGst = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote ? (platformFee * 0.18) : 0);
-    const deliveryAndPlatformGst = fulfillmentType === 'Pickup' ? 0 : (deliveryQuote?.gst ?? (deliveryGst + platformGst));
-    const gst = foodGst + deliveryAndPlatformGst;
-    const grandTotal = cartTotal + deliveryFee + platformFee + gst + tipAmount;
+    // const [showGstTooltip, setShowGstTooltip] = useState(false);
+    const deliveryQuoteId = deliveryQuote?.id || null;
+    const deliveryFee = deliveryQuote?.deliveryFee || 0;
+    const platformFee = deliveryQuote?.platformFee || 0;
+    const gst = (deliveryQuote?.gst || 0) + (deliveryQuote?.foodGst || 0);
+    const grandTotal = (deliveryQuote?.grandTotal || cartTotal) + tipAmount;
 
     // Enrich cart items dynamically using the fetched restaurant details (menu catalog) to preserve correct isVeg status and imageUrl
     const enrichedCartItems = React.useMemo(() => {
@@ -396,7 +393,7 @@ export const PaymentPage: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between items-center pt-3 mt-1 border-t border-gray-100">
                                     <span className="text-gray-500 font-bold">Total Amount</span>
-                                    <span className="text-[#FF4732] font-bold text-[18px]">₹{finalAmount.toFixed(0)}</span>
+                                    <span className="text-[#FF4732] font-bold text-[18px]">₹{formatPrice(finalAmount)}</span>
                                 </div>
                             </div>
                         </div>
@@ -699,7 +696,7 @@ export const PaymentPage: React.FC = () => {
                                                 <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2.5 shrink-0" />
                                                 <span>{item.name} x {item.quantity}</span>
                                             </div>
-                                            <span className="text-gray-700 font-bold">₹{Math.round(item.price * item.quantity)}</span>
+                                            <span className="text-gray-700 font-bold">₹{formatPrice(item.price * item.quantity)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -710,79 +707,63 @@ export const PaymentPage: React.FC = () => {
                                 <div className="flex flex-col gap-3 text-[14px]">
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-400 font-medium">Item Total</span>
-                                        <span className="text-gray-700 font-bold">₹{cartTotal.toFixed(0)}</span>
+                                        <span className="text-gray-700 font-bold">₹{formatPrice(deliveryQuote ? deliveryQuote.itemTotal : cartTotal)}</span>
                                     </div>
 
-                                    {fulfillmentType !== 'Pickup' && (
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-400 font-medium">Delivery Fee</span>
-                                            {isCheckingDelivery ? (
-                                                <div className="h-4 w-12 bg-gray-100 rounded-full animate-pulse" />
-                                            ) : (
-                                                <span className="text-gray-700 font-bold">
-                                                    {deliveryFee > 0 ? `₹${deliveryFee.toFixed(0)}` : 'FREE'}
-                                                </span>
-                                            )}
+                                    {isCheckingDelivery ? (
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex justify-between items-center w-full animate-pulse">
+                                                <div className="h-4 bg-gray-150 rounded w-24" />
+                                                <div className="h-4 bg-gray-150 rounded w-12" />
+                                            </div>
                                         </div>
+                                    ) : deliveryQuote ? (
+                                        deliveryQuote.breakdown
+                                            .filter(item => {
+                                                if (item.name === 'Delivery Fee' && (fulfillmentType === 'Pickup' || item.amount === 0)) {
+                                                    return false;
+                                                }
+                                                return true;
+                                            })
+                                            .map((item, idx) => {
+                                                let displayName = item.name;
+                                                if (item.name === 'GST') {
+                                                    displayName = fulfillmentType === 'Pickup' 
+                                                        ? 'GST (18% on Platform Fee)' 
+                                                        : 'GST (18% on Delivery + Platform Fee)';
+                                                } else if (item.name === 'GST on Food') {
+                                                    displayName = 'GST on Food (5%)';
+                                                }
+                                                return (
+                                                    <div key={idx} className="flex justify-between items-center">
+                                                        <span className="text-gray-400 font-medium">{displayName}</span>
+                                                        <span className="text-gray-700 font-bold">
+                                                            {item.amount > 0 ? `₹${formatPrice(item.amount)}` : 'FREE'}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })
+                                    ) : (
+                                        <>
+                                            {fulfillmentType !== 'Pickup' && (
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-gray-400 font-medium">Delivery Fee</span>
+                                                    <span className="text-gray-400 font-bold">--</span>
+                                                </div>
+                                            )}
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-gray-400 font-medium">Platform Fee & GST</span>
+                                                <span className="text-gray-400 font-bold">--</span>
+                                            </div>
+                                        </>
                                     )}
 
                                     {tipAmount > 0 && (
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-400 font-medium">Delivery Tip</span>
-                                            <span className="text-gray-700 font-bold">₹{tipAmount.toFixed(0)}</span>
+                                            <span className="text-gray-700 font-bold">₹{formatPrice(tipAmount)}</span>
                                         </div>
                                     )}
-
-                                    <div className="mb-3">
-                                        <div className="flex justify-between items-center">
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowGstTooltip(!showGstTooltip);
-                                                }}
-                                                className="text-gray-400 font-medium flex items-center gap-1 hover:text-gray-600 transition-colors focus:outline-none"
-                                            >
-                                                <span>GST & Other Charges</span>
-                                                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${showGstTooltip ? 'rotate-180' : ''}`} />
-                                            </button>
-                                            <span className="text-gray-700 font-bold">₹{(foodGst + deliveryGst + platformGst + platformFee).toFixed(2)}</span>
-                                        </div>
-                                        {showGstTooltip && (
-                                            <div className="mt-2.5 bg-gray-50/50 rounded-xl p-3 border border-gray-100 flex flex-col gap-2.5 text-left animate-in fade-in slide-in-from-top-2 duration-200">
-                                                <div>
-                                                    <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
-                                                        <span>Platform Fee</span>
-                                                        <span>₹{(platformFee + platformGst).toFixed(2)}</span>
-                                                    </div>
-                                                    <p className="text-[10px] text-gray-400 leading-normal mt-0.5 font-normal">
-                                                        [Inclusive of GST.] This fee helps us operate and maintain Hivago platform
-                                                    </p>
-                                                </div>
-                                                <div className="border-t border-gray-200/50"></div>
-                                                <div>
-                                                    <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
-                                                        <span>Restaurant GST</span>
-                                                        <span>₹{foodGst.toFixed(2)}</span>
-                                                    </div>
-                                                    <p className="text-[10px] text-gray-400 leading-normal mt-0.5 font-normal">
-                                                        Hivago plays no role in govt. or restaurant related taxes & charges
-                                                    </p>
-                                                </div>
-                                                {deliveryGst > 0 && (
-                                                    <>
-                                                        <div className="border-t border-gray-200/50"></div>
-                                                        <div>
-                                                            <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
-                                                                <span>GST on Delivery fee</span>
-                                                                <span>₹{deliveryGst.toFixed(2)}</span>
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
 
                                 <div className="border-t border-dashed border-gray-200/80 my-1" />
@@ -795,7 +776,7 @@ export const PaymentPage: React.FC = () => {
                                     ) : deliveryStatus === 'error' ? (
                                         <span className="text-gray-400 font-bold">--</span>
                                     ) : (
-                                        <span className="text-gray-950 font-bold text-[18px]">₹{grandTotal.toFixed(0)}</span>
+                                        <span className="text-gray-950 font-bold text-[18px]">₹{formatPrice(grandTotal)}</span>
                                     )}
                                 </div>
                             </div>
