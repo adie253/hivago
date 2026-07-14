@@ -605,8 +605,8 @@ export const CheckoutPage: React.FC = () => {
 
                                 {fulfillmentType === 'Delivery' && !isCheckingDelivery && deliveryStatus && (
                                     <div className={`pl-11 mt-1 flex items-center gap-1.5 text-[11px] font-bold ${deliveryStatus === 'success' ? 'text-[#00A050]' :
-                                            deliveryStatus === 'error' ? 'text-[#FF4732]' :
-                                                'text-amber-600'
+                                        deliveryStatus === 'error' ? 'text-[#FF4732]' :
+                                            'text-amber-600'
                                         }`}>
                                         {deliveryStatus === 'success' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                                         {deliveryStatus === 'success'

@@ -181,7 +181,7 @@ export const OrderTrackingPage: React.FC = () => {
             fetchOrder(false);
         }
     }, [lastStatusUpdate]);
-    
+
     // Pre-fetch restaurant details to display pickup address if needed
     useEffect(() => {
         if (order && !restaurantData) {
@@ -332,7 +332,7 @@ export const OrderTrackingPage: React.FC = () => {
 
         // 2. Use the minutes duration (favoring fresh quote if available)
         const mins = quoteEstimatedMinutes || o.estimatedMinutes;
-        
+
         if (mins) {
             return `${mins} min`;
         }
@@ -396,7 +396,7 @@ export const OrderTrackingPage: React.FC = () => {
         const isPaymentIncomplete = (() => {
             const apiPaymentStatus = ((order as any).paymentStatus || '').toUpperCase();
             const apiPaymentStatusDisplay = ((order as any).paymentStatusDisplay || '').toUpperCase();
-            
+
             // If the payment is completed/paid, it is not incomplete!
             if (apiPaymentStatus === 'PAID' || apiPaymentStatusDisplay === 'PAID') {
                 return false;
@@ -445,14 +445,14 @@ export const OrderTrackingPage: React.FC = () => {
 
                             <p className="text-gray-500 font-bold text-base lg:text-lg mb-6 leading-relaxed">
                                 {(() => {
-                                    const rawReason = order?.rejectionReason || 
-                                                     order?.cancellationReason || 
-                                                     order?.cancellationNotes || 
-                                                     order?.failureReason || 
-                                                     (order as any).failureNotes ||
-                                                     (order as any).deliveryInfo?.failureNotes ||
-                                                     (order as any).deliveryInfo?.failureReason;
-                                    
+                                    const rawReason = order?.rejectionReason ||
+                                        order?.cancellationReason ||
+                                        order?.cancellationNotes ||
+                                        order?.failureReason ||
+                                        (order as any).failureNotes ||
+                                        (order as any).deliveryInfo?.failureNotes ||
+                                        (order as any).deliveryInfo?.failureReason;
+
                                     if (!rawReason) {
                                         if (status === 'rejected') return 'The restaurant is unable to fulfill your order right now.';
                                         if (status === 'failed') return 'Your order could not be completed.';
@@ -682,7 +682,7 @@ export const OrderTrackingPage: React.FC = () => {
                                 </div>
 
                                 <hr className="border-gray-50 border-t-2" />
-                                
+
                                 {/* Delivery Code Card */}
                                 {showCode && (
                                     <>
@@ -759,7 +759,7 @@ export const OrderTrackingPage: React.FC = () => {
                                                         <span>Item Total</span>
                                                         <span>₹{pricingSubTotal}</span>
                                                     </div>
-                                                    
+
                                                     {!isPickup && pricingDeliveryFee > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Delivery Fee</span>
@@ -914,7 +914,7 @@ export const OrderTrackingPage: React.FC = () => {
                                     {/* Progress Fill */}
                                     <div
                                         className="absolute left-6 lg:left-[17px] top-6 lg:top-[17px] bottom-[30px] lg:bottom-[34px] w-0.5 bg-[#00A050] transition-all duration-1000 -translate-x-[1px] z-0"
-                                        style={{ 
+                                        style={{
                                             transform: `scaleY(${currentStageIndex / (stages.length - 1)})`,
                                             transformOrigin: 'top'
                                         }}
@@ -1028,7 +1028,7 @@ export const OrderTrackingPage: React.FC = () => {
                                                 <span>Item Total</span>
                                                 <span>₹{pricingSubTotal}</span>
                                             </div>
-                                            
+
                                             {!isPickup && pricingDeliveryFee > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Delivery Fee</span>
@@ -1058,25 +1058,25 @@ export const OrderTrackingPage: React.FC = () => {
                                             )}
 
                                             {pricingTax > 0 && (
-                                                 <>
-                                                     <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                         <span>GST on Food (5%)</span>
-                                                         <span>₹{Math.round(pricingSubTotal * 0.05)}</span>
-                                                     </div>
-                                                     {!isPickup && pricingDeliveryFee > 0 && (
-                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                             <span>GST on Delivery (18%)</span>
-                                                             <span>₹{Math.round(pricingDeliveryFee * 0.18)}</span>
-                                                         </div>
-                                                     )}
-                                                     {pricingServiceFee > 0 && (
-                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
-                                                             <span>GST on Platform (18%)</span>
-                                                             <span>₹{Math.round(pricingServiceFee * 0.18)}</span>
-                                                         </div>
-                                                     )}
-                                                 </>
-                                             )}
+                                                <>
+                                                    <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                        <span>GST on Food (5%)</span>
+                                                        <span>₹{Math.round(pricingSubTotal * 0.05)}</span>
+                                                    </div>
+                                                    {!isPickup && pricingDeliveryFee > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>GST on Delivery (18%)</span>
+                                                            <span>₹{Math.round(pricingDeliveryFee * 0.18)}</span>
+                                                        </div>
+                                                    )}
+                                                    {pricingServiceFee > 0 && (
+                                                        <div className="flex justify-between items-center text-gray-500 font-medium">
+                                                            <span>GST on Platform (18%)</span>
+                                                            <span>₹{Math.round(pricingServiceFee * 0.18)}</span>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
 
                                             {pricingDiscount > 0 && (
                                                 <div className="flex justify-between items-center text-[#64C27B] font-medium">

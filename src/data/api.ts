@@ -156,9 +156,9 @@ export const authFetch = async (endpoint: string, options: RequestInit = {}): Pr
     if (token) {
         headers.set('Authorization', 'Bearer ' + token);
     }
-    
+
     let response = await fetch(BASE_URL + endpoint, { ...options, headers });
-    
+
     if (response.status === 401) {
         const newToken = await getOrPerformTokenRefresh();
         if (newToken) {
@@ -170,7 +170,7 @@ export const authFetch = async (endpoint: string, options: RequestInit = {}): Pr
             window.dispatchEvent(new CustomEvent('auth-logout'));
         }
     }
-    
+
     return response;
 };
 
@@ -329,7 +329,7 @@ export const getPlacesAutocomplete = async (input: string, lat?: number, lng?: n
         }
         const response = await authFetch(url);
         if (!response.ok) throw new Error('Failed to fetch autocomplete');
-        
+
         // Some backends wrap in an array, some in an object like { predictions: [] }. Handle gracefully.
         const data = await response.json();
         return Array.isArray(data) ? data : (data.suggestions || data.predictions || data.results || []);
@@ -399,7 +399,7 @@ export const syncCart = async (request: SyncCartRequest, replaceCart: boolean = 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(request)
         });
-        
+
         if (response.status === 409) {
             const conflictData = await response.json();
             return {
@@ -529,13 +529,13 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
         : Array.from(new Set(allItems.map(i => i.category || 'General'))); // Categories from items
     // Priority: Use live API fields, fall back to calculated defaults
     const cuisines = apiRes.cuisineTypes && apiRes.cuisineTypes.length > 0 ? apiRes.cuisineTypes : (categories.length > 0 ? categories : ['Fast Food', 'Indian']);
-    
+
     const calculatedAvgPrepTime = allItems.length > 0
         ? Math.round(allItems.reduce((sum, item) => sum + item.preparationTimeMinutes, 0) / allItems.length)
         : 30;
-        
+
     const prepTime = apiRes.avgPrepTimeMins || calculatedAvgPrepTime;
-    
+
     return {
         id: apiRes.id,
         name: apiRes.name,
@@ -629,7 +629,7 @@ export const searchDishes = async (query: string): Promise<FoodItem[]> => {
         }
         const data = await response.json();
         const apiItems: ApiSearchItem[] = Array.isArray(data) ? data : (data.items || []);
-        
+
         return apiItems
             .filter(item => item.isAcceptingOrders !== false) // Only filter out if explicitly false
             .map(item => ({
@@ -655,7 +655,7 @@ export const fetchRestaurantById = async (id: string): Promise<Restaurant | null
         // Fallback: search in list first if direct ID doesn't work (some backends only support list)
         // We do this to avoid 404 console errors from the browser
         let apiRes: ApiRestaurant | null = null;
-        
+
         const listResponse = await fetch(`${BASE_URL}/catalog/restaurants`);
         if (listResponse.ok) {
             const data = await listResponse.json();
@@ -843,10 +843,10 @@ export const getOrderById = async (orderId: string): Promise<ApiOrder | null> =>
         // Adjust endpoint if needed. Typically /orders/{id} or we can search inside getActiveOrders
         const response = await authFetch(`/orders/${orderId}`);
         if (!response.ok) {
-             // Fallback: search in active orders if direct ID endpoint isn't supported
-             const activeOrders = await getActiveOrders();
-             const found = activeOrders.find(o => o.id === orderId || o.orderNumber === orderId);
-             return found || null;
+            // Fallback: search in active orders if direct ID endpoint isn't supported
+            const activeOrders = await getActiveOrders();
+            const found = activeOrders.find(o => o.id === orderId || o.orderNumber === orderId);
+            return found || null;
         }
         return await response.json();
     } catch (error) {
@@ -856,7 +856,7 @@ export const getOrderById = async (orderId: string): Promise<ApiOrder | null> =>
 };
 
 export interface ApiPlaceOrderRequest {
-     paymentId: string;
+    paymentId: string;
     paymentTransactionId: string;
     deliveryQuoteId: string;
     fulfillmentType: 'Delivery' | 'Pickup';
@@ -907,7 +907,7 @@ export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<Ap
         const idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString() + Math.random().toString();
         const response = await authFetch('/orders', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Idempotency-Key': idempotencyKey
             },
@@ -924,7 +924,7 @@ export const placeOrder = async (orderPayload: ApiPlaceOrderRequest): Promise<Ap
 
             const errorMsg = parsedErr?.message || parsedErr?.error || `Failed to place order: ${response.statusText}`;
             const errorType = parsedErr?.error || parsedErr?.type;
-            
+
             const customErr = new Error(errorMsg);
             if (errorType) {
                 (customErr as any).response = {
@@ -962,92 +962,92 @@ export const fetchDeliveryCodes = async (orderId: string): Promise<{ pickupCode:
 
 
 export const initiatePayment = async (orderId: string) => {
-  const origin = window.location.origin;
-  const res = await authFetch("/payments/initiate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ 
-      orderId,
-      surl: `${origin}/payment-success`,
-      furl: `${origin}/payment-failed`,
-      origin
-    })
-  });
+    const origin = window.location.origin;
+    const res = await authFetch("/payments/initiate", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            orderId,
+            surl: `${origin}/payment-success`,
+            furl: `${origin}/payment-failed`,
+            origin
+        })
+    });
 
-  return res.json();
+    return res.json();
 };
 
 export const preOpenPayUPopup = () => {
-  // Same-tab payment: no-op
+    // Same-tab payment: no-op
 };
 
 function redirectToPayU(params: any) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = params.payUBaseUrl;
-  // NO form.target -> stays in the same tab.
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = params.payUBaseUrl;
+    // NO form.target -> stays in the same tab.
 
-  const fields = {
-    key: params.key,
-    txnid: params.txnId,
-    amount: params.amount,
-    productinfo: params.productInfo,
-    firstname: params.firstName,
-    email: params.email,
-    phone: params.phone,
-    surl: params.surl,
-    furl: params.furl,
-    hash: params.hash
-  };
+    const fields = {
+        key: params.key,
+        txnid: params.txnId,
+        amount: params.amount,
+        productinfo: params.productInfo,
+        firstname: params.firstName,
+        email: params.email,
+        phone: params.phone,
+        surl: params.surl,
+        furl: params.furl,
+        hash: params.hash
+    };
 
-  Object.entries(fields).forEach(([name, value]) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = name;
-    input.value = String(value);
-    form.appendChild(input);
-  });
+    Object.entries(fields).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = String(value);
+        form.appendChild(input);
+    });
 
-  document.body.appendChild(form);
-  form.submit();
+    document.body.appendChild(form);
+    form.submit();
 }
 
 export const closePayUPopupWindow = () => {
-  // Same-tab payment: no-op
+    // Same-tab payment: no-op
 };
 
 export const isPayUPopupClosed = () => {
-  return true;
+    return true;
 };
 
 export const startPayment = async (orderId: string) => {
-  const params = await initiatePayment(orderId);
+    const params = await initiatePayment(orderId);
 
-  // ✅ save before redirect
-  sessionStorage.setItem("txnId", params.txnId);
-  sessionStorage.setItem("orderId", orderId);
+    // ✅ save before redirect
+    sessionStorage.setItem("txnId", params.txnId);
+    sessionStorage.setItem("orderId", orderId);
 
-  redirectToPayU(params);
+    redirectToPayU(params);
 };
 
 
 
 export const verifyPayment = async (txnId: string): Promise<any> => {
-  try {
-    const res = await authFetch("/payments/verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ txnId })
-    });
-    return await res.json();
-  } catch (error) {
-    console.error("Failed to verify payment:", error);
-    return null;
-  }
+    try {
+        const res = await authFetch("/payments/verify", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ txnId })
+        });
+        return await res.json();
+    } catch (error) {
+        console.error("Failed to verify payment:", error);
+        return null;
+    }
 };
 
 export const checkDeliveryAvailability = async (restaurantId: string, lat: number, lng: number): Promise<{
@@ -1072,34 +1072,34 @@ export const refreshToken = async (): Promise<any> => {
         if (!token) return null;
 
         // Try standard payload first (with refreshToken if available)
-        const payload = refreshTkn 
+        const payload = refreshTkn
             ? { refreshToken: refreshTkn }
             : { token: token, accessToken: token };
 
         const response = await fetch(BASE_URL + '/auth/refresh', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload) 
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
             // Fallback retry with Authorization header and alternative payload
-            const fallbackPayload = refreshTkn 
+            const fallbackPayload = refreshTkn
                 ? { accessToken: token, refreshToken: refreshTkn }
                 : { token: token };
 
             const retryResponse = await fetch(BASE_URL + '/auth/refresh', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify(fallbackPayload)
             });
             if (!retryResponse.ok) return null;
-            
+
             const data = await retryResponse.json();
             if (data && data.accessToken) {
                 updateAuthSession(data.accessToken, data.refreshToken, data.accessTokenExpiresAt);
@@ -1107,7 +1107,7 @@ export const refreshToken = async (): Promise<any> => {
             }
             return null;
         }
-        
+
         const data = await response.json();
         if (data && data.accessToken) {
             updateAuthSession(data.accessToken, data.refreshToken, data.accessTokenExpiresAt);
