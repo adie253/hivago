@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { XCircle, RefreshCw, Home, AlertTriangle, AlertCircle, HelpCircle } from 'lucide-react';
-import { startPayment } from '../../data/api';
+import { getOrderById } from '../../data/api';
+import { useCart } from '../context/CartContext';
 
 export const PaymentFailedPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { reorder } = useCart();
     const [orderId, setOrderId] = useState<string | null>(null);
     const [isRetrying, setIsRetrying] = useState(false);
     const [retryError, setRetryError] = useState<string | null>(null);
@@ -26,10 +28,28 @@ export const PaymentFailedPage: React.FC = () => {
         setRetryError(null);
 
         try {
-            await startPayment(orderId);
+            const order = await getOrderById(orderId);
+            if (!order || !order.items || order.items.length === 0) {
+                throw new Error("Invalid order details or no items found.");
+            }
+
+            const cartItems = order.items.map((item: any) => ({
+                id: item.menuItemId || item.id,
+                menuItemId: item.menuItemId,
+                name: item.name || item.itemName,
+                price: item.unitPrice,
+                quantity: item.quantity,
+                isVeg: true,
+                isAddon: false,
+                customizations: item.specialInstructions || undefined,
+                description: item.itemDescription || ""
+            }));
+
+            await reorder(cartItems, order.restaurantId, order.restaurantName || "Restaurant");
+            navigate('/payment', { replace: true });
         } catch (error) {
             console.error("Failed to retry payment:", error);
-            setRetryError("Could not initiate payment. Please try again.");
+            setRetryError("Could not retrieve order details. Please try again.");
             setIsRetrying(false);
         }
     };
@@ -96,7 +116,7 @@ export const PaymentFailedPage: React.FC = () => {
                             ) : (
                                 <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
                             )}
-                            {isRetrying ? "Initiating Payment..." : "Retry Payment"}
+                            {isRetrying ? "Repopulating Cart..." : "Retry Payment"}
                         </button>
                         <button
                             onClick={() => navigate('/', { replace: true })}
