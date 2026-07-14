@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { X, Smartphone, RefreshCw, Settings, Info } from 'lucide-react';
+import { X, Smartphone, RefreshCw, Settings, Info, Monitor } from 'lucide-react';
 
 interface LocationSettingsGuideModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-type OSTab = 'ios' | 'android';
+type OSTab = 'desktop' | 'ios' | 'android';
 
 export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProps> = ({ isOpen, onClose }) => {
-    const [activeTab, setActiveTab] = useState<OSTab>('ios');
+    const [activeTab, setActiveTab] = useState<OSTab>(() => {
+        if (typeof navigator !== 'undefined') {
+            const ua = navigator.userAgent;
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+            if (/Android/i.test(ua)) return 'android';
+        }
+        return 'desktop';
+    });
 
     React.useEffect(() => {
         if (!isOpen) return;
@@ -52,6 +59,17 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                 {/* OS Tabs Selector */}
                 <div className="px-6 py-3 bg-gray-50/50 flex gap-2 border-b border-gray-100 shrink-0">
                     <button
+                        onClick={() => setActiveTab('desktop')}
+                        className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                            activeTab === 'desktop'
+                                ? 'bg-white text-[#FF4732] shadow-sm border border-gray-100'
+                                : 'text-gray-400 hover:text-gray-600'
+                        }`}
+                    >
+                        <Monitor className="w-4 h-4" />
+                        Desktop
+                    </button>
+                    <button
                         onClick={() => setActiveTab('ios')}
                         className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
                             activeTab === 'ios'
@@ -77,7 +95,55 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
 
                 {/* Instructions Steps */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-5">
-                    {activeTab === 'ios' ? (
+                    {activeTab === 'desktop' ? (
+                        <>
+                            {/* Desktop Chrome / Edge */}
+                            <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    For Google Chrome & Microsoft Edge
+                                </h4>
+                                <ol className="space-y-3">
+                                    <li className="flex gap-3 text-sm font-medium text-gray-600">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span>Click the <strong className="text-gray-900 font-extrabold">Lock / Tune icon</strong> (left side of your browser URL/address bar).</span>
+                                    </li>
+                                    <li className="flex gap-3 text-sm font-medium text-gray-600">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span>Find <strong className="text-gray-900 font-extrabold">Location</strong> and change the setting to <strong className="text-[#00A859] font-extrabold">Allow</strong>.</span>
+                                    </li>
+                                    <li className="flex gap-3 text-sm font-medium text-gray-600">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span>Click the <strong className="text-gray-900 font-extrabold">Reload</strong> button on the browser or click below.</span>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div className="border-t border-gray-100 my-4" />
+
+                            {/* Desktop Firefox */}
+                            <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    For Mozilla Firefox
+                                </h4>
+                                <ol className="space-y-3">
+                                    <li className="flex gap-3 text-sm font-medium text-gray-600">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span>Click the <strong className="text-gray-900 font-extrabold">Permissions icon</strong> (next to the lock in the address bar).</span>
+                                    </li>
+                                    <li className="flex gap-3 text-sm font-medium text-gray-600">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span>Click the <strong className="text-gray-900 font-extrabold">X</strong> next to "Blocked" under Permissions.</span>
+                                    </li>
+                                    <li className="flex gap-3 text-sm font-medium text-gray-600">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span>Reload and click <strong className="text-gray-900 font-extrabold">Share Current Location</strong> again, then click <strong className="text-[#00A859] font-extrabold">Allow</strong>.</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </>
+                    ) : activeTab === 'ios' ? (
                         <>
                             {/* Browser Steps */}
                             <div>

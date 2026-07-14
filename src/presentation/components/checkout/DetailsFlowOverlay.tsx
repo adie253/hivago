@@ -4,7 +4,7 @@ import { sendOtp, verifyOtp, addAddress, isTokenValid, updateAddress, setDefault
 import { useCart } from '../../context/CartContext';
 import { useUserLocation } from '../../context/LocationContext';
 import { useToast } from '../../context/ToastContext';
-import { getCurrentPositionWithFallback, isMobileDevice } from '../../../utils/geolocation';
+import { getCurrentPositionWithFallback } from '../../../utils/geolocation';
 import { LocationSettingsGuideModal } from '../LocationSettingsGuideModal';
 import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
@@ -399,7 +399,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 refreshAddresses();
             },
             (err) => {
-                if (err.code === err.PERMISSION_DENIED && isMobileDevice()) {
+                if (err.code === err.PERMISSION_DENIED) {
                     setIsGuideOpen(true);
                 } else {
                     setStep('addresses');

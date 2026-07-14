@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, Navigation, Map, Loader2 } from 'lucide-react';
 import { useUserLocation } from '../context/LocationContext';
 import { LocationSelectorOverlay } from './LocationSelectorOverlay';
-import { getCurrentPositionWithFallback, isMobileDevice } from '../../utils/geolocation';
+import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 import { LocationSettingsGuideModal } from './LocationSettingsGuideModal';
 
 interface LocationRequiredCardProps {
@@ -71,15 +71,13 @@ export const LocationRequiredCard: React.FC<LocationRequiredCardProps> = ({
                     <div className="w-full p-3.5 bg-red-50 text-[#FF4732] text-xs md:text-sm font-semibold rounded-2xl border border-red-100 animate-in shake duration-300">
                         {gpsError}
                     </div>
-                    {isMobileDevice() && (
-                        <button
-                            type="button"
-                            onClick={() => setIsGuideOpen(true)}
-                            className="text-xs font-bold text-[#FF4732] hover:underline transition-all mt-1"
-                        >
-                            Location blocked? See how to enable
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => setIsGuideOpen(true)}
+                        className="text-xs font-bold text-[#FF4732] hover:underline transition-all mt-1"
+                    >
+                        Location blocked? See how to enable
+                    </button>
                 </div>
             )}
 

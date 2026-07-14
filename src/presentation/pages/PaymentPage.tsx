@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { useToast } from '../context/ToastContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle, Info } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Check, Mic, BellOff, Users, DoorOpen, ShieldCheck, Loader2, Package, AlertCircle, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useUserLocation } from '../context/LocationContext';
 import { placeOrder, startPayment, verifyPayment, closePayUPopupWindow, fetchRestaurantById, reverseGeocode, isPayUPopupClosed, preOpenPayUPopup } from '../../data/api';
@@ -733,63 +733,55 @@ export const PaymentPage: React.FC = () => {
                                         </div>
                                     )}
 
-                                    <div className="flex justify-between items-center relative">
-                                        <span className="text-gray-400 font-medium flex items-center gap-1">
-                                            GST & Other Charges
-                                            <div className="relative inline-block">
-                                                <button
-                                                    type="button"
-                                                    onMouseEnter={() => setShowGstTooltip(true)}
-                                                    onMouseLeave={() => setShowGstTooltip(false)}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowGstTooltip(!showGstTooltip);
-                                                    }}
-                                                    className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none flex items-center"
-                                                >
-                                                    <Info className="w-3.5 h-3.5" />
-                                                </button>
-                                                {showGstTooltip && (
-                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[280px] bg-white border border-[#E4E7EC] rounded-xl p-4 shadow-xl z-50 text-left">
-                                                        <h4 className="text-[13px] font-bold text-gray-800 mb-2 border-b border-gray-100 pb-1.5">
-                                                            GST & Other Charges
-                                                        </h4>
-                                                        <div className="flex flex-col gap-2.5">
-                                                            <div>
-                                                                <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
-                                                                    <span>Platform Fee</span>
-                                                                    <span>₹{(platformFee + platformGst).toFixed(2)}</span>
-                                                                </div>
-                                                                <p className="text-[10px] text-gray-400 leading-normal mt-0.5 font-normal">
-                                                                    [Inclusive of GST.] This fee helps us operate and maintain Hivago platform
-                                                                </p>
-                                                            </div>
-                                                            <div>
-                                                                <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
-                                                                    <span>Restaurant GST</span>
-                                                                    <span>₹{foodGst.toFixed(2)}</span>
-                                                                </div>
-                                                                <p className="text-[10px] text-gray-400 leading-normal mt-0.5 font-normal">
-                                                                    Hivago plays no role in govt. or restaurant related taxes & charges
-                                                                </p>
-                                                            </div>
-                                                            {deliveryGst > 0 && (
-                                                                <div>
-                                                                    <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
-                                                                        <span>GST on Delivery fee</span>
-                                                                        <span>₹{deliveryGst.toFixed(2)}</span>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        {/* Arrow */}
-                                                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.05)]"></div>
-                                                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-[#E4E7EC] -z-10"></div>
+                                    <div className="mb-3">
+                                        <div className="flex justify-between items-center">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowGstTooltip(!showGstTooltip);
+                                                }}
+                                                className="text-gray-400 font-medium flex items-center gap-1 hover:text-gray-600 transition-colors focus:outline-none"
+                                            >
+                                                <span>GST & Other Charges</span>
+                                                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${showGstTooltip ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            <span className="text-gray-700 font-bold">₹{(foodGst + deliveryGst + platformGst + platformFee).toFixed(2)}</span>
+                                        </div>
+                                        {showGstTooltip && (
+                                            <div className="mt-2.5 bg-gray-50/50 rounded-xl p-3 border border-gray-100 flex flex-col gap-2.5 text-left animate-in fade-in slide-in-from-top-2 duration-200">
+                                                <div>
+                                                    <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
+                                                        <span>Platform Fee</span>
+                                                        <span>₹{(platformFee + platformGst).toFixed(2)}</span>
                                                     </div>
+                                                    <p className="text-[10px] text-gray-400 leading-normal mt-0.5 font-normal">
+                                                        [Inclusive of GST.] This fee helps us operate and maintain Hivago platform
+                                                    </p>
+                                                </div>
+                                                <div className="border-t border-gray-200/50"></div>
+                                                <div>
+                                                    <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
+                                                        <span>Restaurant GST</span>
+                                                        <span>₹{foodGst.toFixed(2)}</span>
+                                                    </div>
+                                                    <p className="text-[10px] text-gray-400 leading-normal mt-0.5 font-normal">
+                                                        Hivago plays no role in govt. or restaurant related taxes & charges
+                                                    </p>
+                                                </div>
+                                                {deliveryGst > 0 && (
+                                                    <>
+                                                        <div className="border-t border-gray-200/50"></div>
+                                                        <div>
+                                                            <div className="flex justify-between items-center text-[12px] font-semibold text-gray-700">
+                                                                <span>GST on Delivery fee</span>
+                                                                <span>₹{deliveryGst.toFixed(2)}</span>
+                                                            </div>
+                                                        </div>
+                                                    </>
                                                 )}
                                             </div>
-                                        </span>
-                                        <span className="text-gray-700 font-bold">₹{(foodGst + deliveryGst + platformGst + platformFee).toFixed(0)}</span>
+                                        )}
                                     </div>
                                 </div>
 

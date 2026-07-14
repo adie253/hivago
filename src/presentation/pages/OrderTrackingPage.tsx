@@ -819,7 +819,7 @@ export const OrderTrackingPage: React.FC = () => {
                                                     {remainder > 0 && (
                                                         <div className="flex justify-between items-center text-gray-500 font-medium">
                                                             <span>Taxes & Charges</span>
-                                                            <span>₹{remainder}</span>
+                                                            <span>₹{remainder.toFixed(2)}</span>
                                                         </div>
                                                     )}
 
@@ -1088,7 +1088,7 @@ export const OrderTrackingPage: React.FC = () => {
                                             {remainder > 0 && (
                                                 <div className="flex justify-between items-center text-gray-500 font-medium">
                                                     <span>Taxes & Charges</span>
-                                                    <span>₹{remainder}</span>
+                                                    <span>₹{remainder.toFixed(2)}</span>
                                                 </div>
                                             )}
 
