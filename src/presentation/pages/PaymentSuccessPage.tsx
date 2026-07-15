@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, Package, ArrowRight, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
-import { verifyPayment, getOrderById, fetchRestaurantById } from '../../data/api';
+import { verifyPayment, getOrderById, fetchRestaurantById, restoreAuthSessionFromBackup, clearPaymentBackup } from '../../data/api';
 
 export const PaymentSuccessPage: React.FC = () => {
     const navigate = useNavigate();
@@ -15,10 +15,13 @@ export const PaymentSuccessPage: React.FC = () => {
     const [restaurantAddress, setRestaurantAddress] = useState<string | null>(null);
 
     useEffect(() => {
-        // Extract order info from URL, e.g. ?txnid=... or read from sessionStorage
+        // Restore auth session if it was lost during the cross-site redirect
+        restoreAuthSessionFromBackup();
+
+        // Extract order info from URL, e.g. ?txnid=... or read from sessionStorage/localStorage
         const queryParams = new URLSearchParams(location.search);
-        let id = queryParams.get('orderId') || sessionStorage.getItem('orderId');
-        let txn = queryParams.get('txnid') || sessionStorage.getItem('txnId');
+        let id = queryParams.get('orderId') || sessionStorage.getItem('orderId') || localStorage.getItem('pay_orderId');
+        let txn = queryParams.get('txnid') || sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
 
         setOrderId(id || txn || "1771138859799");
         refreshCartFromServer();
@@ -29,7 +32,7 @@ export const PaymentSuccessPage: React.FC = () => {
                 if (txn) {
                     await verifyPayment(txn);
                 } else {
-                    const storedTxn = sessionStorage.getItem('txnId');
+                    const storedTxn = sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
                     if (storedTxn) {
                         await verifyPayment(storedTxn);
                     }
@@ -59,9 +62,10 @@ export const PaymentSuccessPage: React.FC = () => {
                 console.error("Error during payment verification on success page:", error);
             } finally {
                 setIsLoading(false);
-                // clean up session storage
+                // clean up session storage and localStorage backup
                 sessionStorage.removeItem('orderId');
                 sessionStorage.removeItem('txnId');
+                clearPaymentBackup();
 
                 // If we are running inside the PayU popup, close it so the parent can take over via polling
                 if (window.opener && window.opener !== window) {

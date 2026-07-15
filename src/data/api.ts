@@ -981,6 +981,15 @@ export const initiatePayment = async (orderId: string) => {
         })
     });
 
+    if (!res.ok) {
+        let errMessage = "Failed to initiate payment";
+        try {
+            const errData = await res.json();
+            errMessage = errData.message || errData.error || errData.title || errMessage;
+        } catch (_) {}
+        throw new Error(errMessage);
+    }
+
     return res.json();
 };
 
@@ -1027,12 +1036,55 @@ export const isPayUPopupClosed = () => {
     return true;
 };
 
+export const restoreAuthSessionFromBackup = (): boolean => {
+    const backupToken = localStorage.getItem("pay_backup_token");
+    const backupRefreshToken = localStorage.getItem("pay_backup_refresh_token");
+    const backupExpiresAt = localStorage.getItem("pay_backup_expires_at");
+    const backupRememberMe = localStorage.getItem("pay_backup_remember_me") === 'true';
+
+    const activeToken = getAccessToken();
+    if (!activeToken && backupToken) {
+        console.log("Restoring auth session from checkout backup...");
+        setAuthSession(backupToken, backupRefreshToken, backupExpiresAt, backupRememberMe);
+        return true;
+    }
+    return false;
+};
+
+export const clearPaymentBackup = () => {
+    localStorage.removeItem("pay_txnId");
+    localStorage.removeItem("pay_orderId");
+    localStorage.removeItem("pay_backup_token");
+    localStorage.removeItem("pay_backup_refresh_token");
+    localStorage.removeItem("pay_backup_expires_at");
+    localStorage.removeItem("pay_backup_remember_me");
+};
+
 export const startPayment = async (orderId: string) => {
     const params = await initiatePayment(orderId);
 
-    // ✅ save before redirect
+    if (!params || !params.payUBaseUrl) {
+        throw new Error("Invalid payment parameters received from server.");
+    }
+
+    // Save to sessionStorage (legacy fallback)
     sessionStorage.setItem("txnId", params.txnId);
     sessionStorage.setItem("orderId", orderId);
+
+    // Save to localStorage as a robust fallback for redirect session loss
+    localStorage.setItem("pay_txnId", params.txnId);
+    localStorage.setItem("pay_orderId", orderId);
+
+    // Back up authentication details to localStorage
+    const token = getAccessToken();
+    const refreshTkn = getRefreshToken();
+    const expiresAt = getTokenExpiresAt();
+    const rememberMe = getRememberMe();
+
+    if (token) localStorage.setItem("pay_backup_token", token);
+    if (refreshTkn) localStorage.setItem("pay_backup_refresh_token", refreshTkn);
+    if (expiresAt) localStorage.setItem("pay_backup_expires_at", expiresAt);
+    localStorage.setItem("pay_backup_remember_me", rememberMe ? 'true' : 'false');
 
     redirectToPayU(params);
 };

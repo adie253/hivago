@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { XCircle, RefreshCw, Home, AlertTriangle, AlertCircle, HelpCircle } from 'lucide-react';
-import { getOrderById } from '../../data/api';
+import { getOrderById, restoreAuthSessionFromBackup, clearPaymentBackup } from '../../data/api';
 import { useCart } from '../context/CartContext';
 
 export const PaymentFailedPage: React.FC = () => {
@@ -13,9 +13,17 @@ export const PaymentFailedPage: React.FC = () => {
     const [retryError, setRetryError] = useState<string | null>(null);
 
     useEffect(() => {
+        // Restore auth session if it was lost during the cross-site redirect
+        restoreAuthSessionFromBackup();
+
         const queryParams = new URLSearchParams(location.search);
-        const id = queryParams.get('orderId');
+        const id = queryParams.get('orderId') || sessionStorage.getItem('orderId') || localStorage.getItem('pay_orderId');
         setOrderId(id);
+
+        return () => {
+            // Clean up backups on unmount so we don't pollute storage
+            clearPaymentBackup();
+        };
     }, [location]);
 
     const handleRetry = async () => {
