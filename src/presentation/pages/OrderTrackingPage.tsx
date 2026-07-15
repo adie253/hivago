@@ -216,6 +216,12 @@ export const OrderTrackingPage: React.FC = () => {
         const loadCodes = async () => {
             if (!order || !orderId) return;
 
+            const isPickupOrder = order.fulfillmentType?.toLowerCase() === 'pickup';
+            if (isPickupOrder) {
+                setDeliveryCodes(null);
+                return;
+            }
+
             const rawStatus = (order.status || '').toUpperCase();
             const isClosed = ['DELIVERED', 'CANCELLED', 'REJECTED', 'FAILED', 'COMPLETED', 'PICKED_UP'].includes(rawStatus);
 

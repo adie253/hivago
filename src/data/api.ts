@@ -1100,10 +1100,7 @@ export const verifyPayment = async (txnId: string, orderId?: string | null): Pro
         console.log(`[Diagnostic] Auth token present: ${!!token}`);
 
         const payload = {
-            txnId,
-            txnid: txnId,
-            orderId: orderId || undefined,
-            orderid: orderId || undefined
+            txnId
         };
         console.log("[Diagnostic] verifyPayment payload:", JSON.stringify(payload));
 
