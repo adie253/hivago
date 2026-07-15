@@ -166,8 +166,10 @@ export const authFetch = async (endpoint: string, options: RequestInit = {}): Pr
             retryHeaders.set('Authorization', 'Bearer ' + newToken);
             response = await fetch(BASE_URL + endpoint, { ...options, headers: retryHeaders });
         } else {
-            clearAuthSession();
-            window.dispatchEvent(new CustomEvent('auth-logout'));
+            if (endpoint !== "/payments/verify") {
+                clearAuthSession();
+                window.dispatchEvent(new CustomEvent('auth-logout'));
+            }
         }
     }
 
@@ -986,7 +988,7 @@ export const initiatePayment = async (orderId: string) => {
         try {
             const errData = await res.json();
             errMessage = errData.message || errData.error || errData.title || errMessage;
-        } catch (_) {}
+        } catch (_) { }
         throw new Error(errMessage);
     }
 
@@ -1091,19 +1093,44 @@ export const startPayment = async (orderId: string) => {
 
 
 
-export const verifyPayment = async (txnId: string): Promise<any> => {
+export const verifyPayment = async (txnId: string, orderId?: string | null): Promise<any> => {
     try {
+        console.log(`[Diagnostic] verifyPayment called with txnId: "${txnId}", orderId: "${orderId}"`);
+        const token = getAccessToken();
+        console.log(`[Diagnostic] Auth token present: ${!!token}`);
+
+        const payload = {
+            txnId,
+            txnid: txnId,
+            orderId: orderId || undefined,
+            orderid: orderId || undefined
+        };
+        console.log("[Diagnostic] verifyPayment payload:", JSON.stringify(payload));
+
         const res = await authFetch("/payments/verify", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ txnId })
+            body: JSON.stringify(payload)
         });
-        return await res.json();
+
+        console.log(`[Diagnostic] verifyPayment response status: ${res.status} ${res.statusText}`);
+        const text = await res.text();
+        console.log("[Diagnostic] verifyPayment response body:", text);
+
+        if (!res.ok) {
+            throw new Error(`Payment verification failed: HTTP ${res.status}. Response: ${text}`);
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return { message: text };
+        }
     } catch (error) {
-        console.error("Failed to verify payment:", error);
-        return null;
+        console.error("[Diagnostic] Error in verifyPayment:", error);
+        throw error;
     }
 };
 

@@ -4,27 +4,13 @@
  * e.g., 500 -> "500", 500.50 -> "500.50"
  */
 export const formatPrice = (price: number | string): string => {
-    if (price === undefined || price === null) return '0';
+    if (price === undefined || price === null) return '0.00';
     
     const num = typeof price === 'string' 
         ? parseFloat(price.replace(/[^0-9.]/g, '')) 
         : price;
         
-    if (isNaN(num)) return '0';
+    if (isNaN(num)) return '0.00';
     
-    // Check if it's an integer
-    if (Number.isInteger(num)) {
-        return num.toString();
-    }
-    
-    // Otherwise show up to 2 decimal places, but remove trailing zeros
-    const fixed = num.toFixed(2);
-    if (fixed.endsWith('.00')) {
-        return num.toString();
-    }
-    if (fixed.endsWith('0') && fixed.includes('.')) {
-        return num.toFixed(1);
-    }
-    
-    return fixed;
+    return num.toFixed(2);
 };

@@ -8,55 +8,78 @@ import { verifyPayment, getOrderById, fetchRestaurantById, restoreAuthSessionFro
 export const PaymentSuccessPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { refreshCartFromServer } = useCart();
+    const { clearCart } = useCart();
     const [isLoading, setIsLoading] = useState(true);
     const [orderId, setOrderId] = useState<string | null>(null);
     const [orderData, setOrderData] = useState<any>(null);
     const [restaurantAddress, setRestaurantAddress] = useState<string | null>(null);
 
     useEffect(() => {
+        console.log("[Diagnostic] PaymentSuccessPage mounted.");
+
         // Restore auth session if it was lost during the cross-site redirect
-        restoreAuthSessionFromBackup();
+        const restored = restoreAuthSessionFromBackup();
+        console.log("[Diagnostic] restoreAuthSessionFromBackup status:", restored);
 
         // Extract order info from URL, e.g. ?txnid=... or read from sessionStorage/localStorage
         const queryParams = new URLSearchParams(location.search);
         let id = queryParams.get('orderId') || sessionStorage.getItem('orderId') || localStorage.getItem('pay_orderId');
         let txn = queryParams.get('txnid') || sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
 
+        console.log("[Diagnostic] Query params - orderId:", queryParams.get('orderId'), "txnid:", queryParams.get('txnid'));
+        console.log("[Diagnostic] Session storage - orderId:", sessionStorage.getItem('orderId'), "txnId:", sessionStorage.getItem('txnId'));
+        console.log("[Diagnostic] Local storage - pay_orderId:", localStorage.getItem('pay_orderId'), "pay_txnId:", localStorage.getItem('pay_txnId'));
+        console.log("[Diagnostic] Resolved id:", id, "Resolved txn:", txn);
+
         setOrderId(id || txn || "1771138859799");
-        refreshCartFromServer();
 
         const verifyAndCheckOrder = async () => {
             try {
+                console.log("[Diagnostic] Starting verifyAndCheckOrder. txn:", txn, "id:", id);
                 // 1. Verify the payment with backend
                 if (txn) {
-                    await verifyPayment(txn);
+                    console.log("[Diagnostic] Calling verifyPayment with txn:", txn);
+                    await verifyPayment(txn, id);
                 } else {
                     const storedTxn = sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
+                    console.log("[Diagnostic] txn is empty. Checking storedTxn:", storedTxn);
                     if (storedTxn) {
-                        await verifyPayment(storedTxn);
+                        await verifyPayment(storedTxn, id);
+                    } else {
+                        console.warn("[Diagnostic] No transaction ID found. verifyPayment skipped.");
                     }
                 }
 
                 // 2. Double check order status from the server
                 const finalOrderId = id || txn;
                 if (finalOrderId) {
+                    console.log("[Diagnostic] Fetching final order details for id:", finalOrderId);
                     const order = await getOrderById(finalOrderId);
+                    console.log("[Diagnostic] Fetched order status:", order?.status, "paymentId:", order?.paymentId);
                     if (order) {
                         if (order.status === 'Cancelled' || order.status === 'Failed') {
+                            console.warn("[Diagnostic] Order status is cancelled/failed. Redirecting to payment-failed.");
                             navigate(`/payment-failed?orderId=${finalOrderId}`, { replace: true });
                             return;
                         }
                         setOrderData(order);
+                        
+                        // Clear frontend/backend cart since the order is placed
+                        clearCart();
+
                         try {
                             const restaurant = await fetchRestaurantById(order.restaurantId);
                             if (restaurant && restaurant.addressLine) {
                                 setRestaurantAddress(restaurant.addressLine);
                             }
                         } catch (err) {
-                            console.error("Failed to fetch restaurant details for address:", err);
+                            console.error("[Diagnostic] Failed to fetch restaurant details for address:", err);
                         }
+                    } else {
+                        console.error("[Diagnostic] Order data fetched from server is null.");
                     }
+                } else {
+                    console.warn("[Diagnostic] finalOrderId is missing, skipped getOrderById.");
                 }
             } catch (error) {
                 console.error("Error during payment verification on success page:", error);
@@ -119,7 +142,7 @@ export const PaymentSuccessPage: React.FC = () => {
             </div>
 
             <div className={`w-full ${orderData ? 'max-w-[960px]' : 'max-w-[480px]'} bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-stretch relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out`}>
-                
+
                 {/* Left Column: Success Confirmation details */}
                 <div className={`w-full ${orderData ? 'md:w-1/2' : ''} flex flex-col items-center justify-center text-center py-2`}>
                     {/* Success Animation Circle */}
@@ -265,7 +288,7 @@ export const PaymentSuccessPage: React.FC = () => {
 
                         <div>
                             <div className="border-t border-solid border-gray-200 my-4"></div>
-                            
+
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-bold text-gray-900">Grand Total</span>
                                 <span className="text-xl font-bold text-[#00A050]">₹{pricing.total.toFixed(2)}</span>
@@ -274,7 +297,7 @@ export const PaymentSuccessPage: React.FC = () => {
                             <div className="flex items-center gap-2 mt-4 text-[11px] text-gray-400 font-semibold bg-white p-3 border border-gray-50 rounded-xl">
                                 <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                 <span className="truncate">
-                                    {orderData.fulfillmentType === 'Pickup' 
+                                    {orderData.fulfillmentType === 'Pickup'
                                         ? `Pickup from: ${restaurantAddress || orderData.deliveryInfo?.pickupAddress || 'Restaurant'}`
                                         : `Deliver to: ${(orderData.deliveryInfo?.deliveryAddress?.formattedAddress || orderData.deliveryInfo?.deliveryAddress?.street || 'Selected Location')}`
                                     }

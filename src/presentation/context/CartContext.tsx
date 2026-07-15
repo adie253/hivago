@@ -111,10 +111,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const hasLocalItems = localCart?.items?.length > 0;
             const hasRemoteItems = remoteCart?.items?.length > 0;
 
-            // ❗ Immediately clear localStorage cart — once we're logged in, server is source of truth.
-            // This prevents reload from re-reading stale guest items and merging them again.
-            DIContainer.getClearCartUseCase().execute();
-
             // Handle Restaurant Conflict
             if (hasLocalItems && hasRemoteItems && localCart.restaurantId !== remoteCart.restaurantId) {
                 setConflictInfo({
@@ -124,6 +120,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 });
                 return;
             }
+
+            // ❗ Immediately clear localStorage cart — once we're logged in, server is source of truth.
+            // This prevents reload from re-reading stale guest items and merging them again.
+            DIContainer.getClearCartUseCase().execute();
 
             let finalItems: CartItem[] = [];
             let finalRestaurantId = localCart.restaurantId || remoteCart?.restaurantId;
@@ -849,6 +849,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                                 setCartItems(convertedItems);
                                                 setRestaurantId(remoteCart.restaurantId);
                                                 setRestaurantName(remoteCart.restaurantName);
+                                                DIContainer.getCartRepository().saveCart({
+                                                    restaurantId: remoteCart.restaurantId,
+                                                    restaurantName: remoteCart.restaurantName,
+                                                    items: convertedItems
+                                                });
                                             }
                                         });
                                     }
