@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { XCircle, RefreshCw, Home, AlertTriangle, AlertCircle, HelpCircle } from 'lucide-react';
-import { getOrderById, restoreAuthSessionFromBackup, clearPaymentBackup } from '../../data/api';
+import { verifyPayment, getOrderById, restoreAuthSessionFromBackup, clearPaymentBackup } from '../../data/api';
 import { useCart } from '../context/CartContext';
 
 export const PaymentFailedPage: React.FC = () => {
@@ -18,7 +18,29 @@ export const PaymentFailedPage: React.FC = () => {
 
         const queryParams = new URLSearchParams(location.search);
         const id = queryParams.get('orderId') || sessionStorage.getItem('orderId') || localStorage.getItem('pay_orderId');
+        const txn = queryParams.get('txnid') || sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
         setOrderId(id);
+
+        const verifyFailedPayment = async () => {
+            try {
+                if (txn) {
+                    console.log("[Diagnostic] Calling verifyPayment for failed payment with txn:", txn);
+                    await verifyPayment(txn, id);
+                } else {
+                    const storedTxn = sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
+                    if (storedTxn) {
+                        console.log("[Diagnostic] Calling verifyPayment for failed payment with storedTxn:", storedTxn);
+                        await verifyPayment(storedTxn, id);
+                    } else {
+                        console.warn("[Diagnostic] No transaction ID found for failed payment. verifyPayment skipped.");
+                    }
+                }
+            } catch (err) {
+                console.error("[Diagnostic] Error verifying failed payment:", err);
+            }
+        };
+
+        verifyFailedPayment();
 
         return () => {
             // Clean up backups on unmount so we don't pollute storage
