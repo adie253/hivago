@@ -3,9 +3,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 interface PWAInstallContextType {
     isInstallable: boolean;
     isIOS: boolean;
+    isAndroid: boolean;
     isStandalone: boolean;
     showIOSInstructions: boolean;
     setShowIOSInstructions: (show: boolean) => void;
+    showAndroidInstructions: boolean;
+    setShowAndroidInstructions: (show: boolean) => void;
     installApp: () => Promise<void>;
 }
 
@@ -16,8 +19,10 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const [isInstallable, setIsInstallable] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
     const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+    const [showAndroidInstructions, setShowAndroidInstructions] = useState(false);
     
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
 
     useEffect(() => {
         // Register Service Worker
@@ -63,9 +68,9 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // For iOS devices, since they don't support beforeinstallprompt, they are technically always "installable" 
-        // if they are not already in standalone/PWA mode.
-        if (isIOS && !isStandalone) {
+        // For mobile devices (iOS/Android), since they don't support beforeinstallprompt or it might not fire,
+        // we make them installable by default so the options are visible.
+        if ((isIOS || isAndroid) && !isStandalone) {
             setIsInstallable(true);
         }
 
@@ -73,7 +78,7 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', handleAppInstalled);
         };
-    }, [isIOS, isStandalone]);
+    }, [isIOS, isAndroid, isStandalone]);
 
     const installApp = async () => {
         if (isIOS) {
@@ -82,7 +87,11 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         if (!deferredPrompt) {
-            console.warn('[PWA] No install prompt deferred.');
+            if (isAndroid) {
+                setShowAndroidInstructions(true);
+            } else {
+                console.warn('[PWA] No install prompt deferred.');
+            }
             return;
         }
 
@@ -104,9 +113,12 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         <PWAInstallContext.Provider value={{
             isInstallable,
             isIOS,
+            isAndroid,
             isStandalone,
             showIOSInstructions,
             setShowIOSInstructions,
+            showAndroidInstructions,
+            setShowAndroidInstructions,
             installApp
         }}>
             {children}
