@@ -6,7 +6,6 @@ export const PWAInstallOverlay: React.FC = () => {
     const { 
         isInstallable, 
         isStandalone, 
-        isAndroid, 
         showIOSInstructions, 
         setShowIOSInstructions, 
         showAndroidInstructions,
