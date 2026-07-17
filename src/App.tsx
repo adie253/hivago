@@ -58,6 +58,8 @@ const MainContent = () => {
 
 import { NotificationProvider } from './presentation/context/NotificationContext';
 import { ToastProvider } from './presentation/context/ToastContext';
+import { PWAInstallProvider } from './presentation/context/PWAInstallContext';
+import { PWAInstallOverlay } from './presentation/components/PWAInstallOverlay';
 
 const queryClient = new QueryClient();
 
@@ -65,24 +67,27 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <FavoritesProvider>
-          <CartProvider>
-            <LocationProvider>
-              <GoogleMapsProvider>
-                <FilterProvider>
-                  <NotificationProvider>
-                    <BrowserRouter>
-                      <ScrollToTop />
-                      <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
-                        <MainContent />
-                      </div>
-                    </BrowserRouter>
-                  </NotificationProvider>
-                </FilterProvider>
-              </GoogleMapsProvider>
-            </LocationProvider>
-          </CartProvider>
-        </FavoritesProvider>
+      <PWAInstallProvider>
+      <FavoritesProvider>
+      <CartProvider>
+        <LocationProvider>
+          <GoogleMapsProvider>
+          <FilterProvider>
+            <NotificationProvider>
+              <BrowserRouter>
+                <ScrollToTop />
+                <PWAInstallOverlay />
+                <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
+                  <MainContent />
+                </div>
+              </BrowserRouter>
+            </NotificationProvider>
+          </FilterProvider>
+          </GoogleMapsProvider>
+        </LocationProvider>
+      </CartProvider>
+      </FavoritesProvider>
+      </PWAInstallProvider>
       </ToastProvider>
     </QueryClientProvider>
   );
