@@ -13,12 +13,13 @@ interface SearchOverlayProps {
 
 export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
-    const { allRestaurants, searchQuery, setSearchQuery } = useFilters();
+    const { allRestaurants } = useFilters();
+    const [localSearchQuery, setLocalSearchQuery] = useState('');
     const [results, setResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
     const handleItemClick = (restaurantId: string, dishId?: string) => {
-        setSearchQuery('');
+        setLocalSearchQuery('');
         navigate(`/restaurant/${restaurantId}${dishId ? `?highlight=${dishId}` : ''}`);
         onClose();
     };
@@ -30,7 +31,14 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
     ];
 
     useEffect(() => {
-        if (searchQuery.trim() === '') {
+        if (!isOpen) {
+            setLocalSearchQuery('');
+            setResults([]);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (localSearchQuery.trim() === '') {
             setResults([]);
             setIsSearching(false);
             return;
@@ -39,7 +47,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
         setIsSearching(true);
         const timer = setTimeout(async () => {
             try {
-                const query = searchQuery.toLowerCase();
+                const query = localSearchQuery.toLowerCase();
                 const searchResults: any[] = [];
 
                 // 1. Search in Restaurants from local state (Fast)
@@ -89,7 +97,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [searchQuery, allRestaurants]);
+    }, [localSearchQuery, allRestaurants]);
 
     // Prevent body scroll when overlay is open
     useEffect(() => {
@@ -128,13 +136,13 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                     <input
                         autoFocus
                         type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        value={localSearchQuery}
+                        onChange={(e) => setLocalSearchQuery(e.target.value)}
                         placeholder="Try Pizza"
                         className="bg-transparent border-none outline-none text-gray-700 w-full placeholder-gray-400 font-medium text-base h-full"
                     />
-                    {searchQuery && (
-                        <button onClick={() => setSearchQuery('')} className="p-1 hover:bg-gray-100 rounded-full transition-colors mr-2">
+                    {localSearchQuery && (
+                        <button onClick={() => setLocalSearchQuery('')} className="p-1 hover:bg-gray-100 rounded-full transition-colors mr-2">
                             <X className="w-5 h-5 text-gray-400" />
                         </button>
                     )}
@@ -145,14 +153,14 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto px-4 pb-8">
-                {!searchQuery && (
+                {!localSearchQuery && (
                     <div className="mt-4">
                         <h3 className="text-xs font-bold text-gray-500 tracking-widest mb-4">RECENTLY SEARCHED RESTAURANTS</h3>
                         <div className="flex flex-wrap gap-3">
                             {recentSearches.map((term, index) => (
                                 <button
                                     key={index}
-                                    onClick={() => setSearchQuery(term)}
+                                    onClick={() => setLocalSearchQuery(term)}
                                     className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
                                 >
                                     <RotateCcw className="w-4 h-4 text-gray-400" />
@@ -163,7 +171,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                     </div>
                 )}
 
-                {searchQuery && results.length > 0 && (
+                {localSearchQuery && results.length > 0 && (
                     <div className="mt-2 space-y-4">
                         {results.map((item) => (
                             <div
@@ -184,8 +192,8 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                                 />
                                 <div className="flex flex-col flex-1">
                                     <div className="flex items-center gap-1">
-                                        <span className="font-bold text-gray-900">{item.name.split(new RegExp(`(${searchQuery})`, 'gi')).map((part: string, i: number) =>
-                                            part.toLowerCase() === searchQuery.toLowerCase() ? <span key={i} className="text-gray-900">{part}</span> : <span key={i} className="text-gray-400">{part}</span>
+                                        <span className="font-bold text-gray-900">{item.name.split(new RegExp(`(${localSearchQuery})`, 'gi')).map((part: string, i: number) =>
+                                            part.toLowerCase() === localSearchQuery.toLowerCase() ? <span key={i} className="text-gray-900">{part}</span> : <span key={i} className="text-gray-400">{part}</span>
                                         )}</span>
                                         {item.type === 'Restaurant' && <span className="text-gray-400 font-medium">House</span>}
                                     </div>
@@ -206,7 +214,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                     </div>
                 )}
 
-                {searchQuery && results.length === 0 && !isSearching && (
+                {localSearchQuery && results.length === 0 && !isSearching && (
                     <div className="mt-20 flex flex-col items-center justify-center text-center">
                         <div className="relative w-48 h-48 mb-6">
                             {/* Mock Illustration */}
