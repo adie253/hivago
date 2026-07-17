@@ -5,13 +5,17 @@
  * Trigger redeploy comment: 2026-07-16
  */
 export const formatPrice = (price: number | string): string => {
-    if (price === undefined || price === null) return '0.00';
+    if (price === undefined || price === null) return '0';
     
     const num = typeof price === 'string' 
         ? parseFloat(price.replace(/[^0-9.]/g, '')) 
         : price;
         
-    if (isNaN(num)) return '0.00';
+    if (isNaN(num)) return '0';
+    
+    if (num % 1 === 0) {
+        return num.toFixed(0);
+    }
     
     return num.toFixed(2);
 };

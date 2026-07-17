@@ -120,16 +120,16 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                     </p>
                 </div>
 
-                <div className="flex items-center justify-between mt-4">
-                    <span className="font-bold text-gray-900 text-base">
-                        ₹ {formatPrice(item.price)}
+                <div className="flex items-center justify-between mt-4 gap-2">
+                    <span className="font-extrabold text-gray-900 text-sm sm:text-base whitespace-nowrap">
+                        ₹{formatPrice(item.price)}
                     </span>
 
                     <div className="flex items-center">
                         {quantity === 0 ? (
                             <button
                                 onClick={handleInitialAdd}
-                                className="px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm flex items-center gap-2 min-w-[70px] justify-center"
+                                className="px-4 sm:px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm flex items-center gap-2 min-w-[70px] justify-center"
                             >
                                 ADD
                             </button>

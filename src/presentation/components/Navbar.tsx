@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users, Home, Briefcase, Download } from 'lucide-react';
+import { MapPin, ChevronDown, User, ShoppingCart, Menu, X, Users, Home, Briefcase } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import homeIcon from "../../assets/icons/home_icon.png";
@@ -11,13 +11,11 @@ import { LocationSelectorOverlay } from './LocationSelectorOverlay';
 import hivagoLogo from "../../assets/footer/footer_logo.svg";
 import { useUserLocation } from '../context/LocationContext';
 import { isTokenValid } from '../../data/api';
-import { usePWAInstall } from '../context/PWAInstallContext';
 
 export const Navbar: React.FC = () => {
     const navigate = useNavigate();
     const { cartItems } = useCart();
     const { selectedLocation } = useUserLocation();
-    const { isInstallable, installApp } = usePWAInstall();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
     const location = useLocation();
@@ -44,7 +42,7 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 {/* Location - Hidden on small mobile */}
-                <div 
+                <div
                     onClick={() => {
                         if (isTokenValid()) {
                             setIsLocationSelectorOpen(true);
@@ -99,7 +97,7 @@ export const Navbar: React.FC = () => {
             </nav>
 
             {/* Mobile Location Bar - Design from Image */}
-            <div 
+            <div
                 onClick={() => {
                     if (isTokenValid()) {
                         setIsLocationSelectorOpen(true);
@@ -182,18 +180,6 @@ export const Navbar: React.FC = () => {
                                 <img src={profileIcon} alt="profile icon" className='w-5 h-5 p-0' />
                                 Profile <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full ml-auto">New</span>
                             </Link>
-                            {isInstallable && (
-                                <button
-                                    onClick={() => {
-                                        setIsMobileMenuOpen(false);
-                                        installApp();
-                                    }}
-                                    className="flex items-center gap-4 p-4 rounded-xl transition-colors text-[#FF4732] hover:bg-red-50 w-full text-left font-bold"
-                                >
-                                    <Download className="w-5 h-5 text-[#FF4732]" />
-                                    Install Hivago App
-                                </button>
-                            )}
                             {/* Login Option */}
                             {!isTokenValid() && (
                                 <div className="mt-2 pt-2 border-t border-gray-100">
@@ -204,9 +190,9 @@ export const Navbar: React.FC = () => {
                                 </div>
                             )}
                             <div className='flex p-3 border-t-2 border-gray-100 mt-3 pt-6'>
-                                <a 
-                                    href="https://wa.me/919082220155?text=Need%20HELP!" 
-                                    target="_blank" 
+                                <a
+                                    href="https://wa.me/919082220155?text=Need%20HELP!"
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex flex-col group"
                                 >
@@ -220,9 +206,9 @@ export const Navbar: React.FC = () => {
                 </div>
             </div>
 
-            <LocationSelectorOverlay 
-                isOpen={isLocationSelectorOpen} 
-                onClose={() => setIsLocationSelectorOpen(false)} 
+            <LocationSelectorOverlay
+                isOpen={isLocationSelectorOpen}
+                onClose={() => setIsLocationSelectorOpen(false)}
             />
         </header>
     );
