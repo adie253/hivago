@@ -60,7 +60,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     break;
 
                 case "RefundFailed":
-                    showToast(payload.message, "error");
+                    console.error(`[SignalR] Refund failed: ${payload.message}`);
                     break;
 
                 default:

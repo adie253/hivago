@@ -10,7 +10,7 @@ interface CartContextType {
     restaurantName?: string;
     addToCart: (item: Omit<CartItem, 'quantity'>, rId?: string, rName?: string, silent?: boolean) => void;
     removeFromCart: (itemId: string, silent?: boolean) => void;
-    clearCart: () => void;
+    clearCart: (silent?: boolean) => void;
     refreshCartFromServer: () => Promise<void>;
     cartTotal: number;
     refreshLoginStatus: () => void;
@@ -253,6 +253,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setCartItems(initialItems);
                 setRestaurantId(initialRestaurantId);
                 setRestaurantName(initialRestaurantName);
+
+                // If we are on the payment success page, do NOT sync/reconcile the cart with the server.
+                // It will be cleared momentarily by the success page itself.
+                if (window.location.pathname.includes('/payment-success')) {
+                    return;
+                }
 
                 if (isLoggedIn) {
                     const alreadySynced = sessionStorage.getItem('cart_reconciled') === 'true';
@@ -563,7 +569,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [isLoggedIn, restaurantId, restaurantName, debouncedPushToServer]);
 
     // 🚀 CLEAR
-    const clearCart = useCallback(() => {
+    const clearCart = useCallback((silent: boolean = false) => {
         DIContainer.getClearCartUseCase().execute();
         setCartItems([]);
         setRestaurantId(undefined);
@@ -599,7 +605,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isLoggedIn) {
             clearServerCart().catch(err => console.error("Failed to clear server cart:", err));
         }
-        showToast("Cart cleared", "success");
+        if (!silent) {
+            showToast("Cart cleared", "success");
+        }
     }, [isLoggedIn, showToast]);
 
     const forceReplaceCart = async () => {

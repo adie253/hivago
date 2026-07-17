@@ -65,7 +65,7 @@ export const PaymentSuccessPage: React.FC = () => {
                         setOrderData(order);
                         
                         // Clear frontend/backend cart since the order is placed
-                        clearCart();
+                        clearCart(true);
 
                         try {
                             const restaurant = await fetchRestaurantById(order.restaurantId);

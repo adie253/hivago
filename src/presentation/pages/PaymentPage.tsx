@@ -43,10 +43,7 @@ export const PaymentPage: React.FC = () => {
     const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string | null>(() => {
         return sessionStorage.getItem('checkout_delivery_option');
     });
-    const [tipAmount, setTipAmount] = useState<number>(() => {
-        const saved = sessionStorage.getItem('checkout_tip_amount');
-        return saved ? Number(saved) : 0;
-    });
+    const tipAmount = 0;
     const [agreedToTerms, setAgreedToTerms] = useState<boolean>(() => {
         return sessionStorage.getItem('checkout_agreed_to_terms') === 'true';
     });
@@ -62,10 +59,6 @@ export const PaymentPage: React.FC = () => {
             sessionStorage.removeItem('checkout_delivery_option');
         }
     }, [selectedDeliveryOption]);
-
-    useEffect(() => {
-        sessionStorage.setItem('checkout_tip_amount', tipAmount.toString());
-    }, [tipAmount]);
 
     useEffect(() => {
         sessionStorage.setItem('checkout_agreed_to_terms', agreedToTerms.toString());
@@ -129,7 +122,7 @@ export const PaymentPage: React.FC = () => {
                     // 🎉 success UI
                     setFinalAmount(grandTotal);
                     setIsOrdered(true);
-                    clearCart();
+                    clearCart(true);
 
                 } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
                     clearInterval(interval);
@@ -285,7 +278,7 @@ export const PaymentPage: React.FC = () => {
                 setFinalAmount(grandTotal);
                 setCurrentOrderId(order.id);
                 setIsOrdered(true);
-                clearCart();
+                clearCart(true);
             } else {
                 await startPayment(order.id);
                 setCurrentOrderId(order.id);
@@ -640,28 +633,7 @@ export const PaymentPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Add Tip */}
-                        {fulfillmentType !== 'Pickup' && (
-                            <div className="bg-white lg:bg-transparent rounded-[24px] lg:rounded-none p-5 lg:p-0 shadow-sm lg:shadow-none border border-gray-50 lg:border-none flex flex-col gap-4">
-                                <h2 className="text-sm font-bold text-gray-900">Add Tip for Delivery Partner</h2>
-                                <div className="flex gap-2">
-                                    {[
-                                        { label: 'No Tip', value: 0 },
-                                        { label: '₹20', value: 20 },
-                                        { label: '₹30', value: 30 },
-                                        { label: '₹50', value: 50 }
-                                    ].map((tip) => (
-                                        <button
-                                            key={tip.label}
-                                            onClick={() => setTipAmount(tip.value)}
-                                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${tipAmount === tip.value ? 'bg-[#FF584A] text-white shadow-lg shadow-red-100' : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-100'}`}
-                                        >
-                                            {tip.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
 
                         {/* Add Payment Method Button */}
                         {/* <button
