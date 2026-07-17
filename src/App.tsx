@@ -58,6 +58,8 @@ const MainContent = () => {
 
 import { NotificationProvider } from './presentation/context/NotificationContext';
 import { ToastProvider } from './presentation/context/ToastContext';
+import { PWAInstallProvider } from './presentation/context/PWAInstallContext';
+import { PWAInstallOverlay } from './presentation/components/PWAInstallOverlay';
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
+      <PWAInstallProvider>
       <FavoritesProvider>
       <CartProvider>
         <LocationProvider>
@@ -73,6 +76,7 @@ function App() {
             <NotificationProvider>
               <BrowserRouter>
                 <ScrollToTop />
+                <PWAInstallOverlay />
                 <div className="min-h-screen bg-[#F8F9FA] selection:bg-emerald-200 selection:text-emerald-900 flex flex-col font-sans">
                   <MainContent />
                 </div>
@@ -83,6 +87,7 @@ function App() {
         </LocationProvider>
       </CartProvider>
       </FavoritesProvider>
+      </PWAInstallProvider>
       </ToastProvider>
     </QueryClientProvider>
   );
