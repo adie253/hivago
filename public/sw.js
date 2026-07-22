@@ -2,7 +2,9 @@ const CACHE_NAME = 'hivago-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/favicon.svg'
+  '/favicon.svg',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {
