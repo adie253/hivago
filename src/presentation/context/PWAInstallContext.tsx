@@ -14,20 +14,30 @@ interface PWAInstallContextType {
 
 const PWAInstallContext = createContext<PWAInstallContextType | undefined>(undefined);
 
+// Global variable to capture beforeinstallprompt even if it fires before React mounts
+let globalDeferredPrompt: any = null;
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', (e: Event) => {
+        e.preventDefault();
+        globalDeferredPrompt = e;
+        console.log('[PWA] Global beforeinstallprompt event captured.');
+    });
+}
+
 export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-    const [isInstallable, setIsInstallable] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(globalDeferredPrompt);
+    const [isInstallable, setIsInstallable] = useState(!!globalDeferredPrompt);
     const [isStandalone, setIsStandalone] = useState(false);
     const [showIOSInstructions, setShowIOSInstructions] = useState(false);
     const [showAndroidInstructions, setShowAndroidInstructions] = useState(false);
     
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    const isAndroid = /Android/.test(navigator.userAgent);
+    const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isAndroid = typeof navigator !== 'undefined' && /Android/.test(navigator.userAgent);
 
     useEffect(() => {
-        // Register Service Worker
+        // Register Service Worker reliably
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+            const registerSW = () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then((reg) => {
                         console.log('[SW] Service worker registered successfully:', reg.scope);
@@ -35,7 +45,13 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                     .catch((err) => {
                         console.error('[SW] Service worker registration failed:', err);
                     });
-            });
+            };
+
+            if (document.readyState === 'complete') {
+                registerSW();
+            } else {
+                window.addEventListener('load', registerSW);
+            }
         }
 
         // Check if already running in standalone (PWA) mode
@@ -52,15 +68,17 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         // Listen for PWA install prompt event (Android/Chrome/Edge)
         const handleBeforeInstallPrompt = (e: Event) => {
             e.preventDefault();
+            globalDeferredPrompt = e;
             setDeferredPrompt(e);
             setIsInstallable(true);
-            console.log('[PWA] beforeinstallprompt event fired and captured.');
+            console.log('[PWA] beforeinstallprompt event fired and captured in effect.');
         };
 
         // Listen for appinstalled event
         const handleAppInstalled = () => {
             setIsInstallable(false);
             setDeferredPrompt(null);
+            globalDeferredPrompt = null;
             setIsStandalone(true);
             console.log('[PWA] App was successfully installed.');
         };
@@ -68,9 +86,11 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // For mobile devices (iOS/Android), since they don't support beforeinstallprompt or it might not fire,
-        // we make them installable by default so the options are visible.
-        if ((isIOS || isAndroid) && !isStandalone) {
+        // Check if globalDeferredPrompt was captured before effect ran
+        if (globalDeferredPrompt) {
+            setDeferredPrompt(globalDeferredPrompt);
+            setIsInstallable(true);
+        } else if ((isIOS || isAndroid) && !isStandalone) {
             setIsInstallable(true);
         }
 
@@ -86,7 +106,9 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             return;
         }
 
-        if (!deferredPrompt) {
+        const promptToUse = deferredPrompt || globalDeferredPrompt;
+
+        if (!promptToUse) {
             if (isAndroid) {
                 setShowAndroidInstructions(true);
             } else {
@@ -96,13 +118,14 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         try {
-            deferredPrompt.prompt();
-            const choiceResult = await deferredPrompt.userChoice;
+            promptToUse.prompt();
+            const choiceResult = await promptToUse.userChoice;
             console.log(`[PWA] User response to install prompt: ${choiceResult.outcome}`);
             
             if (choiceResult.outcome === 'accepted') {
                 setIsInstallable(false);
                 setDeferredPrompt(null);
+                globalDeferredPrompt = null;
             }
         } catch (err) {
             console.error('[PWA] Installation prompt failed:', err);
