@@ -17,7 +17,7 @@ export const Navbar: React.FC = () => {
     const navigate = useNavigate();
     const { cartItems } = useCart();
     const { selectedLocation } = useUserLocation();
-    const { isInstallable, installApp } = usePWAInstall();
+    const { isInstallable, isInstalled, installApp } = usePWAInstall();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
     const location = useLocation();
@@ -182,7 +182,7 @@ export const Navbar: React.FC = () => {
                                 <img src={profileIcon} alt="profile icon" className='w-5 h-5 p-0' />
                                 Profile <span className="text-[10px] bg-brand-primary text-white px-2 py-0.5 rounded-full ml-auto">New</span>
                             </Link>
-                            {isInstallable && (
+                            {isInstallable && !isInstalled && (
                                 <button
                                     onClick={() => {
                                         setIsMobileMenuOpen(false);

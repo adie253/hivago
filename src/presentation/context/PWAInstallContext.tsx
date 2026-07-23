@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface PWAInstallContextType {
     isInstallable: boolean;
+    isInstalled: boolean;
     isIOS: boolean;
     isAndroid: boolean;
     isStandalone: boolean;
@@ -26,11 +27,15 @@ if (typeof window !== 'undefined') {
 
 export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(globalDeferredPrompt);
-    const [isInstallable, setIsInstallable] = useState(!!globalDeferredPrompt);
     const [isStandalone, setIsStandalone] = useState(false);
+    const [isInstalled, setIsInstalled] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
+        return localStorage.getItem('pwa_installed') === 'true';
+    });
+    const [isInstallable, setIsInstallable] = useState(false);
     const [showIOSInstructions, setShowIOSInstructions] = useState(false);
     const [showAndroidInstructions, setShowAndroidInstructions] = useState(false);
-    
+
     const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     const isAndroid = typeof navigator !== 'undefined' && /Android/.test(navigator.userAgent);
 
@@ -54,20 +59,62 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             }
         }
 
-        // Check if already running in standalone (PWA) mode
-        const checkStandalone = () => {
+        // Check standalone mode & existing installed status
+        const checkInstallationStatus = async () => {
             const isStandaloneMode = 
                 window.matchMedia('(display-mode: standalone)').matches || 
-                (navigator as any).standalone || 
-                document.referrer.includes('android-app://');
-            setIsStandalone(isStandaloneMode);
+                (navigator as any).standalone === true || 
+                document.referrer.includes('android-app://') ||
+                window.matchMedia('(display-mode: fullscreen)').matches ||
+                window.matchMedia('(display-mode: minimal-ui)').matches;
+            
+            if (isStandaloneMode) {
+                setIsStandalone(true);
+                setIsInstalled(true);
+                localStorage.setItem('pwa_installed', 'true');
+                return;
+            }
+
+            // Check Chromium getInstalledRelatedApps API
+            if ('getInstalledRelatedApps' in navigator) {
+                try {
+                    const relatedApps = await (navigator as any).getInstalledRelatedApps();
+                    if (relatedApps && relatedApps.length > 0) {
+                        setIsInstalled(true);
+                        localStorage.setItem('pwa_installed', 'true');
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('[PWA] Error checking getInstalledRelatedApps:', err);
+                }
+            }
+
+            if (localStorage.getItem('pwa_installed') === 'true') {
+                setIsInstalled(true);
+            }
         };
-        
-        checkStandalone();
+
+        checkInstallationStatus();
+
+        // Listen for display mode changes (e.g. user launches standalone window)
+        const mediaQuery = window.matchMedia('(display-mode: standalone)');
+        const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+            if (e.matches) {
+                setIsStandalone(true);
+                setIsInstalled(true);
+                localStorage.setItem('pwa_installed', 'true');
+            }
+        };
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handleMediaQueryChange);
+        }
 
         // Listen for PWA install prompt event (Android/Chrome/Edge)
         const handleBeforeInstallPrompt = (e: Event) => {
             e.preventDefault();
+            // If beforeinstallprompt fires, the app is not currently installed
+            localStorage.removeItem('pwa_installed');
+            setIsInstalled(false);
             globalDeferredPrompt = e;
             setDeferredPrompt(e);
             setIsInstallable(true);
@@ -79,24 +126,36 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             setIsInstallable(false);
             setDeferredPrompt(null);
             globalDeferredPrompt = null;
+            setIsInstalled(true);
             setIsStandalone(true);
+            localStorage.setItem('pwa_installed', 'true');
             console.log('[PWA] App was successfully installed.');
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // Check if globalDeferredPrompt was captured before effect ran
-        if (globalDeferredPrompt) {
-            setDeferredPrompt(globalDeferredPrompt);
-            setIsInstallable(true);
-        } else if ((isIOS || isAndroid) && !isStandalone) {
-            setIsInstallable(true);
+        // Handle initial installability state
+        const storedInstalled = localStorage.getItem('pwa_installed') === 'true';
+        const currentlyInstalled = isStandalone || storedInstalled;
+
+        if (!currentlyInstalled) {
+            if (globalDeferredPrompt) {
+                setDeferredPrompt(globalDeferredPrompt);
+                setIsInstallable(true);
+            } else if (isIOS || isAndroid) {
+                setIsInstallable(true);
+            }
+        } else {
+            setIsInstallable(false);
         }
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', handleAppInstalled);
+            if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener('change', handleMediaQueryChange);
+            }
         };
     }, [isIOS, isAndroid, isStandalone]);
 
@@ -124,6 +183,8 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             
             if (choiceResult.outcome === 'accepted') {
                 setIsInstallable(false);
+                setIsInstalled(true);
+                localStorage.setItem('pwa_installed', 'true');
                 setDeferredPrompt(null);
                 globalDeferredPrompt = null;
             }
@@ -134,7 +195,8 @@ export const PWAInstallProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     return (
         <PWAInstallContext.Provider value={{
-            isInstallable,
+            isInstallable: isInstallable && !isInstalled && !isStandalone,
+            isInstalled,
             isIOS,
             isAndroid,
             isStandalone,
@@ -156,3 +218,4 @@ export const usePWAInstall = () => {
     }
     return context;
 };
+
