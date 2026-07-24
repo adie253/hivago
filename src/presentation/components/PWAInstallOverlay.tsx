@@ -5,6 +5,7 @@ import { Download, X, Smartphone, Sparkles, Share, MoreVertical } from 'lucide-r
 export const PWAInstallOverlay: React.FC = () => {
     const { 
         isInstallable, 
+        isInstalled,
         isStandalone, 
         showIOSInstructions, 
         setShowIOSInstructions, 
@@ -17,7 +18,7 @@ export const PWAInstallOverlay: React.FC = () => {
         return sessionStorage.getItem('pwa_banner_dismissed') === 'true';
     });
 
-    if (isStandalone) return null;
+    if (isStandalone || isInstalled) return null;
 
     const handleDismiss = () => {
         setDismissed(true);
