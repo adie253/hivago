@@ -1,146 +1,866 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
+import { Restaurant } from '../context/FilterContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, PhoneOff, DoorClosed, Shield, BellOff } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
+import { SuggestedItemSkeleton } from '../components/Skeletons';
 import { useCart } from '../context/CartContext';
+import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
+import { formatPrice } from '../../utils/formatUtils';
+
+// import { CouponOverlay } from '../components/CouponOverlay';
+import { DetailsFlowOverlay } from '../components/checkout/DetailsFlowOverlay';
+import { MobileMenu } from '../components/checkout/MobileMenu';
+import emptyCart from '../../assets/cart/empty_cartt.svg';
+import { useUserLocation } from '../context/LocationContext';
+import { StepperIcon } from '../components/checkout/StepperIcon';
+import { useToast } from '../context/ToastContext';
+import { LoadingScreen } from '../components/LoadingScreen';
+// import { FEATURE_FLAGS } from '../../config/featureFlags';
+
+
+// Mock frequently bought items removed - now fetching dynamic ones
+interface SuggestedItem {
+    id: string;
+    name: string;
+    restaurant: string;
+    time: string;
+    distance: string;
+    priceForTwo: string;
+    price: number;
+    originalPrice: number;
+    discount: string;
+    image: string;
+    isVeg: boolean;
+}
 
 export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
-    const { cartItems, addToCart, removeFromCart, cartTotal } = useCart();
+    const { showToast } = useToast();
+    const {
+        cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName,
+        deliveryQuote, setDeliveryQuote,
+        deliveryStatus, setDeliveryStatus,
+        deliveryError, setDeliveryError,
+        isCheckingDelivery, setIsCheckingDelivery,
+        isLoggedIn,
+        fulfillmentType,
+        includeCutlery, setIncludeCutlery,
+        updateItemAddon,
+        isCartLoading
+    } = useCart();
+    const [isToPayExpanded, setIsToPayExpanded] = useState(true);
+    // const [showGstTooltip, setShowGstTooltip] = useState(false);
+    // const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
+    const [isDetailsFlowOpen, setIsDetailsFlowOpen] = useState(() => {
+        return sessionStorage.getItem('checkout_details_flow_open') === 'true';
+    });
+    const { addresses, selectedLocation, isLoadingAddresses, selectLocation } = useUserLocation();
 
-    const deliveryFee = cartTotal > 0 ? 40 : 0;
-    const platformFee = cartTotal > 0 ? 5 : 0;
-    const gst = cartTotal > 0 ? Math.round(cartTotal * 0.05) : 0; // 5% GST
-    const grandTotal = cartTotal + deliveryFee + platformFee + gst;
+    useEffect(() => {
+        sessionStorage.setItem('checkout_details_flow_open', isDetailsFlowOpen.toString());
+        if (!isDetailsFlowOpen) {
+            sessionStorage.removeItem('checkout_details_flow_open');
+            sessionStorage.removeItem('checkout_step');
+            sessionStorage.removeItem('checkout_address_line');
+            sessionStorage.removeItem('checkout_landmark');
+            sessionStorage.removeItem('checkout_label');
+            sessionStorage.removeItem('checkout_map_coords');
+        }
+    }, [isDetailsFlowOpen]);
+
+    useEffect(() => {
+        if (selectedLocation) {
+            console.log('--- SELECTED ADDRESS ---');
+            console.log('ID:', selectedLocation.id);
+            console.log('Label:', selectedLocation.label);
+            console.log('Address:', selectedLocation.addressLine);
+            console.log('Coordinates:', `${selectedLocation.latitude}, ${selectedLocation.longitude}`);
+            console.log('-------------------------');
+        }
+    }, [selectedLocation]);
+
+    const [isAddressDropdownOpen, setIsAddressDropdownOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [suggestedItems, setSuggestedItems] = useState<SuggestedItem[]>([]);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+    const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
+    const [detailsFetchAttempted, setDetailsFetchAttempted] = useState(false);
+    const { setFulfillmentType } = useCart();
+
+    // Ensure restaurant details are always loaded as soon as restaurantId is available, independent of location coordinates
+    React.useEffect(() => {
+        let cancelled = false;
+        const loadDetails = async () => {
+            if (restaurantId) {
+                try {
+                    const details = await fetchRestaurantById(restaurantId);
+                    if (!cancelled && details) {
+                        setRestaurantDetails(details);
+                    }
+                } catch (err) {
+                    console.error("Failed to load restaurant details on mount/restaurantId change:", err);
+                } finally {
+                    if (!cancelled) {
+                        setDetailsFetchAttempted(true);
+                    }
+                }
+            } else {
+                setDetailsFetchAttempted(true);
+            }
+        };
+        loadDetails();
+        return () => { cancelled = true; };
+    }, [restaurantId]);
+
+    // Enrich cart items dynamically using the fetched restaurant details (menu catalog) to preserve correct isVeg status and imageUrl
+    const enrichedCartItems = React.useMemo(() => {
+        return cartItems.map(item => {
+            if (item.isAddon) return item;
+            const menuItem = restaurantDetails?.menu?.find(m => m.id === (item.menuItemId || item.id));
+            return {
+                ...item,
+                isVeg: menuItem ? (menuItem.type === 'Veg') : item.isVeg,
+                imageUrl: menuItem ? (menuItem.imageUrl || item.imageUrl) : item.imageUrl
+            };
+        });
+    }, [cartItems, restaurantDetails]);
+
+
+
+
+    // const deliveryFee = deliveryQuote?.deliveryFee || 0;
+    // const platformFee = deliveryQuote?.platformFee || 0;
+    // const gst = deliveryQuote?.gst || 0;
+    const grandTotal = deliveryQuote?.grandTotal || cartTotal;
+
+
+
+    React.useEffect(() => {
+        if (restaurantId) {
+            const loadSuggestions = async () => {
+                setIsLoadingSuggestions(true);
+                try {
+                    const restaurant = await fetchRestaurantById(restaurantId);
+                    if (restaurant && restaurant.menu) {
+                        // Filter items NOT already in cart
+                        const cartItemIds = new Set(cartItems.map(i => i.menuItemId || i.id));
+                        const otherItems = restaurant.menu
+                            .filter(i => !cartItemIds.has(i.id))
+                            .slice(0, 2) // Top 2 items
+                            .map(i => ({
+                                id: i.id,
+                                name: i.name,
+                                restaurant: restaurantName || "Restaurant",
+                                time: "20-30 min",
+                                distance: "1.2 km",
+                                priceForTwo: "₹400 for two",
+                                price: i.price,
+                                originalPrice: i.price * 1.2,
+                                discount: "20% OFF",
+                                image: i.imageUrl || getFallbackImage(i.name),
+                                isVeg: i.type === 'Veg'
+                            }));
+                        setSuggestedItems(otherItems);
+                    }
+                } finally {
+                    setIsLoadingSuggestions(false);
+                }
+            };
+            loadSuggestions();
+        }
+    }, [restaurantId, cartItems.length]); // Refresh suggestions if restaurant or cart size changes
+
+    React.useEffect(() => {
+        if (restaurantId && (fulfillmentType === 'Pickup' || selectedLocation?.latitude)) {
+            let cancelled = false;
+            const check = async () => {
+                setIsCheckingDelivery(true);
+                setDeliveryError(null);
+                setDeliveryStatus(null);
+                try {
+                    const restaurant = await fetchRestaurantById(restaurantId);
+                    if (cancelled) return;
+                    setRestaurantDetails(restaurant);
+
+                    if (!restaurant?.latitude || !restaurant?.longitude) {
+                        setDeliveryStatus('warning');
+                        setDeliveryError("Delivery/Pickup estimate unavailable for this restaurant.");
+                        return;
+                    }
+
+                    const quote = await getDeliveryQuote({
+                        restaurantId,
+                        pickupLatitude: restaurant.latitude,
+                        pickupLongitude: restaurant.longitude,
+                        orderAmount: cartTotal,
+                        fulfillmentType,
+                        ...(fulfillmentType === 'Delivery' && selectedLocation ? {
+                            dropLatitude: selectedLocation.latitude,
+                            dropLongitude: selectedLocation.longitude,
+                        } : {})
+                    });
+                    if (cancelled) return;
+
+                    if (quote) {
+                        setDeliveryQuote(quote);
+                        setDeliveryStatus('success');
+                    }
+                } catch (e: any) {
+                    if (cancelled) return;
+                    console.error("Delivery/Pickup quote API failed:", e?.message);
+                    setDeliveryError(e?.message || 'Quote service unavailable');
+                    setDeliveryStatus('error');
+                } finally {
+                    if (!cancelled) setIsCheckingDelivery(false);
+                }
+            };
+            check();
+            return () => { cancelled = true; };
+        } else {
+            setIsCheckingDelivery(false);
+            setDeliveryStatus(null);
+            setDeliveryQuote(null);
+        }
+    }, [selectedLocation, restaurantId, cartTotal, fulfillmentType]);
+
+    const handlePlaceOrder = async () => {
+        if (cartItems.length === 0) return;
+
+        if (!isLoggedIn || addresses.length === 0) {
+            setIsDetailsFlowOpen(true);
+        } else if (fulfillmentType === 'Delivery' && !selectedLocation) {
+            setIsAddressDropdownOpen(true);
+        } else {
+            navigate('/payment');
+        }
+    };
+
+    const handleDetailsComplete = async (address: any) => {
+        setIsDetailsFlowOpen(false);
+        if (address) {
+            selectLocation(address);
+        }
+    };
+
+    if (isCartLoading || (restaurantId && !detailsFetchAttempted)) {
+        return <LoadingScreen message="Retrieving your cart details..." />;
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans pb-32">
-            {/* Header */}
-            <div className="bg-white px-4 py-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100 shadow-sm">
-                <button onClick={() => navigate(-1)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
-                    <ArrowLeft className="w-5 h-5 text-gray-700" />
+        <div className="min-h-screen bg-[#F5F6F8] font-sans pb-40">
+            {/* Top Bar */}
+            <div className="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 shadow-sm">
+                <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                    <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
-                <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
+                <div className="flex-1"></div>
+                {/* <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-gray-700">
+                    <MenuIcon className="w-6 h-6" />
+                </button> */}
             </div>
+            {cartItems.length === 0 ? (
+                <div className="max-w-md mx-auto px-6 flex flex-col  items-center justify-center     text-center">
+                    <div className="p-12 rounded-[40px] w-full flex flex-col items-center mt-10">
+                        <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3 tracking-tight">Your Cart is Empty</h2>
+                        <p className="text-gray-400 font-inter font-regular text-sm mb-10 leading-relaxed max-w-[200px]">
+                            Add items to get started
+                        </p>
+                        <img src={emptyCart} alt="Empty Cart" className=' h-full object-cover opacity-80 mb-10' />
+                        <button
+                            onClick={() => navigate('/')}
+                            className="w-full bg-[#F36259] text-white font-inter py-3 rounded-[24px] shadow-xl shadow-red-100 hover:scale-[1.02] active:scale-95 transition-all mb-4"
+                        >
+                            Browse Restaurants
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className="max-w-md lg:max-w-6xl mx-auto px-4 flex flex-col lg:flex-row gap-6 lg:items-start lg:pt-4">
 
-            <div className="max-w-2xl mx-auto mt-6 px-4 flex flex-col gap-6">
+                        {/* Left Column for Desktop */}
+                        <div className="flex flex-col gap-4 flex-1 w-full">
 
-                {/* Order Items Summary */}
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                    <h2 className="font-bold text-gray-800 mb-4 text-lg">Your Order</h2>
-
-                    {cartItems.length === 0 ? (
-                        <div className="text-center py-6">
-                            <p className="text-gray-500 font-medium mb-4">Your cart is empty.</p>
-                            <button onClick={() => navigate('/')} className="text-[#FF4732] font-bold border border-[#FF4732] px-6 py-2 rounded-xl">Browse Restaurants</button>
-                        </div>
-                    ) : (
-                        cartItems.map(item => (
-                            <div key={item.id} className="flex items-center justify-between border-b border-gray-50 pb-4 mb-4">
-                                <div className="flex items-start gap-3">
-                                    <div className={`w-4 h-4 rounded border flex items-center justify-center mt-1 ${item.isVeg ? 'border-emerald-600' : 'border-red-600'}`}>
-                                        <div className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-emerald-600' : 'bg-red-600'}`}></div>
+                            {/* Stepper */}
+                            <div className="bg-white lg:rounded-2xl px-6 py-4 border-b lg:border border-gray-100 flex items-center justify-between shadow-sm -mx-4 lg:mx-0 mb-1 lg:mb-0">
+                                <div className="flex flex-col items-center flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
+                                        <StepperIcon type="menu" className="text-[#00A050]" />
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold text-gray-900">{item.name}</h4>
-                                        <span className="text-sm font-semibold text-gray-600">₹{item.price}</span>
-                                    </div>
+                                    <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                                 </div>
-                                {/* Quantity Counter */}
-                                <div className="flex items-center bg-red-50 text-[#FF4732] rounded-lg border border-red-200 overflow-hidden shadow-sm h-8">
-                                    <button onClick={() => removeFromCart(item.id)} className="px-2 h-full hover:bg-red-100 transition-colors flex items-center justify-center font-bold text-lg">-</button>
-                                    <span className="font-bold w-6 text-center text-sm">{item.quantity}</span>
-                                    <button onClick={() => addToCart({ ...item })} className="px-2 h-full hover:bg-red-100 transition-colors flex items-center justify-center font-bold text-lg">+</button>
+
+                                {/* Connector 1 */}
+                                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
+                                </div>
+
+                                {/* Cart Step - active */}
+                                <div className="flex flex-col items-center flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
+                                        <StepperIcon type="cart" className="text-[#FF4732]" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-[#FF4732]">Cart</span>
+                                </div>
+
+                                {!isLoggedIn && (
+                                    <>
+                                        {/* Connector 2 */}
+                                        <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
+                                        </div>
+
+                                        {/* Details Step - pending */}
+                                        <div className="flex flex-col items-center flex-shrink-0">
+                                            <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
+                                                <StepperIcon type="address" className="text-gray-300" />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-gray-500">Details</span>
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Connector 3 */}
+                                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
+                                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
+                                </div>
+
+                                {/* Checkout Step - pending */}
+                                <div className="flex flex-col items-center flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
+                                        <StepperIcon type="checkout" className="text-gray-300" />
+                                    </div>
+                                    <span className="text-[10px] font-medium text-gray-500">Checkout</span>
                                 </div>
                             </div>
-                        ))
-                    )}
 
-                    {cartItems.length > 0 && (
-                        <button onClick={() => navigate(-1)} className="text-[#FF4732] font-semibold text-sm hover:underline mt-2 inline-block">
-                            + Add more items
-                        </button>
-                    )}
-                </div>
+                            {/* Cart Items List */}
+                            <div className="flex flex-col gap-3 lg:mt-2">
+                                {enrichedCartItems.map((item) => (
+                                    <div key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-50">
+                                        <div className="flex gap-4 items-center w-full">
+                                            {/* Item Image */}
+                                            {!item.isAddon && (
+                                                <div className="w-16 h-16 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden relative">
+                                                    <img src={item.imageUrl || getFallbackImage(item.name)} alt={item.name} className="w-full h-full object-cover" />
+                                                    <div className="absolute bottom-1 left-1">
+                                                        <div className={`w-4 h-4 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center bg-white p-0.5 shadow-sm`}>
+                                                            <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                {/* Delivery Instructions */}
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                    <h2 className="font-bold text-gray-800 mb-4 text-lg">Delivery Instructions</h2>
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-[15px] text-[#2D2D2D]">{item.name}</h4>
+                                                {item.selectedAddons && item.selectedAddons.length > 0 ? (
+                                                    <div className="mt-2 space-y-2.5">
+                                                        {Object.entries(
+                                                            item.selectedAddons.reduce((acc, addon) => {
+                                                                const group = addon.groupName || "Add-ons";
+                                                                if (!acc[group]) acc[group] = [];
+                                                                acc[group].push(addon);
+                                                                return acc;
+                                                            }, {} as Record<string, typeof item.selectedAddons>)
+                                                        ).map(([groupName, addons]) => (
+                                                            <div key={groupName} className="space-y-1">
+                                                                <p className="text-[9px] font-bold text-[#FF4732] uppercase tracking-wider">{groupName}</p>
+                                                                <div className="space-y-1.5 pl-1">
+                                                                    {addons.map((addon) => (
+                                                                        <div key={addon.id} className="flex items-center gap-2 group">
+                                                                            <div
+                                                                                onClick={() => updateItemAddon(item.id, addon.id, 'remove')}
+                                                                                className="w-4 h-4 rounded border border-emerald-500 bg-emerald-500 flex items-center justify-center cursor-pointer hover:bg-emerald-600 transition-colors"
+                                                                            >
+                                                                                <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                                                                            </div>
+                                                                            <span className="text-[11px] font-bold text-gray-500 flex-1">{addon.name}</span>
+                                                                            {addon.price > 0 ? (
+                                                                                <span className="text-[10px] font-bold text-gray-400">+ ₹ {formatPrice(addon.price)}</span>
+                                                                            ) : (
+                                                                                <span className="text-[10px] font-bold text-gray-400">Included</span>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        {item.customizations?.includes('|') && (
+                                                            <p className="text-[10px] text-gray-400 italic mt-1 font-medium">
+                                                                Note: {item.customizations.split('|')[1].trim()}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ) : item.customizations ? (
+                                                    <p className="text-xs text-gray-500 mt-1 leading-snug">
+                                                        <span className="font-bold text-gray-600">Note:</span> {item.customizations}
+                                                    </p>
+                                                ) : null}
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    {!item.isAddon && <span className="text-gray-400 line-through text-sm font-medium">₹ {formatPrice(Math.round(item.price * 1.1))}</span>}
+                                                    <span className={`${item.isAddon ? 'text-gray-500 text-sm' : 'text-[#FF4732] font-bold text-[15px]'}`}>₹ {formatPrice(item.price)}</span>
+                                                </div>
+                                            </div>
 
-                    <div className="flex bg-gray-50 rounded-xl px-4 border border-gray-100 items-center w-full h-12 shadow-inner focus-within:ring-2 focus-within:ring-[#FF4732] transition-shadow mb-4">
-                        <input
-                            type="text"
-                            placeholder="Add a note for your delivery partner..."
-                            className="bg-transparent border-none outline-none text-gray-700 w-full placeholder-gray-400 font-medium text-sm"
-                        />
-                        <Mic className="text-[#FF4732] w-5 h-5 ml-2 cursor-pointer hover:scale-110 transition-transform" />
-                    </div>
-
-                    {/* Instruction Pups */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <button className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-200 bg-white hover:border-[#FF4732] hover:bg-red-50 transition-colors group">
-                            <PhoneOff className="w-6 h-6 text-gray-500 group-hover:text-[#FF4732]" />
-                            <span className="text-[10px] font-bold text-gray-600 group-hover:text-[#FF4732] text-center leading-tight">Don't Call</span>
-                        </button>
-                        <button className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-[#FF4732] bg-red-50 transition-colors group">
-                            <DoorClosed className="w-6 h-6 text-[#FF4732]" />
-                            <span className="text-[10px] font-bold text-[#FF4732] text-center leading-tight">Keep at Doorstep</span>
-                        </button>
-                        <button className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-200 bg-white hover:border-[#FF4732] hover:bg-red-50 transition-colors group">
-                            <Shield className="w-6 h-6 text-gray-500 group-hover:text-[#FF4732]" />
-                            <span className="text-[10px] font-bold text-gray-600 group-hover:text-[#FF4732] text-center leading-tight">Leave at Security</span>
-                        </button>
-                        <button className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-200 bg-white hover:border-[#FF4732] hover:bg-red-50 transition-colors group">
-                            <BellOff className="w-6 h-6 text-gray-500 group-hover:text-[#FF4732]" />
-                            <span className="text-[10px] font-bold text-gray-600 group-hover:text-[#FF4732] text-center leading-tight">Do not ring bell</span>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Bill Details */}
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                    <h2 className="font-bold text-gray-800 mb-4 text-lg">Bill Details</h2>
-
-                    <div className="space-y-3 text-sm text-gray-600">
-                        <div className="flex justify-between">
-                            <span>Item Total</span>
-                            <span className="font-semibold text-gray-800">₹{cartTotal}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Delivery Fee</span>
-                            <span className="font-semibold text-gray-800">₹{deliveryFee}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Platform Fee</span>
-                            <span className="font-semibold text-gray-800">₹{platformFee}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-gray-100 pb-3">
-                            <span>GST & Restaurant Charges</span>
-                            <span className="font-semibold text-gray-800">₹{gst}</span>
-                        </div>
-
-                        <div className="flex justify-between pt-1">
-                            <span className="font-black text-gray-900 text-base">Grand Total</span>
-                            <span className="font-black text-gray-900 text-lg">₹{grandTotal}</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            {/* Floating Checkout Button */}
-            {cartItems.length > 0 && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-20">
-                    <div className="max-w-2xl mx-auto">
-                        <button className="w-full bg-[#FF4732] text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-colors flex justify-between items-center px-6 active:scale-[0.98]">
-                            <div className="flex flex-col items-start bg-black bg-opacity-10 px-3 py-1 rounded-lg">
-                                <span className="text-[10px] font-semibold text-red-100 uppercase tracking-wider">Total</span>
-                                <span className="text-sm font-extrabold">₹{grandTotal}</span>
+                                            {!item.isAddon ? (
+                                                <div className="flex items-center bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm h-[34px]">
+                                                    <button onClick={() => removeFromCart(item.id)} className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50">-</button>
+                                                    <span className="font-bold w-4 text-center text-[15px]">{item.quantity}</span>
+                                                    <button onClick={() => addToCart({ ...item }, restaurantId, restaurantName)} className="w-8 h-full flex items-center justify-center text-gray-800 hover:bg-gray-50">+</button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-6 h-6 rounded-md bg-[#00A050] flex items-center justify-center">
+                                                    <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <span className="flex items-center gap-2">Proceed to Checkout <ArrowLeft className="w-5 h-5 rotate-180" /></span>
-                        </button>
+
+                            {/* Add more items */}
+                            <div
+                                onClick={() => restaurantId ? navigate(`/restaurant/${restaurantId}`) : navigate('/')}
+                                className="bg-white rounded-2xl p-4 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors border border-gray-50 justify-center"
+                            >
+                                <div className="text-gray-600 font-medium text-[15px] flex items-center gap-1.5 w-full justify-center">
+                                    <span>+</span>
+                                    <span>Add more items</span>
+                                </div>
+                            </div>
+
+                            {/* Frequently Bought Section */}
+                            <div className="mt-4">
+                                <div className="flex items-center justify-between mb-3 px-1">
+                                    <h2 className="font-extrabold text-[#111] text-xl">Frequently Bought</h2>
+                                    <ChevronRight className="w-5 h-5 text-gray-800" />
+                                </div>
+
+                                <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-4 snap-x">
+                                    {isLoadingSuggestions ? (
+                                        <>
+                                            <SuggestedItemSkeleton />
+                                            <SuggestedItemSkeleton />
+                                        </>
+                                    ) : suggestedItems.length > 0 ? (
+                                        suggestedItems.map(item => (
+                                            <div key={item.id} className="bg-white rounded-2xl w-[220px] flex-shrink-0 overflow-hidden shadow-sm border border-gray-100 snap-start pb-3 flex flex-col relative group">
+                                                <div className="h-32 w-full overflow-hidden relative">
+                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                    <div className="absolute top-2 left-2">
+                                                        <div className={`w-4 h-4 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center bg-white p-0.5 shadow-sm`}>
+                                                            <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => addToCart({
+                                                            id: item.id,
+                                                            menuItemId: item.id,
+                                                            name: item.name,
+                                                            price: item.price,
+                                                            isVeg: item.isVeg
+                                                        }, restaurantId, restaurantName)}
+                                                        className="absolute bottom-2 right-2 bg-white text-[#FF4732] p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors active:scale-90"
+                                                    >
+                                                        <Plus className="w-5 h-5" strokeWidth={3} />
+                                                    </button>
+                                                </div>
+                                                <div className="px-3 py-3 flex flex-col flex-1">
+                                                    <h4 className="font-bold text-[15px] text-[#222] truncate">{item.name}</h4>
+                                                    <p className="text-gray-500 text-xs mt-0.5">{item.restaurant}</p>
+
+                                                    <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-500 font-medium">
+                                                        <span className="flex items-center"><span className="w-3 h-3 mr-1 opacity-60"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg></span>{item.time}</span>
+                                                        <span className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" />{item.distance}</span>
+                                                        <span>{item.priceForTwo}</span>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between mt-auto pt-3">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="text-[#00A050] font-bold text-sm">₹{formatPrice(item.price)}</span>
+                                                            <span className="text-gray-400 line-through text-[11px]">₹{formatPrice(item.originalPrice)}</span>
+                                                        </div>
+                                                        <div className="bg-[#E6F5EC] text-[#00A050] flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                                                            <Ticket className="w-2.5 h-2.5" />
+                                                            {item.discount}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-8 text-center text-gray-400 w-full text-sm">No suggestions available</div>
+                                    )}
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                        {/* Right Column for Desktop */}
+                        <div className="flex flex-col gap-0 w-full lg:w-[420px] lg:sticky lg:top-28">
+
+                            {/* Cutlery Toggle */}
+                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mt-2">
+                                <div className="flex-1 pr-4">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h3 className="font-bold text-[17px] text-[#222]">Cutlery</h3>
+                                        {/* Simple Toggle Switch */}
+                                        <div
+                                            onClick={() => {
+                                                const newVal = !includeCutlery;
+                                                setIncludeCutlery(newVal);
+                                                showToast(
+                                                    newVal ? "Cutlery option added to your order" : "Cutlery removed from order",
+                                                    "success"
+                                                );
+                                            }}
+                                            className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors flex items-center ${includeCutlery ? 'bg-[#FF4732]' : 'bg-gray-200'}`}
+                                        >
+                                            <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${includeCutlery ? 'translate-x-[20px]' : 'translate-x-0'}`}></div>
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-400 text-[13px] leading-tight font-medium w-[80%] transition-colors duration-200">
+                                        {includeCutlery
+                                            ? "Cutlery will be provided. Thank you!"
+                                            : "No cutlery provided. Thanks for reducing waste"}
+                                    </p>
+                                </div>
+                                <div className="flex items-center opacity-80 gap-[2px]">
+                                    <div className="w-3 h-10 border-l-[1.5px] border-b-[1.5px] border-r-[1.5px] border-gray-300 rounded-b-md flex justify-around p-[1px]">
+                                        <div className="w-[1px] h-3 bg-gray-300"></div><div className="w-[1px] h-3 bg-gray-300"></div>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full border-[5px] border-[#FBD267] bg-[#F7A626]"></div>
+                                    <div className="w-2 h-10 bg-gray-300 rounded-t-full rounded-b-sm translate-y-1"></div>
+                                </div>
+                            </div>
+
+                            {/* Delivery Address */}
+                            <div
+                                onClick={() => {
+                                    if (fulfillmentType === 'Pickup') return;
+                                    if (!isLoggedIn) {
+                                        setIsDetailsFlowOpen(true);
+                                    } else {
+                                        setIsAddressDropdownOpen(!isAddressDropdownOpen);
+                                    }
+                                }}
+                                className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 transition-all relative ${fulfillmentType !== 'Pickup' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                            <MapPin className="w-5 h-5 fill-current" />
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[15px]">
+                                            <span className="font-medium text-gray-600">{fulfillmentType === 'Pickup' ? 'Fulfillment' : 'Deliver to'}</span>
+                                            <span className="text-gray-900 font-bold">-&gt;</span>
+                                            <span className="font-bold text-gray-900">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Select Location'))}</span>
+                                        </div>
+                                    </div>
+                                    {isLoggedIn && fulfillmentType !== 'Pickup' && (
+                                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isAddressDropdownOpen ? 'rotate-180' : ''}`} />
+                                    )}
+                                </div>
+                                <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
+                                    {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName || 'the restaurant'}${restaurantDetails?.addressLine ? ` (${restaurantDetails.addressLine})` : ''}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
+                                </div>
+
+                                {/* Fulfillment Mode Toggle - Only shown if restaurant accepts pickup */}
+                                {restaurantDetails?.acceptsPickup && (
+                                    <div className="pl-11 mt-4">
+                                        <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setFulfillmentType('Delivery'); }}
+                                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${fulfillmentType === 'Delivery' ? 'bg-white text-[#FF4732] shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                Delivery
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setFulfillmentType('Pickup'); }}
+                                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${fulfillmentType === 'Pickup' ? 'bg-white text-[#FF4732] shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                Pickup
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {fulfillmentType === 'Delivery' && isCheckingDelivery && (
+                                    <div className="pl-11 mt-1 flex items-center gap-2 text-[11px] text-gray-400">
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        Checking delivery availability...
+                                    </div>
+                                )}
+
+                                {fulfillmentType === 'Delivery' && !isCheckingDelivery && deliveryStatus && (
+                                    <div className={`pl-11 mt-1 flex items-center gap-1.5 text-[11px] font-bold ${deliveryStatus === 'success' ? 'text-[#00A050]' :
+                                        deliveryStatus === 'error' ? 'text-[#FF4732]' :
+                                            'text-amber-600'
+                                        }`}>
+                                        {deliveryStatus === 'success' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                                        {deliveryStatus === 'success'
+                                            ? `Delivers here${deliveryQuote && deliveryQuote.distanceKm > 0 ? ` (~${deliveryQuote.distanceKm} km)` : ''} • ${deliveryQuote?.estimatedMinutes || '30-40'} mins`
+                                            : deliveryError}
+                                    </div>
+                                )}
+
+                                {/* Address Dropdown Overlay/List */}
+                                {isAddressDropdownOpen && isLoggedIn && fulfillmentType !== 'Pickup' && (
+                                    <div className="absolute top-[105%] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 z-40 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                                        <div className="p-2 flex flex-col max-h-[240px] overflow-y-auto">
+                                            {addresses.length === 0 ? (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No saved addresses found</div>
+                                            ) : (
+                                                addresses.map(add => (
+                                                    <div
+                                                        key={add.id}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            selectLocation(add);
+                                                            setIsAddressDropdownOpen(false);
+                                                        }}
+                                                        className={`p-3 rounded-xl hover:bg-gray-50 transition-colors flex flex-col gap-0.5 mb-1 last:mb-0 ${selectedLocation?.id === add.id ? 'bg-red-50/50' : ''}`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="font-bold text-sm text-gray-800">{add.label}</span>
+                                                            {selectedLocation?.id === add.id && <Check className="w-4 h-4 text-[#FF4732]" />}
+                                                        </div>
+                                                        <span className="text-xs text-gray-500 truncate">{add.addressLine}</span>
+                                                    </div>
+                                                ))
+                                            )}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setIsDetailsFlowOpen(true);
+                                                    setIsAddressDropdownOpen(false);
+                                                }}
+                                                className="mt-2 text-[#FF4732] text-sm font-bold p-3 border-t border-gray-50 hover:bg-red-50/30 transition-colors text-center"
+                                            >
+                                                + Add New Address
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Payment Method */}
+                            {/* <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                    <Wallet className="w-5 h-5 fill-current" />
+                                </div>
+                                <span className="font-medium text-gray-600 text-[15px]">Payment method</span>
+                            </div>
+                            <div className="pl-11 text-gray-900 text-[15px] font-bold">
+                                Cash
+                            </div>
+                        </div> */}
+
+                            {/* Coupon - Commented for now */}
+                            {/* <div
+                                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer mt-4"
+                                onClick={() => setIsCouponOverlayOpen(true)}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                        <Ticket className="w-5 h-5 fill-current" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <h3 className="font-bold text-[17px] text-[#333]">Coupon</h3>
+                                        <span className="text-gray-400 text-[13px] font-medium mt-0.5">Select Your Discounts</span>
+                                    </div>
+                                </div>
+                                <ChevronDown className="w-5 h-5 text-gray-400" />
+                            </div> */}
+
+                            {/* To Pay */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col mt-4 overflow-hidden mb-4">
+                                <div
+                                    className="p-4 flex items-center justify-between cursor-pointer"
+                                    onClick={() => setIsToPayExpanded(!isToPayExpanded)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
+                                            <ReceiptText className="w-5 h-5 fill-current" />
+                                        </div>
+                                        <h3 className="font-bold text-[17px] text-[#333]">To Pay</h3>
+                                    </div>
+                                    {isToPayExpanded ? (
+                                        <ChevronUp className="w-5 h-5 text-gray-400 stroke-2" />
+                                    ) : (
+                                        <ChevronDown className="w-5 h-5 text-gray-400 stroke-2" />
+                                    )}
+                                </div>
+
+                                {isToPayExpanded && (
+                                    <div className="px-4 pb-4">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-[#555] text-[14px]">Item Total</span>
+                                            <span className="text-[#333] text-[14px] font-bold">₹{formatPrice(deliveryQuote ? deliveryQuote.itemTotal : cartTotal)}</span>
+                                        </div>
+
+                                        <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
+
+                                        {isCheckingDelivery ? (
+                                            <div className="flex flex-col gap-3 mb-3">
+                                                <div className="flex justify-between items-center w-full animate-pulse">
+                                                    <div className="h-4 bg-gray-150 rounded w-24" />
+                                                    <div className="h-4 bg-gray-150 rounded w-12" />
+                                                </div>
+                                                <div className="flex justify-between items-center w-full animate-pulse">
+                                                    <div className="h-4 bg-gray-150 rounded w-32" />
+                                                    <div className="h-4 bg-gray-150 rounded w-12" />
+                                                </div>
+                                            </div>
+                                        ) : deliveryQuote ? (
+                                            deliveryQuote.breakdown
+                                                .filter(item => {
+                                                    if (item.name === 'Delivery Fee' && (fulfillmentType === 'Pickup' || item.amount === 0)) {
+                                                        return false;
+                                                    }
+                                                    return true;
+                                                })
+                                                .map((item, idx) => {
+                                                    let displayName = item.name;
+                                                    if (item.name === 'Base Fee') {
+                                                        displayName = 'Delivery Fee';
+                                                    } else if (item.name === 'GST') {
+                                                        displayName = fulfillmentType === 'Pickup'
+                                                            ? 'GST (18% on Platform Fee)'
+                                                            : 'GST (18% on Delivery + Platform Fee)';
+                                                    } else if (item.name === 'GST on Food') {
+                                                        displayName = 'GST on Food (5%)';
+                                                    }
+                                                    return (
+                                                        <div key={idx} className="flex justify-between items-center mb-3 animate-in fade-in duration-200">
+                                                            <span className="text-[#555] text-[14px]">{displayName}</span>
+                                                            <span className="text-[#333] text-[14px] font-bold">
+                                                                {item.amount > 0 ? `₹${formatPrice(item.amount)}` : 'FREE'}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })
+                                        ) : (
+                                            <>
+                                                {fulfillmentType !== 'Pickup' && (
+                                                    <div className="flex justify-between items-center mb-3">
+                                                        <span className="text-[#555] text-[14px]">Delivery Fee</span>
+                                                        <span className="text-gray-400 text-[14px] font-bold">--</span>
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <span className="text-[#555] text-[14px]">Platform Fee & GST</span>
+                                                    <span className="text-gray-400 text-[14px] font-bold">--</span>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        <div className="border-t border-dashed border-gray-200 mt-2 mb-4"></div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[#444] text-[15px] font-bold">To Pay</span>
+                                            {isCheckingDelivery ? (
+                                                <div className="h-5 w-16 bg-red-100 rounded animate-pulse" />
+                                            ) : deliveryStatus === 'error' ? (
+                                                <span className="text-gray-400 text-[15px] font-bold">--</span>
+                                            ) : (
+                                                <span className="text-[#333] text-[15px] font-bold">₹{formatPrice(grandTotal)}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Desktop Checkout Warning & Button */}
+                            {cartTotal < 150 && (
+                                <div className="hidden lg:flex bg-[#FFF0EF] border border-[#FFDCDA] rounded-2xl p-4 items-start gap-3 mt-4 mb-2">
+                                    <AlertCircle className="w-5 h-5 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <div className="flex flex-col gap-0.5">
+                                        <h4 className="text-[13px] font-bold text-gray-900 leading-tight">Minimum order value required</h4>
+                                        <p className="text-[11px] text-gray-500 font-semibold leading-relaxed">
+                                            Subtotal must be at least ₹150 to place an order. Add ₹{150 - cartTotal} more worth of items.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handlePlaceOrder}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error') || cartTotal < 150}
+                                className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
+                            >
+                                {cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` :
+                                    !isLoggedIn ? "Add phone and address details" :
+                                        addresses.length === 0 ? "Add Address" :
+                                            !selectedLocation ? "Select Address" :
+                                                isCheckingDelivery ? "Checking delivery..." :
+                                                    (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
+                                                        "Proceed to checkout"}
+                            </button>
+
+                        </div>
                     </div>
-                </div>
+
+                    {/* Bottom Fixed Button - Mobile Only */}
+                    <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
+                        <div className="max-w-md mx-auto flex flex-col gap-3">
+                            {cartTotal < 150 && (
+                                <div className="bg-[#FFF0EF] border border-[#FFDCDA] rounded-xl p-3 flex items-start gap-2.5">
+                                    <AlertCircle className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <div className="flex flex-col">
+                                        <p className="text-[11px] text-gray-600 font-bold leading-tight">
+                                            Min. order subtotal is ₹150
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 font-semibold leading-normal">
+                                            Add ₹{150 - cartTotal} more worth of items to proceed
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handlePlaceOrder}
+                                disabled={cartItems.length === 0 || isCheckingDelivery || (fulfillmentType === 'Delivery' && deliveryStatus === 'error') || cartTotal < 150}
+                                className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
+                            >
+                                {cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` :
+                                    !isLoggedIn ? "Add phone and address details" :
+                                        addresses.length === 0 ? "Add Address" :
+                                            !selectedLocation ? "Select Address" :
+                                                isCheckingDelivery ? "Checking delivery..." :
+                                                    (fulfillmentType === 'Delivery' && deliveryStatus === 'error') ? "Out of delivery range" :
+                                                        "Proceed to checkout"}
+                            </button>
+                        </div>
+                    </div>
+                </>
             )}
+            {/* {isCouponOverlayOpen && (
+                <CouponOverlay onClose={() => setIsCouponOverlayOpen(false)} />
+            )} */}
+
+            {isDetailsFlowOpen && (
+                <DetailsFlowOverlay
+                    onClose={() => setIsDetailsFlowOpen(false)}
+                    onComplete={handleDetailsComplete}
+                />
+            )}
+
+            <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+
+            <style>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none; /* IE and Edge */
+                    scrollbar-width: none; /* Firefox */
+                }
+            `}</style>
         </div>
     );
 };

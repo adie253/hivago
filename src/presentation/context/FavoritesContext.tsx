@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useToast } from './ToastContext';
 import { Restaurant } from '../components/RestaurantCard';
 
 interface FavoritesContextType {
@@ -12,6 +13,7 @@ const STORAGE_KEY = 'hivago_favorites';
 
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [favorites, setFavorites] = useState<Restaurant[]>([]);
+    const { showToast } = useToast();
 
     useEffect(() => {
         try {
@@ -22,7 +24,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
     }, []);
 
-    const toggleFavorite = (restaurant: Restaurant) => {
+    const toggleFavorite = useCallback((restaurant: Restaurant) => {
         setFavorites((prev) => {
             const isFav = prev.some((r) => r.id === restaurant.id);
             const newFavorites = isFav
@@ -31,16 +33,21 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newFavorites));
+                if (isFav) {
+                    showToast(`Removed ${restaurant.name} from favorites`, "info");
+                } else {
+                    showToast(`Added ${restaurant.name} to favorites`, "success");
+                }
             } catch (error) {
                 console.error('Failed to save favorites', error);
             }
             return newFavorites;
         });
-    };
+    }, [showToast]);
 
-    const isFavorite = (restaurantId: string) => {
+    const isFavorite = useCallback((restaurantId: string) => {
         return favorites.some((r) => r.id === restaurantId);
-    };
+    }, [favorites]);
 
     return (
         <FavoritesContext.Provider value={{ favorites, toggleFavorite, isFavorite }}>

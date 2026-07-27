@@ -1,0 +1,1121 @@
+RALLYAPI
+Customer App
+Frontend Developer Handoff
+Comprehensive API reference, authentication flows, data models,
+order lifecycle, error handling, and integration guide.
+Platform
+.NET 8 Modular Monolith  |  PostgreSQL  |  Redis
+App Scope
+Customer-facing mobile/web application
+Auth Method
+Phone + OTP (Redis-backed) with JWT RS256
+Version
+Phase 1 Complete
+Date
+March 2026
+Classification
+Internal / Confidential
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Table of Contents
+1.   Architecture Overview
+2.   Authentication & Token Management
+2.1   OTP Login Flow
+2.2   Token Refresh Flow
+2.3   Token Storage Recommendations
+2.4   Logout
+3.   API Endpoints Reference
+3.1   Authentication Endpoints
+3.2   Customer Profile Endpoints
+3.3   Address Management Endpoints
+3.4   Restaurant & Menu Browsing
+3.5   Pricing & Delivery Fee
+3.6   Order Management
+4.   Order Lifecycle & Status Machine
+5.   Delivery Tracking Flow
+6.   Data Models & DTOs
+7.   Error Handling & Response Format
+8.   Rate Limiting
+9.   Known Limitations & Workarounds
+10.   Environment Setup & Base URLs
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+1. Architecture Overview
+RallyAPI is a food delivery platform (similar to Swiggy/Zomato) built as a .NET 8 Modular Monolith. The
+backend is organized into independent modules, each with its own domain logic, database schema, and
+API endpoints. As a frontend developer for the Customer app, you will primarily interact with endpoints
+from the following modules:
+Module
+What It Gives You
+DB Schema
+Users
+Customer registration, login (OTP), profile, addresses
+users
+Catalog
+Restaurant listings, menus, menu items, options
+catalog
+Pricing
+Delivery fee calculation with dynamic surge pricing
+pricing
+Orders
+Place, track, and cancel orders
+orders
+Delivery
+Delivery status tracking (rider assignment, pickup, drop-off)
+delivery
+All modules share a single PostgreSQL database (rallydb) but use separate schemas for isolation. The
+API runs as a single process, so all endpoints share the same base URL. Communication between
+modules happens via domain events (MediatR) internally — this is transparent to you as a frontend
+consumer.
+Tech Stack Summary
+Layer
+Technology
+Runtime
+.NET 8 / ASP.NET Core Minimal APIs
+Database
+PostgreSQL (via EF Core + Npgsql)
+Cache / OTP Store
+Redis
+Auth
+JWT RS256 (asymmetric) + Refresh Token Rotation
+API Pattern
+CQRS via MediatR (Commands & Queries)
+Validation
+FluentValidation (server-side)
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+2. Authentication & Token Management
+Customer authentication uses Phone + OTP verification. There is no email/password login for customers.
+The flow produces two tokens: a short-lived JWT access token (15 min) for API authorization, and a
+long-lived opaque refresh token (30 days) for seamless session renewal.
+Token
+Type
+Lifetime
+Purpose
+Access Token
+JWT (RS256 signed)
+15 minutes
+Passed in Authorization header for all protected
+endpoints
+Refresh Token
+Opaque (random
+string)
+30 days
+Used to get a new access + refresh token pair when
+access token expires
+2.1 OTP Login Flow
+The customer login is a 2-step process: request OTP, then verify OTP. If the phone number is new, the
+user is automatically registered during verification (no separate signup endpoint needed).
+Step 1: Request OTP
+POST /api/customers/otp/send
+Content-Type: application/json
+{
+  "phoneNumber": "+919876543210"
+}
+Response: 200 OK with a success message. The OTP is sent via SMS (in DEBUG mode it is logged to
+console as 123456).
+Step 2: Verify OTP
+POST /api/customers/otp/verify
+Content-Type: application/json
+{
+  "phoneNumber": "+919876543210",
+  "otp": "123456"
+}
+Success Response (200):
+{
+  "accessToken": "eyJhbGciOiJSUzI1NiIs...",
+  "refreshToken": "base64-encoded-random-string",
+  "accessTokenExpiresAt": "2026-03-03T12:30:00Z"
+}
+NOTE: Phone numbers must include country code (e.g., +91 for India). The backend normalizes the number
+by stripping spaces and dashes, keeping only digits and +.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+IMPORTANT: In DEBUG builds, the OTP is always 123456. In production, OTPs are cryptographically
+random 6-digit codes sent via SMS. Never hardcode OTPs in the frontend.
+2.2 Token Refresh Flow
+When the access token expires (after 15 min), use the refresh token to get a new pair. The old refresh
+token is automatically revoked (rotation). Your app should implement this as an interceptor/middleware
+that retries failed 401 requests after refreshing.
+POST /api/auth/refresh
+Content-Type: application/json
+{
+  "refreshToken": "your-current-refresh-token"
+}
+Success Response (200):
+{
+  "accessToken": "new-jwt-token...",
+  "refreshToken": "new-refresh-token",
+  "accessTokenExpiresAt": "2026-03-03T12:45:00Z"
+}
+IMPORTANT: Theft Detection: If a revoked refresh token is reused (e.g., by an attacker who stole the old
+token), the server revokes ALL sessions for that user. The legitimate user will be forced to re-login. This is
+expected security behavior — always discard old refresh tokens immediately after rotation.
+2.3 Token Storage Recommendations
+Platform
+Access Token
+Refresh Token
+React Native / Mobile
+In-memory (variable/state)
+Secure storage (Keychain /
+EncryptedSharedPreferences)
+Web (SPA)
+In-memory (JS variable, NOT
+localStorage)
+HttpOnly cookie (ideal) or secure storage
+Flutter
+In-memory
+flutter_secure_storage
+IMPORTANT: Never store access tokens in localStorage or sessionStorage on web. They are vulnerable to
+XSS attacks. Keep them in-memory and refresh on page reload.
+2.4 Logout
+To log the user out, revoke the refresh token:
+POST /api/auth/revoke
+Authorization: Bearer <access-token>
+Content-Type: application/json
+{
+  "refreshToken": "current-refresh-token"
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+}
+Response: 200 OK with {"message": "Token revoked."}. After this, clear both tokens from client storage
+and redirect to login.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+3. API Endpoints Reference
+All endpoints below are relevant to the Customer app. Endpoints requiring authentication expect the JWT
+access token in the Authorization header as: Authorization: Bearer <access-token>
+3.1 Authentication Endpoints
+POST  /api/customers/otp/send
+Request an OTP to be sent to the customer's phone number.
+Auth: None (public)
+Request Body
+{ "phoneNumber": "+919876543210" }
+Success Response (200)
+{ "message": "OTP sent successfully." }
+Error Responses
+429 Too Many Requests - Rate limit exceeded (3 per 10 min per IP)
+NOTE: Rate limited: max 3 requests per phone per 10 minutes.
+POST  /api/customers/otp/verify
+Verify OTP and receive access + refresh tokens. Auto-registers new users.
+Auth: None (public)
+Request Body
+{ "phoneNumber": "+919876543210", "otp": "123456" }
+Success Response (200)
+{
+  "accessToken": "eyJ...",
+  "refreshToken": "base64...",
+  "accessTokenExpiresAt": "2026-03-03T12:30:00Z"
+}
+Error Responses
+400 Bad Request - Invalid OTP
+401 Unauthorized - Account locked (3 failed attempts, 15 min lockout)
+429 Too Many Requests - Rate limit exceeded
+POST  /api/auth/refresh
+Exchange a valid refresh token for a new access + refresh token pair.
+Auth: None (uses refresh token in body)
+Request Body
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+{ "refreshToken": "base64-encoded-string" }
+Success Response (200)
+{
+  "accessToken": "new-jwt...",
+  "refreshToken": "new-base64...",
+  "accessTokenExpiresAt": "..."
+}
+Error Responses
+401 Unauthorized - Invalid or expired refresh token
+401 Unauthorized - Token reuse detected (all sessions revoked)
+429 Too Many Requests
+POST  /api/auth/revoke
+Revoke a refresh token (logout). Requires valid access token.
+Auth: Bearer Token (Customer)
+Request Body
+{ "refreshToken": "base64-encoded-string" }
+Success Response (200)
+{ "message": "Token revoked." }
+3.2 Customer Profile Endpoints
+GET  /api/customers/{customerId}
+Retrieve the logged-in customer's profile details.
+Auth: Bearer Token (Customer)
+Success Response (200)
+{
+  "id": "uuid",
+  "phone": "+919876543210",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "isActive": true,
+  "createdAt": "2026-01-15T10:00:00Z"
+}
+Error Responses
+401 Unauthorized
+404 Not Found
+NOTE: The customerId is available from the JWT claims as the 'sub' field.
+PUT  /api/customers/{customerId}
+Update the customer's name or email.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Auth: Bearer Token (Customer)
+Request Body
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+Success Response (200)
+{ "message": "Profile updated." }
+Error Responses
+400 Validation Error
+401 Unauthorized
+3.3 Address Management Endpoints
+GET  /api/customers/{customerId}/addresses
+List all saved addresses for the customer.
+Auth: Bearer Token (Customer)
+Success Response (200)
+[
+  {
+    "id": "uuid",
+    "addressLine": "123 MG Road, Indiranagar",
+    "landmark": "Near Metro Station",
+    "latitude": 12.97159000,
+    "longitude": 77.64107000,
+    "label": "Home",
+    "isDefault": true
+  }
+]
+POST  /api/customers/{customerId}/addresses
+Add a new delivery address.
+Auth: Bearer Token (Customer)
+Request Body
+{
+  "addressLine": "456 Koramangala 5th Block",
+  "landmark": "Near Forum Mall",
+  "latitude": 12.93423000,
+  "longitude": 77.61648000,
+  "label": "Work",
+  "isDefault": false
+}
+Success Response (200)
+{ "id": "new-address-uuid" }
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Error Responses
+400 Validation Error
+NOTE: Latitude must be between 6.0 and 38.0, longitude between 68.0 and 98.0 (India coordinates
+validation).
+PUT  /api/customers/{customerId}/addresses/{addressId}
+Update an existing address.
+Auth: Bearer Token (Customer)
+Request Body
+{
+  "addressLine": "456 Updated Address",
+  "landmark": "New landmark",
+  "latitude": 12.93423000,
+  "longitude": 77.61648000,
+  "label": "Work",
+  "isDefault": true
+}
+DELETE  /api/customers/{customerId}/addresses/{addressId}
+Soft-delete a saved address.
+Auth: Bearer Token (Customer)
+Success Response (200)
+{ "message": "Address deleted." }
+3.4 Restaurant & Menu Browsing
+GET  /api/restaurants
+List all active restaurants. Use for the homepage restaurant listing.
+Auth: Bearer Token (Customer)
+Success Response (200)
+[
+  {
+    "id": "uuid",
+    "name": "Biryani House",
+    "addressLine": "12 Brigade Road",
+    "latitude": 12.97159000,
+    "longitude": 77.59456000,
+    "isAcceptingOrders": true,
+    "avgPrepTimeMins": 25,
+    "openingTime": "10:00:00",
+    "closingTime": "23:00:00"
+  }
+]
+NOTE: There is currently no search or filter API. You will need to implement client-side filtering/sorting.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+GET  /api/restaurants/{restaurantId}/menus
+Get all menu categories for a restaurant.
+Auth: Bearer Token (Customer)
+Success Response (200)
+[
+  {
+    "id": "uuid",
+    "name": "Starters",
+    "description": "Appetizers and snacks",
+    "displayOrder": 1,
+    "isActive": true
+  }
+]
+GET  /api/menus/{menuId}/items
+Get all items in a menu category.
+Auth: Bearer Token (Customer)
+Success Response (200)
+[
+  {
+    "id": "uuid",
+    "name": "Chicken Biryani",
+    "description": "Hyderabadi dum biryani",
+    "basePrice": 299.00,
+    "imageUrl": "https://...",
+    "isAvailable": true,
+    "isVegetarian": false,
+    "preparationTimeMinutes": 20,
+    "options": [
+      {
+        "id": "uuid",
+        "name": "Regular",
+        "type": "Size",
+        "additionalPrice": 0.00,
+        "isDefault": true
+      },
+      {
+        "id": "uuid",
+        "name": "Large",
+        "type": "Size",
+        "additionalPrice": 100.00,
+        "isDefault": false
+      }
+    ]
+  }
+]
+NOTE: Prices are in INR (Indian Rupees). The 'options' array contains add-ons and size variants. Each
+option's additionalPrice is added on top of basePrice.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+3.5 Pricing & Delivery Fee
+Before placing an order, fetch a delivery fee quote. The pricing engine applies up to 7 dynamic rules (base
+fee, distance, time surge, demand surge, weather surge, special day, 3PL delivery). The quote is valid for
+10 minutes and includes a quoteId that must be passed when placing the order.
+POST  /api/pricing/calculate
+Calculate delivery fee for a restaurant-to-customer delivery.
+Auth: Bearer Token (Customer)
+Request Body
+{
+  "restaurantLatitude": 12.97159000,
+  "restaurantLongitude": 77.59456000,
+  "customerLatitude": 12.93423000,
+  "customerLongitude": 77.61648000
+}
+Success Response (200)
+{
+  "quoteId": "uuid",
+  "totalFee": 45.00,
+  "currency": "INR",
+  "breakdown": [
+    { "rule": "BaseFee", "amount": 20.00 },
+    { "rule": "DistanceFee", "amount": 15.00 },
+    { "rule": "TimeSurge", "amount": 10.00 }
+  ],
+  "expiresAt": "2026-03-03T12:40:00Z"
+}
+NOTE: The quoteId expires after 10 minutes. If the user takes longer to checkout, fetch a new quote. Display
+the breakdown to the user for transparency.
+3.6 Order Management
+POST  /api/orders
+Place a new order. This is the main checkout endpoint.
+Auth: Bearer Token (Customer)
+Request Body
+{
+  "customerId": "uuid",
+  "restaurantId": "uuid",
+  "deliveryAddressId": "uuid",
+  "items": [
+    {
+      "menuItemId": "uuid",
+      "quantity": 2,
+      "selectedOptions": ["option-uuid-1"],
+      "specialInstructions": "Extra spicy"
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+    }
+  ],
+  "deliveryQuoteId": "uuid",
+  "paymentMethod": "Prepaid",
+  "promoCode": null
+}
+Success Response (200)
+{
+  "orderId": "uuid",
+  "orderNumber": "ORD-20260303-001",
+  "status": "Paid",
+  "totalAmount": 643.00,
+  "estimatedDeliveryTime": "2026-03-03T13:15:00Z"
+}
+Error Responses
+400 Validation Error - Missing required fields
+400 Bad Request - Delivery quote expired
+400 Bad Request - Restaurant not accepting orders
+404 Not Found - Invalid restaurant, menu item, or address
+NOTE: There is no cart module on the backend. Cart management should be implemented entirely on the
+frontend. The order status starts as 'Paid' (assumes pre-payment).
+GET  /api/orders/{orderId}
+Get full details of a specific order including current status.
+Auth: Bearer Token (Customer)
+Success Response (200)
+{
+  "id": "uuid",
+  "orderNumber": "ORD-20260303-001",
+  "status": "Confirmed",
+  "restaurantName": "Biryani House",
+  "items": [...],
+  "totalAmount": 643.00,
+  "deliveryFee": 45.00,
+  "deliveryAddress": {...},
+  "riderInfo": null,
+  "createdAt": "2026-03-03T12:30:00Z",
+  "estimatedDeliveryTime": "...",
+  "statusHistory": [
+    { "status": "Paid", "at": "..." },
+    { "status": "Confirmed", "at": "..." }
+  ]
+}
+GET  /api/orders/customer/{customerId}
+Get all orders for the logged-in customer (order history).
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Auth: Bearer Token (Customer)
+Success Response (200)
+[ { ...order summary objects... } ]
+NOTE: No pagination is currently supported. All orders are returned. If the list grows large, consider
+implementing client-side pagination until the backend adds support.
+POST  /api/orders/{orderId}/cancel
+Cancel an order (only possible in Paid or Confirmed status).
+Auth: Bearer Token (Customer)
+Request Body
+{ "reason": "Changed my mind" }
+Success Response (200)
+{ "message": "Order cancelled." }
+Error Responses
+400 Bad Request - Order cannot be cancelled in current status
+404 Not Found
+NOTE: Cancellation is only allowed before the restaurant starts preparing (Paid or Confirmed status). Once
+the order is in 'Preparing' or later, cancellation is blocked.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+4. Order Lifecycle & Status Machine
+The Order entity follows a strict state machine. Understanding these statuses and transitions is critical for
+building the order tracking UI. Invalid transitions are rejected by the backend.
+Status
+Description
+Customer Can
+Cancel?
+Next Status(es)
+Paid
+Order placed, payment received
+Yes
+Confirmed, Cancelled, Rejected
+Confirmed
+Restaurant accepted the order
+Yes
+Preparing, Cancelled
+Preparing
+Restaurant is cooking the food
+No
+ReadyForPickup
+ReadyForPic
+kup
+Food is ready, awaiting rider
+No
+PickedUp
+PickedUp
+Rider has collected the order
+No
+Delivered
+Delivered
+Order delivered to customer
+No
+Terminal state
+Cancelled
+Cancelled by customer
+N/A
+Terminal state
+Rejected
+Rejected by restaurant
+N/A
+Terminal state
+Failed
+Delivery failed
+N/A
+Terminal state
+Status Flow Diagram
+Paid --> Confirmed --> Preparing --> ReadyForPickup --> PickedUp --> Delivered
+  |         |                                                          
+  |         +--> Cancelled (by customer)                              
+  +--> Cancelled (by customer)                                        
+  +--> Rejected (by restaurant)                                      
+                                              PickedUp --> Failed      
+UI Recommendations per Status
+Status
+UI Recommendation
+Paid
+Show "Waiting for restaurant confirmation" with a cancel button
+Confirmed
+Show "Restaurant is preparing your order" with a cancel button
+Preparing
+Show "Your order is being prepared" with animated cooking icon. Hide cancel.
+ReadyForPicku
+p
+Show "Your order is ready! Waiting for rider" with rider search animation
+PickedUp
+Show "Rider is on the way!" with map/tracking UI if available
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Status
+UI Recommendation
+Delivered
+Show "Order delivered!" with a prompt to rate/review
+Cancelled
+Show "Order cancelled" with refund info if applicable
+Rejected
+Show "Restaurant declined your order" with option to reorder elsewhere
+Failed
+Show "Delivery failed" with support contact option
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+5. Delivery Tracking Flow
+Once an order is confirmed, a DeliveryRequest is created in the Delivery module. The dispatch system
+searches for available riders, sends offers sequentially, and falls back to a third-party logistics provider
+(ProRouting) if no own-fleet rider accepts.
+Delivery Status Flow
+Delivery Status
+What's Happening
+Map to Order Status
+Created
+Delivery request created
+Confirmed
+SearchingOwnFleet
+Looking for nearby riders
+Confirmed / Preparing
+Assigned
+Rider accepted the delivery
+Preparing / ReadyForPickup
+PickedUp
+Rider picked up from restaurant
+PickedUp
+Delivered
+Rider delivered to customer
+Delivered
+Failed
+Delivery could not be completed
+Failed
+AssignedTo3PL
+No own riders available, sent to ProRouting
+Preparing
+IMPORTANT: Real-time tracking is NOT yet implemented. There are no WebSocket or SignalR endpoints.
+To show live order status, you will need to poll the GET /api/orders/{orderId} endpoint at regular intervals
+(recommended: every 15-30 seconds for active orders).
+Polling Strategy Recommendation
+Order Status
+Poll Interval
+Rationale
+Paid
+30 seconds
+Waiting for restaurant, not time-critical
+Confirmed / Preparing
+20 seconds
+Moderate urgency
+ReadyForPickup
+15 seconds
+Rider assignment happening
+PickedUp
+10-15 seconds
+Active delivery, user wants updates
+Delivered / Cancelled
+/ Failed
+Stop polling
+Terminal state
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+6. Data Models & DTOs
+Below are the key data shapes you will receive from the API. All IDs are UUIDs. All timestamps are in ISO
+8601 UTC format (e.g., 2026-03-03T12:30:00Z). Monetary values are numeric with 2 decimal places in
+INR.
+Customer
+Field
+Type
+Nullable
+Notes
+id
+uuid
+No
+Primary identifier
+phone
+string (15)
+No
+Includes country code, e.g. +919876543210
+name
+string (100)
+Yes
+May be null for newly registered users
+email
+string (255)
+Yes
+Optional
+isActive
+boolean
+No
+Always true for normal users
+createdAt
+ISO 8601
+No
+UTC timestamp
+Address
+Field
+Type
+Nullable
+Notes
+id
+uuid
+No
+addressLine
+string (500)
+No
+Full address text
+landmark
+string (255)
+Yes
+Optional reference point
+latitude
+decimal (10,8)
+No
+India range: 6.0 - 38.0
+longitude
+decimal (11,8)
+No
+India range: 68.0 - 98.0
+label
+string (50)
+No
+e.g., "Home", "Work", "Other"
+isDefault
+boolean
+No
+Only one address can be default
+Restaurant
+Field
+Type
+Nullabl
+e
+Notes
+id
+uuid
+No
+name
+string (255)
+No
+Display name
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Field
+Type
+Nullabl
+e
+Notes
+addressLine
+string (500)
+No
+Restaurant location
+latitude / longitude
+decimal
+No
+For distance calculations
+isAcceptingOrders
+boolean
+No
+Whether currently open for orders
+avgPrepTimeMins
+integer
+No
+Average preparation time (default 20)
+openingTime /
+closingTime
+time
+No
+Format: "HH:mm:ss"
+Menu Item
+Field
+Type
+Nullabl
+e
+Notes
+id
+uuid
+No
+name
+string (100)
+No
+Item name
+description
+string (500)
+Yes
+Item description
+basePrice
+decimal (10,2)
+No
+Price in INR
+imageUrl
+string (500)
+Yes
+CDN URL for item image
+isAvailable
+boolean
+No
+Grey out if false
+isVegetarian
+boolean
+No
+For veg/non-veg filter
+preparationTimeMinut
+es
+integer
+No
+Cook time for this item
+options
+array
+No
+Size variants and add-ons
+Menu Item Option
+Field
+Type
+Notes
+id
+uuid
+name
+string
+e.g., "Regular", "Large", "Extra Cheese"
+type
+string
+"Size" or "AddOn"
+additionalPrice
+decimal
+Added on top of basePrice
+isDefault
+boolean
+Pre-selected option
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Money (Value Object)
+All monetary values use a consistent pattern: decimal with 2 decimal places, currency is always INR. The
+frontend should format using Indian numbering system (e.g., 1,23,456.00) with the Rupee symbol.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+7. Error Handling & Response Format
+The API uses a standardized Result/Error pattern for business logic failures and middleware for
+unhandled exceptions. Here are the error formats you should handle:
+Standard Error Response
+{
+  "code": "Validation.Error",
+  "message": "Phone number is required.",
+  "traceId": "00-abc123-def456-00"
+}
+HTTP Status Codes
+Code
+Meaning
+When You'll See It
+200
+Success
+Request completed successfully
+400
+Bad Request
+Validation errors, invalid state transitions, expired quotes
+401
+Unauthorized
+Missing/expired/invalid access token, locked account
+403
+Forbidden
+Accessing another user's data
+404
+Not Found
+Invalid resource ID (order, restaurant, address, etc.)
+429
+Too Many
+Requests
+Rate limit exceeded on auth endpoints
+500
+Server Error
+Unhandled exception (includes traceId for debugging)
+Recommended Error Handling Flow
+1. On 401: Attempt token refresh via /api/auth/refresh. If refresh also fails with 401, redirect to login screen.
+2. On 429: Show a user-friendly "Please wait" message. Implement exponential backoff for retries.
+3. On 400: Parse the error message and display it to the user (e.g., "Restaurant is not accepting orders").
+4. On 500: Show a generic error screen. Log the traceId for support escalation.
+5. On network failure: Show an offline banner and retry with exponential backoff.
+Suggested Axios/Fetch Interceptor Pattern
+// Pseudocode for token refresh interceptor
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    if (error.status === 401 && !error.config._retry) {
+      error.config._retry = true;
+      const newTokens = await refreshTokens();
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+      if (newTokens) {
+        error.config.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+        return api(error.config); // Retry original request
+      }
+      redirectToLogin();
+    }
+    return Promise.reject(error);
+  }
+);
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+8. Rate Limiting
+The API applies per-IP sliding window rate limits on authentication endpoints. The sliding window
+algorithm prevents burst attacks at window boundaries.
+Endpoint
+Limit
+Window
+Response on Exceed
+POST /api/customers/otp/send
+3 requests
+10 minutes
+429 Too Many Requests
+POST /api/customers/otp/verify
+3 requests
+10 minutes
+429 Too Many Requests
+POST /api/auth/refresh
+10
+requests
+1 minute
+429 Too Many Requests
+NOTE: Additionally, the OTP service has its own rate limiting: max 3 OTP requests per phone number per
+10 minutes, and 3 failed verification attempts trigger a 15-minute lockout. Show a countdown timer in the
+UI when the user hits these limits.
+Frontend UX for Rate Limits
+When a user taps "Resend OTP", disable the button for 30-60 seconds with a countdown timer. This
+prevents users from accidentally burning through the rate limit. If a 429 response is received, show a clear
+message like "Too many attempts. Please try again in X minutes."
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+9. Known Limitations & Workarounds
+The backend is still under active development. Below are features that are not yet available and how to
+work around them on the frontend.
+Missing Feature
+Impact on Frontend
+Recommended Workaround
+No Cart Module
+No server-side cart
+management
+Implement cart entirely on frontend (local state /
+context). Send full cart as order items on checkout.
+No Real-time
+Tracking
+No WebSocket / SignalR for live
+updates
+Poll GET /api/orders/{orderId} every 10-30s based on
+order status.
+No Search API
+Cannot search restaurants or
+food items by keyword
+Fetch all restaurants, implement client-side search and
+filtering.
+No Pagination
+Order history returns all orders
+Implement client-side pagination. Backend pagination
+coming in Phase 2.
+No Payment
+Integration
+No Razorpay / Stripe flow
+The order assumes pre-payment. Show a placeholder
+payment screen. Payment integration is Phase 2.
+No Push
+Notifications
+No FCM / APNs for order
+updates
+Rely on polling + in-app status updates. Push
+notifications coming later.
+No Reviews /
+Ratings
+Cannot rate restaurants or
+riders
+Hide rating UI or show a "Coming Soon" badge.
+No Promo Code
+Validation
+No server-side promo validation
+Accept promo codes in UI but note they pass through
+without validation.
+No CORS
+Configuration
+May face CORS errors in web
+browser
+Coordinate with backend team to add your origin. Not an
+issue for native mobile apps.
+No Image Upload
+Cannot upload profile pictures
+or item images
+Use placeholder avatars. Image upload will be added
+later.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+10. Environment Setup & Base URLs
+Base URL
+Environment
+Base URL
+Notes
+Local Development
+http://localhost:5000
+Default Kestrel port
+Staging
+TBD
+To be configured
+Production
+TBD
+To be configured
+Request Headers
+Header
+Value
+Required
+Content-Type
+application/json
+All requests with body
+Authorization
+Bearer {accessToken}
+All protected endpoints
+Accept
+application/json
+Recommended
+JWT Claims (for reference)
+The access token JWT contains these claims, which you can decode on the frontend for user context:
+Claim
+Description
+Example
+sub
+User ID (UUID)
+550e8400-e29b-41d4-a716-446655440000
+user_type
+User type
+customer
+role
+User role
+Customer
+jti
+Unique token ID
+Used for revocation tracking
+iss
+Issuer
+RallyAPI
+aud
+Audience
+RallyApp
+exp
+Expiry (Unix timestamp)
+1709470200
+Testing Credentials (Development Only)
+Item
+Value
+Test Phone Number
+Any valid Indian number with +91 prefix
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+
+Item
+Value
+Debug OTP
+123456 (only works in DEBUG build)
+Redis
+localhost:6379 (Docker: rally-redis)
+PostgreSQL
+localhost:5432, DB: rallydb, User: rally
+IMPORTANT: The debug OTP (123456) is gated behind a #if DEBUG compiler directive. It will NOT work
+against a production build. Ensure you have the backend running in Debug configuration for local testing.
+Quick Start Checklist
+1. Ensure Docker is running with Redis (rally-redis) and PostgreSQL.
+2. Run the API: dotnet run from the RallyAPI.Host project.
+3. Send OTP to any +91 number using POST /api/customers/otp/send.
+4. Verify with OTP 123456 to get your access and refresh tokens.
+5. Use the access token in the Authorization header for all subsequent requests.
+6. When you get a 401, call /api/auth/refresh with the refresh token.
+7. Start building! Refer to this document for endpoint details and data shapes.
+ This document reflects the state of the RallyAPI backend as of March 2026 (Phase 1 Auth Complete). Features
+marked as missing or TBD will be addressed in subsequent phases. For questions or issues, contact the backend
+ team with the relevant endpoint, HTTP status code, and traceId from error responses.
+RallyAPI  |  Customer App Frontend Handoff
+CONFIDENTIAL
+Page 25 of 25
+March 2026
+

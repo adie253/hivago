@@ -1,22 +1,27 @@
-import { CartItem } from '../../entities/CartItem';
-import { ICartRepository } from '../../repositories/ICartRepository';
+import { ICartRepository, CartData } from '../../repositories/ICartRepository';
 
 export class RemoveFromCartUseCase {
     constructor(private repository: ICartRepository) { }
 
-    execute(itemId: string): CartItem[] {
-        let cart = this.repository.getCart();
-        const existingItem = cart.find(i => i.id === itemId);
+    execute(itemId: string): CartData {
+        const cartData = this.repository.getCart();
+        const existingItem = cartData.items.find(i => i.id === itemId);
 
         if (existingItem) {
             if (existingItem.quantity > 1) {
                 existingItem.quantity -= 1;
             } else {
-                cart = cart.filter(i => i.id !== itemId);
+                cartData.items = cartData.items.filter(i => i.id !== itemId);
             }
         }
 
-        this.repository.saveCart(cart);
-        return cart;
+        // Optional: clear restaurant info if cart becomes empty
+        if (cartData.items.length === 0) {
+            cartData.restaurantId = undefined;
+            cartData.restaurantName = undefined;
+        }
+
+        this.repository.saveCart(cartData);
+        return cartData;
     }
 }

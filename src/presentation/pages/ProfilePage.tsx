@@ -1,206 +1,520 @@
-import React, { useState } from 'react';
-import { MapPin, CreditCard, Clock, Settings, ChevronRight, LogOut, Heart } from 'lucide-react';
-import { useFavorites } from '../context/FavoritesContext';
-import { RestaurantCard } from '../components/RestaurantCard';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MapPin, Clock, ChevronRight, User, Trash2, Bell, HelpCircle, Check, Edit2, Plus, Home, Briefcase, LogOut } from 'lucide-react';
+import { getCustomerProfile, deleteAddress, isTokenValid, getMyOrders, setDefaultAddress, updateCustomerProfile } from '../../data/api';
+import { useCart } from '../../presentation/context/CartContext';
+import { useUserLocation } from '../../presentation/context/LocationContext';
+import { AddAddressOverlay } from '../components/AddAddressOverlay';
+import { useToast } from '../context/ToastContext';
 
 export const ProfilePage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'orders' | 'favorites' | 'settings'>('orders');
-    const { favorites } = useFavorites();
+    const navigate = useNavigate();
+    const [profilePhone, setProfilePhone] = useState(() => isTokenValid() ? (localStorage.getItem('customer_phone') || "") : "");
+    const [profileName, setProfileName] = useState(() => isTokenValid() ? (localStorage.getItem('customer_name') || "User") : "User");
+    const [profileEmail, setProfileEmail] = useState("");
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState("");
+    const [editEmail, setEditEmail] = useState("");
+    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+    const [isAddressOverlayOpen, setIsAddressOverlayOpen] = useState(() => {
+        return sessionStorage.getItem('profile_address_overlay_open') === 'true';
+    });
+    const [addressToEdit, setAddressToEdit] = useState<any>(() => {
+        const saved = sessionStorage.getItem('profile_address_to_edit');
+        return saved ? JSON.parse(saved) : null;
+    });
+    const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+    const { refreshLoginStatus } = useCart();
+    const { addresses, isLoadingAddresses, refreshAddresses } = useUserLocation();
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        sessionStorage.setItem('profile_address_overlay_open', isAddressOverlayOpen.toString());
+        if (addressToEdit) {
+            sessionStorage.setItem('profile_address_to_edit', JSON.stringify(addressToEdit));
+        } else {
+            sessionStorage.removeItem('profile_address_to_edit');
+        }
+    }, [isAddressOverlayOpen, addressToEdit]);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (isTokenValid()) {
+                try {
+                    const profileData = await getCustomerProfile();
+                    if (profileData) {
+                        if (profileData.id) localStorage.setItem('customer_id', profileData.id);
+                        if (profileData.phoneNumber) {
+                            setProfilePhone(profileData.phoneNumber);
+                            localStorage.setItem('customer_phone', profileData.phoneNumber);
+                        }
+                        if (profileData.name) {
+                            setProfileName(profileData.name);
+                            localStorage.setItem('customer_name', profileData.name);
+                        }
+                        if (profileData.email) {
+                            setProfileEmail(profileData.email);
+                            localStorage.setItem('customer_email', profileData.email);
+                        }
+                    }
+
+                    const ordersData = await getMyOrders(0, 1);
+                    if (ordersData && typeof ordersData.totalCount !== 'undefined') {
+                        setTotalOrders(ordersData.totalCount);
+                    } else if (Array.isArray(ordersData)) {
+                        setTotalOrders(ordersData.length);
+                    } else if (ordersData && Array.isArray(ordersData.orders)) {
+                        setTotalOrders(ordersData.totalCount || ordersData.orders.length);
+                    }
+                } catch (e) {
+                    console.error("Could not load profile/addresses from backend", e);
+                }
+            }
+        };
+        fetchUserData();
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('customer_token');
+        localStorage.removeItem('customer_token_expires_at');
+        localStorage.removeItem('customer_id');
+        localStorage.removeItem('customer_phone');
+        localStorage.removeItem('customer_name');
+        localStorage.removeItem('customer_email');
+        localStorage.removeItem('hivago_cart_v2');
+        localStorage.removeItem('customer_refresh_token');
+        refreshLoginStatus();
+        navigate('/');
+    };
+
+    const handleDeleteAddress = (id: string) => {
+        setAddressToDelete(id);
+    };
+
+    const confirmDeleteAddress = async () => {
+        if (!addressToDelete) return;
+        
+        try {
+            const success = await deleteAddress(addressToDelete);
+            if (success) {
+                showToast("Address deleted successfully", "success");
+                refreshAddresses();
+            } else {
+                showToast("Failed to delete address", "error");
+            }
+        } catch (error) {
+            showToast("An error occurred while deleting", "error");
+        } finally {
+            setAddressToDelete(null);
+        }
+    };
+
+    const handleToggleDefault = async (address: any) => {
+        try {
+            const res = await setDefaultAddress(address.id);
+            if (res && res.message) {
+                showToast(res.message, "success");
+            }
+            refreshAddresses();
+        } catch (error: any) {
+            console.error("Failed to update default address", error);
+            showToast(error.message || "Failed to update default address", "error");
+            refreshAddresses();
+        }
+    };
+
+    const handleEditAddress = (address: any) => {
+        setAddressToEdit(address);
+        setIsAddressOverlayOpen(true);
+    };
+
+    const handleAddNewAddress = () => {
+        setAddressToEdit(null);
+        setIsAddressOverlayOpen(true);
+    };
+
+    const handleSaveProfile = async () => {
+        if (!editName.trim()) return;
+        setIsUpdatingProfile(true);
+        try {
+            const response = await updateCustomerProfile({ name: editName, email: editEmail });
+            setProfileName(editName);
+            setProfileEmail(editEmail);
+            localStorage.setItem('customer_name', editName);
+            localStorage.setItem('customer_email', editEmail);
+            setIsEditing(false);
+            
+            // Show success toast from API response
+            if (response && response.message) {
+                showToast(response.message, "success");
+            } else {
+                showToast("Profile updated", "success");
+            }
+        } catch (e: any) {
+            console.error("Failed to update profile", e);
+            showToast(e.message || "Failed to update profile", "error");
+        } finally {
+            setIsUpdatingProfile(false);
+        }
+    };
+
+    const openEditModal = () => {
+        setEditName(profileName);
+        setEditEmail(profileEmail);
+        setIsEditing(true);
+    };
 
     return (
-        <div className="w-full bg-[#F8F9FA] min-h-screen pb-20 lg:px-30">
-            {/* Header / Cover Area */}
-            <div className="bg-[#FF4732] h-40 md:h-36 w-full relative">
-                <div className="absolute -bottom-15 md:-bottom-17 left-6 md:left-16 flex items-end gap-6">
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-lg">
-                        <img
-                            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200"
-                            alt="User Profile"
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                    <div className="mb-2 md:mb-4">
-                        <h1 className="text-2xl md:text-3xl font-extrabold drop-shadow-md">Aditya Ekhande</h1>
-                        <p className="font-medium text-sm text-gray-400">aadityaekhande@gmail.com</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="max-w-7xl mx-auto px-6 md:px-16 mt-20 md:mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                {/* Left Sidebar: Navigation & Quick Stats */}
-                <div className="lg:col-span-1 flex flex-col gap-6">
-                    {/* Quick Stats Card */}
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex justify-between items-center text-center">
-                        <div>
-                            <p className="text-gray-500 text-sm font-medium mb-1">Total Orders</p>
-                            <p className="text-2xl font-black text-gray-900">42</p>
+        <div className="w-full bg-[#FAFAFA] min-h-screen pb-24 font-sans flex flex-col items-center">
+            {/* Main responsive container */}
+            <div className="w-full max-w-6xl px-4 md:px-8 py-8 md:py-12 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                
+                {/* Header Banner Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    {/* User Info Card */}
+                    <div className="lg:col-span-2 bg-white rounded-[28px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:shadow-md duration-300">
+                        <div className="flex flex-col md:flex-row items-center gap-5 text-center md:text-left">
+                            <div className="w-20 h-20 rounded-full bg-[#FFEED4] flex items-center justify-center text-[#FF9800] ring-4 ring-[#FFEED4]/50 shadow-inner">
+                                <User className="w-10 h-10 stroke-[1.5]" />
+                            </div>
+                            <div className="flex flex-col">
+                                <h2 className="text-xl md:text-2xl font-bold text-[#111] tracking-tight">{profileName || "User"}</h2>
+                                <p className="text-sm text-gray-500 font-semibold mt-1 flex items-center justify-center md:justify-start gap-1">
+                                    <span>{profilePhone || "No Phone Number"}</span>
+                                </p>
+                                {profileEmail && (
+                                    <p className="text-xs text-gray-400 mt-1 font-medium">{profileEmail}</p>
+                                )}
+                            </div>
                         </div>
-                        <div className="w-px h-10 bg-gray-100"></div>
-                        <div>
-                            <p className="text-gray-500 text-sm font-medium mb-1">Loyalty Points</p>
-                            <p className="text-2xl font-black text-[#FF4732]">1,250</p>
-                        </div>
+                        <button 
+                            onClick={openEditModal}
+                            className="w-full md:w-auto text-[#FF4732] hover:text-white font-semibold text-sm px-6 py-3 bg-[#FFF0EF] hover:bg-[#FF4732] rounded-full transition-all duration-300 transform active:scale-95 shadow-sm hover:shadow-md"
+                        >
+                            Edit Profile
+                        </button>
                     </div>
 
-                    {/* Navigation Menu */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                        <button
-                            onClick={() => setActiveTab('orders')}
-                            className={`w-full flex items-center justify-between p-4 md:p-5 transition-colors border-b border-gray-50 ${activeTab === 'orders' ? 'bg-[#FFF4F3] border-l-4 border-l-[#FF4732]' : 'hover:bg-gray-50 border-l-4 border-l-transparent'}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Clock className={`w-5 h-5 ${activeTab === 'orders' ? 'text-[#FF4732]' : 'text-gray-400'}`} />
-                                <span className={`font-semibold ${activeTab === 'orders' ? 'text-[#FF4732]' : 'text-gray-700'}`}>Order History</span>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Total Orders Card */}
+                        <div className="bg-[#FFFDF5] rounded-[28px] p-5 shadow-sm border border-amber-100 flex flex-col justify-between h-[140px] transition-all hover:shadow-md hover:scale-[1.02] duration-300 group">
+                            <div className="flex items-center gap-2 text-amber-600">
+                                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Clock className="w-4 h-4" />
+                                </div>
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Total Orders</span>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </button>
+                            <span className="text-3xl md:text-4xl font-bold text-[#111] leading-none mb-1">
+                                {isTokenValid() ? totalOrders : 0}
+                            </span>
+                        </div>
 
-                        <button
-                            onClick={() => setActiveTab('favorites')}
-                            className={`w-full flex items-center justify-between p-4 md:p-5 transition-colors border-b border-gray-50 ${activeTab === 'favorites' ? 'bg-[#FFF4F3] border-l-4 border-l-[#FF4732]' : 'hover:bg-gray-50 border-l-4 border-l-transparent'}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Heart className={`w-5 h-5 ${activeTab === 'favorites' ? 'text-[#FF4732]' : 'text-gray-400'}`} />
-                                <span className={`font-semibold ${activeTab === 'favorites' ? 'text-[#FF4732]' : 'text-gray-700'}`}>Favorites</span>
+                        {/* Saved Addresses Card */}
+                        <div className="bg-[#F4FBF7] rounded-[28px] p-5 shadow-sm border border-emerald-100 flex flex-col justify-between h-[140px] transition-all hover:shadow-md hover:scale-[1.02] duration-300 group">
+                            <div className="flex items-center gap-2 text-emerald-600">
+                                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Saved Addr</span>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </button>
-
-                        <button
-                            className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 border-l-4 border-l-transparent"
-                        >
-                            <div className="flex items-center gap-3">
-                                <MapPin className="w-5 h-5 text-gray-400" />
-                                <span className="font-semibold text-gray-700">Saved Addresses</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </button>
-
-                        <button
-                            className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 border-l-4 border-l-transparent"
-                        >
-                            <div className="flex items-center gap-3">
-                                <CreditCard className="w-5 h-5 text-gray-400" />
-                                <span className="font-semibold text-gray-700">Payment Methods</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </button>
-
-                        <button
-                            onClick={() => setActiveTab('settings')}
-                            className={`w-full flex items-center justify-between p-4 md:p-5 transition-colors border-b border-gray-50 ${activeTab === 'settings' ? 'bg-[#FFF4F3] border-l-4 border-l-[#FF4732]' : 'hover:bg-gray-50 border-l-4 border-l-transparent'}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Settings className={`w-5 h-5 ${activeTab === 'settings' ? 'text-[#FF4732]' : 'text-gray-400'}`} />
-                                <span className={`font-semibold ${activeTab === 'settings' ? 'text-[#FF4732]' : 'text-gray-700'}`}>Settings</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </button>
-
-                        <button
-                            className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-red-50 transition-colors border-l-4 border-l-transparent group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <LogOut className="w-5 h-5 text-red-400 group-hover:text-red-500" />
-                                <span className="font-semibold text-red-500 group-hover:text-red-600">Log Out</span>
-                            </div>
-                        </button>
+                            <span className="text-3xl md:text-4xl font-bold text-[#111] leading-none mb-1">
+                                {addresses.length}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Right Content Area */}
-                <div className="lg:col-span-2">
-
-                    {/* Order History Tab */}
-                    {activeTab === 'orders' && (
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Recent Orders</h2>
-
-                            <div className="flex flex-col gap-4">
-                                {/* Order List Item 1 */}
-                                <div className="border border-gray-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-gray-200 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                                            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=150" alt="Burger" className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900 text-lg">Burger King</h3>
-                                            <p className="text-sm tracking-wide text-gray-500 font-medium">Truffle Mushroom Burger, Fries</p>
-                                            <p className="text-xs text-gray-400 mt-1">Oct 24, 2023 • 7:30 PM</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-2 sm:mt-0">
-                                        <span className="font-black text-gray-900 text-lg">₹349</span>
-                                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md mt-1">Delivered</span>
-                                    </div>
-                                </div>
-
-                                {/* Order List Item 2 */}
-                                <div className="border border-gray-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-gray-200 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                                            <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&q=80&w=150" alt="Pizza" className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900 text-lg">Pizza Hut</h3>
-                                            <p className="text-sm tracking-wide text-gray-500 font-medium">Spicy Pepperoni Pizza (Large)</p>
-                                            <p className="text-xs text-gray-400 mt-1">Oct 20, 2023 • 8:15 PM</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-2 sm:mt-0">
-                                        <span className="font-black text-gray-900 text-lg">₹599</span>
-                                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md mt-1">Delivered</span>
-                                    </div>
-                                </div>
+                {/* Two Column Layout (Desktop Split) */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    {/* LEFT COLUMN: Saved Addresses (2/3 width on desktop) */}
+                    <div className="lg:col-span-2 flex flex-col gap-6">
+                        <div className="flex items-center justify-between mb-1 px-1">
+                            <div className="flex flex-col">
+                                <h3 className="font-bold text-lg md:text-xl text-[#111] tracking-tight">Saved Addresses</h3>
+                                <p className="text-xs text-gray-400 font-medium mt-0.5">Manage your delivery locations</p>
                             </div>
-
-                            <button className="w-full mt-6 py-3 rounded-xl border-2 border-gray-100 text-gray-700 font-bold hover:bg-gray-50 transition-colors">
-                                View All Orders
+                            <button 
+                                onClick={handleAddNewAddress}
+                                className="flex items-center gap-1.5 text-white font-semibold text-xs md:text-sm bg-[#FF4732] hover:bg-[#E53935] px-4 py-2.5 rounded-full transition-all duration-300 transform active:scale-95 shadow-md shadow-red-100"
+                            >
+                                <Plus className="w-4 h-4 stroke-[3px]" />
+                                <span>Add New</span>
                             </button>
                         </div>
-                    )}
 
-                    {/* Settings Tab Placeholder */}
-                    {activeTab === 'settings' && (
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Account Settings</h2>
-                            <div className="space-y-4">
-                                <div className="p-4 border border-gray-100 rounded-xl">
-                                    <h3 className="font-bold text-gray-800 mb-1">Personal Information</h3>
-                                    <p className="text-sm text-gray-500">Update your name, email, and phone number.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {isLoadingAddresses ? (
+                                <div className="col-span-full bg-white rounded-[28px] border border-gray-100 p-12 text-center shadow-sm">
+                                    <div className="w-8 h-8 border-2 border-[#FF4732]/30 border-t-[#FF4732] rounded-full animate-spin mx-auto mb-3"></div>
+                                    <p className="text-gray-400 text-sm font-semibold">Loading your addresses...</p>
                                 </div>
-                                <div className="p-4 border border-gray-100 rounded-xl">
-                                    <h3 className="font-bold text-gray-800 mb-1">Notifications</h3>
-                                    <p className="text-sm text-gray-500">Manage order tracking alerts and promotional emails.</p>
+                            ) : addresses.length === 0 ? (
+                                <div className="col-span-full bg-white rounded-[28px] border border-gray-100 p-12 text-center shadow-sm flex flex-col items-center">
+                                    <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-3">
+                                        <MapPin className="w-6 h-6" />
+                                    </div>
+                                    <p className="font-bold text-gray-700 text-sm">No addresses found</p>
+                                    <p className="text-xs text-gray-400 font-medium mt-1 mb-4">Add an address to checkout faster next time.</p>
+                                    <button
+                                        onClick={handleAddNewAddress}
+                                        className="text-[#FF4732] hover:text-white font-semibold text-xs px-4 py-2 bg-[#FFF0EF] hover:bg-[#FF4732] rounded-full transition-all"
+                                    >
+                                        Add Address
+                                    </button>
                                 </div>
-                                <div className="p-4 border border-gray-100 rounded-xl">
-                                    <h3 className="font-bold text-gray-800 mb-1">Security</h3>
-                                    <p className="text-sm text-gray-500">Change your password and secure your account.</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Favorites Tab */}
-                    {activeTab === 'favorites' && (
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Favorite Restaurants</h2>
-
-                            {favorites.length === 0 ? (
-                                <p className="text-gray-500 text-center py-10 font-medium">You haven't added any restaurants to your favorites yet.</p>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {favorites.map((restaurant) => (
-                                        <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-                                    ))}
-                                </div>
+                                addresses.map(add => {
+                                    const isHome = add.label?.toLowerCase() === 'home';
+                                    const isWork = add.label?.toLowerCase() === 'work';
+                                    
+                                    return (
+                                        <div 
+                                            key={add.id} 
+                                            className={`bg-white rounded-[28px] p-5 shadow-sm border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] ${add.isDefault ? 'border-[#00A859]/30 ring-1 ring-[#00A859]/20' : 'border-gray-100'}`}
+                                        >
+                                            <div>
+                                                <div className="flex items-start justify-between mb-3 gap-2">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 
+                                                            ${isHome ? 'bg-orange-50 text-orange-500' : isWork ? 'bg-blue-50 text-blue-500' : 'bg-emerald-50 text-emerald-500'}`}
+                                                        >
+                                                            {isHome ? <Home className="w-4 h-4" /> : 
+                                                             isWork ? <Briefcase className="w-4 h-4" /> : 
+                                                             <MapPin className="w-4 h-4" />}
+                                                        </div>
+                                                        <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full border
+                                                            ${isHome ? 'bg-orange-50/50 text-orange-600 border-orange-100' : isWork ? 'bg-blue-50/50 text-blue-600 border-blue-100' : 'bg-emerald-50/50 text-emerald-600 border-emerald-100'}`}
+                                                        >
+                                                            {add.label || 'Other'}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <button
+                                                            onClick={() => handleEditAddress(add)}
+                                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit Address"
+                                                        >
+                                                            <Edit2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteAddress(add.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete Address"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col mt-2">
+                                                    <h4 className="font-bold text-[#111] text-[15px] leading-tight tracking-tight line-clamp-2">
+                                                        {add.addressLine}
+                                                    </h4>
+                                                    {add.landmark && (
+                                                        <span className="text-[12px] text-gray-500 font-semibold mt-1.5 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-[#FF4732]/30 shrink-0"></span>
+                                                            <span className="truncate">Near {add.landmark}</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div 
+                                                onClick={() => handleToggleDefault(add)}
+                                                className={`flex items-center justify-between mt-4 pt-3.5 border-t border-gray-50 cursor-pointer group`}
+                                            >
+                                                <span className="text-[11px] font-semibold text-gray-400 group-hover:text-gray-600 transition-colors">
+                                                    {add.isDefault ? 'Default Address' : 'Set as Default'}
+                                                </span>
+                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all duration-300 ${add.isDefault ? 'bg-[#00A859] border-[#00A859] shadow-sm' : 'border-gray-200 bg-white group-hover:border-gray-300'}`}>
+                                                    {add.isDefault && <Check className="w-3 h-3 text-white stroke-[3px]" />}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
                             )}
                         </div>
-                    )}
+                    </div>
 
+                    {/* RIGHT COLUMN: Settings & Danger Zone (1/3 width on desktop) */}
+                    <div className="flex flex-col gap-6">
+                        {/* Settings Card */}
+                        <div>
+                            <div className="mb-2 px-1">
+                                <h3 className="font-bold text-lg text-[#111] tracking-tight">Settings</h3>
+                                <p className="text-xs text-gray-400 font-medium mt-0.5">Preferences & support options</p>
+                            </div>
+
+                            <div className="bg-white rounded-[28px] shadow-sm border border-gray-100 flex flex-col p-2 gap-0.5 mt-3">
+                                {/* <button 
+                                    onClick={() => showToast("Payment Methods feature is coming soon!", "success")}
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
+                                            <CreditCard className="w-4.5 h-4.5 stroke-[1.5]" />
+                                        </div>
+                                        <span className="font-semibold text-sm">Payment Methods</span>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+                                </button> */}
+
+                                <button 
+                                    onClick={() => showToast("Notification configurations coming soon!", "success")}
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
+                                            <Bell className="w-4.5 h-4.5 stroke-[1.5]" />
+                                        </div>
+                                        <span className="font-semibold text-sm">Notifications</span>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+                                </button>
+
+                                <a 
+                                    href="https://wa.me/919082220155?text=Need%20HELP!" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
+                                            <HelpCircle className="w-4.5 h-4.5 stroke-[1.5]" />
+                                        </div>
+                                        <span className="font-semibold text-sm">Help & Support</span>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Danger Zone */}
+                        <div>
+                            <div className="mb-2 px-1">
+                                <h3 className="font-bold text-lg text-[#E53935] tracking-tight">Danger Zone</h3>
+                                <p className="text-xs text-gray-400 font-medium mt-0.5">Sensitive account operations</p>
+                            </div>
+
+                            <div className="bg-[#FFFDFD] rounded-[28px] shadow-sm border border-red-50 flex flex-col p-5 items-center mt-3 text-center">
+                                <p className="text-gray-400 text-xs font-semibold leading-relaxed mb-4 max-w-[85%]">
+                                    Sign out of your active Hivago account on this device.
+                                </p>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] hover:bg-[#FF4732] text-[#E53935] hover:text-white font-semibold text-sm py-4 rounded-2xl transition-all duration-300 shadow-sm active:scale-[0.98]"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    <span>Logout Account</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* Edit Profile Modal */}
+            {isEditing && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold text-[#111]">Edit Profile</h3>
+                            <button 
+                                onClick={() => setIsEditing(false)}
+                                className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!isUpdatingProfile && editName.trim()) {
+                                    handleSaveProfile();
+                                }
+                            }}
+                            className="flex flex-col gap-5"
+                        >
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-semibold text-gray-700 ml-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={e => setEditName(e.target.value)}
+                                    placeholder="Enter your name"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-semibold text-gray-700 ml-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={e => setEditEmail(e.target.value)}
+                                    placeholder="Enter your email"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isUpdatingProfile || !editName.trim()}
+                                className={`w-full mt-2 text-white font-semibold text-[16px] py-[16px] rounded-2xl shadow-lg transition-all flex items-center justify-center ${isUpdatingProfile || !editName.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                            >
+                                {isUpdatingProfile ? (
+                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                ) : 'Save Changes'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            <AddAddressOverlay 
+                isOpen={isAddressOverlayOpen}
+                onClose={() => {
+                    setIsAddressOverlayOpen(false);
+                    setAddressToEdit(null);
+                }}
+                addressToEdit={addressToEdit}
+            />
+
+            {/* Custom Delete Confirmation Modal */}
+            {addressToDelete && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[32px] w-full max-w-[340px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-[#FF4732] mb-5">
+                            <Trash2 className="w-8 h-8" />
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-[#111] mb-2">Delete Address?</h3>
+                        <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                            Are you sure you want to delete this address? This action cannot be undone.
+                        </p>
+
+                        <div className="flex flex-col w-full gap-3">
+                            <button
+                                onClick={confirmDeleteAddress}
+                                className="w-full bg-[#FF4732] text-white font-semibold py-4 rounded-2xl hover:bg-[#E53935] transition-all shadow-lg shadow-red-100 active:scale-[0.98]"
+                            >
+                                Yes, Delete
+                            </button>
+                            <button
+                                onClick={() => setAddressToDelete(null)}
+                                className="w-full bg-gray-50 text-gray-500 font-semibold py-4 rounded-2xl hover:bg-gray-100 transition-all active:scale-[0.98]"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

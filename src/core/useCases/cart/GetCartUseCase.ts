@@ -1,10 +1,9 @@
-import { CartItem } from '../../entities/CartItem';
-import { ICartRepository } from '../../repositories/ICartRepository';
+import { ICartRepository, CartData } from '../../repositories/ICartRepository';
 
 export class GetCartUseCase {
     constructor(private repository: ICartRepository) { }
 
-    execute(): CartItem[] {
+    execute(): CartData {
         return this.repository.getCart();
     }
 }

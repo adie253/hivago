@@ -1,22 +1,21 @@
-import { CartItem } from '../../core/entities/CartItem';
-import { ICartRepository } from '../../core/repositories/ICartRepository';
+import { ICartRepository, CartData } from '../../core/repositories/ICartRepository';
 
 export class CartRepositoryImpl implements ICartRepository {
-    private readonly STORAGE_KEY = 'hivago_cart';
+    private readonly STORAGE_KEY = 'hivago_cart_v2';
 
-    getCart(): CartItem[] {
+    getCart(): CartData {
         try {
             const data = localStorage.getItem(this.STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
+            return data ? JSON.parse(data) : { items: [] };
         } catch (error) {
             console.error('Failed to load cart from local storage', error);
-            return [];
+            return { items: [] };
         }
     }
 
-    saveCart(items: CartItem[]): void {
+    saveCart(data: CartData): void {
         try {
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
         } catch (error) {
             console.error('Failed to save cart to local storage', error);
         }

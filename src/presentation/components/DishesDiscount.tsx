@@ -1,0 +1,147 @@
+import React, { useMemo } from 'react';
+import { getFallbackImage } from '../../utils/imageUtils';
+import { formatPrice } from '../../utils/formatUtils';
+import { Clock, MapPin, Tag, ChevronRight, Percent } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useFilters } from '../context/FilterContext';
+import { useUserLocation } from '../context/LocationContext';
+import { haversineKm, formatDistance } from '../../utils/distanceUtils';
+
+interface DiscountedDish {
+    id: string;
+    name: string;
+    restaurant: string;
+    restaurantId: string;
+    originalPrice: number;
+    discountedPrice: number;
+    discount: string;
+    deliveryTime: string;
+    distance: string;
+    imageUrl: string;
+}
+
+export const DishesDiscount: React.FC = () => {
+    const navigate = useNavigate();
+    const { allRestaurants, isLoading } = useFilters();
+    const { selectedLocation } = useUserLocation();
+
+    const discountedDishes = useMemo(() => {
+        if (!allRestaurants || allRestaurants.length === 0) return [];
+
+        const allItems: DiscountedDish[] = [];
+        
+        const userLat = selectedLocation?.latitude;
+        const userLng = selectedLocation?.longitude;
+
+        allRestaurants.forEach(restaurant => {
+            const distKm =
+                userLat != null && userLng != null && restaurant.latitude != null && restaurant.longitude != null
+                    ? haversineKm(userLat, userLng, restaurant.latitude, restaurant.longitude)
+                    : null;
+            
+            const distStr = distKm != null ? formatDistance(distKm) : restaurant.distance;
+
+            restaurant.menu.forEach(item => {
+                // Randomly decide if this item has a discount for our "Offers" section
+                // In a real app, this would come from the backend
+                // Using a semi-stable "random" based on item ID
+                const hash = item.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+                const hasDiscount = hash % 3 === 0; // 1/3 of items have discounts
+                
+                if (hasDiscount) {
+                    const discountValues = [20, 30, 40, 50];
+                    const discountPercent = discountValues[hash % discountValues.length];
+                    const discountedPrice = item.price * (1 - discountPercent / 100);
+
+                    allItems.push({
+                        id: item.id,
+                        name: item.name,
+                        restaurant: restaurant.name,
+                        restaurantId: restaurant.id,
+                        originalPrice: item.price,
+                        discountedPrice: discountedPrice,
+                        discount: `${discountPercent}% off`,
+                        deliveryTime: restaurant.deliveryTime,
+                        distance: distStr,
+                        imageUrl: item.imageUrl || getFallbackImage(item.name, item.category)
+                    });
+                }
+            });
+        });
+
+        // Shuffle and take top 8
+        return allItems.sort(() => 0.5 - Math.random()).slice(0, 8);
+    }, [allRestaurants, selectedLocation]);
+
+    if (isLoading || discountedDishes.length === 0) return null;
+
+    return (
+        <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
+            <div className="flex justify-between items-center mb-8">
+                <div className="flex items-center gap-3">
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Dishes up to 50% off</h2>
+                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500 shadow-sm border border-red-200">
+                        <Percent className="w-5 h-5" strokeWidth={3} />
+                    </div>
+                </div>
+                <button className="text-gray-900 hover:text-emerald-600 transition-colors p-2 bg-gray-50 rounded-full">
+                    <ChevronRight className="w-6 h-6" />
+                </button>
+            </div>
+
+            <div className="flex overflow-x-auto overflow-y-hidden gap-4 md:gap-6 pb-6 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {discountedDishes.map((dish) => (
+                    <div
+                        key={`${dish.restaurantId}-${dish.id}`}
+                        onClick={() => navigate(`/restaurant/${dish.restaurantId}`)}
+                        className="flex flex-col w-[220px] md:w-[260px] flex-shrink-0 bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer snap-start"
+                    >
+                        {/* Image Container */}
+                        <div className="relative h-32 md:h-36 w-full overflow-hidden">
+                            <img
+                                src={dish.imageUrl}
+                                alt={dish.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes('unsplash')) {
+                                        target.src = getFallbackImage(dish.name);
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4 flex flex-col flex-1">
+                            <h3 className="text-lg font-bold text-gray-900 mb-0.5 group-hover:text-emerald-600 transition-colors truncate">{dish.name}</h3>
+                            <p className="text-gray-400 text-xs mb-3 font-medium truncate">{dish.restaurant}</p>
+
+                            <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium mb-4">
+                                <div className="flex items-center gap-1">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    <span>{dish.deliveryTime}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <MapPin className="w-3.5 h-3.5" />
+                                    <span>{dish.distance}</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-auto pt-3 border-t border-gray-50 flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-base font-bold text-emerald-600">₹{formatPrice(dish.discountedPrice)}</span>
+                                    <span className="text-[11px] text-gray-400 line-through">₹{formatPrice(dish.originalPrice)}</span>
+                                </div>
+
+                                <div className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm border border-emerald-50">
+                                    <Tag className="w-3 h-3 fill-current" />
+                                    {dish.discount}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};

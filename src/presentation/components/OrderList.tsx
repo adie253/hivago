@@ -48,7 +48,7 @@ export const OrderList: React.FC<OrderListProps> = ({ orders, onUpdateStatus }) 
                         <p className="text-slate-600">
                             <strong className="text-slate-800">Items:</strong> <span className="text-slate-500">{order.items.join(', ')}</span>
                         </p>
-                        <p className="text-lg font-black text-emerald-600 pt-2 border-t border-slate-50">
+                        <p className="text-lg font-bold text-emerald-600 pt-2 border-t border-slate-50">
                             ${order.totalAmount.toFixed(2)}
                         </p>
                     </div>

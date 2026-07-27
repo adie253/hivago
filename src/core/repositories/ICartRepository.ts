@@ -1,7 +1,13 @@
 import { CartItem } from '../entities/CartItem';
 
+export interface CartData {
+    items: CartItem[];
+    restaurantId?: string;
+    restaurantName?: string;
+}
+
 export interface ICartRepository {
-    getCart(): CartItem[];
-    saveCart(items: CartItem[]): void;
+    getCart(): CartData;
+    saveCart(data: CartData): void;
     clearCart(): void;
 }
