@@ -35,7 +35,7 @@ export const OrderTrackingPage: React.FC = () => {
     useEffect(() => {
         if (order) {
             const apiStatus = (order.status || '').toUpperCase();
-            const statusDisplay = ((order as any).statusDisplay || '').toUpperCase();
+            const statusDisplay = (order.statusDisplay || '').toUpperCase();
             const isPickupOrder = order.fulfillmentType?.toLowerCase() === 'pickup';
 
             if (['DELIVERED', 'COMPLETED'].includes(apiStatus) || statusDisplay === 'DELIVERED') {
@@ -249,7 +249,7 @@ export const OrderTrackingPage: React.FC = () => {
 
     const riderInfo = (() => {
         if (!order) return null;
-        const d = (order as any).deliveryInfo;
+        const d = order.deliveryInfo;
         if (d?.riderName || d?.riderPhone || d?.riderId) {
             return {
                 name: d.riderName || 'Delivery Partner',
@@ -258,8 +258,8 @@ export const OrderTrackingPage: React.FC = () => {
                 photo: d.riderPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(d.riderName || 'Rider')}`
             };
         }
-        if ((order as any).rider) {
-            const r = (order as any).rider;
+        if (order.rider) {
+            const r = order.rider;
             return {
                 name: r.name || 'Delivery Partner',
                 phone: r.phone,
@@ -856,11 +856,16 @@ export const OrderTrackingPage: React.FC = () => {
                                                 <a
                                                     href={`tel:${riderInfo.phone}`}
                                                     className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1"
+                                                    title="Call delivery partner"
                                                 >
                                                     <Phone className="w-5 h-5 fill-current" />
                                                 </a>
                                             ) : (
-                                                <button className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1">
+                                                <button
+                                                    disabled
+                                                    className="w-12 h-12 bg-gray-50 rounded-[18px] border border-gray-100 text-gray-300 flex items-center justify-center cursor-not-allowed opacity-50 mr-1"
+                                                    title="Phone number unavailable"
+                                                >
                                                     <Phone className="w-5 h-5 fill-current" />
                                                 </button>
                                             )}
@@ -1126,11 +1131,16 @@ export const OrderTrackingPage: React.FC = () => {
                                         <a
                                             href={`tel:${riderInfo.phone}`}
                                             className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all"
+                                            title="Call delivery partner"
                                         >
                                             <Phone className="w-5 h-5 fill-current" />
                                         </a>
                                     ) : (
-                                        <button className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all">
+                                        <button
+                                            disabled
+                                            className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-gray-300 flex items-center justify-center cursor-not-allowed opacity-50"
+                                            title="Phone number unavailable"
+                                        >
                                             <Phone className="w-5 h-5 fill-current" />
                                         </button>
                                     )}
