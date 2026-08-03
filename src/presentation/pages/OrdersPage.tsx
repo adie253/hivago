@@ -49,7 +49,7 @@ export const OrdersPage: React.FC = () => {
     const pastOrders = orders.filter(o => !activeStatuses.includes((o.status || '').toUpperCase()));
     const currentOrdersList = activeTab === 'active' ? activeOrders : pastOrders;
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString?: string) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toLocaleString('en-IN', {
@@ -61,12 +61,12 @@ export const OrdersPage: React.FC = () => {
         });
     };
 
-    const formatStatus = (status: string) => {
+    const formatStatus = (status?: string) => {
         if (!status) return '';
         return status.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status?: string) => {
         const upperStatus = (status || '').toUpperCase();
         if (['DELIVERED', 'PICKED_UP', 'COMPLETED'].includes(upperStatus)) return 'bg-[#E6F9EA] text-[#00A32A]';
         if (['CANCELLED', 'REJECTED', 'FAILED', 'REFUNDED', 'REFUNDING'].includes(upperStatus)) return 'bg-red-50 text-red-600';
