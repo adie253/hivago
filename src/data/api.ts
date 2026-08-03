@@ -1,7 +1,7 @@
 import type { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 import { getFallbackImage } from '../utils/imageUtils';
-
-const BASE_URL = (import.meta.env.VITE_API_URL || '') + '/api';
+const envUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const BASE_URL = envUrl.endsWith('/api') ? envUrl : (envUrl ? `${envUrl}/api` : '/api');
 
 export const sendOtp = async (phoneNumber: string): Promise<any> => {
     try {
@@ -765,30 +765,89 @@ export const fetchItemDetails = async (itemId: string): Promise<ApiItem | null> 
 };
 
 export interface ApiOrderItem {
-    menuItemId: string;
-    name: string;
-    unitPrice: number;
-    quantity: number;
+    id?: string;
+    menuItemId?: string;
+    name?: string;
+    itemName?: string;
+    itemDescription?: string;
+    price?: number;
+    unitPrice?: number;
+    totalPrice?: number;
+    quantity?: number;
     options?: string;
     specialInstructions?: string;
+}
+
+export interface ApiOrderRiderInfo {
+    id?: string;
+    name?: string;
+    phone?: string;
+    photo?: string;
+}
+
+export interface ApiDeliveryInfo {
+    pickupAddress?: string;
+    pickupLatitude?: number;
+    pickupLongitude?: number;
+    pickupPincode?: string;
+    deliveryAddress?: {
+        street?: string;
+        addressLine?: string;
+        address?: string;
+        city?: string;
+        pincode?: string;
+        landmark?: string;
+        buildingName?: string;
+        floor?: string;
+        contactPhone?: string;
+        instructions?: string;
+        formattedAddress?: string;
+        latitude?: number;
+        longitude?: number;
+    } | string;
+    quoteId?: string | null;
+    providerName?: string | null;
+    quotedDeliveryFee?: number | null;
+    estimatedMinutes?: number | null;
+    quotedAt?: string | null;
+    riderId?: string | null;
+    riderName?: string | null;
+    riderPhone?: string | null;
+    riderPhoto?: string | null;
+    trackingUrl?: string | null;
+    assignedAt?: string | null;
+    pickedUpAt?: string | null;
+    deliveredAt?: string | null;
+    distanceKm?: number | null;
+    distanceDisplay?: string | null;
+    estimatedTimeDisplay?: string | null;
+    failureReason?: string | null;
+    failureNotes?: string | null;
 }
 
 export interface ApiOrder {
     id: string;
     orderNumber: string;
-    customerId: string;
+    customerId?: string;
+    customerName?: string;
+    customerPhone?: string;
+    customerEmail?: string | null;
     restaurantId: string;
     restaurantName: string;
+    restaurantPhone?: string;
     status: 'PENDING' | 'PREPARING' | 'READY' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'REJECTED' | 'PAID' | 'REFUNDING' | 'REFUNDED' | 'FAILED' | string;
     statusDisplay?: string;
+    paymentStatus?: string;
+    paymentStatusDisplay?: string;
     rejectionReason?: string;
     cancellationReason?: string;
     cancellationNotes?: string;
     failureReason?: string;
+    failureNotes?: string;
     paymentId?: string;
     estimatedMinutes?: number;
     estimatedTimeDisplay?: string;
-    totalAmount: number;
+    totalAmount?: number;
     total?: number;
     pricing?: {
         subTotal?: number;
@@ -798,24 +857,19 @@ export interface ApiOrder {
         packagingFee?: number;
         serviceFee?: number;
         tip?: number;
+        platformFee?: number;
+        serviceGst?: number;
         total?: number;
         currency?: string;
     };
     totalItems?: number;
-    fulfillmentType: 'Delivery' | 'Pickup';
+    fulfillmentType?: 'Delivery' | 'Pickup' | string;
     items: ApiOrderItem[];
     deliveryAddress?: any;
-    deliveryInfo?: {
-        pickupAddress?: string;
-        deliveryAddress?: {
-            street?: string;
-            city?: string;
-            pincode?: string;
-            formattedAddress?: string;
-        } | string;
-    };
-    createdAt: string;
-    updatedAt: string;
+    deliveryInfo?: ApiDeliveryInfo;
+    rider?: ApiOrderRiderInfo;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export const getMyOrders = async (page: number = 0, pageSize: number = 50): Promise<any> => {

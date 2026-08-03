@@ -33,10 +33,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only intercept GET HTTP/HTTPS requests
-  if (!event.request.url.startsWith('http') || event.request.method !== 'GET') return;
+  if (event.request.method !== 'GET') return;
 
-  // Network-first strategy: always fetch latest files, fallback to cache when offline
+  const url = new URL(event.request.url);
+
+  // Skip intercepting external cross-origin requests (Google Maps, Railway API, etc.)
+  if (url.origin !== self.location.origin) return;
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
@@ -48,15 +51,16 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-        });
+      .catch(async () => {
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        if (event.request.mode === 'navigate') {
+          const indexMatch = await caches.match('/index.html');
+          if (indexMatch) return indexMatch;
+        }
+        return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
       })
   );
 });

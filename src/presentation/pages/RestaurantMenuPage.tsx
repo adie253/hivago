@@ -226,7 +226,9 @@ export const RestaurantMenuPage: React.FC = () => {
         const observer = new IntersectionObserver(observerCallback, observerOptions);
 
         const sections = document.querySelectorAll(`[id^="${prefix}"]`);
-        sections.forEach(section => observer.observe(section));
+        sections.forEach(section => {
+            if (section && section instanceof Element) observer.observe(section);
+        });
 
         // Fallback to select 'All' tab when scrolled near the top
         const handleScroll = () => {
