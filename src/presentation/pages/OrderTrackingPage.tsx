@@ -21,7 +21,7 @@ export const OrderTrackingPage: React.FC = () => {
     const orderId = searchParams.get('orderId');
     const [order, setOrder] = useState<ApiOrder | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [status, setStatus] = useState<'placed' | 'preparing' | 'delivery' | 'delivered' | 'cancelled' | 'rejected' | 'failed'>('placed');
+    const [status, setStatus] = useState<'placed' | 'preparing' | 'ready' | 'delivery' | 'delivered' | 'cancelled' | 'rejected' | 'failed'>('placed');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { lastStatusUpdate } = useNotifications();
     const { reorder } = useCart();
@@ -40,18 +40,14 @@ export const OrderTrackingPage: React.FC = () => {
 
             if (['DELIVERED', 'COMPLETED'].includes(apiStatus) || statusDisplay === 'DELIVERED') {
                 setStatus('delivered');
-            } else if (['ASSIGNED', 'PICKED_UP', 'DELIVERING'].includes(apiStatus) || statusDisplay === 'PICKED UP') {
-                if (isPickupOrder && (apiStatus === 'PICKED_UP' || statusDisplay === 'PICKED UP')) {
+            } else if (['ASSIGNED', 'PICKED_UP', 'PICKEDUP', 'DELIVERING', 'OUT_FOR_DELIVERY', 'OUT FOR DELIVERY'].includes(apiStatus) || statusDisplay === 'PICKED UP' || statusDisplay === 'OUT FOR DELIVERY') {
+                if (isPickupOrder && (['PICKED_UP', 'PICKEDUP'].includes(apiStatus) || statusDisplay === 'PICKED UP')) {
                     setStatus('delivered'); // Picked up is the final stage for self-pickup
                 } else {
                     setStatus('delivery');
                 }
-            } else if (['READY', 'READY_FOR_PICKUP', 'READY FOR PICKUP'].includes(apiStatus) || statusDisplay === 'READY FOR PICKUP') {
-                if (isPickupOrder) {
-                    setStatus('delivery'); // Ready for Pickup stage
-                } else {
-                    setStatus('preparing'); // Still preparing/waiting for driver to pick up
-                }
+            } else if (['READY', 'READY_FOR_PICKUP', 'READY FOR PICKUP', 'READYFORPICKUP'].includes(apiStatus) || statusDisplay.includes('READY') || apiStatus.includes('READY')) {
+                setStatus('ready');
             } else if (['PREPARING', 'CONFIRMED', 'ACCEPTED'].includes(apiStatus) || statusDisplay === 'PREPARING' || statusDisplay === 'CONFIRMED' || statusDisplay === 'ACCEPTED') {
                 setStatus('preparing');
             } else if (['REJECTED', 'REFUNDING', 'REFUNDED'].includes(apiStatus) || statusDisplay === 'REJECTED' || statusDisplay === 'REFUND IN PROGRESS') {
@@ -128,7 +124,7 @@ export const OrderTrackingPage: React.FC = () => {
 
     // Fetch delivery quote if estimatedMinutes is missing
     useEffect(() => {
-        if (order && !order.estimatedMinutes && ['placed', 'preparing', 'delivery'].includes(status)) {
+        if (order && !order.estimatedMinutes && ['placed', 'preparing', 'ready', 'delivery'].includes(status)) {
             if (hasFetchedQuoteRef.current) return;
             hasFetchedQuoteRef.current = true;
 
@@ -251,7 +247,30 @@ export const OrderTrackingPage: React.FC = () => {
         ? 'Show this code to the restaurant staff to pick up your order.'
         : 'Read this out to your delivery partner when they arrive.';
 
-    const stages = [
+    const riderInfo = (() => {
+        if (!order) return null;
+        const d = (order as any).deliveryInfo;
+        if (d?.riderName || d?.riderPhone || d?.riderId) {
+            return {
+                name: d.riderName || 'Delivery Partner',
+                phone: d.riderPhone,
+                id: d.riderId ? (String(d.riderId).length > 8 ? `ID #${String(d.riderId).slice(0, 8)}` : `ID ${d.riderId}`) : '',
+                photo: d.riderPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(d.riderName || 'Rider')}`
+            };
+        }
+        if ((order as any).rider) {
+            const r = (order as any).rider;
+            return {
+                name: r.name || 'Delivery Partner',
+                phone: r.phone,
+                id: r.id ? (String(r.id).length > 8 ? `ID #${String(r.id).slice(0, 8)}` : `ID ${r.id}`) : '',
+                photo: r.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(r.name || 'Rider')}`
+            };
+        }
+        return null;
+    })();
+
+    const stages = isPickup ? [
         {
             id: 'placed',
             label: 'Order Placed',
@@ -271,17 +290,57 @@ export const OrderTrackingPage: React.FC = () => {
             image: preparingImg
         },
         {
-            id: 'delivery',
-            label: isPickup ? 'Ready for Pickup' : 'Out for Delivery',
-            subtext: isPickup ? 'Your food is ready at the restaurant.' : 'Your food is on the way.',
-            icon: isPickup ? ShoppingBag : Bike,
-            image: isPickup ? preparingImg : deliveryImg
+            id: 'ready',
+            label: 'Ready for Pickup',
+            subtext: 'Your food is ready at the restaurant.',
+            icon: ShoppingBag,
+            image: preparingImg
         },
         {
             id: 'delivered',
-            label: isPickup ? 'Picked Up' : 'Delivered',
-            subtext: isPickup ? 'Your order has been picked up.' : 'Your order has been delivered.',
-            icon: isPickup ? CheckCircle : ShoppingBag,
+            label: 'Picked Up',
+            subtext: 'Your order has been picked up.',
+            icon: CheckCircle,
+            image: deliveredImg
+        }
+    ] : [
+        {
+            id: 'placed',
+            label: 'Order Placed',
+            subtext: (status === 'rejected' || status === 'cancelled')
+                ? (order?.rejectionReason || order?.cancellationReason || 'Order unsuccessful')
+                : (order?.status?.toUpperCase() === 'PAID')
+                    ? 'Waiting for restaurant to accept'
+                    : 'Your order has been placed successfully',
+            icon: CheckCircle,
+            image: orderPlacedImg
+        },
+        {
+            id: 'preparing',
+            label: 'Preparing',
+            subtext: 'Your food is being prepared',
+            icon: ChefHat,
+            image: preparingImg
+        },
+        {
+            id: 'ready',
+            label: 'Order Ready',
+            subtext: 'Waiting for rider to pick up',
+            icon: ShoppingBag,
+            image: preparingImg
+        },
+        {
+            id: 'delivery',
+            label: 'Out for Delivery',
+            subtext: 'Your food is on the way.',
+            icon: Bike,
+            image: deliveryImg
+        },
+        {
+            id: 'delivered',
+            label: 'Delivered',
+            subtext: 'Your order has been delivered.',
+            icon: CheckCircle,
             image: deliveredImg
         }
     ];
@@ -331,8 +390,8 @@ export const OrderTrackingPage: React.FC = () => {
         if (status === 'delivered') return 'Delivered';
         if (status === 'rejected' || status === 'cancelled' || status === 'failed') return '--';
 
-        // If self-pickup and ready for pickup (i.e. 'delivery' stage)
-        if (isPickup && status === 'delivery') {
+        // If self-pickup and ready for pickup
+        if (isPickup && (status === 'ready' || status === 'delivery')) {
             return 'Ready to Collect';
         }
 
@@ -776,24 +835,35 @@ export const OrderTrackingPage: React.FC = () => {
                                 )}
 
                                 {/* Contact Partner */}
-                                {!isPickup && (order as any)?.rider && (
+                                {!isPickup && riderInfo && (
                                     <div className="flex flex-col gap-4">
                                         <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Contact Delivery Partner</h2>
                                         <div className="bg-[#FCFCFC] rounded-[24px] p-2.5 border border-gray-100 flex items-center justify-between shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
                                             <div className="flex items-center gap-4 pl-1.5">
                                                 <div className="w-14 h-14 rounded-[18px] bg-gray-200 overflow-hidden shrink-0 border border-gray-100 shadow-inner">
-                                                    <img src={(order as any)?.rider?.photo || "https://api.dicebear.com/7.x/avataaars/svg?seed=Anand"} alt="Delivery Partner" />
+                                                    <img src={riderInfo.photo} alt="Delivery Partner" />
                                                 </div>
                                                 <div className="flex flex-col justify-center gap-1">
-                                                    <span className="text-[16px] font-bold text-gray-900 leading-none">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-gray-400 text-[12px] font-bold tracking-wider">ID {(order as any)?.rider?.id || 'DW2125'}</span>
-                                                    </div>
+                                                    <span className="text-[16px] font-bold text-gray-900 leading-none">{riderInfo.name}</span>
+                                                    {riderInfo.id && (
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-gray-400 text-[12px] font-bold tracking-wider">{riderInfo.id}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <button className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1">
-                                                <Phone className="w-5 h-5 fill-current" />
-                                            </button>
+                                            {riderInfo.phone ? (
+                                                <a
+                                                    href={`tel:${riderInfo.phone}`}
+                                                    className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1"
+                                                >
+                                                    <Phone className="w-5 h-5 fill-current" />
+                                                </a>
+                                            ) : (
+                                                <button className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1">
+                                                    <Phone className="w-5 h-5 fill-current" />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -1035,24 +1105,35 @@ export const OrderTrackingPage: React.FC = () => {
                         )}
 
                         {/* Contact Partner Card */}
-                        {!isPickup && (order as any)?.rider && (
+                        {!isPickup && riderInfo && (
                             <div className="flex flex-col gap-3">
                                 <h2 className="text-sm font-bold text-gray-900 ml-1">Contact Delivery Partner</h2>
                                 <div className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="w-14 h-14 rounded-2xl bg-gray-100 overflow-hidden">
-                                            <img src={(order as any)?.rider?.photo || "https://api.dicebear.com/7.x/avataaars/svg?seed=Anand"} alt="Delivery Partner" />
+                                            <img src={riderInfo.photo} alt="Delivery Partner" />
                                         </div>
                                         <div className="flex flex-col gap-0.5">
-                                            <span className="text-[15px] font-bold text-gray-900">{(order as any)?.rider?.name || 'Anand Kamble'}</span>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="text-gray-400 text-[11px] font-medium">ID {(order as any)?.rider?.id || 'DW2125'}</span>
-                                            </div>
+                                            <span className="text-[15px] font-bold text-gray-900">{riderInfo.name}</span>
+                                            {riderInfo.id && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-gray-400 text-[11px] font-medium">{riderInfo.id}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <button className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all">
-                                        <Phone className="w-5 h-5 fill-current" />
-                                    </button>
+                                    {riderInfo.phone ? (
+                                        <a
+                                            href={`tel:${riderInfo.phone}`}
+                                            className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all"
+                                        >
+                                            <Phone className="w-5 h-5 fill-current" />
+                                        </a>
+                                    ) : (
+                                        <button className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all">
+                                            <Phone className="w-5 h-5 fill-current" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         )}
