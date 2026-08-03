@@ -1,7 +1,7 @@
 import type { Restaurant, FoodItem } from '../presentation/context/FilterContext';
 import { getFallbackImage } from '../utils/imageUtils';
-
-const BASE_URL = (import.meta.env.VITE_API_URL || '') + '/api';
+const envUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const BASE_URL = envUrl.endsWith('/api') ? envUrl : (envUrl ? `${envUrl}/api` : '/api');
 
 export const sendOtp = async (phoneNumber: string): Promise<any> => {
     try {
