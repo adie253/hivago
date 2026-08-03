@@ -10,7 +10,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -24,4 +23,8 @@ dist-ssr
 *.sw?
 
 .vercel
-.env*.local
+
+# Junk files
+all_ids.txt
+api_output.txt
+scratch/
