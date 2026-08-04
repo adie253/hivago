@@ -1,11 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Facebook, Linkedin, Twitter, Youtube, Instagram, MapPin, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import footerLogo from '../../assets/footer/footer_logo.svg';
+import { VERSION_URL } from '../../lib/apiUrl';
 
-
+interface VersionInfo {
+    version: string;
+    commit?: string;
+}
 
 export const Footer: React.FC = () => {
+    const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
+
+    useEffect(() => {
+        let isMounted = true;
+        fetch(VERSION_URL)
+            .then((res) => {
+                if (res.ok) return res.json();
+                return null;
+            })
+            .then((data) => {
+                if (isMounted && data && data.version) {
+                    setVersionInfo({
+                        version: data.version,
+                        commit: data.commit,
+                    });
+                }
+            })
+            .catch(() => {
+                // Fail silently on network or parse error
+            });
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const linkStyle = "text-white/75 hover:text-white transition-colors duration-200 text-sm block py-1 font-normal hover:underline";
     const headerStyle = "text-xs font-bold tracking-wider text-white mb-4 uppercase";
@@ -105,11 +133,22 @@ export const Footer: React.FC = () => {
 
                 {/* Bottom Disclaimer & Copyright */}
                 <div className="w-full h-[1px] bg-white/10 my-8"></div>
-                <p className="text-[11px] leading-relaxed text-white/50 font-normal">
-                    By continuing past this page, you agree to our Terms of Service, Cookie Policy, Privacy Policy and Content Policies. All trademarks are properties of their respective owners. 2026 © Hivago™ Ltd. All rights reserved.
-                </p>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-[11px] leading-relaxed text-white/50 font-normal">
+                    <p>
+                        By continuing past this page, you agree to our Terms of Service, Cookie Policy, Privacy Policy and Content Policies. All trademarks are properties of their respective owners. 2026 © Hivago™ Ltd. All rights reserved.
+                    </p>
+                    {versionInfo && (
+                        <span
+                            className="text-[11px] text-white/40 flex-shrink-0 font-mono tracking-tight"
+                            title={versionInfo.commit ? `Commit: ${versionInfo.commit}` : undefined}
+                        >
+                            v{versionInfo.version}
+                        </span>
+                    )}
+                </div>
 
             </div>
         </footer>
     );
 };
+
