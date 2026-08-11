@@ -30,6 +30,9 @@ export interface Restaurant {
     promoted?: boolean;
     discount?: string;
     isVeg: boolean;
+    isPureVeg?: boolean;
+    isVeganFriendly?: boolean;
+    hasJainOptions?: boolean;
     categories: string[];
     acceptsPickup: boolean;
     isAcceptingOrders: boolean;
@@ -206,6 +209,9 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     promoted: false,
                     discount: undefined,
                     isVeg: item.isPureVeg,
+                    isPureVeg: item.isPureVeg,
+                    isVeganFriendly: item.isVeganFriendly,
+                    hasJainOptions: item.hasJainOptions,
                     categories: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
                     acceptsPickup: item.acceptsPickup,
                     isAcceptingOrders: item.isAcceptingOrders,

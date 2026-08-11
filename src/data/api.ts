@@ -435,6 +435,8 @@ export interface ApiRestaurant {
     logoUrl?: string | null;
     cuisineTypes?: string[];
     isPureVeg?: boolean;
+    isVeganFriendly?: boolean;
+    hasJainOptions?: boolean;
     avgPrepTimeMins?: number;
     img?: string;
     acceptsPickup?: boolean;
@@ -545,6 +547,18 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
 
     const prepTime = apiRes.avgPrepTimeMins || calculatedAvgPrepTime;
 
+    const isPureVeg = apiRes.isPureVeg !== undefined
+        ? apiRes.isPureVeg
+        : (allItems.length > 0 ? allItems.every(item => item.isVegetarian) : (apiRes.cuisineTypes?.some(c => c.toLowerCase().includes('pure veg')) ?? false));
+
+    const isVeganFriendly = apiRes.isVeganFriendly !== undefined
+        ? apiRes.isVeganFriendly
+        : (apiRes.cuisineTypes?.some(c => c.toLowerCase().includes('vegan')) ?? false);
+
+    const hasJainOptions = apiRes.hasJainOptions !== undefined
+        ? apiRes.hasJainOptions
+        : (apiRes.cuisineTypes?.some(c => c.toLowerCase().includes('jain')) ?? false);
+
     return {
         id: apiRes.id,
         name: apiRes.name,
@@ -557,7 +571,10 @@ const mapRestaurant = (apiRes: ApiRestaurant, menus: any[] = []): Restaurant => 
             ? "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800"
             : (allItems.find(i => i.imageUrl)?.imageUrl || getFallbackImage(apiRes.name, categories[0], 'restaurant'))),
         promoted: false,
-        isVeg: apiRes.isPureVeg !== undefined ? apiRes.isPureVeg : (allItems.length > 0 ? allItems.every(item => item.isVegetarian) : true),
+        isVeg: isPureVeg,
+        isPureVeg: isPureVeg,
+        isVeganFriendly: isVeganFriendly,
+        hasJainOptions: hasJainOptions,
         categories: categories,
         acceptsPickup: apiRes.acceptsPickup || false,
         isAcceptingOrders: apiRes.isAcceptingOrders !== undefined ? apiRes.isAcceptingOrders : true,

@@ -19,6 +19,10 @@ export interface Restaurant {
     acceptsPickup?: boolean;
     latitude?: number;
     longitude?: number;
+    isVeg?: boolean;
+    isPureVeg?: boolean;
+    isVeganFriendly?: boolean;
+    hasJainOptions?: boolean;
 }
 
 interface RestaurantCardProps {

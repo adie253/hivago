@@ -267,7 +267,39 @@ export const RestaurantMenuPage: React.FC = () => {
         );
     }
 
+    const renderDietaryBadges = (rest: Restaurant) => {
+        const isPureVeg = rest.isPureVeg ?? rest.isVeg;
+        const isVegan = rest.isVeganFriendly || rest.cuisines?.some(c => c.toLowerCase().includes('vegan'));
+        const hasJain = rest.hasJainOptions || rest.cuisines?.some(c => c.toLowerCase().includes('jain'));
 
+        return (
+            <div className="flex flex-wrap items-center gap-2 mt-2 mb-1">
+                {isPureVeg ? (
+                    <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-1 rounded-full text-xs font-bold shadow-xs">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        100% PURE VEG
+                    </span>
+                ) : (
+                    <span className="inline-flex items-center gap-1.5 bg-gray-50 text-gray-700 border border-gray-200/80 px-2.5 py-1 rounded-full text-xs font-semibold">
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                        VEG &amp; NON-VEG
+                    </span>
+                )}
+
+                {isVegan && (
+                    <span className="inline-flex items-center gap-1.5 bg-teal-50 text-teal-700 border border-teal-200/80 px-2.5 py-1 rounded-full text-xs font-bold shadow-xs">
+                        🌱 VEGAN OPTIONS
+                    </span>
+                )}
+
+                {hasJain && (
+                    <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200/80 px-2.5 py-1 rounded-full text-xs font-bold shadow-xs">
+                        🌾 JAIN OPTIONS
+                    </span>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] md:bg-[#F4F6F8] font-sans pb-20">
@@ -308,9 +340,7 @@ export const RestaurantMenuPage: React.FC = () => {
                         <h1 className="text-2xl font-bold text-gray-900 leading-tight font-sans">
                             {restaurant.name}
                         </h1>
-                        <p className="text-gray-400 font-bold text-xs mt-1 tracking-tight">
-                            Veg-Non Veg Family Restaurant
-                        </p>
+                        {renderDietaryBadges(restaurant)}
 
                         <div className="flex items-center gap-1.5 text-gray-600 mt-3.5">
                             <MapPin className="w-3.5 h-3.5 text-[#FF4732] flex-shrink-0" />
@@ -484,9 +514,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-1">
                                     {restaurant.name}
                                 </h1>
-                                <p className="text-gray-500 font-bold text-sm mb-2 uppercase tracking-tight">
-                                    Veg-Non Veg Family Restaurant
-                                </p>
+                                {renderDietaryBadges(restaurant)}
                                 <div className="flex items-start gap-2 text-gray-500 text-sm mt-3 max-w-xl">
                                     <MapPin className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
                                     <span className="font-semibold text-gray-600 leading-relaxed">{restaurant.addressLine || 'Pune, India'}</span>
