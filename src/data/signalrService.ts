@@ -1,11 +1,8 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { API_ROOT } from '../lib/apiUrl';
 
-// The SignalR hub is mapped at the API's ROOT (Program.cs), not under /api —
-// strip a trailing /api from VITE_API_URL before building the hub URL.
-const rawUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
-const BASE_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -'/api'.length) : rawUrl;
+const HUB_URL = `${API_ROOT}/hubs/notifications`;
 
-const HUB_URL = `${BASE_URL}/hubs/notifications`;
 
 class SignalRService {
     private connection: HubConnection | null = null;
