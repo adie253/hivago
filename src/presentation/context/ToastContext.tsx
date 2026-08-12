@@ -32,15 +32,11 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
-  const showToast = useCallback((message: string, type: ToastType = 'info', duration: number = 4000) => {
+  const showToast = useCallback((message: string, type: ToastType = 'info', duration: number = 3000) => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => {
-      const next = [...prev, { id, message, type, duration }];
-      const limit = window.innerWidth < 640 ? 2 : 3;
-      if (next.length > limit) {
-        return next.slice(-limit);
-      }
-      return next;
+    setToasts(() => {
+      // Replace existing toast so multiple toasts never stack on top of each other
+      return [{ id, message, type, duration }];
     });
   }, []);
 

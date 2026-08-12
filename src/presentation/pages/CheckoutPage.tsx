@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
 import { Restaurant } from '../context/FilterContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, MapPin, Check, Ticket, ReceiptText, ChevronRight, AlertCircle, Loader2, CheckCircle, Plus, Trash2 } from 'lucide-react';
 import { SuggestedItemSkeleton } from '../components/Skeletons';
 import { useCart } from '../context/CartContext';
 import { getDeliveryQuote, fetchRestaurantById } from '../../data/api';
@@ -38,7 +38,7 @@ export const CheckoutPage: React.FC = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const {
-        cartItems, addToCart, removeFromCart, cartTotal, restaurantId, restaurantName,
+        cartItems, addToCart, removeFromCart, clearCart, cartTotal, restaurantId, restaurantName,
         deliveryQuote, setDeliveryQuote,
         deliveryStatus, setDeliveryStatus,
         deliveryError, setDeliveryError,
@@ -49,6 +49,7 @@ export const CheckoutPage: React.FC = () => {
         updateItemAddon,
         isCartLoading
     } = useCart();
+    const [showClearCartConfirm, setShowClearCartConfirm] = useState(false);
     const [isToPayExpanded, setIsToPayExpanded] = useState(true);
     // const [showGstTooltip, setShowGstTooltip] = useState(false);
     // const [isCouponOverlayOpen, setIsCouponOverlayOpen] = useState(false);
@@ -337,6 +338,23 @@ export const CheckoutPage: React.FC = () => {
 
                             {/* Cart Items List */}
                             <div className="flex flex-col gap-3 lg:mt-2">
+                                {/* Header with Clear Cart Button */}
+                                <div className="bg-white rounded-2xl px-5 py-3 shadow-sm border border-gray-50 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold text-[#2D2D2D] text-sm md:text-base">Cart Items</h3>
+                                        <span className="bg-red-50 text-[#FF4732] text-xs font-extrabold px-2.5 py-0.5 rounded-full">
+                                            {cartItems.reduce((acc, i) => acc + i.quantity, 0)}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowClearCartConfirm(true)}
+                                        className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors active:scale-95"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <span>Clear Cart</span>
+                                    </button>
+                                </div>
+
                                 {enrichedCartItems.map((item) => (
                                     <div key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex items-start justify-between border border-gray-50">
                                         <div className="flex gap-4 items-center w-full">
@@ -851,6 +869,40 @@ export const CheckoutPage: React.FC = () => {
             )}
 
             <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+
+            {/* Clear Cart Confirmation Modal */}
+            {showClearCartConfirm && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[28px] p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center animate-in zoom-in-95 duration-200">
+                        <div className="w-14 h-14 bg-red-50 text-[#FF4732] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Trash2 className="w-7 h-7" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Clear your cart?</h3>
+                        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                            Are you sure you want to remove all items from your cart? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowClearCartConfirm(false)}
+                                className="flex-1 py-3 px-4 rounded-full border border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    clearCart();
+                                    setShowClearCartConfirm(false);
+                                }}
+                                className="flex-1 py-3 px-4 rounded-full bg-[#FF4732] text-white font-bold hover:bg-[#E5483B] shadow-lg shadow-red-100 transition-colors text-sm"
+                            >
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar {
