@@ -3,11 +3,9 @@ import { ShoppingCart, ArrowRight, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { formatPrice } from '../../utils/formatUtils';
-import { useToast } from '../context/ToastContext';
 
 export const FloatingCart: React.FC = () => {
     const { cartItems, cartTotal, clearCart } = useCart();
-    const { showToast } = useToast();
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
