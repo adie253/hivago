@@ -14,6 +14,7 @@ import { MobileMenu } from '../components/checkout/MobileMenu';
 import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { useUserLocation } from '../context/LocationContext';
 import { StepperIcon } from '../components/checkout/StepperIcon';
+import { StepperConnector } from '../components/checkout/StepperConnector';
 import { useToast } from '../context/ToastContext';
 import { LoadingScreen } from '../components/LoadingScreen';
 // import { FEATURE_FLAGS } from '../../config/featureFlags';
@@ -293,9 +294,7 @@ export const CheckoutPage: React.FC = () => {
                                 </div>
 
                                 {/* Connector 1 */}
-                                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                                </div>
+                                <StepperConnector active color="#00A050" />
 
                                 {/* Cart Step - active */}
                                 <div className="flex flex-col items-center flex-shrink-0">
@@ -308,9 +307,7 @@ export const CheckoutPage: React.FC = () => {
                                 {!isLoggedIn && (
                                     <>
                                         {/* Connector 2 */}
-                                        <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                                            {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
-                                        </div>
+                                        <StepperConnector active={false} />
 
                                         {/* Details Step - pending */}
                                         <div className="flex flex-col items-center flex-shrink-0">
@@ -323,9 +320,7 @@ export const CheckoutPage: React.FC = () => {
                                 )}
 
                                 {/* Connector 3 */}
-                                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
-                                </div>
+                                <StepperConnector active={false} />
 
                                 {/* Checkout Step - pending */}
                                 <div className="flex flex-col items-center flex-shrink-0">
@@ -518,10 +513,10 @@ export const CheckoutPage: React.FC = () => {
                         </div>
 
                         {/* Right Column for Desktop */}
-                        <div className="flex flex-col gap-0 w-full lg:w-[420px] lg:sticky lg:top-28">
+                        <div className="flex flex-col gap-4 w-full lg:w-[420px] lg:sticky lg:top-[76px]">
 
                             {/* Cutlery Toggle */}
-                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mt-2">
+                            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
                                 <div className="flex-1 pr-4">
                                     <div className="flex items-center gap-3 mb-2">
                                         <h3 className="font-bold text-[17px] text-[#222]">Cutlery</h3>
@@ -565,7 +560,7 @@ export const CheckoutPage: React.FC = () => {
                                         setIsAddressDropdownOpen(!isAddressDropdownOpen);
                                     }
                                 }}
-                                className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 mt-4 transition-all relative ${fulfillmentType !== 'Pickup' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                                className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 transition-all relative ${fulfillmentType !== 'Pickup' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -696,7 +691,7 @@ export const CheckoutPage: React.FC = () => {
                             </div> */}
 
                             {/* To Pay */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col mt-4 overflow-hidden mb-4">
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden mb-4">
                                 <div
                                     className="p-4 flex items-center justify-between cursor-pointer"
                                     onClick={() => setIsToPayExpanded(!isToPayExpanded)}
