@@ -13,6 +13,7 @@ import { MapPicker } from '../components/checkout/MapPicker';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 
 import { StepperIcon } from '../components/checkout/StepperIcon';
+import { StepperConnector } from '../components/checkout/StepperConnector';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { formatPrice } from '../../utils/formatUtils';
 
@@ -445,9 +446,7 @@ export const PaymentPage: React.FC = () => {
                     </div>
 
                     {/* Connector 1 */}
-                    <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                    </div>
+                    <StepperConnector active color="#00A050" />
 
                     {/* Cart Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
@@ -458,9 +457,7 @@ export const PaymentPage: React.FC = () => {
                     </div>
 
                     {/* Connector 2 */}
-                    <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                    </div>
+                    <StepperConnector active color="#00A050" />
 
                     {/* Details Step - done */}
                     <div className="flex flex-col items-center flex-shrink-0">
@@ -471,9 +468,7 @@ export const PaymentPage: React.FC = () => {
                     </div>
 
                     {/* Connector 3 */}
-                    <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                    </div>
+                    <StepperConnector active color="#00A050" />
 
                     {/* Checkout Step - active */}
                     <div className="flex flex-col items-center flex-shrink-0">

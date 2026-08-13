@@ -10,6 +10,7 @@ import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
 import { StepperIcon } from './StepperIcon';
+import { StepperConnector } from './StepperConnector';
 
 export type DetailsFlowOverlayProps = {
     onClose: () => void;
@@ -176,27 +177,21 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                 </div>
-                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={`c1-${i}`} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                </div>
+                <StepperConnector active color="#00A050" />
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
                         <StepperIcon type="cart" className="text-[#00A050]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Cart</span>
                 </div>
-                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={`c2-${i}`} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                </div>
+                <StepperConnector active color="#00A050" />
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
                         <StepperIcon type="address" className="text-[#FF4732]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#FF4732]">Details</span>
                 </div>
-                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={`c3-${i}`} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
-                </div>
+                <StepperConnector active={false} />
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
                         <StepperIcon type="checkout" className="text-gray-300" />
