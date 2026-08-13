@@ -4,7 +4,7 @@ import { getAddresses, isTokenValid } from '../../data/api';
 import { useCart } from './CartContext';
 import { getCurrentPositionWithFallback } from '../../utils/geolocation';
 
-interface Address {
+export interface Address {
     id: string;
     label: string;
     addressLine: string;
@@ -14,6 +14,7 @@ interface Address {
     longitude: number;
     pincode?: string;
     city?: string;
+    formattedAddress?: string;
 }
 
 interface LocationContextType {

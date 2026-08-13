@@ -265,72 +265,105 @@ export const ProfilePage: React.FC = () => {
                                     </button>
                                 </div>
                             ) : (
-                                addresses.map(add => {
-                                    const isHome = add.label?.toLowerCase() === 'home';
-                                    const isWork = add.label?.toLowerCase() === 'work';
+                                addresses.map((add, idx) => {
+                                    const labelLower = add.label?.toLowerCase() || '';
+                                    const themes = [
+                                        { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
+                                        { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
+                                        // { bg: 'from-[#FF8A00] to-[#E67B00]', text: 'text-[#FF8A00]', accentBtn: 'text-[#FF8A00] hover:text-[#E67B00]' },
+                                        // { bg: 'from-[#2B7FFF] to-[#1A6EEB]', text: 'text-[#2B7FFF]', accentBtn: 'text-[#2B7FFF] hover:text-[#1A6EEB]' },
+                                        // { bg: 'from-[#8B5CF6] to-[#7C3AED]', text: 'text-[#8B5CF6]', accentBtn: 'text-[#8B5CF6] hover:text-[#7C3AED]' },
+                                    ];
+                                    const themeIndex = labelLower === 'home' ? 0 : labelLower === 'work' ? 1 : (idx % themes.length);
+                                    const theme = themes[themeIndex];
+                                    const isHome = labelLower === 'home';
+                                    const isWork = labelLower === 'work';
                                     
                                     return (
                                         <div 
                                             key={add.id} 
-                                            className={`bg-white rounded-[28px] p-5 shadow-sm border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] ${add.isDefault ? 'border-[#00A859]/30 ring-1 ring-[#00A859]/20' : 'border-gray-100'}`}
+                                            className={`bg-white rounded-xl shadow-xs border transition-all duration-300 flex overflow-hidden group hover:shadow-md ${
+                                                add.isDefault ? 'border-[#FF584A] ring-1 ring-[#FF584A]/20' : 'border-gray-100'
+                                            }`}
                                         >
-                                            <div>
-                                                <div className="flex items-start justify-between mb-3 gap-2">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 
-                                                            ${isHome ? 'bg-orange-50 text-orange-500' : isWork ? 'bg-blue-50 text-blue-500' : 'bg-emerald-50 text-emerald-500'}`}
-                                                        >
-                                                            {isHome ? <Home className="w-4 h-4" /> : 
-                                                             isWork ? <Briefcase className="w-4 h-4" /> : 
-                                                             <MapPin className="w-4 h-4" />}
-                                                        </div>
-                                                        <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full border
-                                                            ${isHome ? 'bg-orange-50/50 text-orange-600 border-orange-100' : isWork ? 'bg-blue-50/50 text-blue-600 border-blue-100' : 'bg-emerald-50/50 text-emerald-600 border-emerald-100'}`}
-                                                        >
-                                                            {add.label || 'Other'}
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <div className="flex items-center gap-1 shrink-0">
-                                                        <button
-                                                            onClick={() => handleEditAddress(add)}
-                                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            title="Edit Address"
-                                                        >
-                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteAddress(add.id)}
-                                                            className="p-1.5 text-gray-400 hover:text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="Delete Address"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col mt-2">
-                                                    <h4 className="font-bold text-[#111] text-[15px] leading-tight tracking-tight line-clamp-2">
-                                                        {add.addressLine}
-                                                    </h4>
-                                                    {add.landmark && (
-                                                        <span className="text-[12px] text-gray-500 font-semibold mt-1.5 flex items-center gap-1">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-[#FF4732]/30 shrink-0"></span>
-                                                            <span className="truncate">Near {add.landmark}</span>
-                                                        </span>
-                                                    )}
-                                                </div>
+                                            {/* Left Colorful Solid Block with Icon */}
+                                            <div className={`w-11 sm:w-12 bg-gradient-to-b ${theme.bg} flex items-center justify-center shrink-0 p-2`}>
+                                                {isHome ? (
+                                                    <Home className="w-5 h-5 text-white stroke-[2.2]" />
+                                                ) : isWork ? (
+                                                    <Briefcase className="w-5 h-5 text-white stroke-[2.2]" />
+                                                ) : (
+                                                    <MapPin className="w-5 h-5 text-white stroke-[2.2]" />
+                                                )}
                                             </div>
 
-                                            <div 
-                                                onClick={() => handleToggleDefault(add)}
-                                                className={`flex items-center justify-between mt-4 pt-3.5 border-t border-gray-50 cursor-pointer group`}
-                                            >
-                                                <span className="text-[11px] font-semibold text-gray-400 group-hover:text-gray-600 transition-colors">
-                                                    {add.isDefault ? 'Default Address' : 'Set as Default'}
-                                                </span>
-                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all duration-300 ${add.isDefault ? 'bg-[#00A859] border-[#00A859] shadow-sm' : 'border-gray-200 bg-white group-hover:border-gray-300'}`}>
-                                                    {add.isDefault && <Check className="w-3 h-3 text-white stroke-[3px]" />}
+                                            {/* Right Card Body */}
+                                            <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between bg-white min-w-0">
+                                                <div>
+                                                    {/* Header Row: Label & Action Icons */}
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className={`text-[10px] font-extrabold uppercase tracking-wider ${theme.text}`}>
+                                                            {add.label || 'Other'}
+                                                        </span>
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                onClick={() => handleEditAddress(add)}
+                                                                className="p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                                                title="Edit Address"
+                                                            >
+                                                                <Edit2 className="w-3 h-3" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteAddress(add.id)}
+                                                                className="p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                                title="Delete Address"
+                                                            >
+                                                                <Trash2 className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Address Text */}
+                                                    <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug line-clamp-1">
+                                                        {add.addressLine}
+                                                    </h4>
+                                                    {add.landmark ? (
+                                                        <p className="text-[11px] text-gray-400 font-medium line-clamp-1 mt-0.5">
+                                                            Near {add.landmark}
+                                                        </p>
+                                                    ) : add.formattedAddress ? (
+                                                        <p className="text-[11px] text-gray-400 font-medium line-clamp-1 mt-0.5">
+                                                            {add.formattedAddress}
+                                                        </p>
+                                                    ) : null}
+                                                </div>
+
+                                                {/* Footer Row: Default Status & Check Radio Circle */}
+                                                <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-50">
+                                                    {add.isDefault ? (
+                                                        <span className="text-[9px] font-extrabold text-[#FF584A] bg-[#FFF0EF] border border-[#FF584A]/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                            DEFAULT ADDRESS
+                                                        </span>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleToggleDefault(add)}
+                                                            className={`text-[10px] font-bold uppercase tracking-wider ${theme.accentBtn} transition-colors`}
+                                                        >
+                                                            SET AS DEFAULT
+                                                        </button>
+                                                    )}
+
+                                                    <div 
+                                                        onClick={() => handleToggleDefault(add)}
+                                                        className={`w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center cursor-pointer transition-all ${
+                                                            add.isDefault
+                                                                ? 'bg-[#FF584A] text-white shadow-xs'
+                                                                : 'border border-gray-300 hover:border-gray-400'
+                                                        }`}
+                                                    >
+                                                        {add.isDefault && <Check className="w-3 h-3 stroke-[3]" />}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

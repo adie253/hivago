@@ -27,7 +27,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
             description: 'Google Pay, PhonePe, Paytm',
             icon: Smartphone,
             iconBg: 'bg-[#E8F8EF]',
-            iconColor: 'text-[#00A859]'
+            iconColor: 'text-[#FF584A]'
         },
         {
             id: 'Card',
@@ -70,7 +70,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
                         <div
                             key={method.id}
                             onClick={() => setSelectedId(method.id)}
-                            className={`flex items-start gap-4 p-4 rounded-[20px] border-2 transition-all cursor-pointer ${selectedId === method.id ? 'border-[#00A859] bg-[#F8FFF9]' : 'border-gray-100 bg-white'}`}
+                            className={`flex items-start gap-4 p-4 rounded-[20px] border-2 transition-all cursor-pointer ${selectedId === method.id ? 'border-[#FF584A] bg-[#FFF0EF]' : 'border-gray-100 bg-white'}`}
                         >
                             <div className={`${method.iconBg} ${method.iconColor} p-3 rounded-full flex-shrink-0`}>
                                 <method.icon className="w-6 h-6" />
