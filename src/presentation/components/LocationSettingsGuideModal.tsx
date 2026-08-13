@@ -110,7 +110,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
-                                        <span>Find <strong className="text-gray-900 font-extrabold">Location</strong> and change the setting to <strong className="text-[#00A859] font-extrabold">Allow</strong>.</span>
+                                        <span>Find <strong className="text-gray-900 font-extrabold">Location</strong> and change the setting to <strong className="text-[#FF584A] font-extrabold">Allow</strong>.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
@@ -138,7 +138,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Reload and click <strong className="text-gray-900 font-extrabold">Share Current Location</strong> again, then click <strong className="text-[#00A859] font-extrabold">Allow</strong>.</span>
+                                        <span>Reload and click <strong className="text-gray-900 font-extrabold">Share Current Location</strong> again, then click <strong className="text-[#FF584A] font-extrabold">Allow</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -162,7 +162,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Tap <strong className="text-gray-900 font-extrabold">Location</strong> and select <strong className="text-[#00A859] font-extrabold">Allow</strong>.</span>
+                                        <span>Tap <strong className="text-gray-900 font-extrabold">Location</strong> and select <strong className="text-[#FF584A] font-extrabold">Allow</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -186,7 +186,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Scroll to <strong className="text-gray-900 font-extrabold">Safari Websites</strong> and select <strong className="text-[#00A859] font-extrabold">While Using the App</strong>.</span>
+                                        <span>Scroll to <strong className="text-gray-900 font-extrabold">Safari Websites</strong> and select <strong className="text-[#FF584A] font-extrabold">While Using the App</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -234,7 +234,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Choose <strong className="text-[#00A859] font-extrabold">Allow only while using the app</strong>.</span>
+                                        <span>Choose <strong className="text-[#FF584A] font-extrabold">Allow only while using the app</strong>.</span>
                                     </li>
                                 </ol>
                             </div>

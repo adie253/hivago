@@ -544,7 +544,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                         <span className="text-[14px] font-bold text-gray-900">Set as default</span>
                                         <span className="text-xs text-gray-500 font-medium leading-[1.3] max-w-[200px]">We'll automatically deliver here next time</span>
                                     </div>
-                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200 bg-white'}`}>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#FF584A] border-[#FF584A]' : 'border-gray-200 bg-white'}`}>
                                         {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
                                     </div>
                                 </div>

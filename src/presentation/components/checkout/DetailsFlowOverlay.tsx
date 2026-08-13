@@ -449,49 +449,103 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             <p className="text-gray-400 text-xs mt-1">Add a new one to proceed</p>
                         </div>
                     ) : (
-                        addresses.map(add => (
-                            <div
-                                key={add.id}
-                                onClick={() => setSelectedAddressId(add.id)}
-                                className={`bg-white rounded-2xl p-4 border transition-all ${selectedAddressId === add.id ? 'border-[#FF4732] bg-red-50/10' : 'border-gray-100'} flex items-start justify-between cursor-pointer`}
-                            >
-                                <div className="flex items-start gap-3 flex-1 pr-4">
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#FF4732] shrink-0">
-                                        {add.label?.toLowerCase() === 'home' ? <Home className="w-5 h-5" /> : 
-                                         add.label?.toLowerCase() === 'work' ? <Briefcase className="w-5 h-5" /> : 
-                                         <MapPin className="w-5 h-5" />}
+                        addresses.map((add, idx) => {
+                            const labelLower = add.label?.toLowerCase() || '';
+                            const themes = [
+                                { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
+                                { bg: 'from-[#FF8A00] to-[#E67B00]', text: 'text-[#FF8A00]', accentBtn: 'text-[#FF8A00] hover:text-[#E67B00]' },
+                                { bg: 'from-[#2B7FFF] to-[#1A6EEB]', text: 'text-[#2B7FFF]', accentBtn: 'text-[#2B7FFF] hover:text-[#1A6EEB]' },
+                                { bg: 'from-[#8B5CF6] to-[#7C3AED]', text: 'text-[#8B5CF6]', accentBtn: 'text-[#8B5CF6] hover:text-[#7C3AED]' },
+                            ];
+                            const themeIndex = labelLower === 'home' ? 0 : labelLower === 'work' ? 1 : (idx % themes.length);
+                            const theme = themes[themeIndex];
+                            const isHome = labelLower === 'home';
+                            const isWork = labelLower === 'work';
+                            const isSelected = selectedAddressId === add.id;
+
+                            return (
+                                <div
+                                    key={add.id}
+                                    onClick={() => setSelectedAddressId(add.id)}
+                                    className={`bg-white rounded-xl shadow-xs border transition-all duration-300 flex overflow-hidden cursor-pointer group hover:shadow-md ${
+                                        isSelected ? 'border-[#FF4732] ring-1 ring-[#FF4732]/20' : 'border-gray-100'
+                                    }`}
+                                >
+                                    {/* Left Colorful Solid Block with Icon */}
+                                    <div className={`w-11 sm:w-12 bg-gradient-to-b ${theme.bg} flex items-center justify-center shrink-0 p-2`}>
+                                        {isHome ? (
+                                            <Home className="w-5 h-5 text-white stroke-[2.2]" />
+                                        ) : isWork ? (
+                                            <Briefcase className="w-5 h-5 text-white stroke-[2.2]" />
+                                        ) : (
+                                            <MapPin className="w-5 h-5 text-white stroke-[2.2]" />
+                                        )}
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-[15px] text-[#222] line-clamp-1">{add.addressLine}</h4>
-                                            {add.isDefault && <span className="text-[10px] font-bold text-[#00A050] bg-[#E6F5EC] px-1.5 py-0.5 rounded">DEFAULT</span>}
+
+                                    {/* Right Card Body */}
+                                    <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between bg-white min-w-0">
+                                        <div>
+                                            {/* Header Row: Label & Action Icons */}
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={`text-[10px] font-extrabold uppercase tracking-wider ${theme.text}`}>
+                                                    {add.label || 'Other'}
+                                                </span>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setAddressToEdit(add);
+                                                            setAddressLine(add.addressLine);
+                                                            setLandmark(add.landmark || '');
+                                                            setLabel(add.label || 'Home');
+                                                            setIsDefault(add.isDefault);
+                                                            setMapCoordinates({lat: add.latitude, lng: add.longitude});
+                                                            setSelectedAddressText(add.addressLine);
+                                                            setStep('addAddress');
+                                                        }}
+                                                        className="p-0.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                                                        title="Edit Address"
+                                                    >
+                                                        <Edit2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Address Main Line & Landmark */}
+                                            <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug line-clamp-1">
+                                                {add.addressLine}
+                                            </h4>
+                                            {add.landmark ? (
+                                                <p className="text-[11px] text-gray-400 font-medium line-clamp-1 mt-0.5">
+                                                    Near {add.landmark}
+                                                </p>
+                                            ) : null}
                                         </div>
-                                        <p className="text-gray-500 text-[12px] font-bold uppercase tracking-wide">{add.label || 'Other'}</p>
+
+                                        {/* Footer Row: Default Tag & Selection Circle */}
+                                        <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-50">
+                                            {add.isDefault ? (
+                                                <span className="text-[9px] font-extrabold text-[#FF584A] bg-[#FFF0EF] border border-[#FF584A]/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                    DEFAULT ADDRESS
+                                                </span>
+                                            ) : (
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                    SAVED LOCATION
+                                                </span>
+                                            )}
+
+                                            <div className={`w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full border flex items-center justify-center transition-all ${
+                                                isSelected
+                                                    ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-xs'
+                                                    : 'border-gray-300 bg-white'
+                                            }`}>
+                                                {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-2 shrink-0">
-                                    <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-300'}`}>
-                                        {selectedAddressId === add.id && <div className="w-2.5 h-2.5 bg-[#FF4732] rounded-full"></div>}
-                                    </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setAddressToEdit(add);
-                                            setAddressLine(add.addressLine);
-                                            setLandmark(add.landmark || '');
-                                            setLabel(add.label || 'Home');
-                                            setIsDefault(add.isDefault);
-                                            setMapCoordinates({lat: add.latitude, lng: add.longitude});
-                                            setSelectedAddressText(add.addressLine);
-                                            setStep('addAddress');
-                                        }}
-                                        className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                     <button
                         onClick={() => {
@@ -727,7 +781,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         <span className="text-sm font-bold text-gray-800">Set as default address</span>
                         <span className="text-[11px] text-gray-400 font-medium">Use this address for all future orders</span>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#FF584A] border-[#FF584A]' : 'border-gray-200 bg-gray-50'}`}>
                         {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
                     </div>
                 </div>
