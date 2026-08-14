@@ -3,6 +3,7 @@ import { ShoppingCart, ArrowRight, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { formatPrice } from '../../utils/formatUtils';
+import { ClearCartConfirmModal } from './ClearCartConfirmModal';
 
 export const FloatingCart: React.FC = () => {
     const { cartItems, cartTotal, clearCart } = useCart();
@@ -22,8 +23,17 @@ export const FloatingCart: React.FC = () => {
         <>
             <div className="floating-cart sticky bottom-6 z-[100] px-4 pb-4 pointer-events-none w-full flex justify-center animate-in fade-in slide-in-from-bottom-4">
                 <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label="View Cart and Checkout"
                     onClick={() => navigate('/checkout')}
-                    className="max-w-md w-full bg-gradient-to-r from-[#CE181B]/85 to-[#CE1830]/85 backdrop-blur-md border border-white/20 text-white flex items-center justify-between p-4 rounded-[24px] shadow-[0_20px_40px_rgba(206,24,27,0.25)] hover:scale-[1.02] active:scale-[0.98] group overflow-hidden relative pointer-events-auto cursor-pointer"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            navigate('/checkout');
+                        }
+                    }}
+                    className="max-w-md w-full bg-gradient-to-r from-[#CE181B]/85 to-[#CE1830]/85 backdrop-blur-md border border-white/20 text-white flex items-center justify-between p-4 rounded-[24px] shadow-[0_20px_40px_rgba(206,24,27,0.25)] hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/40 group overflow-hidden relative pointer-events-auto cursor-pointer"
                 >
                     {/* Shine effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-10 -translate-x-full group-hover:animate-[shine_1.5s_infinite]" />
@@ -58,6 +68,7 @@ export const FloatingCart: React.FC = () => {
                             }}
                             className="p-2 hover:bg-white/20 rounded-full transition-colors text-white/90 hover:text-white"
                             title="Clear Cart"
+                            aria-label="Clear Cart"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -70,38 +81,11 @@ export const FloatingCart: React.FC = () => {
             </div>
 
             {/* Clear Cart Confirmation Modal */}
-            {showClearConfirm && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-auto">
-                    <div className="bg-white rounded-[28px] p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center animate-in zoom-in-95 duration-200">
-                        <div className="w-14 h-14 bg-red-50 text-[#FF4732] rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Trash2 className="w-7 h-7" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Clear your cart?</h3>
-                        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                            Are you sure you want to remove all items from your cart?
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setShowClearConfirm(false)}
-                                className="flex-1 py-3 px-4 rounded-full border border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-colors text-sm"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    clearCart();
-                                    setShowClearConfirm(false);
-                                }}
-                                className="flex-1 py-3 px-4 rounded-full bg-[#FF4732] text-white font-bold hover:bg-[#E5483B] shadow-lg shadow-red-100 transition-colors text-sm"
-                            >
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ClearCartConfirmModal
+                isOpen={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                onConfirm={() => clearCart()}
+            />
         </>
     );
 };
