@@ -33,3 +33,9 @@ body {
 body.hide-floating-cart .floating-cart {
   display: none !important;
 }
+
+@keyframes shine {
+  100% {
+    transform: translateX(100%);
+  }
+}

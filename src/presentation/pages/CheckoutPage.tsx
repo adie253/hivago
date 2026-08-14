@@ -15,6 +15,7 @@ import emptyCart from '../../assets/cart/empty_cartt.svg';
 import { useUserLocation } from '../context/LocationContext';
 import { StepperIcon } from '../components/checkout/StepperIcon';
 import { StepperConnector } from '../components/checkout/StepperConnector';
+import { ClearCartConfirmModal } from '../components/ClearCartConfirmModal';
 import { useToast } from '../context/ToastContext';
 import { LoadingScreen } from '../components/LoadingScreen';
 // import { FEATURE_FLAGS } from '../../config/featureFlags';
@@ -866,38 +867,11 @@ export const CheckoutPage: React.FC = () => {
             <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
             {/* Clear Cart Confirmation Modal */}
-            {showClearCartConfirm && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[28px] p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center animate-in zoom-in-95 duration-200">
-                        <div className="w-14 h-14 bg-red-50 text-[#FF4732] rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Trash2 className="w-7 h-7" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Clear your cart?</h3>
-                        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                            Are you sure you want to remove all items from your cart? This action cannot be undone.
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setShowClearCartConfirm(false)}
-                                className="flex-1 py-3 px-4 rounded-full border border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-colors text-sm"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    clearCart();
-                                    setShowClearCartConfirm(false);
-                                }}
-                                className="flex-1 py-3 px-4 rounded-full bg-[#FF4732] text-white font-bold hover:bg-[#E5483B] shadow-lg shadow-red-100 transition-colors text-sm"
-                            >
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ClearCartConfirmModal
+                isOpen={showClearCartConfirm}
+                onClose={() => setShowClearCartConfirm(false)}
+                onConfirm={() => clearCart()}
+            />
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar {

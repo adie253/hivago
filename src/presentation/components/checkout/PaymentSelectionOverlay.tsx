@@ -26,7 +26,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
             title: 'UPI',
             description: 'Google Pay, PhonePe, Paytm',
             icon: Smartphone,
-            iconBg: 'bg-[#E8F8EF]',
+            iconBg: 'bg-[#FFF0EF]',
             iconColor: 'text-[#FF584A]'
         },
         {

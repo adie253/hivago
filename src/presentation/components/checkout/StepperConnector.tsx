@@ -17,7 +17,7 @@ export const StepperConnector: React.FC<StepperConnectorProps> = ({ color, activ
                     y2="2"
                     stroke={strokeColor}
                     strokeWidth="2"
-                    strokeDasharray={active ? "1 14" : "1 14"}
+                    strokeDasharray={active ? "5 7" : "1 14"}
                     strokeLinecap="round"
                 />
             </svg>

@@ -117,11 +117,13 @@ export const PaymentSuccessPage: React.FC = () => {
     const [showSplash, setShowSplash] = useState(true);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowSplash(false);
-        }, SPLASH_DURATION_MS);
-        return () => clearTimeout(timer);
-    }, []);
+        if (!isLoading) {
+            const timer = setTimeout(() => {
+                setShowSplash(false);
+            }, SPLASH_DURATION_MS);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoading]);
 
     useEffect(() => {
         console.log("[Diagnostic] PaymentSuccessPage mounted.");
