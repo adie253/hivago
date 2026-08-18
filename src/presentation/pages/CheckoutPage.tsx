@@ -563,23 +563,25 @@ export const CheckoutPage: React.FC = () => {
                                 }}
                                 className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-1 transition-all relative ${fulfillmentType !== 'Pickup' ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-[#FFEFEF] p-1.5 rounded-lg text-[#FF4732]">
-                                            <MapPin className="w-5 h-5 fill-current" />
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                                        <div className="bg-[#FFEFEF] p-2 rounded-xl text-[#FF4732] shrink-0 mt-0.5">
+                                            <MapPin className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                                         </div>
-                                        <div className="flex items-center gap-1.5 text-[15px]">
-                                            <span className="font-medium text-gray-600">{fulfillmentType === 'Pickup' ? 'Fulfillment' : 'Deliver to'}</span>
-                                            <span className="text-gray-900 font-bold">-&gt;</span>
-                                            <span className="font-bold text-gray-900">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Select Location'))}</span>
+                                        <div className="flex flex-col min-w-0 flex-1">
+                                            <div className="flex items-center gap-1.5 flex-wrap text-[14px] sm:text-[15px] font-bold text-slate-900 leading-tight">
+                                                <span className="font-medium text-slate-600 shrink-0">{fulfillmentType === 'Pickup' ? 'Fulfillment' : 'Deliver to'}</span>
+                                                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                                                <span className="font-bold text-slate-900 truncate">{fulfillmentType === 'Pickup' ? 'Restaurant (Self Pickup)' : (selectedLocation?.label || (isLoggedIn ? 'Select Address' : 'Select Location'))}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     {isLoggedIn && fulfillmentType !== 'Pickup' && (
-                                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isAddressDropdownOpen ? 'rotate-180' : ''}`} />
+                                        <ChevronDown className={`w-5 h-5 text-slate-400 shrink-0 transition-transform mt-1 ${isAddressDropdownOpen ? 'rotate-180' : ''}`} />
                                     )}
                                 </div>
-                                <div className="pl-11 text-gray-500 text-[13px] font-medium leading-relaxed truncate">
-                                    {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName || 'the restaurant'}${restaurantDetails?.addressLine ? ` (${restaurantDetails.addressLine})` : ''}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
+                                <div className="pl-10 sm:pl-11 text-slate-500 text-[12px] sm:text-[13px] font-medium leading-relaxed mt-1">
+                                    {fulfillmentType === 'Pickup' ? `Collect your order from ${restaurantName && !restaurantName.toLowerCase().includes('stage') ? restaurantName : restaurantDetails?.name && !restaurantDetails.name.toLowerCase().includes('stage') ? restaurantDetails.name : 'the restaurant'}${restaurantDetails?.addressLine ? ` (${restaurantDetails.addressLine})` : ''}` : (selectedLocation?.addressLine || (isLoggedIn ? (isLoadingAddresses ? 'Loading...' : 'Please select a delivery address') : 'Select your location to see delivery availability'))}
                                 </div>
 
                                 {/* Fulfillment Mode Toggle - Only shown if restaurant accepts pickup */}
