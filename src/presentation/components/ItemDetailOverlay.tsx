@@ -127,8 +127,8 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                             </h2>
                         </div>
                         <div className="text-right shrink-0">
-                            <span className="text-xl font-bold text-gray-900 block">
-                                ₹ {formatPrice(item.price)}
+                            <span className="text-xl font-bold text-gray-900 block whitespace-nowrap">
+                                ₹{formatPrice(item.price)}
                             </span>
                         </div>
                     </div>
