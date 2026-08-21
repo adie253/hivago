@@ -123,6 +123,10 @@ export const PaymentPage: React.FC = () => {
                     // 🎉 success UI
                     setFinalAmount(grandTotal);
                     setIsOrdered(true);
+                    if (currentOrderId) {
+                        sessionStorage.setItem('last_placed_order_id', currentOrderId);
+                        localStorage.setItem('last_placed_order_id', currentOrderId);
+                    }
                     clearCart(true);
 
                 } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
@@ -139,6 +143,39 @@ export const PaymentPage: React.FC = () => {
             if (interval) clearInterval(interval);
         };
     }, [isPaymentPopupOpen, currentOrderId, grandTotal, clearCart]);
+
+    // Redirect guard: If last_placed_order_id exists OR cart is empty (and order is not active), redirect away from payment screen
+    useEffect(() => {
+        const lastOrderId = sessionStorage.getItem('last_placed_order_id') || localStorage.getItem('last_placed_order_id');
+        if (!isOrdered && (lastOrderId || (!isCartLoading && cartItems.length === 0))) {
+            if (lastOrderId) {
+                navigate(`/track-order?orderId=${lastOrderId}`, { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [cartItems.length, isCartLoading, isOrdered, navigate]);
+
+    // Handle browser back button when order placed success screen is active
+    useEffect(() => {
+        if (isOrdered) {
+            window.history.pushState(null, '', window.location.href);
+
+            const handlePopState = () => {
+                const lastOrderId = currentOrderId || sessionStorage.getItem('last_placed_order_id') || localStorage.getItem('last_placed_order_id');
+                if (lastOrderId) {
+                    navigate(`/track-order?orderId=${lastOrderId}`, { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
+            };
+
+            window.addEventListener('popstate', handlePopState);
+            return () => {
+                window.removeEventListener('popstate', handlePopState);
+            };
+        }
+    }, [isOrdered, currentOrderId, navigate]);
 
     // Check for payment failure on mount (if they return from PayU via back button)
     useEffect(() => {
@@ -274,6 +311,11 @@ export const PaymentPage: React.FC = () => {
 
             const order = await placeOrder(payload);
             setConfirmedRestaurant(payload.restaurantName);
+
+            if (order && order.id) {
+                sessionStorage.setItem('last_placed_order_id', order.id);
+                localStorage.setItem('last_placed_order_id', order.id);
+            }
 
             if (selectedPaymentMethod === "CASH") {
                 setFinalAmount(grandTotal);

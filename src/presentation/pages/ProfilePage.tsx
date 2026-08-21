@@ -190,7 +190,7 @@ export const ProfilePage: React.FC = () => {
                         </div>
                         <button 
                             onClick={openEditModal}
-                            className="w-full md:w-auto text-[#FF4732] hover:text-white font-semibold text-sm px-6 py-3 bg-[#FFF0EF] hover:bg-[#FF4732] rounded-full transition-all duration-300 transform active:scale-95 shadow-sm hover:shadow-md"
+                            className="w-full md:w-auto text-[#FF584A] hover:text-white font-semibold text-sm px-6 py-3 bg-[#FFF0EF] hover:bg-[#FF584A] rounded-full transition-all duration-300 transform active:scale-95 shadow-sm hover:shadow-md"
                         >
                             Edit Profile
                         </button>
@@ -237,7 +237,7 @@ export const ProfilePage: React.FC = () => {
                             </div>
                             <button 
                                 onClick={handleAddNewAddress}
-                                className="flex items-center gap-1.5 text-white font-semibold text-xs md:text-sm bg-[#FF4732] hover:bg-[#E53935] px-4 py-2.5 rounded-full transition-all duration-300 transform active:scale-95 shadow-md shadow-red-100"
+                                className="flex items-center gap-1.5 text-white font-semibold text-xs md:text-sm bg-[#FF584A] hover:bg-[#E53935] px-4 py-2.5 rounded-full transition-all duration-300 transform active:scale-95 shadow-md shadow-red-100"
                             >
                                 <Plus className="w-4 h-4 stroke-[3px]" />
                                 <span>Add New</span>
@@ -247,7 +247,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {isLoadingAddresses ? (
                                 <div className="col-span-full bg-white rounded-[28px] border border-gray-100 p-12 text-center shadow-sm">
-                                    <div className="w-8 h-8 border-2 border-[#FF4732]/30 border-t-[#FF4732] rounded-full animate-spin mx-auto mb-3"></div>
+                                    <div className="w-8 h-8 border-2 border-[#FF584A]/30 border-t-[#FF584A] rounded-full animate-spin mx-auto mb-3"></div>
                                     <p className="text-gray-400 text-sm font-semibold">Loading your addresses...</p>
                                 </div>
                             ) : addresses.length === 0 ? (
@@ -259,23 +259,15 @@ export const ProfilePage: React.FC = () => {
                                     <p className="text-xs text-gray-400 font-medium mt-1 mb-4">Add an address to checkout faster next time.</p>
                                     <button
                                         onClick={handleAddNewAddress}
-                                        className="text-[#FF4732] hover:text-white font-semibold text-xs px-4 py-2 bg-[#FFF0EF] hover:bg-[#FF4732] rounded-full transition-all"
+                                        className="text-[#FF584A] hover:text-white font-semibold text-xs px-4 py-2 bg-[#FFF0EF] hover:bg-[#FF584A] rounded-full transition-all"
                                     >
                                         Add Address
                                     </button>
                                 </div>
                             ) : (
-                                addresses.map((add, idx) => {
+                                addresses.map((add) => {
                                     const labelLower = add.label?.toLowerCase() || '';
-                                    const themes = [
-                                        { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
-                                        { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
-                                        // { bg: 'from-[#FF8A00] to-[#E67B00]', text: 'text-[#FF8A00]', accentBtn: 'text-[#FF8A00] hover:text-[#E67B00]' },
-                                        // { bg: 'from-[#2B7FFF] to-[#1A6EEB]', text: 'text-[#2B7FFF]', accentBtn: 'text-[#2B7FFF] hover:text-[#1A6EEB]' },
-                                        // { bg: 'from-[#8B5CF6] to-[#7C3AED]', text: 'text-[#8B5CF6]', accentBtn: 'text-[#8B5CF6] hover:text-[#7C3AED]' },
-                                    ];
-                                    const themeIndex = labelLower === 'home' ? 0 : labelLower === 'work' ? 1 : (idx % themes.length);
-                                    const theme = themes[themeIndex];
+                                    const theme = { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' };
                                     const isHome = labelLower === 'home';
                                     const isWork = labelLower === 'work';
                                     
@@ -385,7 +377,7 @@ export const ProfilePage: React.FC = () => {
                             <div className="bg-white rounded-[28px] shadow-sm border border-gray-100 flex flex-col p-2 gap-0.5 mt-3">
                                 {/* <button 
                                     onClick={() => showToast("Payment Methods feature is coming soon!", "success")}
-                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF584A] rounded-2xl transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
@@ -398,7 +390,7 @@ export const ProfilePage: React.FC = () => {
 
                                 <button 
                                     onClick={() => showToast("Notification configurations coming soon!", "success")}
-                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF584A] rounded-2xl transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
@@ -413,7 +405,7 @@ export const ProfilePage: React.FC = () => {
                                     href="https://wa.me/919082220155?text=Need%20HELP!" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF584A] rounded-2xl transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
@@ -439,7 +431,7 @@ export const ProfilePage: React.FC = () => {
                                 </p>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] hover:bg-[#FF4732] text-[#E53935] hover:text-white font-semibold text-sm py-4 rounded-2xl transition-all duration-300 shadow-sm active:scale-[0.98]"
+                                    className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] hover:bg-[#FF584A] text-[#E53935] hover:text-white font-semibold text-sm py-4 rounded-2xl transition-all duration-300 shadow-sm active:scale-[0.98]"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span>Logout Account</span>
@@ -480,7 +472,7 @@ export const ProfilePage: React.FC = () => {
                                     value={editName}
                                     onChange={e => setEditName(e.target.value)}
                                     placeholder="Enter your name"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF584A] focus:bg-white transition-all font-medium"
                                 />
                             </div>
 
@@ -491,7 +483,7 @@ export const ProfilePage: React.FC = () => {
                                     value={editEmail}
                                     onChange={e => setEditEmail(e.target.value)}
                                     placeholder="Enter your email"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF584A] focus:bg-white transition-all font-medium"
                                 />
                             </div>
 
@@ -522,7 +514,7 @@ export const ProfilePage: React.FC = () => {
             {addressToDelete && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white rounded-[32px] w-full max-w-[340px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-[#FF4732] mb-5">
+                        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-[#FF584A] mb-5">
                             <Trash2 className="w-8 h-8" />
                         </div>
                         
@@ -534,7 +526,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="flex flex-col w-full gap-3">
                             <button
                                 onClick={confirmDeleteAddress}
-                                className="w-full bg-[#FF4732] text-white font-semibold py-4 rounded-2xl hover:bg-[#E53935] transition-all shadow-lg shadow-red-100 active:scale-[0.98]"
+                                className="w-full bg-[#FF584A] text-white font-semibold py-4 rounded-2xl hover:bg-[#E53935] transition-all shadow-lg shadow-red-100 active:scale-[0.98]"
                             >
                                 Yes, Delete
                             </button>
