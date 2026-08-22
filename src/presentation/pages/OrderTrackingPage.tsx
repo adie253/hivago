@@ -31,6 +31,22 @@ export const OrderTrackingPage: React.FC = () => {
     const [deliveryCodes, setDeliveryCodes] = useState<{ pickupCode: string | null, dropCode: string | null } | null>(null);
     const hasFetchedQuoteRef = React.useRef(false);
 
+    // Handle browser back button on OrderTrackingPage to prevent returning to PayU/Payment pages
+    useEffect(() => {
+        window.history.pushState({ page: 'track-order' }, '', window.location.href);
+
+        const handlePopState = () => {
+            console.log("[Diagnostic] Back button intercepted on OrderTrackingPage!");
+            window.history.pushState({ page: 'track-order' }, '', window.location.href);
+            navigate('/', { replace: true });
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [navigate]);
+
     // Map the backend status precisely to the tracking UI pipeline
     useEffect(() => {
         if (order) {

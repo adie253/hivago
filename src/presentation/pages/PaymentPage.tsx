@@ -123,6 +123,10 @@ export const PaymentPage: React.FC = () => {
                     // 🎉 success UI
                     setFinalAmount(grandTotal);
                     setIsOrdered(true);
+                    if (currentOrderId) {
+                        sessionStorage.setItem('last_placed_order_id', currentOrderId);
+                        localStorage.setItem('last_placed_order_id', currentOrderId);
+                    }
                     clearCart(true);
 
                 } else if (response && (response.status === 'failure' || response.status === 'cancelled')) {
@@ -139,6 +143,39 @@ export const PaymentPage: React.FC = () => {
             if (interval) clearInterval(interval);
         };
     }, [isPaymentPopupOpen, currentOrderId, grandTotal, clearCart]);
+
+    // Redirect guard: If last_placed_order_id exists OR cart is empty (and order is not active), redirect away from payment screen
+    useEffect(() => {
+        const lastOrderId = sessionStorage.getItem('last_placed_order_id') || localStorage.getItem('last_placed_order_id');
+        if (!isOrdered && (lastOrderId || (!isCartLoading && cartItems.length === 0))) {
+            if (lastOrderId) {
+                navigate(`/track-order?orderId=${lastOrderId}`, { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [cartItems.length, isCartLoading, isOrdered, navigate]);
+
+    // Handle browser back button when order placed success screen is active
+    useEffect(() => {
+        if (isOrdered) {
+            window.history.pushState(null, '', window.location.href);
+
+            const handlePopState = () => {
+                const lastOrderId = currentOrderId || sessionStorage.getItem('last_placed_order_id') || localStorage.getItem('last_placed_order_id');
+                if (lastOrderId) {
+                    navigate(`/track-order?orderId=${lastOrderId}`, { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
+            };
+
+            window.addEventListener('popstate', handlePopState);
+            return () => {
+                window.removeEventListener('popstate', handlePopState);
+            };
+        }
+    }, [isOrdered, currentOrderId, navigate]);
 
     // Check for payment failure on mount (if they return from PayU via back button)
     useEffect(() => {
@@ -274,6 +311,11 @@ export const PaymentPage: React.FC = () => {
 
             const order = await placeOrder(payload);
             setConfirmedRestaurant(payload.restaurantName);
+
+            if (order && order.id) {
+                sessionStorage.setItem('last_placed_order_id', order.id);
+                localStorage.setItem('last_placed_order_id', order.id);
+            }
 
             if (selectedPaymentMethod === "CASH") {
                 setFinalAmount(grandTotal);
@@ -650,31 +692,31 @@ export const PaymentPage: React.FC = () => {
 
 
                         <div className="flex flex-col gap-3">
-                            <h2 className="text-sm font-bold text-gray-900 ml-1 mt-2">
-                                Order Details • {restaurantName?.toUpperCase() || restaurantDetails?.name?.toUpperCase() || 'STAGE'}
+                            <h2 className="text-base font-bold text-slate-900 ml-1 mt-2">
+                                Order Details {restaurantName && !restaurantName.toLowerCase().includes('stage') ? `• ${restaurantName}` : restaurantDetails?.name && !restaurantDetails.name.toLowerCase().includes('stage') ? `• ${restaurantDetails.name}` : ''}
                             </h2>
-                            <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+                            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-md shadow-slate-200/50 flex flex-col gap-4">
 
                                 {/* Items List */}
                                 <div className="flex flex-col gap-3">
                                     {enrichedCartItems.map((item) => (
-                                        <div key={`od-${item.id}`} className="flex justify-between items-center text-[15px] font-bold text-gray-800">
-                                            <div className="flex items-center">
-                                                <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2.5 shrink-0" />
-                                                <span>{item.name} x {item.quantity}</span>
+                                        <div key={`od-${item.id}`} className="flex justify-between items-start text-[14px] sm:text-[15px] font-semibold text-slate-900 gap-3">
+                                            <div className="flex items-start gap-2.5 min-w-0 pr-2">
+                                                <span className={`w-2 h-2 rounded-full ${item.isVeg !== false ? 'bg-emerald-500 shadow-sm shadow-emerald-500/40' : 'bg-rose-500 shadow-sm shadow-rose-500/40'} shrink-0 mt-[5px]`} />
+                                                <span className="leading-snug">{item.name} <span className="text-slate-500 font-semibold text-xs ml-1">x{item.quantity}</span></span>
                                             </div>
-                                            <span className="text-gray-700 font-bold">₹{formatPrice(item.price * item.quantity)}</span>
+                                            <span className="text-slate-900 font-semibold shrink-0">₹{formatPrice(item.price * item.quantity)}</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="border-t border-dashed border-gray-200/80 my-1" />
+                                <div className="border-t border-dashed border-slate-200 my-1" />
 
                                 {/* Price Breakdown */}
                                 <div className="flex flex-col gap-3 text-[14px]">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-gray-400 font-medium">Item Total</span>
-                                        <span className="text-gray-700 font-bold">₹{formatPrice(deliveryQuote ? deliveryQuote.itemTotal : cartTotal)}</span>
+                                        <span className="text-slate-600 font-semibold">Item Total</span>
+                                        <span className="text-slate-900 font-bold">₹{formatPrice(deliveryQuote ? deliveryQuote.itemTotal : cartTotal)}</span>
                                     </div>
 
                                     {isCheckingDelivery ? (
@@ -705,8 +747,8 @@ export const PaymentPage: React.FC = () => {
                                                 }
                                                 return (
                                                     <div key={idx} className="flex justify-between items-center">
-                                                        <span className="text-gray-400 font-medium">{displayName}</span>
-                                                        <span className="text-gray-700 font-bold">
+                                                        <span className="text-slate-600 font-semibold">{displayName}</span>
+                                                        <span className="text-slate-900 font-bold">
                                                             {item.amount > 0 ? `₹${formatPrice(item.amount)}` : 'FREE'}
                                                         </span>
                                                     </div>
@@ -716,36 +758,36 @@ export const PaymentPage: React.FC = () => {
                                         <>
                                             {fulfillmentType !== 'Pickup' && (
                                                 <div className="flex justify-between items-center">
-                                                    <span className="text-gray-400 font-medium">Delivery Fee</span>
-                                                    <span className="text-gray-400 font-bold">--</span>
+                                                    <span className="text-slate-600 font-semibold">Delivery Fee</span>
+                                                    <span className="text-slate-400 font-bold">--</span>
                                                 </div>
                                             )}
                                             <div className="flex justify-between items-center">
-                                                <span className="text-gray-400 font-medium">Platform Fee & GST</span>
-                                                <span className="text-gray-400 font-bold">--</span>
+                                                <span className="text-slate-600 font-semibold">Platform Fee & GST</span>
+                                                <span className="text-slate-400 font-bold">--</span>
                                             </div>
                                         </>
                                     )}
 
                                     {tipAmount > 0 && (
                                         <div className="flex justify-between items-center">
-                                            <span className="text-gray-400 font-medium">Delivery Tip</span>
-                                            <span className="text-gray-700 font-bold">₹{formatPrice(tipAmount)}</span>
+                                            <span className="text-slate-600 font-semibold">Delivery Tip</span>
+                                            <span className="text-slate-900 font-bold">₹{formatPrice(tipAmount)}</span>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="border-t border-dashed border-gray-200/80 my-1" />
+                                <div className="border-t border-dashed border-slate-200 my-1" />
 
                                 {/* Total Paid */}
                                 <div className="flex justify-between items-center pt-1">
-                                    <span className="text-gray-950 font-bold text-base">Total Paid</span>
+                                    <span className="text-slate-900 font-extrabold text-base">Total Amount</span>
                                     {isCheckingDelivery ? (
                                         <div className="h-5 w-16 bg-red-100 rounded-full animate-pulse" />
                                     ) : deliveryStatus === 'error' ? (
-                                        <span className="text-gray-400 font-bold">--</span>
+                                        <span className="text-slate-400 font-bold">--</span>
                                     ) : (
-                                        <span className="text-gray-950 font-bold text-[18px]">₹{formatPrice(grandTotal)}</span>
+                                        <span className="text-slate-950 font-black text-[19px]">₹{formatPrice(grandTotal)}</span>
                                     )}
                                 </div>
                             </div>
@@ -756,26 +798,25 @@ export const PaymentPage: React.FC = () => {
                             <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">
                                 Cancellation Policy
                             </h3>
-                            <p className="text-[11px] text-slate-400/90 font-semibold leading-relaxed ml-1">
+                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed ml-1">
                                 A 100% cancellation charge will apply. This helps us compensate the restaurant partner for food preparation.
                             </p>
                         </div>
 
                         {/* Footer Section */}
                         <div className="flex flex-col gap-4 pb-6 px-1">
-                            <div className="flex items-start gap-3">
+                            <div className="flex items-start gap-3 cursor-pointer group" onClick={() => setAgreedToTerms(!agreedToTerms)}>
                                 <div
-                                    onClick={() => setAgreedToTerms(!agreedToTerms)}
-                                    className={`w-5 h-5 rounded border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${agreedToTerms ? 'bg-[#FF4732] border-[#FF4732]' : 'bg-white border-gray-200'}`}
+                                    className={`w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${agreedToTerms ? 'bg-[#FF4732] border-[#FF4732] shadow-sm' : 'bg-white border-slate-300 group-hover:border-[#FF4732]'}`}
                                 >
                                     {agreedToTerms && <CheckCircle className="w-4 h-4 text-white" />}
                                 </div>
-                                <p className="text-[12px] text-gray-400 font-medium leading-relaxed">
-                                    By accepting this order, I agree to all <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" className="underline cursor-pointer hover:text-[#FF4732] transition-colors">terms & conditions.</Link>
+                                <p className="text-[12px] text-slate-600 font-medium leading-relaxed select-none">
+                                    By accepting this order, I agree to all <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="underline text-slate-800 font-semibold cursor-pointer hover:text-[#FF4732] transition-colors">terms & conditions.</Link>
                                 </p>
                             </div>
 
-                            <p className="text-[11px] text-gray-400 font-medium leading-loose">
+                            <p className="text-[11px] text-slate-400 font-medium leading-loose">
                                 Check the payment details & restaurant information before placing your order. Business ID: 2026115526H
                             </p>
                         </div>
@@ -802,9 +843,9 @@ export const PaymentPage: React.FC = () => {
                             <button
                                 onClick={handlePlaceOrder}
                                 disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error' || cartTotal < 150}
-                                className="hidden lg:flex w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors justify-center items-center active:scale-[0.98] disabled:opacity-50 mt-2"
+                                className="hidden lg:flex w-full bg-[#FF4732] text-white font-bold text-[16px] py-4 rounded-2xl shadow-lg shadow-[#FF4732]/20 hover:bg-[#E53823] transition-all justify-center items-center active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none mt-2"
                             >
-                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : 'Proceed to pay'}
+                                {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : !agreedToTerms ? 'Accept terms to proceed' : 'Proceed to pay'}
                             </button>
                         )}
                     </div>
@@ -812,7 +853,7 @@ export const PaymentPage: React.FC = () => {
             </div>
 
             {/* Bottom Fixed Button - Mobile Only */}
-            <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-30">
+            <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-6 shadow-[0_-10px_25px_rgba(0,0,0,0.06)] z-30">
                 <div className="max-w-md mx-auto flex flex-col gap-3">
                     {cartTotal < 150 && (
                         <div className="bg-[#FFF0EF] border border-[#FFDCDA] rounded-xl p-3 flex items-start gap-2.5">
@@ -836,9 +877,9 @@ export const PaymentPage: React.FC = () => {
                         <button
                             onClick={handlePlaceOrder}
                             disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error' || cartTotal < 150}
-                            className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors flex justify-center items-center active:scale-[0.98] disabled:opacity-50"
+                            className="w-full bg-[#FF4732] text-white font-bold text-[16px] py-4 rounded-2xl shadow-lg shadow-[#FF4732]/20 hover:bg-[#E53823] transition-all flex justify-center items-center active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none"
                         >
-                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : 'Proceed to pay'}
+                            {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : !agreedToTerms ? 'Accept terms to proceed' : 'Proceed to pay'}
                         </button>
                     )}
                 </div>

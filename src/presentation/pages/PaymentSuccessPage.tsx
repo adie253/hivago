@@ -10,7 +10,7 @@ import { verifyPayment, getOrderById, fetchRestaurantById, restoreAuthSessionFro
  * ⏱️ CONTROL ANIMATION TIMING HERE (in milliseconds)
  * e.g., 3000 = 3 seconds, 4000 = 4 seconds, 2500 = 2.5 seconds
  */
-export const SPLASH_DURATION_MS = 5200;
+export const SPLASH_DURATION_MS = 1800;
 
 const OrderPlacedSplash: React.FC<{ durationMs?: number; onSkip: () => void }> = ({ durationMs = SPLASH_DURATION_MS, onSkip }) => {
     const progressSeconds = Math.max(0.5, (durationMs - 400) / 1000);
@@ -137,6 +137,11 @@ export const PaymentSuccessPage: React.FC = () => {
         let id = queryParams.get('orderId') || sessionStorage.getItem('orderId') || localStorage.getItem('pay_orderId');
         let txn = queryParams.get('txnid') || sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
 
+        if (id) {
+            sessionStorage.setItem('last_placed_order_id', id);
+            localStorage.setItem('last_placed_order_id', id);
+        }
+
         console.log("[Diagnostic] Query params - orderId:", queryParams.get('orderId'), "txnid:", queryParams.get('txnid'));
         console.log("[Diagnostic] Session storage - orderId:", sessionStorage.getItem('orderId'), "txnId:", sessionStorage.getItem('txnId'));
         console.log("[Diagnostic] Local storage - pay_orderId:", localStorage.getItem('pay_orderId'), "pay_txnId:", localStorage.getItem('pay_txnId'));
@@ -164,6 +169,8 @@ export const PaymentSuccessPage: React.FC = () => {
                 // 2. Double check order status from the server
                 const finalOrderId = id || txn;
                 if (finalOrderId) {
+                    sessionStorage.setItem('last_placed_order_id', finalOrderId);
+                    localStorage.setItem('last_placed_order_id', finalOrderId);
                     console.log("[Diagnostic] Fetching final order details for id:", finalOrderId);
                     const order = await getOrderById(finalOrderId);
                     console.log("[Diagnostic] Fetched order status:", order?.status, "paymentId:", order?.paymentId);
@@ -210,6 +217,30 @@ export const PaymentSuccessPage: React.FC = () => {
 
         verifyAndCheckOrder();
     }, [location]);
+
+    // Handle browser back button on PaymentSuccessPage
+    useEffect(() => {
+        window.history.pushState({ page: 'payment-success' }, '', window.location.href);
+
+        const handlePopState = () => {
+            console.log("[Diagnostic] Back button intercepted on PaymentSuccessPage!");
+            // Re-push state immediately so the browser history cannot pop back to payubiz.in or /payment
+            window.history.pushState({ page: 'payment-success' }, '', window.location.href);
+
+            const queryParams = new URLSearchParams(location.search);
+            const resolvedOrderId = orderId || queryParams.get('orderId') || sessionStorage.getItem('last_placed_order_id') || localStorage.getItem('last_placed_order_id');
+            if (resolvedOrderId) {
+                navigate(`/track-order?orderId=${resolvedOrderId}`);
+            } else {
+                navigate('/');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [orderId, location.search, navigate]);
 
     if (isLoading) {
         return (
