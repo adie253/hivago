@@ -131,20 +131,20 @@ export const OrdersPage: React.FC = () => {
                 <div className="flex px-5 border-b border-gray-200">
                     <button 
                         onClick={() => setActiveTab('active')}
-                        className={`py-3 mr-6 font-semibold text-[15px] relative transition-colors ${activeTab === 'active' ? 'text-[#FF4732]' : 'text-gray-500'}`}
+                        className={`py-3 mr-6 font-semibold text-[15px] relative transition-colors ${activeTab === 'active' ? 'text-brand-primary' : 'text-gray-500'}`}
                     >
                         Active ({activeOrders.length})
                         {activeTab === 'active' && (
-                            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#FF4732] rounded-t-[2px]"></span>
+                            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-primary rounded-t-[2px]"></span>
                         )}
                     </button>
                     <button 
                         onClick={() => setActiveTab('past')}
-                        className={`py-3 font-semibold text-[15px] relative transition-colors ${activeTab === 'past' ? 'text-[#FF4732]' : 'text-gray-500'}`}
+                        className={`py-3 font-semibold text-[15px] relative transition-colors ${activeTab === 'past' ? 'text-brand-primary' : 'text-gray-500'}`}
                     >
                         Past ({pastOrders.length})
                         {activeTab === 'past' && (
-                            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#FF4732] rounded-t-[2px]"></span>
+                            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-primary rounded-t-[2px]"></span>
                         )}
                     </button>
                 </div>
@@ -172,7 +172,7 @@ export const OrdersPage: React.FC = () => {
                             
                             <Link 
                                 to="/restaurants"
-                                className="bg-[#FF4732] text-white font-bold py-3.5 px-8 rounded-[12px] hover:bg-red-600 transition-colors shadow-sm"
+                                className="bg-brand-primary text-white font-bold py-3.5 px-8 rounded-[12px] hover:bg-brand-secondary transition-colors shadow-sm"
                             >
                                 Browse Restaurants
                             </Link>

@@ -36,13 +36,13 @@ export const PWAInstallOverlay: React.FC = () => {
                 <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white border border-gray-100 rounded-3xl shadow-2xl p-5 z-[55] animate-in slide-in-from-bottom-12 duration-300 flex flex-col gap-4">
                     {/* Header */}
                     <div className="flex gap-4 items-start">
-                        <div className="w-14 h-14 bg-gradient-to-br from-[#FF584A] to-[#D03727] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-100 shrink-0">
+                        <div className="w-14 h-14 bg-gradient-to-br from-brand-primary to-brand-secondary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-100 shrink-0">
                             <Smartphone className="w-7 h-7" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <h4 className="font-extrabold text-gray-900 text-base leading-tight flex items-center gap-1.5">
                                 Install Hivago App
-                                <Sparkles className="w-4 h-4 text-[#FF584A] animate-pulse" />
+                                <Sparkles className="w-4 h-4 text-brand-primary animate-pulse" />
                             </h4>
                             <p className="text-xs text-gray-500 font-semibold mt-1 leading-relaxed">
                                 Get a faster experience, offline access, and easy ordering right from your home screen.
@@ -66,7 +66,7 @@ export const PWAInstallOverlay: React.FC = () => {
                         </button>
                         <button
                             onClick={handleInstallClick}
-                            className="flex-[2] py-3 text-xs font-black text-white bg-[#FF4732] hover:bg-[#D03727] shadow-lg shadow-red-100 rounded-xl flex items-center justify-center gap-2 transition-all transform active:scale-95"
+                            className="flex-[2] py-3 text-xs font-black text-white bg-brand-primary hover:bg-brand-secondary shadow-lg shadow-red-100 rounded-xl flex items-center justify-center gap-2 transition-all transform active:scale-95"
                         >
                             <Download className="w-4 h-4" />
                             Install Now
@@ -172,7 +172,7 @@ export const PWAInstallOverlay: React.FC = () => {
                             <div className="flex flex-col gap-4">
                                 {/* Step 1 */}
                                 <div className="flex gap-4 items-center bg-[#F9FAFB] p-4 rounded-2xl border border-gray-50">
-                                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#FF4732] shrink-0 font-bold">
+                                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-brand-primary shrink-0 font-bold">
                                         1
                                     </div>
                                     <div className="flex-1 text-sm font-semibold text-gray-800 leading-normal flex items-center gap-1.5 flex-wrap">
@@ -186,7 +186,7 @@ export const PWAInstallOverlay: React.FC = () => {
 
                                 {/* Step 2 */}
                                 <div className="flex gap-4 items-center bg-[#F9FAFB] p-4 rounded-2xl border border-gray-50">
-                                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#FF4732] shrink-0 font-bold">
+                                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-brand-primary shrink-0 font-bold">
                                         2
                                     </div>
                                     <div className="flex-1 text-sm font-semibold text-gray-800 leading-normal flex items-center gap-1.5 flex-wrap">

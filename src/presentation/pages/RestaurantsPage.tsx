@@ -29,7 +29,7 @@ export const RestaurantsPage: React.FC = () => {
     if (isLoading && filteredRestaurants.length === 0 && !isLocationRequired) {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-                <div className="w-16 h-16 border-4 border-red-200 border-t-[#FF4732] rounded-full animate-spin mb-4"></div>
+                <div className="w-16 h-16 border-4 border-red-200 border-t-brand-primary rounded-full animate-spin mb-4"></div>
                 <p className="text-gray-500 font-bold animate-pulse text-lg">Finding the best restaurants for you...</p>
             </div>
         );
@@ -43,7 +43,7 @@ export const RestaurantsPage: React.FC = () => {
                     <p className="text-gray-600 mb-6 max-w-sm">{error.message || 'Failed to load restaurants'}</p>
                     <button
                         onClick={refreshData}
-                        className="bg-[#FF4732] text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
+                        className="bg-brand-primary text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
                     >
                         Try Again
                     </button>
@@ -133,7 +133,7 @@ export const RestaurantsPage: React.FC = () => {
                                                         onClick={() => setCurrentPage(pageNum)}
                                                         className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
                                                             currentPage === pageNum 
-                                                                ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100' 
+                                                                ? 'bg-brand-primary text-white shadow-lg shadow-red-100' 
                                                                 : 'text-gray-500 hover:bg-gray-50'
                                                         }`}
                                                     >

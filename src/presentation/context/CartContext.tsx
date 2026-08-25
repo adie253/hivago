@@ -820,7 +820,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     <div className="bg-white rounded-[28px] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="p-8 text-center">
                             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg className="w-10 h-10 text-[#FF4732]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <svg className="w-10 h-10 text-brand-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </div>
@@ -834,7 +834,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 ) : (
                                     <>
                                         Your existing cart has items from <span className="text-gray-900 font-bold">"{restaurantName || 'another restaurant'}"</span>.
-                                        Would you like to clear it and start fresh with items from <span className="text-[#FF4732] font-bold">"{conflictInfo.name}"</span>?
+                                        Would you like to clear it and start fresh with items from <span className="text-brand-primary font-bold">"{conflictInfo.name}"</span>?
                                     </>
                                 )}
                             </p>
@@ -878,7 +878,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             </button>
                             <button
                                 onClick={handleStartFresh}
-                                className="flex-1 px-6 py-5 text-[#FF4732] font-extrabold hover:bg-red-50 transition-colors"
+                                className="flex-1 px-6 py-5 text-brand-primary font-extrabold hover:bg-red-50 transition-colors"
                             >
                                 Start Fresh
                             </button>

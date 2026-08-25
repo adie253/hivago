@@ -30,7 +30,7 @@ export const HomePage: React.FC = () => {
                 <div className="px-4 md:px-12 py-1 md:py-10">
                     <div className="flex justify-between items-end mb-6">
                         <h2 className="text-2xl font-inter font-bold text-gray-900 tracking-tight">Popular Restaurants</h2>
-                        <button onClick={() => navigate('/restaurants')} className="text-[#FF4732] font-bold text-sm flex items-center hover:underline">
+                        <button onClick={() => navigate('/restaurants')} className="text-brand-primary font-bold text-sm flex items-center hover:underline">
                             View All <span className="ml-1">&gt;</span>
                         </button>
                     </div>

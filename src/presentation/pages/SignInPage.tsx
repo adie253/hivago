@@ -135,10 +135,10 @@ export const SignInPage: React.FC = () => {
 
     //         {/* Login Step - active */}
     //         <div className="flex flex-col items-center flex-shrink-0">
-    //             <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1 scale-110">
+    //             <div className="w-8 h-8 rounded-full bg-brand-light border border-brand-primary/30 text-brand-primary shadow-sm flex items-center justify-center mb-1 scale-110">
     //                 <MapPin className="w-4 h-4 fill-current" />
     //             </div>
-    //             <span className="text-[10px] font-bold text-[#FF4732] uppercase tracking-tighter">Sign In</span>
+    //             <span className="text-[10px] font-bold text-brand-primary uppercase tracking-tighter">Sign In</span>
     //         </div>
 
     //         <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
@@ -208,11 +208,11 @@ export const SignInPage: React.FC = () => {
                                                     setErrorMsg('');
                                                 }}
                                                 placeholder="Enter 10 digit number"
-                                                className={`flex-1 min-w-0 bg-white border rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] font-bold text-lg text-[#111] shadow-sm transition-all ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
+                                                className={`flex-1 min-w-0 bg-white border rounded-2xl px-5 py-4 outline-none focus:border-brand-primary font-bold text-lg text-[#111] shadow-sm transition-all ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
                                                 autoFocus
                                             />
                                         </div>
-                                        {errorMsg && <p className="text-[#FF4732] text-sm font-bold mt-1 ml-1">{errorMsg}</p>}
+                                        {errorMsg && <p className="text-brand-primary text-sm font-bold mt-1 ml-1">{errorMsg}</p>}
                                     </div>
 
                                     {/* Stay Signed In Checkbox */}
@@ -220,7 +220,7 @@ export const SignInPage: React.FC = () => {
                                         onClick={() => setRememberMe(!rememberMe)}
                                         className="flex items-center gap-2.5 mt-4 ml-1 cursor-pointer select-none group"
                                     >
-                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF4732] border-[#FF4732]' : 'bg-white border-gray-300 group-hover:border-[#FF4732]'}`}>
+                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-brand-primary border-brand-primary' : 'bg-white border-gray-300 group-hover:border-brand-primary'}`}>
                                             {rememberMe && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
                                         </div>
                                         <span className="text-sm font-bold text-gray-600 group-hover:text-gray-800 transition-colors">Stay signed in</span>
@@ -230,7 +230,7 @@ export const SignInPage: React.FC = () => {
                                         <button
                                             type="submit"
                                             disabled={isSendingOtp || phone.length !== 10}
-                                            className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-95 ${isSendingOtp || phone.length !== 10 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
+                                            className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-95 ${isSendingOtp || phone.length !== 10 ? 'bg-brand-primary/40' : 'bg-brand-primary hover:bg-brand-secondary shadow-red-100'}`}
                                         >
                                             {isSendingOtp ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Get OTP Code'}
                                         </button>
@@ -265,25 +265,25 @@ export const SignInPage: React.FC = () => {
                                                     value={otp[idx]}
                                                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                                                     onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                                                    className="w-12 h-14 sm:w-14 sm:h-16 bg-white border border-gray-200 focus:border-[#FF4732] rounded-2xl text-center text-2xl font-bold text-[#111] outline-none transition-all shadow-sm focus:shadow-md"
+                                                    className="w-12 h-14 sm:w-14 sm:h-16 bg-white border border-gray-200 focus:border-brand-primary rounded-2xl text-center text-2xl font-bold text-[#111] outline-none transition-all shadow-sm focus:shadow-md"
                                                     autoFocus={idx === 0}
                                                 />
                                             ))}
                                         </div>
-                                        {errorMsg && <p className="text-[#FF4732] text-sm font-bold mt-2">{errorMsg}</p>}
+                                        {errorMsg && <p className="text-brand-primary text-sm font-bold mt-2">{errorMsg}</p>}
                                     </div>
 
                                     <div className="mt-auto">
                                         <button
                                             type="submit"
                                             disabled={isVerifyingOtp || otp.join('').length !== 6}
-                                            className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex justify-center items-center active:scale-95 ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-red-100'}`}
+                                            className={`w-full mt-10 text-white font-bold text-[18px] py-[20px] rounded-2xl shadow-xl transition-all flex justify-center items-center active:scale-95 ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-brand-primary/40' : 'bg-brand-primary hover:bg-brand-secondary shadow-red-100'}`}
                                         >
                                             {isVerifyingOtp ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Verify & Sign In'}
                                         </button>
                                         <div className="mt-8 text-center text-sm font-bold text-gray-500">
                                             Didn't receive the code?{' '}
-                                            <button type="button" className="text-[#FF4732] font-bold hover:underline" onClick={handleSendOtp}>
+                                            <button type="button" className="text-brand-primary font-bold hover:underline" onClick={handleSendOtp}>
                                                 Resend Now
                                             </button>
                                         </div>
@@ -295,8 +295,8 @@ export const SignInPage: React.FC = () => {
                         {/* Image Section for Desktop */}
                         <div className="hidden lg:flex flex-1 items-center justify-center p-12 bg-[#FFF9F9] relative overflow-hidden group">
                             {/* Decorative circles */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFEFEF] rounded-full translate-x-1/3 -translate-y-1/3 transition-transform group-hover:scale-110 duration-1000"></div>
-                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#FFEFEF] rounded-full -translate-x-1/2 translate-y-1/2 transition-transform group-hover:scale-125 duration-1000"></div>
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-light rounded-full translate-x-1/3 -translate-y-1/3 transition-transform group-hover:scale-110 duration-1000"></div>
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-brand-light rounded-full -translate-x-1/2 translate-y-1/2 transition-transform group-hover:scale-125 duration-1000"></div>
 
                             <img
                                 src={girlOnSofa}

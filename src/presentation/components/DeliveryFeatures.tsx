@@ -32,7 +32,7 @@ export const DeliveryFeatures: React.FC = () => {
                 <div className="w-full lg:w-1/2 flex flex-col text-gray-900">
                     <h2 className="text-4xl md:text-5xl font-roboto leading-tight mb-4 tracking-tight">
                         Your order is delivered <br />
-                        <span className="text-[#FF4732]">quickly</span>
+                        <span className="text-brand-primary">quickly</span>
                     </h2>
                     <p className="text-gray-500 font-medium mb-10 text-base md:text-lg max-w-md">
                         Enjoy your food in a warm state will increase appetite
@@ -41,7 +41,7 @@ export const DeliveryFeatures: React.FC = () => {
                     <div className="flex flex-col gap-3">
                         {/* Feature 1 */}
                         <div className="bg-white border border-gray-100 p-4 md:p-6 rounded-2xl flex items-start gap-4 shadow-[0_4px_20px_rgb(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300">
-                            <div className="bg-[#FFF4F3] p-3 rounded-xl border border-red-50 text-[#FF4732]">
+                            <div className="bg-brand-light p-3 rounded-xl border border-red-50 text-brand-primary">
                                 <img src={d1} alt="" />
                             </div>
                             <div>
@@ -54,7 +54,7 @@ export const DeliveryFeatures: React.FC = () => {
 
                         {/* Feature 2 */}
                         <div className="bg-white border border-gray-100 p-4 md:p-6 rounded-2xl flex items-start gap-4 shadow-[0_4px_20px_rgb(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300">
-                            <div className="bg-[#FFF4F3] p-3 rounded-xl border border-red-50 text-[#FF4732]">
+                            <div className="bg-brand-light p-3 rounded-xl border border-red-50 text-brand-primary">
                                 <img src={d2} alt="" />
                             </div>
                             <div>
@@ -67,7 +67,7 @@ export const DeliveryFeatures: React.FC = () => {
 
                         {/* Feature 3 */}
                         <div className="bg-white border border-gray-100 p-4 md:p-6 rounded-2xl flex items-start gap-4 shadow-[0_4px_20px_rgb(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300">
-                            <div className="bg-[#FFF4F3] p-3 rounded-xl border border-red-50 text-[#FF4732]">
+                            <div className="bg-brand-light p-3 rounded-xl border border-red-50 text-brand-primary">
                                 <img src={d3} alt="" />
                             </div>
                             <div>

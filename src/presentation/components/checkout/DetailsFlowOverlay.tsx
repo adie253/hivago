@@ -186,10 +186,10 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 </div>
                 <StepperConnector active color="#00A050" />
                 <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF584A] shadow-sm flex items-center justify-center mb-1">
-                        <StepperIcon type="address" className="text-[#FF584A]" />
+                    <div className="w-8 h-8 rounded-full bg-brand-light border border-brand-light text-brand-primary shadow-sm flex items-center justify-center mb-1">
+                        <StepperIcon type="address" className="text-brand-primary" />
                     </div>
-                    <span className="text-[10px] font-bold text-[#FF584A]">Details</span>
+                    <span className="text-[10px] font-bold text-brand-primary">Details</span>
                 </div>
                 <StepperConnector active={false} />
                 <div className="flex flex-col items-center flex-shrink-0">
@@ -238,11 +238,13 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             }}
             className="flex-1 px-6 pt-10 pb-6 flex flex-col"
         >
-            <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-20">Enter your phone number</h2>
-            <p className="text-gray-500 text-sm mb-10 pb-6 pr-24 leading-snug">We'll use this to keep you updated about your order</p>
-            <div className="flex flex-col mb-auto gap-2">
-                <div className="flex gap-3">
-                    <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#333] font-bold flex items-center">
+            <h2 className="text-[22px] font-bold text-[#111] leading-tight mb-2 pr-24">Enter Phone Number</h2>
+            <p className="text-gray-500 text-sm mb-8 pr-24 leading-snug">Enter your mobile number to get order updates and log in easily.</p>
+
+            <div className="flex flex-col gap-1.5 mb-2">
+                <label className="text-sm font-bold text-gray-700 ml-1">Phone Number</label>
+                <div className="flex items-center gap-2">
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-3 font-semibold text-sm text-[#111]">
                         +91
                     </div>
                     <input
@@ -254,7 +256,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             setErrorMsg('');
                         }}
                         placeholder="Enter 10 digit phone number"
-                        className={`flex-1 bg-gray-50 border rounded-xl px-4 py-3 outline-none focus:border-[#FF584A] font-medium text-[#111] ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
+                        className={`flex-1 bg-gray-50 border rounded-xl px-4 py-3 outline-none focus:border-brand-primary font-medium text-[#111] ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
                     />
                 </div>
                 {errorMsg && step === 'phone' && <p className="text-red-500 text-sm">{errorMsg}</p>}
@@ -265,7 +267,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 onClick={() => setRememberMe(!rememberMe)}
                 className="flex items-center gap-2.5 mt-2 ml-1 cursor-pointer select-none group"
             >
-                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF584A] border-[#FF584A]' : 'bg-white border-gray-300 group-hover:border-[#FF584A]'}`}>
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-brand-primary border-brand-primary' : 'bg-white border-gray-300 group-hover:border-brand-primary'}`}>
                     {rememberMe && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
                 </div>
                 <span className="text-sm font-bold text-gray-600 group-hover:text-gray-800 transition-colors">Stay signed in</span>
@@ -274,7 +276,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <button
                 type="submit"
                 disabled={isSendingOtp || phone.length !== 10}
-                className={`w-full mt-10 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors flex items-center justify-center ${isSendingOtp || phone.length !== 10 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                className={`w-full mt-10 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors flex items-center justify-center ${isSendingOtp || phone.length !== 10 ? 'bg-brand-primary/40' : 'bg-brand-primary hover:bg-brand-secondary'}`}
             >
                 {isSendingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify number'}
             </button>
@@ -366,7 +368,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             value={otp[idx]}
                             onChange={(e) => handleOtpChange(idx, e.target.value)}
                             onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                            className="w-12 h-12 md:w-14 md:h-14 bg-gray-100 border border-transparent focus:border-[#FF584A] rounded-xl text-center text-xl font-bold text-[#111] outline-none transition-colors"
+                            className="w-12 h-12 md:w-14 md:h-14 bg-gray-100 border border-transparent focus:border-brand-primary rounded-xl text-center text-xl font-bold text-[#111] outline-none transition-colors"
                         />
                     ))}
                 </div>
@@ -376,7 +378,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <button
                 type="submit"
                 disabled={isVerifyingOtp || otp.join('').length !== 6}
-                className={`w-full mt-10 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors flex justify-center items-center ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                className={`w-full mt-10 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors flex justify-center items-center ${isVerifyingOtp || otp.join('').length !== 6 ? 'bg-brand-primary/40' : 'bg-brand-primary hover:bg-brand-secondary'}`}
             >
                 {isVerifyingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Continue to address'}
             </button>
@@ -410,7 +412,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
             <p className="text-gray-500 text-sm mb-10 flex-1 pr-24 leading-snug">This lets show you which restaurants you can order from.</p>
             <button
                 onClick={handleAllowLocation}
-                className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md hover:bg-[#E5483B] transition-colors mb-3"
+                className="w-full bg-brand-primary text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md hover:bg-brand-secondary transition-colors mb-3"
             >
                 Allow
             </button>
@@ -434,7 +436,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
                     {isLoadingAddresses ? (
                         <div className="flex flex-col items-center justify-center py-10 gap-3">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                            <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
                             <p className="text-gray-400 text-sm font-medium">Loading your addresses...</p>
                         </div>
                     ) : addresses.length === 0 ? (
@@ -447,7 +449,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         addresses.map((add, idx) => {
                             const labelLower = add.label?.toLowerCase() || '';
                             const themes = [
-                                { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
+                                { bg: 'from-brand-primary to-brand-secondary', text: 'text-brand-primary', accentBtn: 'text-brand-primary hover:text-brand-secondary' },
                                 { bg: 'from-[#FF8A00] to-[#E67B00]', text: 'text-[#FF8A00]', accentBtn: 'text-[#FF8A00] hover:text-[#E67B00]' },
                                 { bg: 'from-[#2B7FFF] to-[#1A6EEB]', text: 'text-[#2B7FFF]', accentBtn: 'text-[#2B7FFF] hover:text-[#1A6EEB]' },
                                 { bg: 'from-[#8B5CF6] to-[#7C3AED]', text: 'text-[#8B5CF6]', accentBtn: 'text-[#8B5CF6] hover:text-[#7C3AED]' },
@@ -463,7 +465,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                     key={add.id}
                                     onClick={() => setSelectedAddressId(add.id)}
                                     className={`bg-white rounded-xl shadow-xs border transition-all duration-300 flex overflow-hidden cursor-pointer group hover:shadow-md ${
-                                        isSelected ? 'border-[#FF584A] ring-1 ring-[#FF584A]/20' : 'border-gray-100'
+                                        isSelected ? 'border-brand-primary ring-1 ring-brand-primary/20' : 'border-gray-100'
                                     }`}
                                 >
                                     {/* Left Colorful Solid Block with Icon */}
@@ -520,7 +522,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                         {/* Footer Row: Default Tag & Selection Circle */}
                                         <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-50">
                                             {add.isDefault ? (
-                                                <span className="text-[9px] font-extrabold text-[#FF584A] bg-[#FFF0EF] border border-[#FF584A]/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                <span className="text-[9px] font-extrabold text-brand-primary bg-brand-light border border-brand-primary/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
                                                     DEFAULT ADDRESS
                                                 </span>
                                             ) : (
@@ -531,7 +533,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
 
                                             <div className={`w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full border flex items-center justify-center transition-all ${
                                                 isSelected
-                                                    ? 'bg-[#FF584A] border-[#FF584A] text-white shadow-xs'
+                                                    ? 'bg-brand-primary border-brand-primary text-white shadow-xs'
                                                     : 'border-gray-300 bg-white'
                                             }`}>
                                                 {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -556,7 +558,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             sessionStorage.removeItem('checkout_map_coords');
                             sessionStorage.removeItem('checkout_address_text');
                         }}
-                        className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF584A] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
+                        className="flex items-center justify-center gap-2 mt-2 bg-brand-light text-brand-primary p-4 rounded-2xl font-bold hover:bg-brand-light/80 transition-colors border border-transparent border-dashed"
                     >
                         <span>+</span>
                         <span>Add New Address</span>
@@ -569,7 +571,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         }
                     }}
                     disabled={!selectedAddressId || isLoadingAddresses}
-                    className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${selectedAddressId ? 'bg-[#FF584A] hover:bg-[#E5483B]' : 'bg-[#FFB7B0]'}`}
+                    className={`w-full mt-4 text-white font-bold text-[16px] py-[16px] rounded-xl shadow-md transition-colors ${selectedAddressId ? 'bg-brand-primary hover:bg-brand-secondary' : 'bg-brand-primary/40'}`}
                 >
                     Apply
                 </button>
@@ -707,7 +709,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             }}
                             onBlur={() => setTimeout(() => setPredictions([]), 200)}
                             placeholder="Search area, building, street name..."
-                            className="w-full bg-white border border-gray-100 focus:border-[#FF584A] rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400 shadow-sm"
+                            className="w-full bg-white border border-gray-100 focus:border-brand-primary rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400 shadow-sm"
                         />
 
                         {predictions.length > 0 && (
@@ -722,7 +724,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                         }}
                                         className="w-full flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left group"
                                     >
-                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#FF584A] transition-colors mt-0.5 shrink-0" />
+                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-brand-primary transition-colors mt-0.5 shrink-0" />
                                         <div className="flex flex-col">
                                             <span className="font-bold text-gray-800 text-sm">{pred.mainText || pred.structured_formatting?.main_text || pred.description?.split(',')[0]}</span>
                                             <span className="text-xs text-gray-500 font-medium line-clamp-1">{pred.secondaryText || pred.structured_formatting?.secondary_text}</span>
@@ -740,7 +742,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         value={addressLine}
                         onChange={e => setAddressLine(e.target.value)}
                         placeholder="Complete address details"
-                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF584A] shadow-sm font-medium text-sm transition-all"
+                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-brand-primary shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -750,7 +752,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         value={landmark}
                         onChange={e => setLandmark(e.target.value)}
                         placeholder="e.g. Near HDFC Bank"
-                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF584A] shadow-sm font-medium text-sm transition-all"
+                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-brand-primary shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
                 <div className="flex flex-col gap-2 mt-1">
@@ -761,7 +763,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                 key={l}
                                 type="button"
                                 onClick={() => setLabel(l)}
-                                className={`flex-1 py-2 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-[#FFF0EF] border-[#FF584A] text-[#FF584A] shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
+                                className={`flex-1 py-2 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-brand-light border-brand-primary text-brand-primary shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
                             >
                                 {l}
                             </button>
@@ -776,7 +778,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         <span className="text-sm font-bold text-gray-800">Set as default address</span>
                         <span className="text-[11px] text-gray-400 font-medium">Use this address for all future orders</span>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#FF584A] border-[#FF584A]' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-brand-primary border-brand-primary' : 'border-gray-200 bg-gray-50'}`}>
                         {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
                     </div>
                 </div>
@@ -784,7 +786,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <button
                     type="submit"
                     disabled={isSavingAddress || !addressLine.trim()}
-                    className={`w-full mt-3 text-white font-bold text-[16px] py-[12px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() ? 'bg-[#FFB7B0]' : 'bg-[#FF584A] hover:bg-[#E5483B]'}`}
+                    className={`w-full mt-3 text-white font-bold text-[16px] py-[12px] rounded-2xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 ${isSavingAddress || !addressLine.trim() ? 'bg-brand-primary/40' : 'bg-brand-primary hover:bg-brand-secondary'}`}
                 >
                     {isSavingAddress ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save and Continue"}
                 </button>

@@ -146,13 +146,13 @@ export const LocationSelectorOverlay: React.FC<LocationSelectorOverlayProps> = (
 
             {locationError && (
                 <div className="px-4 md:px-6 mb-6 flex flex-col gap-2">
-                    <div className="p-3 bg-red-50 text-[#FF4732] text-sm font-semibold rounded-xl border border-red-100">
+                    <div className="p-3 bg-red-50 text-brand-primary text-sm font-semibold rounded-xl border border-red-100">
                         {locationError}
                     </div>
                     <button
                         type="button"
                         onClick={() => setIsGuideOpen(true)}
-                        className="text-xs font-bold text-[#FF4732] hover:underline text-left self-start mt-0.5 ml-1"
+                        className="text-xs font-bold text-brand-primary hover:underline text-left self-start mt-0.5 ml-1"
                     >
                         Location blocked? See how to enable
                     </button>

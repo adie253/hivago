@@ -259,7 +259,7 @@ export const RestaurantMenuPage: React.FC = () => {
                 <p className="text-gray-500 max-w-xs">We couldn't find the restaurant you're looking for. It might be closed or doesn't exist.</p>
                 <button
                     onClick={() => navigate('/restaurants')}
-                    className="bg-[#FF4732] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
+                    className="bg-brand-primary text-white px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
                 >
                     Back to Restaurants
                 </button>
@@ -343,13 +343,13 @@ export const RestaurantMenuPage: React.FC = () => {
                         {renderDietaryBadges(restaurant)}
 
                         <div className="flex items-center gap-1.5 text-gray-600 mt-3.5">
-                            <MapPin className="w-3.5 h-3.5 text-[#FF4732] flex-shrink-0" />
+                            <MapPin className="w-3.5 h-3.5 text-brand-primary flex-shrink-0" />
                             <span className="text-[11px] font-semibold text-gray-500 line-clamp-1">{restaurant.addressLine || 'Pune, India'}</span>
                         </div>
 
                         <div className="flex items-center justify-center gap-3 mt-4 text-[11px] font-bold text-gray-500">
                             <div className="flex items-center gap-1.5">
-                                <Clock className="w-3.5 h-3.5 text-[#FF4732]" />
+                                <Clock className="w-3.5 h-3.5 text-brand-primary" />
                                 <span>{restaurant.deliveryTime}</span>
                             </div>
                             <span className="text-gray-300">•</span>
@@ -411,7 +411,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             className="block w-full pl-12 pr-12 py-4 bg-white border border-gray-100 shadow-sm rounded-2xl text-[13px] font-bold text-gray-900 placeholder-gray-400 focus:ring-0 transition-all"
                         />
                         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <Mic className="h-5 w-5 text-[#FF4732]" />
+                            <Mic className="h-5 w-5 text-brand-primary" />
                         </div>
                     </div>
                 </div>
@@ -424,11 +424,11 @@ export const RestaurantMenuPage: React.FC = () => {
                                 key={cat}
                                 id={`tab-mobile-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                                 onClick={() => scrollToCategory(cat)}
-                                className={`text-[14px] whitespace-nowrap pb-3 transition-all relative ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-400 hover:text-gray-700'}`}
+                                className={`text-[14px] whitespace-nowrap pb-3 transition-all relative ${activeTab === cat ? 'font-bold text-brand-primary' : 'font-medium text-gray-400 hover:text-gray-700'}`}
                             >
                                 {cat}
                                 {activeTab === cat && (
-                                    <span className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#FF4732] rounded-t-full" />
+                                    <span className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-brand-primary rounded-t-full" />
                                 )}
                             </button>
                         ))}
@@ -500,7 +500,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             className="block w-full pl-12 pr-12 py-3 bg-[#EEF2F6] border-none rounded-xl text-sm font-medium text-gray-900 placeholder-gray-500 focus:ring-0 transition-all"
                         />
                         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <Mic className="h-5 w-5 text-[#FF4732]" />
+                            <Mic className="h-5 w-5 text-brand-primary" />
                         </div>
                     </div>
                 </div>
@@ -516,7 +516,7 @@ export const RestaurantMenuPage: React.FC = () => {
                                 </h1>
                                 {renderDietaryBadges(restaurant)}
                                 <div className="flex items-start gap-2 text-gray-500 text-sm mt-3 max-w-xl">
-                                    <MapPin className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                                    <MapPin className="w-4 h-4 text-brand-primary flex-shrink-0 mt-0.5" />
                                     <span className="font-semibold text-gray-600 leading-relaxed">{restaurant.addressLine || 'Pune, India'}</span>
                                 </div>
                             </div>
@@ -613,11 +613,11 @@ export const RestaurantMenuPage: React.FC = () => {
                                     key={cat}
                                     id={`tab-desktop-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                                     onClick={() => scrollToCategory(cat)}
-                                    className={`text-base pb-3 transition-all relative whitespace-nowrap flex-shrink-0 ${activeTab === cat ? 'font-bold text-[#FF4732]' : 'font-medium text-gray-500 hover:text-gray-900 group'}`}
+                                    className={`text-base pb-3 transition-all relative whitespace-nowrap flex-shrink-0 ${activeTab === cat ? 'font-bold text-brand-primary' : 'font-medium text-gray-500 hover:text-gray-900 group'}`}
                                 >
                                     {cat}
                                     {activeTab === cat && (
-                                        <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-[#FF4732] rounded-t-full" />
+                                        <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-brand-primary rounded-t-full" />
                                     )}
                                     <span className="absolute bottom-[-1px] left-0 right-0 h-[4px] bg-gray-300 rounded-t-full scale-x-0 group-hover:scale-x-100 transition-transform origin-center" />
                                 </button>
@@ -662,7 +662,7 @@ export const RestaurantMenuPage: React.FC = () => {
                             <p className="text-gray-500 max-w-xs mx-auto">We couldn't find any items in this category. Try adjusting your search or category selection.</p>
                             <button 
                                 onClick={() => {setMenuSearchQuery(''); setActiveTab('All');}}
-                                className="mt-2 text-[#FF4732] font-bold hover:underline"
+                                className="mt-2 text-brand-primary font-bold hover:underline"
                             >
                                 Clear all filters
                             </button>

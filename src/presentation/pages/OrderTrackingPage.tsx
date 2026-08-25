@@ -529,7 +529,7 @@ export const OrderTrackingPage: React.FC = () => {
                     <p className="text-gray-500 text-sm font-medium">We couldn't find an active order to track right now.</p>
                     <button
                         onClick={() => navigate('/', { replace: true })}
-                        className="mt-4 bg-[#FF584A] text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:bg-[#E5483B] active:scale-[0.98] transition-all"
+                        className="mt-4 bg-brand-primary text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:bg-brand-secondary active:scale-[0.98] transition-all"
                     >
                         Browse Restaurants
                     </button>
@@ -579,8 +579,8 @@ export const OrderTrackingPage: React.FC = () => {
 
                         {/* Left Column: Status & Illustration */}
                         <div className="flex flex-col items-center lg:items-start lg:flex-1 lg:max-w-[340px] w-full text-center lg:text-left">
-                            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-[#FFF0EF] rounded-2xl flex items-center justify-center mb-5 border-4 border-white shadow-sm relative shrink-0">
-                                <AlertCircle className="w-8 h-8 lg:w-10 lg:h-10 text-[#FF4732]" />
+                            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-brand-light rounded-2xl flex items-center justify-center mb-5 border-4 border-white shadow-sm relative shrink-0">
+                                <AlertCircle className="w-8 h-8 lg:w-10 lg:h-10 text-brand-primary" />
                                 <div className="absolute -bottom-1 -right-1 w-6 h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center shadow-md">
                                     <ShoppingBag className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-gray-400" />
                                 </div>
@@ -621,7 +621,7 @@ export const OrderTrackingPage: React.FC = () => {
                             <div className="hidden lg:flex flex-col gap-2.5 w-full max-w-[280px]">
                                 <button
                                     onClick={handleReorder}
-                                    className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-red-100 hover:bg-[#E5483B] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    className="w-full bg-brand-primary text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-red-100 hover:bg-brand-secondary active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                 >
                                     <RefreshCcw className="w-4 h-4" />
                                     Reorder Now
@@ -708,7 +708,7 @@ export const OrderTrackingPage: React.FC = () => {
                             <div className="w-full bg-white rounded-[24px] p-6 lg:p-8 shadow-[0_12px_30px_rgba(0,0,0,0.02)] border border-gray-100">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
-                                        <ShoppingBag className="w-4 h-4 text-[#FF4732]" />
+                                        <ShoppingBag className="w-4 h-4 text-brand-primary" />
                                         Order Details
                                     </h3>
                                     <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase bg-gray-50 px-2.5 py-0.5 rounded-full">#{order.orderNumber.slice(-5)}</span>
@@ -736,7 +736,7 @@ export const OrderTrackingPage: React.FC = () => {
                             <div className="flex lg:hidden flex-col gap-3 w-full mt-2">
                                 <button
                                     onClick={handleReorder}
-                                    className="w-full bg-[#FF584A] text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-red-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    className="w-full bg-brand-primary text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-red-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                 >
                                     <RefreshCcw className="w-4 h-4" />
                                     Reorder Now
@@ -785,18 +785,18 @@ export const OrderTrackingPage: React.FC = () => {
                                 {/* Estimated Time */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-5">
-                                        <div className="w-16 h-16 bg-[#FFF0EF] border border-[#FFE0DF] flex items-center justify-center rounded-2xl shrink-0">
+                                        <div className="w-16 h-16 bg-brand-light border border-[#FFE0DF] flex items-center justify-center rounded-2xl shrink-0">
                                             {isPickup ? (
-                                                <ShoppingBag className="w-8 h-8 text-[#FF4732]" />
+                                                <ShoppingBag className="w-8 h-8 text-brand-primary" />
                                             ) : (
-                                                <Bike className="w-8 h-8 text-[#FF4732]" />
+                                                <Bike className="w-8 h-8 text-brand-primary" />
                                             )}
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="text-gray-900 text-[18px] font-bold leading-none mb-2 tracking-tight">
                                                 {isPickup ? 'Estimated Pickup Time' : 'Estimated Delivery Time'}
                                             </span>
-                                            <span className="text-[#FF4732] font-bold text-[22px] uppercase">
+                                            <span className="text-brand-primary font-bold text-[22px] uppercase">
                                                 {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
                                             {/* {import.meta.env.DEV && (
@@ -871,7 +871,7 @@ export const OrderTrackingPage: React.FC = () => {
                                             {riderInfo.phone ? (
                                                 <a
                                                     href={`tel:${riderInfo.phone}`}
-                                                    className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-[#FF4732] flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1"
+                                                    className="w-12 h-12 bg-white rounded-[18px] border border-gray-100 shadow-sm text-brand-primary flex items-center justify-center hover:bg-gray-50 active:scale-[0.95] transition-all mr-1"
                                                     title="Call delivery partner"
                                                 >
                                                     <Phone className="w-5 h-5 fill-current" />
@@ -996,11 +996,11 @@ export const OrderTrackingPage: React.FC = () => {
                             {/* Estimated Time Card */}
                             <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-50 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className="bg-[#FFF0EF] p-4 rounded-2xl">
+                                    <div className="bg-brand-light p-4 rounded-2xl">
                                         {isPickup ? (
-                                            <ShoppingBag className="w-6 h-6 text-[#FF4732]" />
+                                            <ShoppingBag className="w-6 h-6 text-brand-primary" />
                                         ) : (
-                                            <Bike className="w-6 h-6 text-[#FF4732]" />
+                                            <Bike className="w-6 h-6 text-brand-primary" />
                                         )}
                                     </div>
                                     <div className="flex flex-col">
@@ -1008,8 +1008,8 @@ export const OrderTrackingPage: React.FC = () => {
                                             {isPickup ? 'Estimated Pickup Time' : 'Estimated Delivery Time'}
                                         </span>
                                         <div className="flex items-center gap-1.5">
-                                            <Clock className="w-4 h-4 text-[#FF4732]" />
-                                            <span className="text-[#FF4732] font-bold text-[17px]">
+                                            <Clock className="w-4 h-4 text-brand-primary" />
+                                            <span className="text-brand-primary font-bold text-[17px]">
                                                 {status === 'delivered' ? (isPickup ? 'Picked Up' : 'Delivered') : getEstimatedTime(order)}
                                             </span>
                                         </div>
@@ -1146,7 +1146,7 @@ export const OrderTrackingPage: React.FC = () => {
                                     {riderInfo.phone ? (
                                         <a
                                             href={`tel:${riderInfo.phone}`}
-                                            className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-[#FF4732] active:scale-[0.95] transition-all"
+                                            className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-brand-primary active:scale-[0.95] transition-all"
                                             title="Call delivery partner"
                                         >
                                             <Phone className="w-5 h-5 fill-current" />

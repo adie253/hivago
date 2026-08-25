@@ -224,7 +224,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
             }}
           >
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#FF4732" stroke="#FFFFFF" strokeWidth="1.5"/>
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#FF584A" stroke="#FFFFFF" strokeWidth="1.5"/>
               <circle cx="12" cy="9" r="3" fill="#FFFFFF"/>
             </svg>
           </div>
@@ -250,9 +250,9 @@ export const MapPicker: React.FC<MapPickerProps> = ({
           title="Use current location"
         >
           {isLocating ? (
-            <div className="w-5 h-5 border-2 border-[#FF4732] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
           ) : (
-            <Locate className="w-5 h-5 text-[#FF4732] group-hover:scale-110 transition-transform duration-200" />
+            <Locate className="w-5 h-5 text-brand-primary group-hover:scale-110 transition-transform duration-200" />
           )}
         </button>
       )}

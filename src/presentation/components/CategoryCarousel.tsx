@@ -36,7 +36,7 @@ export const CategoryCarousel: React.FC = () => {
             {/* Left Chevron - Hidden on Mobile */}
             <button
                 onClick={() => scroll('left')}
-                className="hidden md:block bg-red-50 text-[#FF4732] rounded-full p-2 hover:bg-red-100 transition-colors shadow-sm flex-shrink-0 z-10 "
+                className="hidden md:block bg-red-50 text-brand-primary rounded-full p-2 hover:bg-red-100 transition-colors shadow-sm flex-shrink-0 z-10 "
             >
                 <ChevronLeft className="w-5 h-5" />
             </button>
@@ -69,7 +69,7 @@ export const CategoryCarousel: React.FC = () => {
             {/* Right Chevron - Hidden on Mobile */}
             <button
                 onClick={() => scroll('right')}
-                className="hidden md:block bg-red-50 text-[#FF4732] rounded-full p-2 hover:bg-red-100 transition-colors shadow-sm flex-shrink-0 z-10"
+                className="hidden md:block bg-red-50 text-brand-primary rounded-full p-2 hover:bg-red-100 transition-colors shadow-sm flex-shrink-0 z-10"
             >
                 <ChevronRight className="w-5 h-5" />
             </button>

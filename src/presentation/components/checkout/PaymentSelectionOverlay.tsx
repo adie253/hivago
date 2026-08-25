@@ -26,16 +26,16 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
             title: 'UPI',
             description: 'Google Pay, PhonePe, Paytm',
             icon: Smartphone,
-            iconBg: 'bg-[#FFF0EF]',
-            iconColor: 'text-[#FF584A]'
+            iconBg: 'bg-brand-light',
+            iconColor: 'text-brand-primary'
         },
         {
             id: 'Card',
             title: 'Credit / Debit Card',
             description: 'Visa, Mastercard, RuPay',
             icon: CreditCard,
-            iconBg: 'bg-[#FFF0EF]',
-            iconColor: 'text-[#FF4732]'
+            iconBg: 'bg-brand-light',
+            iconColor: 'text-brand-primary'
         },
         {
             id: 'Wallet',
@@ -50,8 +50,8 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
             title: 'Cash on Delivery',
             description: 'Pay with cash',
             icon: Banknote,
-            iconBg: 'bg-[#FFF0EF]',
-            iconColor: 'text-[#FF4732]'
+            iconBg: 'bg-brand-light',
+            iconColor: 'text-brand-primary'
         }
     ];
 
@@ -70,7 +70,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
                         <div
                             key={method.id}
                             onClick={() => setSelectedId(method.id)}
-                            className={`flex items-start gap-4 p-4 rounded-[20px] border-2 transition-all cursor-pointer ${selectedId === method.id ? 'border-[#FF584A] bg-[#FFF0EF]' : 'border-gray-100 bg-white'}`}
+                            className={`flex items-start gap-4 p-4 rounded-[20px] border-2 transition-all cursor-pointer ${selectedId === method.id ? 'border-brand-primary bg-brand-light' : 'border-gray-100 bg-white'}`}
                         >
                             <div className={`${method.iconBg} ${method.iconColor} p-3 rounded-full flex-shrink-0`}>
                                 <method.icon className="w-6 h-6" />
@@ -90,7 +90,7 @@ export const PaymentSelectionOverlay: React.FC<PaymentSelectionOverlayProps> = (
 
                 <button
                     onClick={() => onSelect(selectedId)}
-                    className="w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-xl shadow-lg shadow-red-100 hover:bg-[#E5483B] transition-colors active:scale-[0.98]"
+                    className="w-full bg-brand-primary text-white font-bold text-[17px] py-[18px] rounded-xl shadow-lg shadow-red-100 hover:bg-brand-secondary transition-colors active:scale-[0.98]"
                 >
                     Apply
                 </button>
