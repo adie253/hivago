@@ -88,7 +88,7 @@ export const PaymentFailedPage: React.FC = () => {
         <div className="min-h-[100dvh] bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden">
             {/* Background decorative elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#FF584A] opacity-[0.03] rounded-full blur-3xl"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-primary opacity-[0.03] rounded-full blur-3xl"></div>
             </div>
 
             <div className="w-full max-w-[960px] bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-stretch relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
@@ -97,9 +97,9 @@ export const PaymentFailedPage: React.FC = () => {
                 <div className="w-full md:w-1/2 flex flex-col items-center justify-center text-center py-2">
                     {/* Failure Icon */}
                     <div className="relative mb-8 flex justify-center items-center mt-2">
-                        <div className="absolute w-24 h-24 bg-[#FF584A] opacity-20 rounded-full animate-ping"></div>
-                        <div className="absolute w-20 h-20 bg-[#FF584A] opacity-30 rounded-full animate-pulse"></div>
-                        <div className="relative z-10 bg-gradient-to-b from-[#FF584A] to-[#E5483B] w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-[#FF584A]/30">
+                        <div className="absolute w-24 h-24 bg-brand-primary opacity-20 rounded-full animate-ping"></div>
+                        <div className="absolute w-20 h-20 bg-brand-primary opacity-30 rounded-full animate-pulse"></div>
+                        <div className="relative z-10 bg-gradient-to-b from-brand-primary to-brand-secondary w-16 h-16 rounded-full flex items-center justify-center shadow-lg shadow-brand-primary/30">
                             <XCircle className="w-8 h-8 text-white stroke-[3]" />
                         </div>
                     </div>
@@ -118,7 +118,7 @@ export const PaymentFailedPage: React.FC = () => {
                     {orderId && (
                         <div className="w-full bg-[#FFF5F5] border border-[#FFE3E3] rounded-2xl p-5 mb-8 flex flex-col gap-2 max-w-[360px] text-left">
                             <div className="flex items-center gap-3">
-                                <AlertTriangle className="w-5 h-5 text-[#FF584A]" />
+                                <AlertTriangle className="w-5 h-5 text-brand-primary" />
                                 <div className="flex flex-col">
                                     <span className="text-gray-400 text-[11px] font-bold uppercase tracking-wider">Order ID</span>
                                     <span className="text-gray-900 font-bold text-base tracking-tight">{orderId}</span>
@@ -129,7 +129,7 @@ export const PaymentFailedPage: React.FC = () => {
 
                     {/* Error display if retry fails */}
                     {retryError && (
-                        <p className="text-sm font-semibold text-[#FF584A] mb-4 animate-shake">
+                        <p className="text-sm font-semibold text-brand-primary mb-4 animate-shake">
                             {retryError}
                         </p>
                     )}
@@ -139,7 +139,7 @@ export const PaymentFailedPage: React.FC = () => {
                         <button
                             onClick={handleRetry}
                             disabled={isRetrying}
-                            className="group w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-[#FF584A]/25 hover:bg-[#E5483B] hover:shadow-[#FF584A]/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="group w-full bg-brand-primary text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-brand-primary/25 hover:bg-brand-secondary hover:shadow-brand-primary/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isRetrying ? (
                                 <RefreshCw className="w-5 h-5 animate-spin" />

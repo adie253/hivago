@@ -103,7 +103,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                                     key={option}
                                     onClick={() => setTempSort(option)}
                                     className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempSort === option
-                                        ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100'
+                                        ? 'bg-brand-primary text-white shadow-lg shadow-red-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
@@ -129,7 +129,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                                     key={item.label}
                                     onClick={() => item.setter(!item.state)}
                                     className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${item.state
-                                        ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100'
+                                        ? 'bg-brand-primary text-white shadow-lg shadow-red-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
@@ -150,7 +150,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                                     key={type}
                                     onClick={() => setTempFulfillment(type as any)}
                                     className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempFulfillment === type
-                                        ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100'
+                                        ? 'bg-brand-primary text-white shadow-lg shadow-red-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
@@ -169,7 +169,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                                     key={mins}
                                     onClick={() => setTempPrepTime(tempPrepTime === mins ? null : mins)}
                                     className={`px-4 py-2 rounded-xl font-medium text-xs transition-all duration-200 ${tempPrepTime === mins
-                                        ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100'
+                                        ? 'bg-brand-primary text-white shadow-lg shadow-red-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
@@ -199,7 +199,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                                     key={btn.label}
                                     onClick={() => setTempPriceRange(tempPriceRange?.[0] === btn.range[0] && tempPriceRange?.[1] === btn.range[1] ? null : btn.range as [number, number])}
                                     className={`flex-1 px-3 py-2 rounded-xl font-medium text-[10px] transition-all duration-200 ${tempPriceRange?.[0] === btn.range[0] && tempPriceRange?.[1] === btn.range[1]
-                                        ? 'bg-[#FF4732] text-white shadow-lg shadow-red-100'
+                                        ? 'bg-brand-primary text-white shadow-lg shadow-red-100'
                                         : 'border border-gray-100 text-gray-500 hover:bg-gray-50'
                                         }`}
                                 >
@@ -220,7 +220,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
                     </button>
                     <button
                         onClick={handleApply}
-                        className="flex-[2] bg-[#FF4732] hover:bg-red-600 text-white py-3.5 rounded-2xl font-bold text-base shadow-xl shadow-red-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                        className="flex-[2] bg-brand-primary hover:bg-brand-secondary text-white py-3.5 rounded-2xl font-bold text-base shadow-xl shadow-red-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
                     >
                         Apply
                     </button>

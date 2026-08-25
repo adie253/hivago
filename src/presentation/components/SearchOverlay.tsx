@@ -132,8 +132,8 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
 
                 {/* Search Input Area */}
                 <div className="py-4">
-                    <div className="flex bg-white rounded-xl px-4 border border-gray-200 items-center h-12 shadow-sm focus-within:ring-2 focus-within:ring-[#FF4732] transition-shadow">
-                        <Search className="text-[#FF4732] w-5 h-5 mr-3" />
+                    <div className="flex bg-white rounded-xl px-4 border border-gray-200 items-center h-12 shadow-sm focus-within:ring-2 focus-within:ring-brand-primary transition-shadow">
+                        <Search className="text-brand-primary w-5 h-5 mr-3" />
                         <input
                             autoFocus
                             type="text"
@@ -148,7 +148,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                             </button>
                         )}
                         <div className="border-l border-gray-300 h-6 mx-2" />
-                        <Mic className="text-[#FF4732] w-5 h-5 cursor-pointer hover:scale-110 transition-transform" />
+                        <Mic className="text-brand-primary w-5 h-5 cursor-pointer hover:scale-110 transition-transform" />
                     </div>
                 </div>
 

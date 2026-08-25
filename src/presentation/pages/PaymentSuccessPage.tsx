@@ -287,7 +287,7 @@ export const PaymentSuccessPage: React.FC = () => {
             {/* Background decorative elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#00A050] opacity-[0.03] rounded-full blur-3xl"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#FF584A] opacity-[0.03] rounded-full blur-3xl"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-brand-primary opacity-[0.03] rounded-full blur-3xl"></div>
             </div>
 
             <div className={`w-full ${orderData ? 'max-w-[960px]' : 'max-w-[480px]'} bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-stretch relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out`}>
@@ -329,7 +329,7 @@ export const PaymentSuccessPage: React.FC = () => {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-50">
-                                        <Package className="w-6 h-6 text-[#FF584A]" />
+                                        <Package className="w-6 h-6 text-brand-primary" />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider mb-0.5">Order ID</span>
@@ -347,7 +347,7 @@ export const PaymentSuccessPage: React.FC = () => {
                     <div className="w-full flex flex-col gap-3 max-w-[360px]">
                         <button
                             onClick={() => navigate(`/track-order?orderId=${orderId}`, { replace: true })}
-                            className="group w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-[#FF584A]/25 hover:bg-[#E5483B] hover:shadow-[#FF584A]/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                            className="group w-full bg-brand-primary text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-brand-primary/25 hover:bg-brand-secondary hover:shadow-brand-primary/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                         >
                             Track Order Status
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

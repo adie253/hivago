@@ -15,7 +15,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ message = 'Loading
                     <div className="absolute inset-0 rounded-full border-4 border-gray-100/80"></div>
                     
                     {/* Spinning lines */}
-                    <div className="absolute inset-0 rounded-full border-4 border-t-[#FF584A] border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-t-brand-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
                     
                     {/* Logo inside */}
                     <img src={hivagoLogo} alt="Hivago Logo" className="w-16 h-auto object-contain z-10" />

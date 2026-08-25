@@ -319,7 +319,7 @@ export const PrivacyPage: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Document Sections</span>
                 <button
                     onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                    className="flex items-center gap-1.5 text-sm font-semibold text-[#B02421] hover:text-[#FF4732] focus:outline-none"
+                    className="flex items-center gap-1.5 text-sm font-semibold text-[#B02421] hover:text-brand-primary focus:outline-none"
                 >
                     <span>Jump to Section</span>
                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileNavOpen ? 'rotate-180' : ''}`} />

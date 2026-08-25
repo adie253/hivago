@@ -74,7 +74,7 @@ export const FloatingCart: React.FC = () => {
                         </button>
                         <span className="text-sm font-bold uppercase tracking-wider">View Cart</span>
                         <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                            <ArrowRight className="w-4 h-4 text-[#FF4732]" strokeWidth={3} />
+                            <ArrowRight className="w-4 h-4 text-brand-primary" strokeWidth={3} />
                         </div>
                     </div>
                 </div>

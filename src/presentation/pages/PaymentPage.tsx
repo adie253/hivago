@@ -354,7 +354,7 @@ export const PaymentPage: React.FC = () => {
                 {/* Background decorative elements */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                     <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#00A050] opacity-[0.03] rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#FF584A] opacity-[0.03] rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-brand-primary opacity-[0.03] rounded-full blur-3xl"></div>
                 </div>
 
                 <div className="w-full max-w-[480px] lg:max-w-[900px] bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 p-6 sm:p-10 flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
@@ -403,7 +403,7 @@ export const PaymentPage: React.FC = () => {
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-50">
-                                        <Package className="w-6 h-6 text-[#FF584A]" />
+                                        <Package className="w-6 h-6 text-brand-primary" />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className=" font-bold text-md uppercase tracking-wider mb-0.5">Order ID</span>
@@ -429,7 +429,7 @@ export const PaymentPage: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between items-center pt-3 mt-1 border-t border-gray-100">
                                     <span className="text-gray-500 font-bold">Total Amount</span>
-                                    <span className="text-[#FF4732] font-bold text-[18px]">₹{formatPrice(finalAmount)}</span>
+                                    <span className="text-brand-primary font-bold text-[18px]">₹{formatPrice(finalAmount)}</span>
                                 </div>
                             </div>
                         </div>
@@ -438,7 +438,7 @@ export const PaymentPage: React.FC = () => {
                         <div className="w-full flex flex-col gap-3 mt-auto">
                             <button
                                 onClick={() => navigate(`/track-order?orderId=${currentOrderId}`, { replace: true })}
-                                className="group w-full bg-[#FF584A] text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-[#FF584A]/25 hover:bg-[#E5483B] hover:shadow-[#FF584A]/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                className="group w-full bg-brand-primary text-white font-bold text-[17px] py-[18px] rounded-2xl shadow-lg shadow-brand-primary/25 hover:bg-brand-secondary hover:shadow-brand-primary/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                             >
                                 Track Order Status
                             </button>
@@ -514,10 +514,10 @@ export const PaymentPage: React.FC = () => {
 
                     {/* Checkout Step - active */}
                     <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                            <StepperIcon type="checkout" className="text-[#FF4732]" />
+                        <div className="w-8 h-8 rounded-full bg-brand-light border border-brand-primary/30 text-brand-primary shadow-sm flex items-center justify-center mb-1">
+                            <StepperIcon type="checkout" className="text-brand-primary" />
                         </div>
-                        <span className="text-[10px] font-bold text-[#FF4732]">Checkout</span>
+                        <span className="text-[10px] font-bold text-brand-primary">Checkout</span>
                     </div>
                 </div>
 
@@ -539,13 +539,13 @@ export const PaymentPage: React.FC = () => {
                                     />
                                     {isCheckingDelivery && (
                                         <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-                                            <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                                            <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
                                         </div>
                                     )}
 
                                     {deliveryStatus && (
                                         <div className={`absolute bottom-4 left-4 right-auto z-10 w-[calc(100%-32px)] max-w-[280px] p-3 rounded-xl shadow-lg border flex items-start gap-3 animate-in slide-in-from-bottom-2 duration-300 ${deliveryStatus === 'success' ? 'bg-[#E6F5EC] border-[#D1EEDB] text-[#00A050]' :
-                                            deliveryStatus === 'error' ? 'bg-[#FFF0EF] border-[#FFCCCB] text-[#FF4732]' :
+                                            deliveryStatus === 'error' ? 'bg-brand-light border-brand-primary/30 text-brand-primary' :
                                                 'bg-amber-50 border-amber-100 text-amber-700'
                                             }`}>
                                             {deliveryStatus === 'success' ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> :
@@ -574,9 +574,9 @@ export const PaymentPage: React.FC = () => {
                                         value={instructions}
                                         onChange={(e) => setInstructions(e.target.value.slice(0, 200))}
                                         placeholder="Do not ring the doorbell, leave food at the doorstep."
-                                        className="w-full h-32 bg-white border border-gray-200 rounded-2xl p-4 pr-12 outline-none focus:border-[#FF4732] text-sm font-medium text-gray-600 resize-none shadow-sm"
+                                        className="w-full h-32 bg-white border border-gray-200 rounded-2xl p-4 pr-12 outline-none focus:border-brand-primary text-sm font-medium text-gray-600 resize-none shadow-sm"
                                     />
-                                    <button className="absolute top-4 right-4 text-[#FF4732]">
+                                    <button className="absolute top-4 right-4 text-brand-primary">
                                         <Mic className="w-5 h-5" />
                                     </button>
                                     <span className="absolute bottom-4 left-4 text-[11px] text-gray-300 font-medium">
@@ -598,10 +598,10 @@ export const PaymentPage: React.FC = () => {
                                         <button
                                             key={opt.id}
                                             onClick={() => setSelectedDeliveryOption(opt.id)}
-                                            className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all h-[76px] ${selectedDeliveryOption === opt.id ? 'border-[#FF4732] bg-[#FFF0EF] text-[#FF4732]' : 'border-gray-200 bg-white text-gray-400'}`}
+                                            className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all h-[76px] ${selectedDeliveryOption === opt.id ? 'border-brand-primary bg-brand-light text-brand-primary' : 'border-gray-200 bg-white text-gray-400'}`}
                                         >
-                                            <opt.icon className={`w-5 h-5 ${selectedDeliveryOption === opt.id ? 'text-[#FF4732]' : 'text-gray-400'}`} />
-                                            <span className={`text-[9px] font-bold leading-tight text-center ${selectedDeliveryOption === opt.id ? 'text-[#FF4732]' : 'text-gray-400'}`}>
+                                            <opt.icon className={`w-5 h-5 ${selectedDeliveryOption === opt.id ? 'text-brand-primary' : 'text-gray-400'}`} />
+                                            <span className={`text-[9px] font-bold leading-tight text-center ${selectedDeliveryOption === opt.id ? 'text-brand-primary' : 'text-gray-400'}`}>
                                                 {opt.label}
                                             </span>
                                         </button>
@@ -640,7 +640,7 @@ export const PaymentPage: React.FC = () => {
                                                 )}
                                                 <div className="flex items-center gap-2 mt-1">
                                                     {!item.isAddon && <span className="text-gray-400 line-through text-xs font-medium">₹ {Math.round(item.price * 1.1).toFixed(2)}</span>}
-                                                    <span className={`${item.isAddon ? 'text-gray-500 text-xs' : 'text-[#FF4732] font-bold text-[14px]'}`}>₹ {item.price.toFixed(2)}</span>
+                                                    <span className={`${item.isAddon ? 'text-gray-500 text-xs' : 'text-brand-primary font-bold text-[14px]'}`}>₹ {item.price.toFixed(2)}</span>
                                                 </div>
                                             </div>
                                             {!item.isAddon ? (
@@ -675,7 +675,7 @@ export const PaymentPage: React.FC = () => {
                         {/* Add Payment Method Button */}
                         {/* <button
                             onClick={() => setIsPaymentOverlayOpen(true)}
-                            className="w-full bg-[#FFEFEF] text-[#FF4732] font-bold text-[16px] py-5 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
+                            className="w-full bg-brand-light text-brand-primary font-bold text-[16px] py-5 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
                         >
                             {selectedPaymentMethod ? (
                                 <div className="flex items-center gap-2">
@@ -807,12 +807,12 @@ export const PaymentPage: React.FC = () => {
                         <div className="flex flex-col gap-4 pb-6 px-1">
                             <div className="flex items-start gap-3 cursor-pointer group" onClick={() => setAgreedToTerms(!agreedToTerms)}>
                                 <div
-                                    className={`w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${agreedToTerms ? 'bg-[#FF4732] border-[#FF4732] shadow-sm' : 'bg-white border-slate-300 group-hover:border-[#FF4732]'}`}
+                                    className={`w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${agreedToTerms ? 'bg-brand-primary border-brand-primary shadow-sm' : 'bg-white border-slate-300 group-hover:border-brand-primary'}`}
                                 >
                                     {agreedToTerms && <CheckCircle className="w-4 h-4 text-white" />}
                                 </div>
                                 <p className="text-[12px] text-slate-600 font-medium leading-relaxed select-none">
-                                    By accepting this order, I agree to all <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="underline text-slate-800 font-semibold cursor-pointer hover:text-[#FF4732] transition-colors">terms & conditions.</Link>
+                                    By accepting this order, I agree to all <Link to="/privacy?doc=terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="underline text-slate-800 font-semibold cursor-pointer hover:text-brand-primary transition-colors">terms & conditions.</Link>
                                 </p>
                             </div>
 
@@ -823,8 +823,8 @@ export const PaymentPage: React.FC = () => {
 
                         {/* Desktop Proceed Button */}
                         {cartTotal < 150 && (
-                            <div className="hidden lg:flex bg-[#FFF0EF] border border-[#FFDCDA] rounded-2xl p-4 items-start gap-3 mt-4 mb-2">
-                                <AlertCircle className="w-5 h-5 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                            <div className="hidden lg:flex bg-brand-light border border-brand-primary/30 rounded-2xl p-4 items-start gap-3 mt-4 mb-2">
+                                <AlertCircle className="w-5 h-5 text-brand-primary flex-shrink-0 mt-0.5" />
                                 <div className="flex flex-col gap-0.5">
                                     <h4 className="text-[13px] font-bold text-gray-900 leading-tight">Minimum order value required</h4>
                                     <p className="text-[11px] text-gray-500 font-semibold leading-relaxed">
@@ -836,14 +836,14 @@ export const PaymentPage: React.FC = () => {
 
                         {isPaymentPopupOpen ? (
                             <div className="hidden lg:flex flex-col items-center justify-center gap-2 mt-2 py-4">
-                                <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                                <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
                                 <span className="font-bold text-gray-600 text-sm">Please complete payment in the popup window...</span>
                             </div>
                         ) : (
                             <button
                                 onClick={handlePlaceOrder}
                                 disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error' || cartTotal < 150}
-                                className="hidden lg:flex w-full bg-[#FF4732] text-white font-bold text-[16px] py-4 rounded-2xl shadow-lg shadow-[#FF4732]/20 hover:bg-[#E53823] transition-all justify-center items-center active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none mt-2"
+                                className="hidden lg:flex w-full bg-brand-primary text-white font-bold text-[16px] py-4 rounded-2xl shadow-lg shadow-brand-primary/20 hover:bg-brand-secondary transition-all justify-center items-center active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none mt-2"
                             >
                                 {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : !agreedToTerms ? 'Accept terms to proceed' : 'Proceed to pay'}
                             </button>
@@ -856,8 +856,8 @@ export const PaymentPage: React.FC = () => {
             <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-6 shadow-[0_-10px_25px_rgba(0,0,0,0.06)] z-30">
                 <div className="max-w-md mx-auto flex flex-col gap-3">
                     {cartTotal < 150 && (
-                        <div className="bg-[#FFF0EF] border border-[#FFDCDA] rounded-xl p-3 flex items-start gap-2.5">
-                            <AlertCircle className="w-4 h-4 text-[#FF4732] flex-shrink-0 mt-0.5" />
+                        <div className="bg-brand-light border border-brand-primary/30 rounded-xl p-3 flex items-start gap-2.5">
+                            <AlertCircle className="w-4 h-4 text-brand-primary flex-shrink-0 mt-0.5" />
                             <div className="flex flex-col">
                                 <p className="text-[11px] text-gray-600 font-bold leading-tight">
                                     Min. order subtotal is ₹150
@@ -871,13 +871,13 @@ export const PaymentPage: React.FC = () => {
 
                     {isPaymentPopupOpen ? (
                         <div className="w-full flex justify-center items-center py-4">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                            <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
                         </div>
                     ) : (
                         <button
                             onClick={handlePlaceOrder}
                             disabled={isPlacingOrder || isCheckingDelivery || !agreedToTerms || deliveryStatus === 'error' || cartTotal < 150}
-                            className="w-full bg-[#FF4732] text-white font-bold text-[16px] py-4 rounded-2xl shadow-lg shadow-[#FF4732]/20 hover:bg-[#E53823] transition-all flex justify-center items-center active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none"
+                            className="w-full bg-brand-primary text-white font-bold text-[16px] py-4 rounded-2xl shadow-lg shadow-brand-primary/20 hover:bg-brand-secondary transition-all flex justify-center items-center active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none"
                         >
                             {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : isCheckingDelivery ? 'Checking delivery...' : cartTotal < 150 ? `Add ₹${150 - cartTotal} more to place order` : !agreedToTerms ? 'Accept terms to proceed' : 'Proceed to pay'}
                         </button>

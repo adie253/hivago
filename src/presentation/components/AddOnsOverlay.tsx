@@ -253,7 +253,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                     </button>
                     
                     {/* Top indicator bar matching image */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-[#FF4732] rounded-b-full"></div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-brand-primary rounded-b-full"></div>
                 </div>
 
                 {/* Content */}
@@ -261,7 +261,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                     
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-8 h-8 text-[#FF4732] animate-spin" />
+                            <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
                             <span className="ml-3 text-gray-500 font-bold">Loading options...</span>
                         </div>
                     ) : (
@@ -291,7 +291,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                                             <p className="text-[11px] font-bold text-gray-400">Included</p>
                                                         )}
                                                     </div>
-                                                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#FF4732] border-[#FF4732] shadow-sm scale-105' : 'bg-transparent border-gray-300 hover:border-[#FF4732]'}`}>
+                                                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-brand-primary border-brand-primary shadow-sm scale-105' : 'bg-transparent border-gray-300 hover:border-brand-primary'}`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                                                     </div>
                                                 </div>
@@ -317,7 +317,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                                     </p>
                                                 </div>
                                                 {group.isRequired && (
-                                                    <span className="bg-[#FFF0EF] text-[#D12E27] text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">
+                                                    <span className="bg-brand-light text-[#D12E27] text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">
                                                         Required
                                                     </span>
                                                 )}
@@ -340,12 +340,12 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                                             </div>
                                                             <div className={`w-6 h-6 flex items-center justify-center transition-all ${
                                                                 isRadio 
-                                                                    ? `rounded-full border-2 ${isSelected ? 'border-[#FF4732]' : 'border-gray-300'}` 
-                                                                    : `rounded-md border-2 ${isSelected ? 'bg-[#FF4732] border-[#FF4732] shadow-sm scale-105' : 'bg-transparent border-gray-300 hover:border-[#FF4732]'}`
+                                                                    ? `rounded-full border-2 ${isSelected ? 'border-brand-primary' : 'border-gray-300'}` 
+                                                                    : `rounded-md border-2 ${isSelected ? 'bg-brand-primary border-brand-primary shadow-sm scale-105' : 'bg-transparent border-gray-300 hover:border-brand-primary'}`
                                                             }`}>
                                                                 {isSelected && (
                                                                     isRadio 
-                                                                        ? <div className="w-2.5 h-2.5 rounded-full bg-[#FF4732]" />
+                                                                        ? <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />
                                                                         : <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                                                                 )}
                                                             </div>
@@ -365,7 +365,7 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                                 <div className="relative">
                                     <textarea 
                                         maxLength={350}
-                                        className="w-full rounded-xl border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white transition-all focus:ring-1 focus:ring-[#FF4732] focus:border-[#FF4732] resize-none h-24 placeholder-gray-400"
+                                        className="w-full rounded-xl border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white transition-all focus:ring-1 focus:ring-brand-primary focus:border-brand-primary resize-none h-24 placeholder-gray-400"
                                         placeholder="e.g. Less spicy, no onions, nut allergy..."
                                         value={specialInstructions}
                                         onChange={(e) => setSpecialInstructions(e.target.value)}

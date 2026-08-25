@@ -17,7 +17,7 @@ export const ClearCartConfirmModal: React.FC<ClearCartConfirmModalProps> = ({
     return (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-auto">
             <div className="bg-white rounded-[28px] p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center animate-in zoom-in-95 duration-200">
-                <div className="w-14 h-14 bg-red-50 text-[#FF4732] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 bg-red-50 text-brand-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <Trash2 className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Clear your cart?</h3>
@@ -38,7 +38,7 @@ export const ClearCartConfirmModal: React.FC<ClearCartConfirmModalProps> = ({
                             onConfirm();
                             onClose();
                         }}
-                        className="flex-1 py-3 px-4 rounded-full bg-[#FF4732] text-white font-bold hover:bg-[#E5483B] shadow-lg shadow-red-100 transition-colors text-sm cursor-pointer"
+                        className="flex-1 py-3 px-4 rounded-full bg-brand-primary text-white font-bold hover:bg-brand-secondary shadow-lg shadow-red-100 transition-colors text-sm cursor-pointer"
                     >
                         Clear All
                     </button>

@@ -40,7 +40,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                 {/* Header */}
                 <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-gray-50 shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-full bg-[#FFF0EF] flex items-center justify-center text-[#FF4732]">
+                        <div className="w-10 h-10 rounded-full bg-brand-light flex items-center justify-center text-brand-primary">
                             <Settings className="w-5 h-5 animate-spin-slow" />
                         </div>
                         <div>
@@ -62,7 +62,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                         onClick={() => setActiveTab('desktop')}
                         className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
                             activeTab === 'desktop'
-                                ? 'bg-white text-[#FF4732] shadow-sm border border-gray-100'
+                                ? 'bg-white text-brand-primary shadow-sm border border-gray-100'
                                 : 'text-gray-400 hover:text-gray-600'
                         }`}
                     >
@@ -73,7 +73,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                         onClick={() => setActiveTab('ios')}
                         className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
                             activeTab === 'ios'
-                                ? 'bg-white text-[#FF4732] shadow-sm border border-gray-100'
+                                ? 'bg-white text-brand-primary shadow-sm border border-gray-100'
                                 : 'text-gray-400 hover:text-gray-600'
                         }`}
                     >
@@ -84,7 +84,7 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                         onClick={() => setActiveTab('android')}
                         className={`flex-1 py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
                             activeTab === 'android'
-                                ? 'bg-white text-[#FF4732] shadow-sm border border-gray-100'
+                                ? 'bg-white text-brand-primary shadow-sm border border-gray-100'
                                 : 'text-gray-400 hover:text-gray-600'
                         }`}
                     >
@@ -100,20 +100,20 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                             {/* Desktop Chrome / Edge */}
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    <Info className="w-3.5 h-3.5 text-brand-primary" />
                                     For Google Chrome & Microsoft Edge
                                 </h4>
                                 <ol className="space-y-3">
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">1</span>
                                         <span>Click the <strong className="text-gray-900 font-extrabold">Lock / Tune icon</strong> (left side of your browser URL/address bar).</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
-                                        <span>Find <strong className="text-gray-900 font-extrabold">Location</strong> and change the setting to <strong className="text-[#FF584A] font-extrabold">Allow</strong>.</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span>Find <strong className="text-gray-900 font-extrabold">Location</strong> and change the setting to <strong className="text-brand-primary font-extrabold">Allow</strong>.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">3</span>
                                         <span>Click the <strong className="text-gray-900 font-extrabold">Reload</strong> button on the browser or click below.</span>
                                     </li>
                                 </ol>
@@ -124,21 +124,21 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                             {/* Desktop Firefox */}
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    <Info className="w-3.5 h-3.5 text-brand-primary" />
                                     For Mozilla Firefox
                                 </h4>
                                 <ol className="space-y-3">
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">1</span>
                                         <span>Click the <strong className="text-gray-900 font-extrabold">Permissions icon</strong> (next to the lock in the address bar).</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">2</span>
                                         <span>Click the <strong className="text-gray-900 font-extrabold">X</strong> next to "Blocked" under Permissions.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Reload and click <strong className="text-gray-900 font-extrabold">Share Current Location</strong> again, then click <strong className="text-[#FF584A] font-extrabold">Allow</strong>.</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span>Reload and click <strong className="text-gray-900 font-extrabold">Share Current Location</strong> again, then click <strong className="text-brand-primary font-extrabold">Allow</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -148,21 +148,21 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                             {/* Browser Steps */}
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    <Info className="w-3.5 h-3.5 text-brand-primary" />
                                     Method 1: Quick browser access
                                 </h4>
                                 <ol className="space-y-3">
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">1</span>
                                         <span>Tap the <strong className="text-gray-900 font-extrabold">aA</strong> or page settings icon in the Safari search bar.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">2</span>
                                         <span>Select <strong className="text-gray-900 font-extrabold">Website Settings</strong>.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Tap <strong className="text-gray-900 font-extrabold">Location</strong> and select <strong className="text-[#FF584A] font-extrabold">Allow</strong>.</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span>Tap <strong className="text-gray-900 font-extrabold">Location</strong> and select <strong className="text-brand-primary font-extrabold">Allow</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -172,21 +172,21 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                             {/* System Settings Steps */}
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    <Info className="w-3.5 h-3.5 text-brand-primary" />
                                     Method 2: System Settings
                                 </h4>
                                 <ol className="space-y-3">
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">1</span>
                                         <span>Open iOS <strong className="text-gray-900 font-extrabold">Settings</strong> app.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">2</span>
                                         <span>Go to <strong className="text-gray-900 font-extrabold">Privacy & Security</strong> &gt; <strong className="text-gray-900 font-extrabold">Location Services</strong> (Ensure they are turned ON).</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Scroll to <strong className="text-gray-900 font-extrabold">Safari Websites</strong> and select <strong className="text-[#FF584A] font-extrabold">While Using the App</strong>.</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span>Scroll to <strong className="text-gray-900 font-extrabold">Safari Websites</strong> and select <strong className="text-brand-primary font-extrabold">While Using the App</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -196,20 +196,20 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                             {/* Browser Steps */}
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    <Info className="w-3.5 h-3.5 text-brand-primary" />
                                     Method 1: Quick Chrome settings
                                 </h4>
                                 <ol className="space-y-3">
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">1</span>
                                         <span>Tap the <strong className="text-gray-900 font-extrabold">Lock / tune icon</strong> in the Chrome address bar.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">2</span>
                                         <span>Tap <strong className="text-gray-900 font-extrabold">Permissions</strong> or <strong className="text-gray-900 font-extrabold">Site settings</strong>.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">3</span>
                                         <span>Turn ON/Allow the <strong className="text-gray-900 font-extrabold">Location</strong> permission.</span>
                                     </li>
                                 </ol>
@@ -220,21 +220,21 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
                             {/* System Settings Steps */}
                             <div>
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                                    <Info className="w-3.5 h-3.5 text-[#FF4732]" />
+                                    <Info className="w-3.5 h-3.5 text-brand-primary" />
                                     Method 2: Android App Info
                                 </h4>
                                 <ol className="space-y-3">
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">1</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">1</span>
                                         <span>Long press the <strong className="text-gray-900 font-extrabold">Chrome</strong> app icon and select <strong className="text-gray-900 font-extrabold">App Info</strong>.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">2</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">2</span>
                                         <span>Tap <strong className="text-gray-900 font-extrabold">Permissions</strong> &gt; <strong className="text-gray-900 font-extrabold">Location</strong>.</span>
                                     </li>
                                     <li className="flex gap-3 text-sm font-medium text-gray-600">
-                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#FFF0EF] text-[#FF4732] text-xs font-bold shrink-0 mt-0.5">3</span>
-                                        <span>Choose <strong className="text-[#FF584A] font-extrabold">Allow only while using the app</strong>.</span>
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-light text-brand-primary text-xs font-bold shrink-0 mt-0.5">3</span>
+                                        <span>Choose <strong className="text-brand-primary font-extrabold">Allow only while using the app</strong>.</span>
                                     </li>
                                 </ol>
                             </div>
@@ -244,15 +244,15 @@ export const LocationSettingsGuideModal: React.FC<LocationSettingsGuideModalProp
 
                 {/* Footer Action */}
                 <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-col gap-3 shrink-0">
-                    <div className="flex items-start gap-2 bg-[#FFF0EF] p-3 rounded-2xl border border-[#FFE1DE]">
-                        <RefreshCw className="w-4 h-4 text-[#FF4732] shrink-0 mt-0.5 animate-spin-slow" />
+                    <div className="flex items-start gap-2 bg-brand-light p-3 rounded-2xl border border-[#FFE1DE]">
+                        <RefreshCw className="w-4 h-4 text-brand-primary shrink-0 mt-0.5 animate-spin-slow" />
                         <p className="text-[11px] font-semibold text-gray-500 leading-snug">
                             After enabling permission, make sure to <strong className="text-gray-700 font-extrabold">reload the page</strong> to apply the changes.
                         </p>
                     </div>
                     <button
                         onClick={() => window.location.reload()}
-                        className="w-full bg-[#FF4732] hover:bg-[#E5483B] text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-red-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
+                        className="w-full bg-brand-primary hover:bg-brand-secondary text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-red-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
                     >
                         <RefreshCw className="w-4 h-4" />
                         Reload Page Now
