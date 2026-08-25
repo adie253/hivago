@@ -10,6 +10,7 @@ import girlOnSofa from '../../../assets/checkout/girl_on_sofa.svg';
 import girlWithMap from '../../../assets/girl_with_map.svg';
 import { MapPicker } from './MapPicker';
 import { StepperIcon } from './StepperIcon';
+import { StepperConnector } from './StepperConnector';
 
 export type DetailsFlowOverlayProps = {
     onClose: () => void;
@@ -176,27 +177,21 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Menu</span>
                 </div>
-                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={`c1-${i}`} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                </div>
+                <StepperConnector active color="#00A050" />
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white border border-[#E0E0E0] text-[#00A050] shadow-sm flex items-center justify-center mb-1">
                         <StepperIcon type="cart" className="text-[#00A050]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#00A050]">Cart</span>
                 </div>
-                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={`c2-${i}`} className="w-1.5 h-1.5 rounded-full bg-[#00A050]"></div>)}
-                </div>
+                <StepperConnector active color="#00A050" />
                 <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF4732] shadow-sm flex items-center justify-center mb-1">
-                        <StepperIcon type="address" className="text-[#FF4732]" />
+                    <div className="w-8 h-8 rounded-full bg-[#FFF0EF] border border-[#FFCCCB] text-[#FF584A] shadow-sm flex items-center justify-center mb-1">
+                        <StepperIcon type="address" className="text-[#FF584A]" />
                     </div>
-                    <span className="text-[10px] font-bold text-[#FF4732]">Details</span>
+                    <span className="text-[10px] font-bold text-[#FF584A]">Details</span>
                 </div>
-                <div className="flex gap-[4px] items-center flex-shrink-0 mb-4 flex-1 justify-center px-1">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={`c3-${i}`} className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>)}
-                </div>
+                <StepperConnector active={false} />
                 <div className="flex flex-col items-center flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-[#F9FAFB] border border-[#E0E0E0] text-gray-300 shadow-sm flex items-center justify-center mb-1">
                         <StepperIcon type="checkout" className="text-gray-300" />
@@ -259,7 +254,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             setErrorMsg('');
                         }}
                         placeholder="Enter 10 digit phone number"
-                        className={`flex-1 bg-gray-50 border rounded-xl px-4 py-3 outline-none focus:border-[#FF4732] font-medium text-[#111] ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
+                        className={`flex-1 bg-gray-50 border rounded-xl px-4 py-3 outline-none focus:border-[#FF584A] font-medium text-[#111] ${errorMsg ? 'border-red-500' : 'border-gray-200'}`}
                     />
                 </div>
                 {errorMsg && step === 'phone' && <p className="text-red-500 text-sm">{errorMsg}</p>}
@@ -270,7 +265,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 onClick={() => setRememberMe(!rememberMe)}
                 className="flex items-center gap-2.5 mt-2 ml-1 cursor-pointer select-none group"
             >
-                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF4732] border-[#FF4732]' : 'bg-white border-gray-300 group-hover:border-[#FF4732]'}`}>
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF584A] border-[#FF584A]' : 'bg-white border-gray-300 group-hover:border-[#FF584A]'}`}>
                     {rememberMe && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
                 </div>
                 <span className="text-sm font-bold text-gray-600 group-hover:text-gray-800 transition-colors">Stay signed in</span>
@@ -371,7 +366,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             value={otp[idx]}
                             onChange={(e) => handleOtpChange(idx, e.target.value)}
                             onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                            className="w-12 h-12 md:w-14 md:h-14 bg-gray-100 border border-transparent focus:border-[#FF4732] rounded-xl text-center text-xl font-bold text-[#111] outline-none transition-colors"
+                            className="w-12 h-12 md:w-14 md:h-14 bg-gray-100 border border-transparent focus:border-[#FF584A] rounded-xl text-center text-xl font-bold text-[#111] outline-none transition-colors"
                         />
                     ))}
                 </div>
@@ -439,7 +434,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                 <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
                     {isLoadingAddresses ? (
                         <div className="flex flex-col items-center justify-center py-10 gap-3">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#FF4732]" />
+                            <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
                             <p className="text-gray-400 text-sm font-medium">Loading your addresses...</p>
                         </div>
                     ) : addresses.length === 0 ? (
@@ -449,49 +444,103 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             <p className="text-gray-400 text-xs mt-1">Add a new one to proceed</p>
                         </div>
                     ) : (
-                        addresses.map(add => (
-                            <div
-                                key={add.id}
-                                onClick={() => setSelectedAddressId(add.id)}
-                                className={`bg-white rounded-2xl p-4 border transition-all ${selectedAddressId === add.id ? 'border-[#FF4732] bg-red-50/10' : 'border-gray-100'} flex items-start justify-between cursor-pointer`}
-                            >
-                                <div className="flex items-start gap-3 flex-1 pr-4">
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#FF4732] shrink-0">
-                                        {add.label?.toLowerCase() === 'home' ? <Home className="w-5 h-5" /> : 
-                                         add.label?.toLowerCase() === 'work' ? <Briefcase className="w-5 h-5" /> : 
-                                         <MapPin className="w-5 h-5" />}
+                        addresses.map((add, idx) => {
+                            const labelLower = add.label?.toLowerCase() || '';
+                            const themes = [
+                                { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' },
+                                { bg: 'from-[#FF8A00] to-[#E67B00]', text: 'text-[#FF8A00]', accentBtn: 'text-[#FF8A00] hover:text-[#E67B00]' },
+                                { bg: 'from-[#2B7FFF] to-[#1A6EEB]', text: 'text-[#2B7FFF]', accentBtn: 'text-[#2B7FFF] hover:text-[#1A6EEB]' },
+                                { bg: 'from-[#8B5CF6] to-[#7C3AED]', text: 'text-[#8B5CF6]', accentBtn: 'text-[#8B5CF6] hover:text-[#7C3AED]' },
+                            ];
+                            const themeIndex = labelLower === 'home' ? 0 : labelLower === 'work' ? 1 : (idx % themes.length);
+                            const theme = themes[themeIndex];
+                            const isHome = labelLower === 'home';
+                            const isWork = labelLower === 'work';
+                            const isSelected = selectedAddressId === add.id;
+
+                            return (
+                                <div
+                                    key={add.id}
+                                    onClick={() => setSelectedAddressId(add.id)}
+                                    className={`bg-white rounded-xl shadow-xs border transition-all duration-300 flex overflow-hidden cursor-pointer group hover:shadow-md ${
+                                        isSelected ? 'border-[#FF584A] ring-1 ring-[#FF584A]/20' : 'border-gray-100'
+                                    }`}
+                                >
+                                    {/* Left Colorful Solid Block with Icon */}
+                                    <div className={`w-11 sm:w-12 bg-gradient-to-b ${theme.bg} flex items-center justify-center shrink-0 p-2`}>
+                                        {isHome ? (
+                                            <Home className="w-5 h-5 text-white stroke-[2.2]" />
+                                        ) : isWork ? (
+                                            <Briefcase className="w-5 h-5 text-white stroke-[2.2]" />
+                                        ) : (
+                                            <MapPin className="w-5 h-5 text-white stroke-[2.2]" />
+                                        )}
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-[15px] text-[#222] line-clamp-1">{add.addressLine}</h4>
-                                            {add.isDefault && <span className="text-[10px] font-bold text-[#00A050] bg-[#E6F5EC] px-1.5 py-0.5 rounded">DEFAULT</span>}
+
+                                    {/* Right Card Body */}
+                                    <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between bg-white min-w-0">
+                                        <div>
+                                            {/* Header Row: Label & Action Icons */}
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={`text-[10px] font-extrabold uppercase tracking-wider ${theme.text}`}>
+                                                    {add.label || 'Other'}
+                                                </span>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setAddressToEdit(add);
+                                                            setAddressLine(add.addressLine);
+                                                            setLandmark(add.landmark || '');
+                                                            setLabel(add.label || 'Home');
+                                                            setIsDefault(add.isDefault);
+                                                            setMapCoordinates({lat: add.latitude, lng: add.longitude});
+                                                            setSelectedAddressText(add.addressLine);
+                                                            setStep('addAddress');
+                                                        }}
+                                                        className="p-0.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                                                        title="Edit Address"
+                                                    >
+                                                        <Edit2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Address Main Line & Landmark */}
+                                            <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug line-clamp-1">
+                                                {add.addressLine}
+                                            </h4>
+                                            {add.landmark ? (
+                                                <p className="text-[11px] text-gray-400 font-medium line-clamp-1 mt-0.5">
+                                                    Near {add.landmark}
+                                                </p>
+                                            ) : null}
                                         </div>
-                                        <p className="text-gray-500 text-[12px] font-bold uppercase tracking-wide">{add.label || 'Other'}</p>
+
+                                        {/* Footer Row: Default Tag & Selection Circle */}
+                                        <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-50">
+                                            {add.isDefault ? (
+                                                <span className="text-[9px] font-extrabold text-[#FF584A] bg-[#FFF0EF] border border-[#FF584A]/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                    DEFAULT ADDRESS
+                                                </span>
+                                            ) : (
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                    SAVED LOCATION
+                                                </span>
+                                            )}
+
+                                            <div className={`w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full border flex items-center justify-center transition-all ${
+                                                isSelected
+                                                    ? 'bg-[#FF584A] border-[#FF584A] text-white shadow-xs'
+                                                    : 'border-gray-300 bg-white'
+                                            }`}>
+                                                {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-2 shrink-0">
-                                    <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center ${selectedAddressId === add.id ? 'border-[#FF4732]' : 'border-gray-300'}`}>
-                                        {selectedAddressId === add.id && <div className="w-2.5 h-2.5 bg-[#FF4732] rounded-full"></div>}
-                                    </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setAddressToEdit(add);
-                                            setAddressLine(add.addressLine);
-                                            setLandmark(add.landmark || '');
-                                            setLabel(add.label || 'Home');
-                                            setIsDefault(add.isDefault);
-                                            setMapCoordinates({lat: add.latitude, lng: add.longitude});
-                                            setSelectedAddressText(add.addressLine);
-                                            setStep('addAddress');
-                                        }}
-                                        className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                     <button
                         onClick={() => {
@@ -507,7 +556,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             sessionStorage.removeItem('checkout_map_coords');
                             sessionStorage.removeItem('checkout_address_text');
                         }}
-                        className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF4732] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
+                        className="flex items-center justify-center gap-2 mt-2 bg-[#FFF4F2] text-[#FF584A] p-4 rounded-2xl font-bold hover:bg-[#ffeae6] transition-colors border border-transparent border-dashed"
                     >
                         <span>+</span>
                         <span>Add New Address</span>
@@ -658,7 +707,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                             }}
                             onBlur={() => setTimeout(() => setPredictions([]), 200)}
                             placeholder="Search area, building, street name..."
-                            className="w-full bg-white border border-gray-100 focus:border-[#FF4732] rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400 shadow-sm"
+                            className="w-full bg-white border border-gray-100 focus:border-[#FF584A] rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400 shadow-sm"
                         />
 
                         {predictions.length > 0 && (
@@ -673,7 +722,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                         }}
                                         className="w-full flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left group"
                                     >
-                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#FF4732] transition-colors mt-0.5 shrink-0" />
+                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#FF584A] transition-colors mt-0.5 shrink-0" />
                                         <div className="flex flex-col">
                                             <span className="font-bold text-gray-800 text-sm">{pred.mainText || pred.structured_formatting?.main_text || pred.description?.split(',')[0]}</span>
                                             <span className="text-xs text-gray-500 font-medium line-clamp-1">{pred.secondaryText || pred.structured_formatting?.secondary_text}</span>
@@ -691,7 +740,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         value={addressLine}
                         onChange={e => setAddressLine(e.target.value)}
                         placeholder="Complete address details"
-                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
+                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF584A] shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -701,7 +750,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         value={landmark}
                         onChange={e => setLandmark(e.target.value)}
                         placeholder="e.g. Near HDFC Bank"
-                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF4732] shadow-sm font-medium text-sm transition-all"
+                        className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:border-[#FF584A] shadow-sm font-medium text-sm transition-all"
                     />
                 </div>
                 <div className="flex flex-col gap-2 mt-1">
@@ -712,7 +761,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                                 key={l}
                                 type="button"
                                 onClick={() => setLabel(l)}
-                                className={`flex-1 py-2 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-[#FFF0EF] border-[#FF4732] text-[#FF4732] shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
+                                className={`flex-1 py-2 rounded-xl border font-bold text-xs transition-all ${label === l ? 'bg-[#FFF0EF] border-[#FF584A] text-[#FF584A] shadow-sm scale-105' : 'bg-white border-gray-100 text-gray-400'}`}
                             >
                                 {l}
                             </button>
@@ -727,7 +776,7 @@ export const DetailsFlowOverlay: React.FC<DetailsFlowOverlayProps> = ({ onClose,
                         <span className="text-sm font-bold text-gray-800">Set as default address</span>
                         <span className="text-[11px] text-gray-400 font-medium">Use this address for all future orders</span>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#00A859] border-[#00A859]' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#FF584A] border-[#FF584A]' : 'border-gray-200 bg-gray-50'}`}>
                         {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
                     </div>
                 </div>

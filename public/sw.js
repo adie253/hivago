@@ -1,8 +1,9 @@
-const CACHE_NAME = 'hivago-v2';
+const CACHE_NAME = 'hivago-v3';
 const STATIC_ASSETS = [
   '/favicon.svg',
   '/pwa-192x192.png',
-  '/pwa-512x512.png'
+  '/pwa-512x512.png',
+  '/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {

@@ -1,9 +1,110 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, Package, ArrowRight, MapPin } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import orderSuccessImg from '../../assets/checkout/order_placed.svg';
 import { verifyPayment, getOrderById, fetchRestaurantById, restoreAuthSessionFromBackup, clearPaymentBackup } from '../../data/api';
+
+/**
+ * ⏱️ CONTROL ANIMATION TIMING HERE (in milliseconds)
+ * e.g., 3000 = 3 seconds, 4000 = 4 seconds, 2500 = 2.5 seconds
+ */
+export const SPLASH_DURATION_MS = 1800;
+
+const OrderPlacedSplash: React.FC<{ durationMs?: number; onSkip: () => void }> = ({ durationMs = SPLASH_DURATION_MS, onSkip }) => {
+    const progressSeconds = Math.max(0.5, (durationMs - 400) / 1000);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.04 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            onClick={onSkip}
+            className="fixed inset-0 z-[99999] bg-gradient-to-b from-[#B02421] via-[#AD221F] to-[#7F1715] flex flex-col items-center justify-between p-6 sm:p-10 text-white font-sans overflow-hidden select-none cursor-pointer"
+        >
+            {/* Ambient Animated Rings */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-[600px] h-[600px] bg-white/10 rounded-full animate-ping opacity-20 duration-1000"></div>
+                <div className="w-[420px] h-[420px] bg-white/10 rounded-full animate-pulse opacity-30"></div>
+                <div className="w-[280px] h-[280px] bg-white/15 rounded-full blur-3xl"></div>
+            </div>
+
+            {/* Top Brand Tag */}
+            <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.5 }}
+                className="mt-6 flex items-center gap-2.5 bg-white/15 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-lg"
+            >
+                <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span>
+                <span className="text-xs font-extrabold uppercase tracking-widest text-white">Hivago Food Delivery</span>
+            </motion.div>
+
+            {/* Center Animation Content */}
+            <div className="flex flex-col items-center justify-center text-center relative z-10 my-auto max-w-md px-4">
+                {/* Scale-in Checkmark */}
+                <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ 
+                        type: 'spring', 
+                        stiffness: 280, 
+                        damping: 18, 
+                        delay: 0.25 
+                    }}
+                    className="relative mb-8"
+                >
+                    <div className="absolute -inset-6 rounded-full bg-white/20 animate-ping opacity-30"></div>
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white text-[#AD221F] flex items-center justify-center shadow-2xl shadow-black/40">
+                        <Check className="w-14 h-14 sm:w-16 sm:h-16 stroke-[3.5]" />
+                    </div>
+                </motion.div>
+
+                {/* Animated Heading */}
+                <motion.h1
+                    initial={{ opacity: 0, y: 25 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45, duration: 0.5 }}
+                    className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-3 drop-shadow-md"
+                >
+                    Order Placed!
+                </motion.h1>
+
+                {/* Animated Subtitle */}
+                <motion.p
+                    initial={{ opacity: 0, y: 25 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.55, duration: 0.5 }}
+                    className="text-base sm:text-lg text-white/95 font-medium leading-relaxed max-w-sm"
+                >
+                    Your payment was successful and your order is on its way to being prepared.
+                </motion.p>
+            </div>
+
+            {/* Bottom Progress Bar & Tap Hint */}
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.65, duration: 0.5 }}
+                className="mb-8 w-full max-w-xs flex flex-col items-center gap-3 relative z-10"
+            >
+                <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden backdrop-blur-xs">
+                    <motion.div 
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: progressSeconds, ease: "linear" }}
+                        className="bg-white h-full rounded-full"
+                    />
+                </div>
+                <span className="text-xs font-semibold text-white/80 tracking-wide">
+                    Tap anywhere to view order summary
+                </span>
+            </motion.div>
+        </motion.div>
+    );
+};
 
 export const PaymentSuccessPage: React.FC = () => {
     const navigate = useNavigate();
@@ -13,6 +114,16 @@ export const PaymentSuccessPage: React.FC = () => {
     const [orderId, setOrderId] = useState<string | null>(null);
     const [orderData, setOrderData] = useState<any>(null);
     const [restaurantAddress, setRestaurantAddress] = useState<string | null>(null);
+    const [showSplash, setShowSplash] = useState(true);
+
+    useEffect(() => {
+        if (!isLoading) {
+            const timer = setTimeout(() => {
+                setShowSplash(false);
+            }, SPLASH_DURATION_MS);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoading]);
 
     useEffect(() => {
         console.log("[Diagnostic] PaymentSuccessPage mounted.");
@@ -25,6 +136,11 @@ export const PaymentSuccessPage: React.FC = () => {
         const queryParams = new URLSearchParams(location.search);
         let id = queryParams.get('orderId') || sessionStorage.getItem('orderId') || localStorage.getItem('pay_orderId');
         let txn = queryParams.get('txnid') || sessionStorage.getItem('txnId') || localStorage.getItem('pay_txnId');
+
+        if (id) {
+            sessionStorage.setItem('last_placed_order_id', id);
+            localStorage.setItem('last_placed_order_id', id);
+        }
 
         console.log("[Diagnostic] Query params - orderId:", queryParams.get('orderId'), "txnid:", queryParams.get('txnid'));
         console.log("[Diagnostic] Session storage - orderId:", sessionStorage.getItem('orderId'), "txnId:", sessionStorage.getItem('txnId'));
@@ -53,6 +169,8 @@ export const PaymentSuccessPage: React.FC = () => {
                 // 2. Double check order status from the server
                 const finalOrderId = id || txn;
                 if (finalOrderId) {
+                    sessionStorage.setItem('last_placed_order_id', finalOrderId);
+                    localStorage.setItem('last_placed_order_id', finalOrderId);
                     console.log("[Diagnostic] Fetching final order details for id:", finalOrderId);
                     const order = await getOrderById(finalOrderId);
                     console.log("[Diagnostic] Fetched order status:", order?.status, "paymentId:", order?.paymentId);
@@ -100,6 +218,30 @@ export const PaymentSuccessPage: React.FC = () => {
         verifyAndCheckOrder();
     }, [location]);
 
+    // Handle browser back button on PaymentSuccessPage
+    useEffect(() => {
+        window.history.pushState({ page: 'payment-success' }, '', window.location.href);
+
+        const handlePopState = () => {
+            console.log("[Diagnostic] Back button intercepted on PaymentSuccessPage!");
+            // Re-push state immediately so the browser history cannot pop back to payubiz.in or /payment
+            window.history.pushState({ page: 'payment-success' }, '', window.location.href);
+
+            const queryParams = new URLSearchParams(location.search);
+            const resolvedOrderId = orderId || queryParams.get('orderId') || sessionStorage.getItem('last_placed_order_id') || localStorage.getItem('last_placed_order_id');
+            if (resolvedOrderId) {
+                navigate(`/track-order?orderId=${resolvedOrderId}`);
+            } else {
+                navigate('/');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [orderId, location.search, navigate]);
+
     if (isLoading) {
         return (
             <div className="min-h-[100dvh] bg-gray-50 flex flex-col items-center justify-center font-sans">
@@ -134,7 +276,14 @@ export const PaymentSuccessPage: React.FC = () => {
     const pricing = getPricingDetails();
 
     return (
-        <div className="min-h-[100dvh] bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden">
+        <>
+            <AnimatePresence>
+                {showSplash && (
+                    <OrderPlacedSplash onSkip={() => setShowSplash(false)} />
+                )}
+            </AnimatePresence>
+
+            <div className="min-h-[100dvh] bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden">
             {/* Background decorative elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#00A050] opacity-[0.03] rounded-full blur-3xl"></div>
@@ -308,5 +457,6 @@ export const PaymentSuccessPage: React.FC = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };

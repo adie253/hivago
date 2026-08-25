@@ -235,19 +235,19 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
             <div className="bg-[#F8FAFC] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-5 duration-300">
                 
                 {/* Header */}
-                <div className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100 shrink-0 sticky top-0 z-10">
-                    <div>
+                <div className="bg-white px-5 sm:px-6 py-4 flex items-start justify-between border-b border-gray-100 shrink-0 sticky top-0 z-10 gap-3">
+                    <div className="min-w-0 flex-1 pr-1">
                         <h2 className="text-xl font-bold text-gray-900 leading-tight flex items-center gap-2">
                              Add Ons
                         </h2>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm font-bold text-gray-500">{apiItem ? apiItem.name : originalItem.name}</span>
-                            <span className="text-sm font-bold text-gray-900">₹ {formatPrice(basePrice)}</span>
+                        <div className="flex items-center justify-between gap-3 mt-1.5 min-w-0">
+                            <span className="text-sm font-bold text-gray-500 truncate min-w-0 flex-1">{apiItem ? apiItem.name : originalItem.name}</span>
+                            <span className="text-sm font-extrabold text-gray-900 whitespace-nowrap shrink-0">₹{formatPrice(basePrice)}</span>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors shrink-0 mt-0.5"
                     >
                         <X className="w-5 h-5 text-gray-600" />
                     </button>
@@ -443,8 +443,8 @@ export const AddOnsOverlay: React.FC<AddOnsOverlayProps> = ({ originalItem, onCl
                          }`}
                          disabled={isLoading || !!validationError}
                      >
-                         <div className="flex items-center gap-3">
-                              <span className="text-lg font-bold tracking-wide">₹ {formatPrice(totalPrice)}</span>
+                         <div className="flex items-center gap-3 shrink-0">
+                              <span className="text-lg font-bold tracking-wide whitespace-nowrap shrink-0">₹{formatPrice(totalPrice)}</span>
                          </div>
                          <div className="flex items-center gap-2 bg-white text-[#D12E27] px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-red-50 transition-colors">
                               <ShoppingBag className="w-4 h-4" />

@@ -190,7 +190,7 @@ export const ProfilePage: React.FC = () => {
                         </div>
                         <button 
                             onClick={openEditModal}
-                            className="w-full md:w-auto text-[#FF4732] hover:text-white font-semibold text-sm px-6 py-3 bg-[#FFF0EF] hover:bg-[#FF4732] rounded-full transition-all duration-300 transform active:scale-95 shadow-sm hover:shadow-md"
+                            className="w-full md:w-auto text-[#FF584A] hover:text-white font-semibold text-sm px-6 py-3 bg-[#FFF0EF] hover:bg-[#FF584A] rounded-full transition-all duration-300 transform active:scale-95 shadow-sm hover:shadow-md"
                         >
                             Edit Profile
                         </button>
@@ -237,7 +237,7 @@ export const ProfilePage: React.FC = () => {
                             </div>
                             <button 
                                 onClick={handleAddNewAddress}
-                                className="flex items-center gap-1.5 text-white font-semibold text-xs md:text-sm bg-[#FF4732] hover:bg-[#E53935] px-4 py-2.5 rounded-full transition-all duration-300 transform active:scale-95 shadow-md shadow-red-100"
+                                className="flex items-center gap-1.5 text-white font-semibold text-xs md:text-sm bg-[#FF584A] hover:bg-[#E53935] px-4 py-2.5 rounded-full transition-all duration-300 transform active:scale-95 shadow-md shadow-red-100"
                             >
                                 <Plus className="w-4 h-4 stroke-[3px]" />
                                 <span>Add New</span>
@@ -247,7 +247,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {isLoadingAddresses ? (
                                 <div className="col-span-full bg-white rounded-[28px] border border-gray-100 p-12 text-center shadow-sm">
-                                    <div className="w-8 h-8 border-2 border-[#FF4732]/30 border-t-[#FF4732] rounded-full animate-spin mx-auto mb-3"></div>
+                                    <div className="w-8 h-8 border-2 border-[#FF584A]/30 border-t-[#FF584A] rounded-full animate-spin mx-auto mb-3"></div>
                                     <p className="text-gray-400 text-sm font-semibold">Loading your addresses...</p>
                                 </div>
                             ) : addresses.length === 0 ? (
@@ -259,78 +259,103 @@ export const ProfilePage: React.FC = () => {
                                     <p className="text-xs text-gray-400 font-medium mt-1 mb-4">Add an address to checkout faster next time.</p>
                                     <button
                                         onClick={handleAddNewAddress}
-                                        className="text-[#FF4732] hover:text-white font-semibold text-xs px-4 py-2 bg-[#FFF0EF] hover:bg-[#FF4732] rounded-full transition-all"
+                                        className="text-[#FF584A] hover:text-white font-semibold text-xs px-4 py-2 bg-[#FFF0EF] hover:bg-[#FF584A] rounded-full transition-all"
                                     >
                                         Add Address
                                     </button>
                                 </div>
                             ) : (
-                                addresses.map(add => {
-                                    const isHome = add.label?.toLowerCase() === 'home';
-                                    const isWork = add.label?.toLowerCase() === 'work';
+                                addresses.map((add) => {
+                                    const labelLower = add.label?.toLowerCase() || '';
+                                    const theme = { bg: 'from-[#FF584A] to-[#E5483B]', text: 'text-[#FF584A]', accentBtn: 'text-[#FF584A] hover:text-[#E5483B]' };
+                                    const isHome = labelLower === 'home';
+                                    const isWork = labelLower === 'work';
                                     
                                     return (
                                         <div 
                                             key={add.id} 
-                                            className={`bg-white rounded-[28px] p-5 shadow-sm border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] ${add.isDefault ? 'border-[#00A859]/30 ring-1 ring-[#00A859]/20' : 'border-gray-100'}`}
+                                            className={`bg-white rounded-xl shadow-xs border transition-all duration-300 flex overflow-hidden group hover:shadow-md ${
+                                                add.isDefault ? 'border-[#FF584A] ring-1 ring-[#FF584A]/20' : 'border-gray-100'
+                                            }`}
                                         >
-                                            <div>
-                                                <div className="flex items-start justify-between mb-3 gap-2">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 
-                                                            ${isHome ? 'bg-orange-50 text-orange-500' : isWork ? 'bg-blue-50 text-blue-500' : 'bg-emerald-50 text-emerald-500'}`}
-                                                        >
-                                                            {isHome ? <Home className="w-4 h-4" /> : 
-                                                             isWork ? <Briefcase className="w-4 h-4" /> : 
-                                                             <MapPin className="w-4 h-4" />}
-                                                        </div>
-                                                        <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full border
-                                                            ${isHome ? 'bg-orange-50/50 text-orange-600 border-orange-100' : isWork ? 'bg-blue-50/50 text-blue-600 border-blue-100' : 'bg-emerald-50/50 text-emerald-600 border-emerald-100'}`}
-                                                        >
-                                                            {add.label || 'Other'}
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <div className="flex items-center gap-1 shrink-0">
-                                                        <button
-                                                            onClick={() => handleEditAddress(add)}
-                                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            title="Edit Address"
-                                                        >
-                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteAddress(add.id)}
-                                                            className="p-1.5 text-gray-400 hover:text-[#FF4732] hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="Delete Address"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col mt-2">
-                                                    <h4 className="font-bold text-[#111] text-[15px] leading-tight tracking-tight line-clamp-2">
-                                                        {add.addressLine}
-                                                    </h4>
-                                                    {add.landmark && (
-                                                        <span className="text-[12px] text-gray-500 font-semibold mt-1.5 flex items-center gap-1">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-[#FF4732]/30 shrink-0"></span>
-                                                            <span className="truncate">Near {add.landmark}</span>
-                                                        </span>
-                                                    )}
-                                                </div>
+                                            {/* Left Colorful Solid Block with Icon */}
+                                            <div className={`w-11 sm:w-12 bg-gradient-to-b ${theme.bg} flex items-center justify-center shrink-0 p-2`}>
+                                                {isHome ? (
+                                                    <Home className="w-5 h-5 text-white stroke-[2.2]" />
+                                                ) : isWork ? (
+                                                    <Briefcase className="w-5 h-5 text-white stroke-[2.2]" />
+                                                ) : (
+                                                    <MapPin className="w-5 h-5 text-white stroke-[2.2]" />
+                                                )}
                                             </div>
 
-                                            <div 
-                                                onClick={() => handleToggleDefault(add)}
-                                                className={`flex items-center justify-between mt-4 pt-3.5 border-t border-gray-50 cursor-pointer group`}
-                                            >
-                                                <span className="text-[11px] font-semibold text-gray-400 group-hover:text-gray-600 transition-colors">
-                                                    {add.isDefault ? 'Default Address' : 'Set as Default'}
-                                                </span>
-                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all duration-300 ${add.isDefault ? 'bg-[#00A859] border-[#00A859] shadow-sm' : 'border-gray-200 bg-white group-hover:border-gray-300'}`}>
-                                                    {add.isDefault && <Check className="w-3 h-3 text-white stroke-[3px]" />}
+                                            {/* Right Card Body */}
+                                            <div className="flex-1 p-2.5 sm:p-3 flex flex-col justify-between bg-white min-w-0">
+                                                <div>
+                                                    {/* Header Row: Label & Action Icons */}
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className={`text-[10px] font-extrabold uppercase tracking-wider ${theme.text}`}>
+                                                            {add.label || 'Other'}
+                                                        </span>
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                onClick={() => handleEditAddress(add)}
+                                                                className="p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                                                title="Edit Address"
+                                                            >
+                                                                <Edit2 className="w-3 h-3" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteAddress(add.id)}
+                                                                className="p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                                title="Delete Address"
+                                                            >
+                                                                <Trash2 className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Address Text */}
+                                                    <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug line-clamp-1">
+                                                        {add.addressLine}
+                                                    </h4>
+                                                    {add.landmark ? (
+                                                        <p className="text-[11px] text-gray-400 font-medium line-clamp-1 mt-0.5">
+                                                            Near {add.landmark}
+                                                        </p>
+                                                    ) : add.formattedAddress ? (
+                                                        <p className="text-[11px] text-gray-400 font-medium line-clamp-1 mt-0.5">
+                                                            {add.formattedAddress}
+                                                        </p>
+                                                    ) : null}
+                                                </div>
+
+                                                {/* Footer Row: Default Status & Check Radio Circle */}
+                                                <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-50">
+                                                    {add.isDefault ? (
+                                                        <span className="text-[9px] font-extrabold text-[#FF584A] bg-[#FFF0EF] border border-[#FF584A]/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                            DEFAULT ADDRESS
+                                                        </span>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleToggleDefault(add)}
+                                                            className={`text-[10px] font-bold uppercase tracking-wider ${theme.accentBtn} transition-colors`}
+                                                        >
+                                                            SET AS DEFAULT
+                                                        </button>
+                                                    )}
+
+                                                    <div 
+                                                        onClick={() => handleToggleDefault(add)}
+                                                        className={`w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center cursor-pointer transition-all ${
+                                                            add.isDefault
+                                                                ? 'bg-[#FF584A] text-white shadow-xs'
+                                                                : 'border border-gray-300 hover:border-gray-400'
+                                                        }`}
+                                                    >
+                                                        {add.isDefault && <Check className="w-3 h-3 stroke-[3]" />}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -352,7 +377,7 @@ export const ProfilePage: React.FC = () => {
                             <div className="bg-white rounded-[28px] shadow-sm border border-gray-100 flex flex-col p-2 gap-0.5 mt-3">
                                 {/* <button 
                                     onClick={() => showToast("Payment Methods feature is coming soon!", "success")}
-                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF584A] rounded-2xl transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
@@ -365,7 +390,7 @@ export const ProfilePage: React.FC = () => {
 
                                 <button 
                                     onClick={() => showToast("Notification configurations coming soon!", "success")}
-                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF584A] rounded-2xl transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
@@ -380,7 +405,7 @@ export const ProfilePage: React.FC = () => {
                                     href="https://wa.me/919082220155?text=Need%20HELP!" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF4732] rounded-2xl transition-all duration-300 group"
+                                    className="flex items-center justify-between p-4 hover:bg-[#FFF9F9]/50 text-gray-700 hover:text-[#FF584A] rounded-2xl transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#FFF0EF] transition-colors">
@@ -406,7 +431,7 @@ export const ProfilePage: React.FC = () => {
                                 </p>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] hover:bg-[#FF4732] text-[#E53935] hover:text-white font-semibold text-sm py-4 rounded-2xl transition-all duration-300 shadow-sm active:scale-[0.98]"
+                                    className="w-full flex items-center justify-center gap-2 bg-[#FFF0EF] hover:bg-[#FF584A] text-[#E53935] hover:text-white font-semibold text-sm py-4 rounded-2xl transition-all duration-300 shadow-sm active:scale-[0.98]"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span>Logout Account</span>
@@ -447,7 +472,7 @@ export const ProfilePage: React.FC = () => {
                                     value={editName}
                                     onChange={e => setEditName(e.target.value)}
                                     placeholder="Enter your name"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF584A] focus:bg-white transition-all font-medium"
                                 />
                             </div>
 
@@ -458,7 +483,7 @@ export const ProfilePage: React.FC = () => {
                                     value={editEmail}
                                     onChange={e => setEditEmail(e.target.value)}
                                     placeholder="Enter your email"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF4732] focus:bg-white transition-all font-medium"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 outline-none focus:border-[#FF584A] focus:bg-white transition-all font-medium"
                                 />
                             </div>
 
@@ -489,7 +514,7 @@ export const ProfilePage: React.FC = () => {
             {addressToDelete && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white rounded-[32px] w-full max-w-[340px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col items-center text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-[#FF4732] mb-5">
+                        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-[#FF584A] mb-5">
                             <Trash2 className="w-8 h-8" />
                         </div>
                         
@@ -501,7 +526,7 @@ export const ProfilePage: React.FC = () => {
                         <div className="flex flex-col w-full gap-3">
                             <button
                                 onClick={confirmDeleteAddress}
-                                className="w-full bg-[#FF4732] text-white font-semibold py-4 rounded-2xl hover:bg-[#E53935] transition-all shadow-lg shadow-red-100 active:scale-[0.98]"
+                                className="w-full bg-[#FF584A] text-white font-semibold py-4 rounded-2xl hover:bg-[#E53935] transition-all shadow-lg shadow-red-100 active:scale-[0.98]"
                             >
                                 Yes, Delete
                             </button>

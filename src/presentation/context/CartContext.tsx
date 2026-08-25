@@ -393,6 +393,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             setRestaurantId(rId || currentRestaurantId);
             setRestaurantName(rName || restaurantName);
+            sessionStorage.removeItem('last_placed_order_id');
+            localStorage.removeItem('last_placed_order_id');
             return updatedItems;
         });
 
@@ -407,6 +409,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 🚀 REORDER
     const reorder = useCallback(async (items: CartItem[], rId: string, rName: string) => {
+        sessionStorage.removeItem('last_placed_order_id');
+        localStorage.removeItem('last_placed_order_id');
         // 1. Update UI state immediately
         setCartItems(items);
         setRestaurantId(rId);

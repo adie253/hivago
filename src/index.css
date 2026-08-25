@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #F36259;
-  --color-brand-secondary: #FF6B55;
-  --color-brand-light: #FFF4F3;
+  --color-brand-primary: #FF584A;
+  --color-brand-secondary: #E5483B;
+  --color-brand-light: #FFF0EF;
   --color-surface-background: #f4f6f8;
   --color-surface-card: #ffffff;
   --color-text-main: #111827;
@@ -32,4 +32,10 @@ body {
 /* Hide floating cart when overlays are open */
 body.hide-floating-cart .floating-cart {
   display: none !important;
+}
+
+@keyframes shine {
+  100% {
+    transform: translateX(100%);
+  }
 }
