@@ -77,7 +77,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
                             </span>
                         )}
                         {restaurant.acceptsPickup && (
-                            <span className="bg-white text-[#FF4732] text-[10px] font-extrabold px-2 py-1 rounded shadow-sm w-max uppercase border border-red-50">
+                            <span className="bg-white text-brand-primary text-[10px] font-extrabold px-2 py-1 rounded shadow-sm w-max uppercase border border-red-50">
                                 Pickup Available
                             </span>
                         )}
@@ -98,7 +98,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
             {/* Content Container */}
             <div className="p-5 flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-1">
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#FF4732] transition-colors truncate pr-2">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-brand-primary transition-colors truncate pr-2">
                         {restaurant.name}
                     </h3>
                 </div>

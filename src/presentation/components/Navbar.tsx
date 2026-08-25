@@ -110,11 +110,11 @@ export const Navbar: React.FC = () => {
                 className="sm:hidden flex items-center gap-3 px-4 py-[9px] border-b border-gray-200 bg-white cursor-pointer"
             >
                 {selectedLocation?.label?.toLowerCase().includes('home') ? (
-                    <Home className="text-[#FF4732] w-5 h-5 shrink-0" />
+                    <Home className="text-brand-primary w-5 h-5 shrink-0" />
                 ) : selectedLocation?.label?.toLowerCase().includes('work') ? (
-                    <Briefcase className="text-[#FF4732] w-5 h-5 shrink-0" />
+                    <Briefcase className="text-brand-primary w-5 h-5 shrink-0" />
                 ) : (
-                    <MapPin className="text-[#FF4732] w-5 h-5 shrink-0" />
+                    <MapPin className="text-brand-primary w-5 h-5 shrink-0" />
                 )}
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-500 font-medium tracking-wide">Your Location</span>
@@ -188,9 +188,9 @@ export const Navbar: React.FC = () => {
                                         setIsMobileMenuOpen(false);
                                         installApp();
                                     }}
-                                    className="flex items-center gap-4 p-4 rounded-xl transition-colors text-[#FF4732] hover:bg-red-50 w-full text-left font-bold"
+                                    className="flex items-center gap-4 p-4 rounded-xl transition-colors text-brand-primary hover:bg-brand-light w-full text-left font-bold"
                                 >
-                                    <Download className="w-5 h-5 text-[#FF4732]" />
+                                    <Download className="w-5 h-5 text-brand-primary" />
                                     Install Hivago App
                                 </button>
                             )}

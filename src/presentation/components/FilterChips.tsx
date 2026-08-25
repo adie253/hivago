@@ -48,11 +48,11 @@ export const FilterChips: React.FC = () => {
                 {/* Filter Icon button */}
                 <button
                     onClick={() => setIsFilterModalOpen(true)}
-                    className="bg-[#FF4732] text-white p-2.5 md:p-3 rounded-xl shadow hover:bg-orange-700 transition-colors flex-shrink-0 relative"
+                    className="bg-brand-primary text-white p-2.5 md:p-3 rounded-xl shadow hover:bg-orange-700 transition-colors flex-shrink-0 relative"
                 >
                     <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
                     {activeFiltersCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-white text-[#FF4732] text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#FF4732] shadow-sm">
+                        <span className="absolute -top-1 -right-1 bg-white text-brand-primary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-brand-primary shadow-sm">
                             {activeFiltersCount}
                         </span>
                     )}
@@ -77,19 +77,19 @@ export const FilterChips: React.FC = () => {
                 <div className="flex gap-2 md:gap-3 flex-shrink-0 pr-4">
                     <button
                         onClick={() => setIsVegOnly(!isVegOnly)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isVegOnly ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isVegOnly ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Leaf className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isVegOnly ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Leaf className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isVegOnly ? 'text-white' : 'text-brand-primary'}`} />
                         Pure Veg
                     </button>
 
                     <button
                         onClick={() => setIsNewlyAdded(!isNewlyAdded)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isNewlyAdded ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isNewlyAdded ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Sparkles className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isNewlyAdded ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Sparkles className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isNewlyAdded ? 'text-white' : 'text-brand-primary'}`} />
                         Newly Added
                     </button>
 
@@ -97,46 +97,46 @@ export const FilterChips: React.FC = () => {
 
                     <button
                         onClick={() => setIsVeganFriendly(!isVeganFriendly)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isVeganFriendly ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isVeganFriendly ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Leaf className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isVeganFriendly ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Leaf className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isVeganFriendly ? 'text-white' : 'text-brand-primary'}`} />
                         Vegan
                     </button>
 
                     <button
                         onClick={() => setIsJainOptions(!isJainOptions)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isJainOptions ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isJainOptions ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Sparkles className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isJainOptions ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Sparkles className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isJainOptions ? 'text-white' : 'text-brand-primary'}`} />
                         Jain
                     </button>
 
                     <button
                         onClick={() => setIsPopular(!isPopular)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isPopular ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isPopular ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Flame className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isPopular ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Flame className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isPopular ? 'text-white' : 'text-brand-primary'}`} />
                         Popular
                     </button>
 
                     <button
                         onClick={() => setIsOpenNow(!isOpenNow)}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isOpenNow ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${isOpenNow ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Store className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isOpenNow ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Store className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isOpenNow ? 'text-white' : 'text-brand-primary'}`} />
                         Open Now
                     </button>
 
                     <button
                         onClick={() => setFulfillmentType(fulfillmentType === 'Pickup' ? 'Both' : 'Pickup')}
-                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${fulfillmentType === 'Pickup' ? 'bg-[#FF4732] border-[#FF4732] text-white shadow-lg shadow-red-100' : inactiveClass
+                        className={`border px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap flex items-center gap-2 shadow-sm ${fulfillmentType === 'Pickup' ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-red-100' : inactiveClass
                             }`}
                     >
-                        <Footprints className={`w-3.5 h-3.5 md:w-4 md:h-4 ${fulfillmentType === 'Pickup' ? 'text-white' : 'text-[#FF4732]'}`} />
+                        <Footprints className={`w-3.5 h-3.5 md:w-4 md:h-4 ${fulfillmentType === 'Pickup' ? 'text-white' : 'text-brand-primary'}`} />
                         Pickup
                     </button>
                 </div>

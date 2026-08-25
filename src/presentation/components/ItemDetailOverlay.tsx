@@ -147,22 +147,22 @@ export const ItemDetailOverlay: React.FC<ItemDetailOverlayProps> = ({ item, onCl
                         {quantity === 0 ? (
                             <button
                                 onClick={handleInitialAdd}
-                                className="px-8 py-3 rounded-xl bg-[#FF4732] text-white font-bold text-base shadow-lg hover:shadow-xl hover:bg-[#E03A28] active:scale-95 transition-all"
+                                className="px-8 py-3 rounded-xl bg-brand-primary text-white font-bold text-base shadow-lg hover:shadow-xl hover:bg-brand-secondary active:scale-95 transition-all"
                             >
                                 ADD TO CART
                             </button>
                         ) : (
-                            <div className="flex items-center bg-red-50 rounded-xl overflow-hidden border border-[#FF4732]/20 shadow-sm h-12">
+                            <div className="flex items-center bg-red-50 rounded-xl overflow-hidden border border-brand-primary/20 shadow-sm h-12">
                                 <button
                                     onClick={handleRemove}
-                                    className="w-12 h-full flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"
+                                    className="w-12 h-full flex items-center justify-center text-brand-primary hover:bg-brand-primary/10 transition-colors"
                                 >
                                     <Minus className="w-5 h-5" strokeWidth={2.5} />
                                 </button>
                                 <span className="w-10 text-center text-lg font-bold text-gray-900">{quantity}</span>
                                 <button
                                     onClick={handleInitialAdd}
-                                    className="w-12 h-full flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"
+                                    className="w-12 h-full flex items-center justify-center text-brand-primary hover:bg-brand-primary/10 transition-colors"
                                 >
                                     <Plus className="w-5 h-5" strokeWidth={2.5} />
                                 </button>

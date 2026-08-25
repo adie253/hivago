@@ -35,17 +35,17 @@ export const AboutUsPage: React.FC = () => {
 
     const values = [
         {
-            icon: <ChefHat className="w-8 h-8 text-[#FF4732]" />,
+            icon: <ChefHat className="w-8 h-8 text-brand-primary" />,
             title: "Expert Curation",
             description: "We partner with the finest local restaurants to bring you a hand-picked selection of culinary delights."
         },
         {
-            icon: <Truck className="w-8 h-8 text-[#FF4732]" />,
+            icon: <Truck className="w-8 h-8 text-brand-primary" />,
             title: "Lightning Fast",
             description: "Our dedicated delivery fleet ensures your food arrives hot and fresh, exactly when you need it."
         },
         {
-            icon: <Heart className="w-8 h-8 text-[#FF4732]" />,
+            icon: <Heart className="w-8 h-8 text-brand-primary" />,
             title: "Customer First",
             description: "Your satisfaction is our obsession. We go above and beyond to make every meal a special occasion."
         }
@@ -66,11 +66,11 @@ export const AboutUsPage: React.FC = () => {
                 className="relative pt-20 pb-24 md:pt-32 md:pb-40 px-6 overflow-hidden"
             >
                 {/* Background Decor */}
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-[#FF4732]/5 rounded-full blur-3xl -z-10"></div>
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-3xl -z-10"></div>
                 <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-[#B02421]/5 rounded-full blur-3xl -z-10"></div>
 
                 <div className="max-w-7xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF4732]/10 text-[#FF4732] text-sm font-bold mb-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-bold mb-6">
                         <Award className="w-4 h-4" />
                         <span>Redefining Food Delivery</span>
                     </div>
@@ -120,7 +120,7 @@ export const AboutUsPage: React.FC = () => {
                     <div className="lg:w-1/2">
                         <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
                             Our mission is to <br />
-                            <span className="text-[#FF4732]">Spread Happiness</span> <br />
+                            <span className="text-brand-primary">Spread Happiness</span> <br />
                             through every bite.
                         </h2>
                         <div className="space-y-6">
@@ -153,8 +153,8 @@ export const AboutUsPage: React.FC = () => {
                 </div>
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
                     {values.map((v, i) => (
-                        <div key={i} className="bg-white p-10 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl hover:border-[#FF4732]/20 transition-all group">
-                            <div className="mb-6 p-4 bg-gray-50 rounded-2xl w-fit group-hover:bg-[#FF4732]/10 transition-colors">
+                        <div key={i} className="bg-white p-10 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all group">
+                            <div className="mb-6 p-4 bg-gray-50 rounded-2xl w-fit group-hover:bg-brand-primary/10 transition-colors">
                                 {v.icon}
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 mb-4">{v.title}</h3>
@@ -193,7 +193,7 @@ export const AboutUsPage: React.FC = () => {
                         />
                     </div>
                     <div className="lg:w-1/2">
-                        <div className="inline-flex items-center gap-2 text-[#FF4732] font-bold text-sm uppercase tracking-widest mb-4">
+                        <div className="inline-flex items-center gap-2 text-brand-primary font-bold text-sm uppercase tracking-widest mb-4">
                             <Users className="w-4 h-4" />
                             <span>Our Culture</span>
                         </div>
@@ -201,7 +201,7 @@ export const AboutUsPage: React.FC = () => {
                         <p className="text-lg text-gray-600 font-medium leading-relaxed mb-8">
                             Behind the app and the scooties is a diverse team of dreamers, doers, and food-lovers. We're united by a shared passion for technology and a deep respect for the culinary arts.
                         </p>
-                        <button className="flex items-center gap-2 text-gray-900 font-bold hover:text-[#FF4732] transition-colors group">
+                        <button className="flex items-center gap-2 text-gray-900 font-bold hover:text-brand-primary transition-colors group">
                             Learn more about our culture <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
@@ -232,7 +232,7 @@ export const AboutUsPage: React.FC = () => {
                         {/* Company Card */}
                         <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                <div className="p-3 bg-red-50 rounded-2xl text-brand-primary">
                                     <Building2 className="w-5 h-5" />
                                 </div>
                                 <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Company Entity</span>
@@ -243,7 +243,7 @@ export const AboutUsPage: React.FC = () => {
                         {/* FSSAI License Card */}
                         <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                <div className="p-3 bg-red-50 rounded-2xl text-brand-primary">
                                     <CheckCircle className="w-5 h-5" />
                                 </div>
                                 <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">FSSAI License</span>
@@ -254,7 +254,7 @@ export const AboutUsPage: React.FC = () => {
                         {/* GSTIN Card */}
                         <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                <div className="p-3 bg-red-50 rounded-2xl text-brand-primary">
                                     <Receipt className="w-5 h-5" />
                                 </div>
                                 <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">GSTIN Registry</span>
@@ -265,7 +265,7 @@ export const AboutUsPage: React.FC = () => {
                         {/* Base City Card */}
                         <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 bg-red-50 rounded-2xl text-[#FF4732]">
+                                <div className="p-3 bg-red-50 rounded-2xl text-brand-primary">
                                     <MapPin className="w-5 h-5" />
                                 </div>
                                 <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Operating City</span>
@@ -281,7 +281,7 @@ export const AboutUsPage: React.FC = () => {
                             {/* Registered Office address card */}
                             <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                                    <MapPin className="w-5 h-5 text-[#FF4732]" />
+                                    <MapPin className="w-5 h-5 text-brand-primary" />
                                     <span>Registered Office Address</span>
                                 </h3>
                                 <div className="space-y-4 text-sm font-medium">
@@ -307,7 +307,7 @@ export const AboutUsPage: React.FC = () => {
                             {/* Regulatory Registry details card */}
                             <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                                    <FileText className="w-5 h-5 text-[#FF4732]" />
+                                    <FileText className="w-5 h-5 text-brand-primary" />
                                     <span>Legal & Regulatory Registry</span>
                                 </h3>
                                 <div className="space-y-4 text-sm font-medium">
@@ -333,7 +333,7 @@ export const AboutUsPage: React.FC = () => {
                                     <div className="flex">
                                         <span className="w-32 text-slate-400 flex-shrink-0">Grievances</span>
                                         <span className="text-slate-700">
-                                            <a href="mailto:grievance@hivago.in" className="text-[#FF4732] hover:underline font-bold">grievance@hivago.in</a>
+                                            <a href="mailto:grievance@hivago.in" className="text-brand-primary hover:underline font-bold">grievance@hivago.in</a>
                                         </span>
                                     </div>
                                 </div>
@@ -343,73 +343,73 @@ export const AboutUsPage: React.FC = () => {
                         {/* Right Section (Column Span 5) */}
                         <div className="lg:col-span-5 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                             <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                                <Mail className="w-5 h-5 text-[#FF4732]" />
+                                <Mail className="w-5 h-5 text-brand-primary" />
                                 <span>Corporate Contact Directory</span>
                             </h3>
                             <div className="grid grid-cols-1 gap-4">
                                 {/* Support Card */}
                                 <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-brand-primary flex-shrink-0 mt-0.5">
                                         <Mail className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">General Support</span>
-                                        <a href="mailto:support@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">support@hivago.in</a>
+                                        <a href="mailto:support@hivago.in" className="text-xs font-bold text-slate-800 hover:text-brand-primary hover:underline">support@hivago.in</a>
                                     </div>
                                 </div>
 
                                 {/* Compliance Card */}
                                 <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-brand-primary flex-shrink-0 mt-0.5">
                                         <Shield className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Legal & Compliance</span>
-                                        <a href="mailto:legal@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">legal@hivago.in</a>
+                                        <a href="mailto:legal@hivago.in" className="text-xs font-bold text-slate-800 hover:text-brand-primary hover:underline">legal@hivago.in</a>
                                     </div>
                                 </div>
 
                                 {/* Privacy Card */}
                                 <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-brand-primary flex-shrink-0 mt-0.5">
                                         <Lock className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Privacy & Data Security</span>
-                                        <a href="mailto:privacy@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">privacy@hivago.in</a>
+                                        <a href="mailto:privacy@hivago.in" className="text-xs font-bold text-slate-800 hover:text-brand-primary hover:underline">privacy@hivago.in</a>
                                     </div>
                                 </div>
 
                                 {/* Grievance Card */}
                                 <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-brand-primary flex-shrink-0 mt-0.5">
                                         <AlertCircle className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Grievance Desk</span>
-                                        <a href="mailto:grievance@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">grievance@hivago.in</a>
+                                        <a href="mailto:grievance@hivago.in" className="text-xs font-bold text-slate-800 hover:text-brand-primary hover:underline">grievance@hivago.in</a>
                                     </div>
                                 </div>
 
                                 {/* Restaurant Partner Card */}
                                 <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-brand-primary flex-shrink-0 mt-0.5">
                                         <Utensils className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Restaurant Partners</span>
-                                        <a href="mailto:partner@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">partner@hivago.in</a>
+                                        <a href="mailto:partner@hivago.in" className="text-xs font-bold text-slate-800 hover:text-brand-primary hover:underline">partner@hivago.in</a>
                                     </div>
                                 </div>
 
                                 {/* Delivery Partner Card */}
                                 <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-xl shadow-xs text-[#FF4732] flex-shrink-0 mt-0.5">
+                                    <div className="p-2 bg-white rounded-xl shadow-xs text-brand-primary flex-shrink-0 mt-0.5">
                                         <Bike className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-0.5">Delivery Partners</span>
-                                        <a href="mailto:partner@hivago.in" className="text-xs font-bold text-slate-800 hover:text-[#FF4732] hover:underline">partner@hivago.in</a>
+                                        <a href="mailto:partner@hivago.in" className="text-xs font-bold text-slate-800 hover:text-brand-primary hover:underline">partner@hivago.in</a>
                                     </div>
                                 </div>
                             </div>

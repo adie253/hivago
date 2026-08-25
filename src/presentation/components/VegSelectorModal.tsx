@@ -100,7 +100,7 @@ export const VegSelectorModal: React.FC<VegSelectorModalProps> = ({ isOpen, onCl
                 {/* Action Button */}
                 <button
                     onClick={() => onApply(selection)}
-                    className="w-full bg-[#FF4732] hover:bg-red-600 text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-red-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-brand-primary hover:bg-brand-secondary text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-red-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                     Show Restaurants
                 </button>

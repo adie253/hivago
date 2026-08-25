@@ -71,7 +71,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
     return (
         <div
             id={`item-${item.id}`}
-            className={`bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-700 group flex flex-col h-full border ${isHighlighted ? 'border-[#FF4732] ring-2 ring-[#FF4732]/20 scale-[1.02] bg-red-50/10' : 'border-gray-100'}`}
+            className={`bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-700 group flex flex-col h-full border ${isHighlighted ? 'border-brand-primary ring-2 ring-brand-primary/20 scale-[1.02] bg-red-50/10' : 'border-gray-100'}`}
         >
             {/* Image Section */}
             <div
@@ -129,22 +129,22 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, restaurantId, 
                         {quantity === 0 ? (
                             <button
                                 onClick={handleInitialAdd}
-                                className="px-4 sm:px-6 py-1.5 rounded-lg border border-gray-200 text-[#FF4732] font-bold text-sm hover:bg-red-50 transition-colors shadow-sm flex items-center gap-2 min-w-[70px] justify-center"
+                                className="px-4 sm:px-6 py-1.5 rounded-lg border border-gray-200 text-brand-primary font-bold text-sm hover:bg-red-50 transition-colors shadow-sm flex items-center gap-2 min-w-[70px] justify-center"
                             >
                                 ADD
                             </button>
                         ) : (
-                            <div className="flex items-center bg-red-50 rounded-lg overflow-hidden border border-[#FF4732]/20">
+                            <div className="flex items-center bg-red-50 rounded-lg overflow-hidden border border-brand-primary/20">
                                 <button
                                     onClick={handleRemove}
-                                    className="w-8 h-8 flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"
+                                    className="w-8 h-8 flex items-center justify-center text-brand-primary hover:bg-brand-primary/10 transition-colors"
                                 >
                                     <Minus className="w-3.5 h-3.5" strokeWidth={3} />
                                 </button>
                                 <span className="w-6 text-center text-sm font-bold text-gray-900">{quantity}</span>
                                 <button
                                     onClick={handleInitialAdd}
-                                    className="w-8 h-8 flex items-center justify-center text-[#FF4732] hover:bg-[#FF4732]/10 transition-colors"
+                                    className="w-8 h-8 flex items-center justify-center text-brand-primary hover:bg-brand-primary/10 transition-colors"
                                 >
                                     <Plus className="w-3.5 h-3.5" strokeWidth={3} />
                                 </button>

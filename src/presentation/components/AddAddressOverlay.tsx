@@ -292,26 +292,26 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                 {step === 'search' ? (
                     <div className="p-4 md:p-12 flex flex-col h-full bg-white max-w-4xl mx-auto w-full">
                         <div className="relative flex items-center mb-6">
-                            <Search className="absolute left-4 w-5 h-5 text-[#FF584A]" />
+                            <Search className="absolute left-4 w-5 h-5 text-brand-primary" />
                             <input
                                 autoFocus
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search building, area, or street name..."
-                                className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-gray-800 font-medium focus:outline-none focus:border-[#FF584A] focus:bg-white shadow-sm transition-all"
+                                className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-gray-800 font-medium focus:outline-none focus:border-brand-primary focus:bg-white shadow-sm transition-all"
                             />
                         </div>
 
                         {errorMsg && step === 'search' && (
                             <div className="mb-4 flex flex-col gap-2">
-                                <div className="p-3 bg-red-50 text-[#FF584A] text-sm font-semibold rounded-xl border border-red-100">
+                                <div className="p-3 bg-red-50 text-brand-primary text-sm font-semibold rounded-xl border border-red-100">
                                     {errorMsg}
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => setIsGuideOpen(true)}
-                                    className="text-xs font-bold text-[#FF584A] hover:underline text-left self-start mt-0.5 ml-1"
+                                    className="text-xs font-bold text-brand-primary hover:underline text-left self-start mt-0.5 ml-1"
                                 >
                                     Location blocked? See how to enable
                                 </button>
@@ -325,11 +325,11 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 className={`flex items-center gap-3 p-4 border border-gray-100 rounded-2xl transition-colors group ${isSearching ? 'opacity-70 cursor-wait bg-gray-50' : 'hover:bg-red-50'}`}
                             >
                                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                                    <Navigation2 className="w-5 h-5 text-[#FF584A]" />
+                                    <Navigation2 className="w-5 h-5 text-brand-primary" />
                                 </div>
                                 <div className="flex flex-col text-left">
-                                    <span className="font-bold text-[#FF584A] text-[15px]">Use Current Location</span>
-                                    <span className="text-[#FF584A]/70 text-[12px] font-medium mt-0.5">Using GPS</span>
+                                    <span className="font-bold text-brand-primary text-[15px]">Use Current Location</span>
+                                    <span className="text-brand-primary/70 text-[12px] font-medium mt-0.5">Using GPS</span>
                                 </div>
                             </button>
                             
@@ -376,7 +376,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                         <div className="flex-1 flex flex-col gap-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {isSearching ? (
                                 <div className="py-10 flex flex-col items-center justify-center gap-3">
-                                    <Loader2 className="w-6 h-6 animate-spin text-[#FF584A]" />
+                                    <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
                                     <p className="text-gray-400 text-sm font-medium">Searching...</p>
                                 </div>
                             ) : predictions.length > 0 ? (
@@ -386,7 +386,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                         onClick={() => handleSelectPrediction(pred.placeId || pred.place_id || pred.id, pred.description || pred.name)}
                                         className="flex items-start gap-4 p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left group"
                                     >
-                                        <div className="mt-0.5 text-gray-300 group-hover:text-[#FF584A] transition-colors">
+                                        <div className="mt-0.5 text-gray-300 group-hover:text-brand-primary transition-colors">
                                             <MapPin className="w-5 h-5" />
                                         </div>
                                         <div className="flex flex-col flex-1">
@@ -428,7 +428,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
 
                             {isLoadingDetails ? (
                                 <div className="py-20 flex flex-col items-center justify-center gap-3">
-                                    <Loader2 className="w-8 h-8 animate-spin text-[#FF584A]" />
+                                    <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
                                     <p className="text-gray-400 text-sm font-medium">Fetching exact coordinates...</p>
                                 </div>
                             ) : (
@@ -471,7 +471,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                             }}
                                             onBlur={() => setTimeout(() => setPredictions([]), 200)}
                                             placeholder="Search area, building, street name..."
-                                            className="w-full bg-white border-2 border-gray-100 focus:border-[#FF584A] rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400"
+                                            className="w-full bg-white border-2 border-gray-100 focus:border-brand-primary rounded-2xl px-4 py-3 outline-none text-sm font-semibold text-gray-800 transition-all placeholder:text-gray-400"
                                         />
 
                                         {predictions.length > 0 && (
@@ -486,7 +486,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                                         }}
                                                         className="w-full flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left group"
                                                     >
-                                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#FF584A] transition-colors mt-0.5 shrink-0" />
+                                                        <MapPin className="w-5 h-5 text-gray-400 group-hover:text-brand-primary transition-colors mt-0.5 shrink-0" />
                                                         <div className="flex flex-col">
                                                             <span className="font-bold text-gray-800 text-sm">{pred.mainText || pred.structured_formatting?.main_text || pred.description?.split(',')[0]}</span>
                                                             <span className="text-xs text-gray-500 font-medium line-clamp-1">{pred.secondaryText || pred.structured_formatting?.secondary_text}</span>
@@ -499,13 +499,13 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                 </div>
 
                                 <div className="flex flex-col gap-1.5 relative z-20">
-                                    <label className="text-sm font-bold text-gray-800 ml-1">Flat / House No. / Floor / Building <span className="text-[#FF584A]">*</span></label>
+                                    <label className="text-sm font-bold text-gray-800 ml-1">Flat / House No. / Floor / Building <span className="text-brand-primary">*</span></label>
                                     <input
                                         type="text"
                                         value={addressLine}
                                         onChange={e => setAddressLine(e.target.value)}
                                         placeholder="e.g. Flat 101, A Wing, Yash Tower"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-4 py-3 outline-none focus:border-[#FF584A] focus:bg-white text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
+                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-4 py-3 outline-none focus:border-brand-primary focus:bg-white text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
                                     />
                                 </div>
 
@@ -516,7 +516,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                         value={landmark}
                                         onChange={e => setLandmark(e.target.value)}
                                         placeholder="e.g. Near Metro Station"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-4 py-3 outline-none focus:border-[#FF584A] focus:bg-white text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
+                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl px-4 py-3 outline-none focus:border-brand-primary focus:bg-white text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
                                     />
                                 </div>
 
@@ -528,7 +528,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                                 key={l}
                                                 type="button"
                                                 onClick={() => setLabel(l)}
-                                                className={`flex-1 py-2.5 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${label === l ? 'bg-[#FFF0EF] border-[#FF584A] text-[#FF584A] scale-[1.02]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
+                                                className={`flex-1 py-2.5 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${label === l ? 'bg-brand-light border-brand-primary text-brand-primary scale-[1.02]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
                                             >
                                                 {l}
                                             </button>
@@ -544,7 +544,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                         <span className="text-[14px] font-bold text-gray-900">Set as default</span>
                                         <span className="text-xs text-gray-500 font-medium leading-[1.3] max-w-[200px]">We'll automatically deliver here next time</span>
                                     </div>
-                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-[#FF584A] border-[#FF584A]' : 'border-gray-200 bg-white'}`}>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDefault ? 'bg-brand-primary border-brand-primary' : 'border-gray-200 bg-white'}`}>
                                         {isDefault && <Check className="w-4 h-4 text-white stroke-[3px]" />}
                                     </div>
                                 </div>
@@ -560,7 +560,7 @@ export const AddAddressOverlay: React.FC<AddAddressOverlayProps> = ({ isOpen, on
                                             type="submit"
                                             disabled={isSaving || !addressLine.trim() || isLoadingDetails || !latitude || !longitude}
                                             className={`w-full text-white font-bold text-base py-3.5 rounded-2xl shadow-xl transition-all flex items-center justify-center active:scale-[0.98]
-                                                ${isSaving || !addressLine.trim() || isLoadingDetails || !latitude || !longitude ? 'bg-[#FFB7B0] shadow-none' : 'bg-[#FF584A] hover:bg-[#E5483B] shadow-[#FF584A]/30'}`}
+                                                ${isSaving || !addressLine.trim() || isLoadingDetails || !latitude || !longitude ? 'bg-brand-primary/40 shadow-none' : 'bg-brand-primary hover:bg-brand-secondary shadow-brand-primary/30'}`}
                                         >
                                             {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Save Address'}
                                         </button>

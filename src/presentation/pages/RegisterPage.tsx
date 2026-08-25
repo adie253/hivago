@@ -42,7 +42,7 @@ export const RegisterPage: React.FC = () => {
                                     name="name"
                                     type="text"
                                     required
-                                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF4732] focus:border-transparent transition-all sm:text-sm font-medium"
+                                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all sm:text-sm font-medium"
                                     placeholder="John Doe"
                                 />
                             </div>
@@ -60,7 +60,7 @@ export const RegisterPage: React.FC = () => {
                                     name="email"
                                     type="email"
                                     required
-                                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF4732] focus:border-transparent transition-all sm:text-sm font-medium"
+                                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all sm:text-sm font-medium"
                                     placeholder="you@example.com"
                                 />
                             </div>
@@ -77,7 +77,7 @@ export const RegisterPage: React.FC = () => {
                                     id="phone"
                                     name="phone"
                                     type="tel"
-                                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF4732] focus:border-transparent transition-all sm:text-sm font-medium"
+                                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all sm:text-sm font-medium"
                                     placeholder="+1 (555) 000-0000"
                                 />
                             </div>
@@ -95,7 +95,7 @@ export const RegisterPage: React.FC = () => {
                                     name="password"
                                     type={showPassword ? 'text' : 'password'}
                                     required
-                                    className="block w-full pl-11 pr-12 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF4732] focus:border-transparent transition-all sm:text-sm font-medium"
+                                    className="block w-full pl-11 pr-12 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all sm:text-sm font-medium"
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -122,7 +122,7 @@ export const RegisterPage: React.FC = () => {
 
                 <p className="mt-8 text-center text-sm text-gray-600 font-medium pb-2">
                     Already have an account?{' '}
-                    <Link to="/signin" className="font-bold text-[#FF4732] hover:text-red-700 transition-colors">
+                    <Link to="/signin" className="font-bold text-brand-primary hover:text-red-700 transition-colors">
                         Sign in instead
                     </Link>
                 </p>

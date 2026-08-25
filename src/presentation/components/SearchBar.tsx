@@ -25,9 +25,9 @@ export const SearchBar: React.FC = () => {
             {/* Search Input */}
             <div
                 onClick={() => setIsSearchOverlayOpen(true)}
-                className="flex bg-[#F3F4F6] rounded-lg px-3 md:px-4 border border-gray-100 items-center flex-1 max-w-[500px] h-10 md:h-12 shadow-sm focus-within:ring-2 focus-within:ring-[#FF4732] transition-shadow shrink cursor-pointer"
+                className="flex bg-[#F3F4F6] rounded-lg px-3 md:px-4 border border-gray-100 items-center flex-1 max-w-[500px] h-10 md:h-12 shadow-sm focus-within:ring-2 focus-within:ring-brand-primary transition-shadow shrink cursor-pointer"
             >
-                <Search className="text-[#FF4732] w-4 h-4 md:w-5 md:h-5 mx-1 md:mx-2 flex-shrink-0" />
+                <Search className="text-brand-primary w-4 h-4 md:w-5 md:h-5 mx-1 md:mx-2 flex-shrink-0" />
                 <input
                     type="text"
                     readOnly
@@ -35,7 +35,7 @@ export const SearchBar: React.FC = () => {
                     className="bg-transparent border-none outline-none text-gray-700 w-full placeholder-gray-400 font-medium ml-1 md:ml-2 text-sm md:text-base min-w-0 cursor-pointer"
                 />
                 <div className="border-l border-gray-300 h-5 md:h-6 mx-1 md:mx-2" />
-                <Mic className="text-[#FF4732] w-4 h-4 md:w-5 md:h-5 mx-1 md:mx-2 cursor-pointer hover:scale-110 transition-transform flex-shrink-0" />
+                <Mic className="text-brand-primary w-4 h-4 md:w-5 md:h-5 mx-1 md:mx-2 cursor-pointer hover:scale-110 transition-transform flex-shrink-0" />
             </div>
 
             <SearchOverlay
