@@ -222,13 +222,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             mergedMap.set(key, { ...item });
         });
 
-        // 2. Merge local items
+        // 2. Merge local items safely without multiplying quantities
         local.forEach(lItem => {
             const key = `${lItem.menuItemId}-${lItem.customizations || ''}`;
             if (mergedMap.has(key)) {
-                // If exists, increment quantity (frontend deduplication)
+                // Take the higher quantity between local guest cart and remote server cart
+                // to prevent exponential quantity doubling (e.g. 9 -> 18 -> 36) during sync loops
                 const existing = mergedMap.get(key)!;
-                existing.quantity += lItem.quantity;
+                existing.quantity = Math.max(existing.quantity, lItem.quantity);
             } else {
                 // New item
                 mergedMap.set(key, { ...lItem });
