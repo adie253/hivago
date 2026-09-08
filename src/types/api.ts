@@ -56,3 +56,19 @@ export interface RestaurantFilters {
   page?: number;
   pageSize?: number;
 }
+
+export interface Review {
+  authorName: string;
+  authorPhotoUrl: string;
+  rating: number; // 1-5
+  text: string;
+  relativeTimeDescription: string;
+}
+
+export interface RestaurantReviewsResponse {
+  restaurantId: string;
+  rating: number | null;
+  userRatingCount: number | null;
+  reviews: Review[];
+}
+
