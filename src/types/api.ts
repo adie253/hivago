@@ -16,6 +16,8 @@ export interface RestaurantListItem {
   minOrderAmount: number;
   logoUrl: string | null;
   distanceKm: number | null;
+  rating?: number | null;
+  userRatingCount?: number | null;
 }
 
 export interface PagedRestaurants {

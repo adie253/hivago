@@ -1,6 +1,6 @@
 import React from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Clock, MapPin, Heart, Zap } from 'lucide-react';
+import { Clock, MapPin, Heart, Zap, Star } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useFilters } from '../context/FilterContext';
 import { useUserLocation } from '../context/LocationContext';
@@ -72,12 +72,23 @@ export const RecommendedRestaurants: React.FC = () => {
 
                             {/* Content */}
                             <div className="p-5 flex flex-col flex-1">
-                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">{restaurant.name}</h3>
-                                    <div className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 uppercase tracking-wider border border-emerald-100">
-                                        <Zap className="w-3 h-3 fill-current" />
-                                        Near & Fast
+                                <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">{restaurant.name}</h3>
+                                        <div className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 uppercase tracking-wider border border-emerald-100">
+                                            <Zap className="w-3 h-3 fill-current" />
+                                            Near & Fast
+                                        </div>
                                     </div>
+                                    {restaurant.rating != null && (
+                                        <div className="flex items-center gap-1 bg-[#24963F] text-white text-xs font-bold px-2 py-0.5 rounded-md shrink-0 shadow-sm">
+                                            <Star className="w-3.5 h-3.5 fill-white text-white" />
+                                            <span>{restaurant.rating.toFixed(1)}</span>
+                                            {restaurant.userRatingCount != null && (
+                                                <span className="text-[10px] opacity-80 font-normal">({restaurant.userRatingCount})</span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <p className="text-gray-500 text-sm mb-4 line-clamp-1">
