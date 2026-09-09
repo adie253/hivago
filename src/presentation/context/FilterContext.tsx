@@ -22,7 +22,8 @@ export interface Restaurant {
     id: string;
     name: string;
     cuisines: string[];
-    rating: number;
+    rating?: number | null;
+    userRatingCount?: number | null;
     deliveryTime: string;
     distance: string;
     costForTwo: string;
@@ -174,7 +175,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Normalize data to frontend interface
     const filteredRestaurants: Restaurant[] = useMemo(() => {
         if (!data?.items) return [];
-        return data.items
+        const list = data.items
             .filter((item: RestaurantListItem) => {
                 if (!item.isAcceptingOrders) return false;
                 
@@ -195,11 +196,12 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                         : haversineKm(selectedLocation.latitude, selectedLocation.longitude, item.latitude, item.longitude))
                     : item.distanceKm;
 
-                return {
+                const mappedRes: Restaurant = {
                     id: item.id,
                     name: item.name,
                     cuisines: item.cuisineTypes.length > 0 ? item.cuisineTypes : ["Multi-cuisine"],
-                    rating: 4.2, // API currently missing rating
+                    rating: item.rating ?? null,
+                    userRatingCount: item.userRatingCount ?? null,
                     deliveryTime: `${item.avgPrepTimeMins}-${item.avgPrepTimeMins + 10} min`,
                     distance: dist != null ? formatDistance(dist) : "-- km",
                     costForTwo: `₹${item.minOrderAmount > 0 ? item.minOrderAmount * 2 : 150}`,
@@ -220,8 +222,20 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     latitude: item.latitude,
                     longitude: item.longitude
                 };
+                return mappedRes;
             });
-    }, [data, selectedLocation]);
+
+        if (sortBy === 'Rating') {
+            return list.sort((a, b) => {
+                if (a.rating != null && b.rating != null) return b.rating - a.rating;
+                if (a.rating != null) return -1;
+                if (b.rating != null) return 1;
+                return 0;
+            });
+        }
+
+        return list;
+    }, [data, selectedLocation, sortBy]);
 
     const totalCount = data?.totalCount || 0;
 

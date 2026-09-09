@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Clock, MapPin, Zap, ChevronRight } from 'lucide-react';
+import { Clock, MapPin, Zap, ChevronRight, Star } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import { useUserLocation } from '../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,26 +13,28 @@ export const RestaurantsNearby: React.FC = () => {
 
     // Compute distance for each restaurant, then sort nearest first
     const sortedRestaurants = useMemo(() => {
-        const userLat = selectedLocation?.latitude;
-        const userLng = selectedLocation?.longitude;
+        const uLat = selectedLocation?.latitude;
+        const uLng = selectedLocation?.longitude;
 
         return [...allRestaurants]
             .map(r => {
-                const distKm =
-                    userLat != null && userLng != null && r.latitude != null && r.longitude != null
-                        ? haversineKm(userLat, userLng, r.latitude, r.longitude)
-                        : null;
+                let distKm: number | null = null;
+                if (uLat != null && uLng != null && r.latitude != null && r.longitude != null) {
+                    distKm = haversineKm(uLat, uLng, r.latitude, r.longitude);
+                }
                 return { restaurant: r, distKm };
             })
             .sort((a, b) => {
-                if (a.distKm == null && b.distKm == null) return 0;
-                if (a.distKm == null) return 1;
-                if (b.distKm == null) return -1;
-                return a.distKm - b.distKm;
+                if (a.distKm != null && b.distKm != null) return a.distKm - b.distKm;
+                if (a.distKm != null) return -1;
+                if (b.distKm != null) return 1;
+                return 0;
             });
     }, [allRestaurants, selectedLocation]);
 
     if (isLoading) return null;
+
+    if (sortedRestaurants.length === 0) return null;
 
     return (
         <div className="px-4 md:px-12 py-8 md:py-12 bg-white">
@@ -67,8 +69,6 @@ export const RestaurantsNearby: React.FC = () => {
                                 }}
                             />
 
-
-
                             {restaurant.discount && (
                                 <div className="absolute top-4 left-4">
                                     <span className="bg-blue-600 text-white text-[11px] font-bold px-3 py-1 rounded-lg shadow-md">
@@ -80,12 +80,23 @@ export const RestaurantsNearby: React.FC = () => {
 
                         {/* Content */}
                         <div className="px-2 flex-1 flex flex-col">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-emerald-600 transition-colors">{restaurant.name}</h3>
-                                <div className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 uppercase tracking-wider border border-emerald-100">
-                                    <Zap className="w-3 h-3 fill-current" />
-                                    Near & Fast
+                            <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-emerald-600 transition-colors">{restaurant.name}</h3>
+                                    <div className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 uppercase tracking-wider border border-emerald-100">
+                                        <Zap className="w-3 h-3 fill-current" />
+                                        Near & Fast
+                                    </div>
                                 </div>
+                                {restaurant.rating != null && (
+                                    <div className="flex items-center gap-1 bg-[#24963F] text-white text-xs font-bold px-2 py-0.5 rounded-md shrink-0 shadow-sm">
+                                        <Star className="w-3.5 h-3.5 fill-white text-white" />
+                                        <span>{restaurant.rating.toFixed(1)}</span>
+                                        {restaurant.userRatingCount != null && (
+                                            <span className="text-[10px] opacity-80 font-normal">({restaurant.userRatingCount})</span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             <p className="text-sm text-gray-500 mb-4 font-medium">
@@ -118,3 +129,4 @@ export const RestaurantsNearby: React.FC = () => {
         </div>
     );
 };
+

@@ -1,6 +1,6 @@
 import React from 'react';
 import { getFallbackImage } from '../../utils/imageUtils';
-import { Clock, MapPin, Heart } from 'lucide-react';
+import { Clock, MapPin, Heart, Star } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useUserLocation } from '../context/LocationContext';
 import { haversineKm, formatDistance } from '../../utils/distanceUtils';
@@ -9,7 +9,8 @@ export interface Restaurant {
     id: string;
     name: string;
     cuisines: string[];
-    rating: number;
+    rating?: number | null;
+    userRatingCount?: number | null;
     deliveryTime: string;
     distance: string;
     costForTwo: string;
@@ -97,10 +98,19 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onCl
 
             {/* Content Container */}
             <div className="p-5 flex flex-col flex-1">
-                <div className="flex justify-between items-start mb-1">
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-brand-primary transition-colors truncate pr-2">
+                <div className="flex justify-between items-center mb-1 gap-2">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-brand-primary transition-colors truncate">
                         {restaurant.name}
                     </h3>
+                    {restaurant.rating != null && (
+                        <div className="flex items-center gap-1 bg-[#24963F] text-white text-xs font-bold px-2 py-0.5 rounded-md shrink-0 shadow-sm">
+                            <Star className="w-3.5 h-3.5 fill-white text-white" />
+                            <span>{restaurant.rating.toFixed(1)}</span>
+                            {restaurant.userRatingCount != null && (
+                                <span className="text-[10px] opacity-80 font-normal">({restaurant.userRatingCount})</span>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <p className="text-gray-500 text-sm mb-4 truncate">
