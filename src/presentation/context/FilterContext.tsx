@@ -175,7 +175,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Normalize data to frontend interface
     const filteredRestaurants: Restaurant[] = useMemo(() => {
         if (!data?.items) return [];
-        return data.items
+        const list = data.items
             .filter((item: RestaurantListItem) => {
                 if (!item.isAcceptingOrders) return false;
                 
